@@ -3,7 +3,7 @@ from abc import abstractmethod
 from httpx import AsyncClient
 
 from maimai_py.enums import LevelIndex, SongType
-from maimai_py.models import Song, SongDifficulties, SongDifficulty, SongDifficultyUtage
+from maimai_py.models import Song, SongAlias, SongDifficulties, SongDifficulty, SongDifficultyUtage
 
 
 class ISongProvider:
@@ -12,7 +12,13 @@ class ISongProvider:
         pass
 
 
-class LXNSProvider(ISongProvider):
+class IAliasProvider:
+    @abstractmethod
+    async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
+        pass
+
+
+class LXNSProvider(ISongProvider, IAliasProvider):
     base_url = "https://maimai.lxns.net/"
 
     async def get_songs(self, client: AsyncClient) -> list[Song]:
@@ -26,6 +32,7 @@ class LXNSProvider(ISongProvider):
                 artist=song["artist"],
                 genre=song["genre"],
                 bpm=song["bpm"],
+                aliases=None,
                 map=song["map"] if "map" in song else None,
                 version=song["version"],
                 rights=song["rights"] if "rights" in song else None,
@@ -86,3 +93,17 @@ class LXNSProvider(ISongProvider):
             )
             for song in resp_json["songs"]
         ]
+
+    async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
+        resp = await client.get(self.base_url + "api/v0/maimai/alias/list")
+        resp.raise_for_status()
+        return [SongAlias(song_id=item["song_id"], aliases=item["aliases"]) for item in resp.json()["aliases"]]
+
+
+class YuzuProvider(IAliasProvider):
+    base_url = "https://api.yuzuchan.moe/"
+
+    async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
+        resp = await client.get(self.base_url + "maimaidx/maimaidxalias")
+        resp.raise_for_status()
+        return [SongAlias(song_id=item["SongID"] % 10000, aliases=item["Alias"]) for item in resp.json()["content"]]

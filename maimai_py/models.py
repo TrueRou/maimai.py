@@ -49,5 +49,12 @@ class Song:
     map: str | None
     version: int
     rights: str | None
+    aliases: list[str] | None
     disabled: bool
     difficulties: SongDifficulties
+
+
+@dataclass
+class SongAlias:
+    song_id: int
+    aliases: list[str]
