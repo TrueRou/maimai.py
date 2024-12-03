@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "Run Pytests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYDEVD_DISABLE_FILE_VALIDATION": "1"
+            }
+        }
+    ]
+}
