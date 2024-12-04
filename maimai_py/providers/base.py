@@ -2,9 +2,8 @@ from abc import abstractmethod
 
 from httpx import AsyncClient
 
-from maimai_py.enums import RecordKind
 from maimai_py.exceptions import ProviderNotApplicableError
-from maimai_py.models import Player, PlayerIdentifier, Song, SongAlias
+from maimai_py.models import Player, PlayerIdentifier, Score, Song, SongAlias
 
 
 class ISongProvider:
@@ -27,5 +26,9 @@ class IPlayerProvider:
 
 class IScoreProvider:
     @abstractmethod
-    async def get_scores(self, kind: RecordKind, identifier: PlayerIdentifier, client: AsyncClient) -> None:
+    async def get_scores_best(self, identifier: PlayerIdentifier, ap_only: bool, client: AsyncClient) -> tuple[list[Score], list[Score]]:
+        raise ProviderNotApplicableError()
+
+    @abstractmethod
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         raise ProviderNotApplicableError()

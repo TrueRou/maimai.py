@@ -5,7 +5,7 @@ Prebuilt Enums
 """
 
 
-class RecordKind(Enum):
+class ScoreKind(Enum):
     BEST = 0
     AP = 1
     ALL = 2

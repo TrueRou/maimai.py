@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from maimai_py.enums import LevelIndex, SongType
+from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import PlayerIdentifierNotApplicableError
 
 
@@ -138,3 +138,18 @@ class LXNSPlayer(Player):
 class SongAlias:
     song_id: int
     aliases: list[str]
+
+
+@dataclass
+class Score:
+    id: int
+    song_name: str
+    level: str
+    level_index: LevelIndex
+    achievements: float | None
+    fc: FCType
+    fs: FSType
+    dx_score: int | None
+    dx_rating: float | None
+    rate: RateType
+    type: SongType

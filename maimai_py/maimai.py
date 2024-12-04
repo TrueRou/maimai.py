@@ -1,7 +1,8 @@
 from httpx import AsyncClient, AsyncHTTPTransport
-from maimai_py.enums import RecordKind
-from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlayerIdentifier, Song, SongAlias
+from maimai_py.enums import LevelIndex, ScoreKind
+from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlayerIdentifier, Score, Song, SongAlias
 from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, DivingFishProvider, LXNSProvider, YuzuProvider
+from maimai_py.providers.base import IScoreProvider
 
 
 class MaimaiSongs:
@@ -103,6 +104,64 @@ class MaimaiSongs:
         return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items())]
 
 
+class MaimaiScores:
+    scores: list[Score]
+    scores_b35: list[Score]
+    scores_b15: list[Score]
+    rating: int
+    rating_b35: int
+    rating_b15: int
+
+    def __init__(self, scores_b35: list[Score], scores_b15: list[Score]) -> None:
+        self.scores = scores_b35 + scores_b15
+        self.scores_b35 = scores_b35
+        self.scores_b15 = scores_b15
+        self.rating_b35 = sum(score.dx_rating for score in scores_b35)
+        self.rating_b15 = sum(score.dx_rating for score in scores_b15)
+        self.rating = self.rating_b35 + self.rating_b15
+
+    def by_song(self, song_id: int) -> list[Score]:
+        """
+        Get all level scores of the song, return an empty list if no score is found
+
+        If ScoreKind is BEST, only the b50 scores will be filtered.
+
+        Parameters
+        ----------
+        song_id: int
+            the ID of the song to get the scores by
+        """
+        return [score for score in self.scores if score.id == song_id]
+
+    def by_level(self, song_id: int, level_index: LevelIndex) -> Score | None:
+        """
+        Get score by the song and level index, return None if no score is found
+
+        If ScoreKind is BEST, only the b50 scores will be filtered.
+
+        Parameters
+        ----------
+        song_id: int
+            the ID of the song to get the scores by
+        level_index: LevelIndex
+            the level index of the scores to get
+        """
+        return next((score for score in self.scores if score.id == song_id and score.level_index == level_index), None)
+
+    def filter(self, **kwargs) -> list[Score]:
+        """
+        Filter scores by their attributes, all conditions are connected by AND, return an empty list if no score is found
+
+        If ScoreKind is BEST, only the b50 scores will be filtered.
+
+        Parameters
+        ----------
+        kwargs: dict
+            the attributes to filter the scores by
+        """
+        return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items())]
+
+
 class MaimaiClient:
     client: AsyncClient
 
@@ -153,14 +212,31 @@ class MaimaiClient:
         identifier: PlayerIdentifier
             the identifier of the player to fetch, e.g. PlayerIdentifier(username="turou")
         provider: IPlayerProvider (DivingFishProvider | LXNSProvider)
-            the data source to fetch the player from, defaults to DivingFishProvider
+            the data source to fetch the player from, defaults to LXNSProvider
         """
         return await provider.get_player(identifier, self.client)
 
     async def scores(
         self,
         identifier: PlayerIdentifier,
-        kind: RecordKind = RecordKind.BEST,
-        provider: IPlayerProvider = DivingFishProvider(),
+        kind: ScoreKind = ScoreKind.BEST,
+        provider: IScoreProvider = LXNSProvider(),
     ):
-        pass
+        """
+        Fetch player's scores from the provider, using the given one identifier
+
+        Parameters
+        ----------
+
+        identifier: PlayerIdentifier
+            the identifier of the player to fetch, e.g. PlayerIdentifier(username="turou")
+        kind: ScoreKind
+            the kind of scores list to fetch, defaults to ScoreKind.BEST
+        provider: IScoreProvider (DivingFishProvider | LXNSProvider)
+            the data source to fetch the player and scores from, defaults to DivingFishProvider
+        """
+        b35, b15 = await provider.get_scores_best(identifier, kind == ScoreKind.AP, self.client)
+        maimai_scores = MaimaiScores(b35, b15)
+        if kind == ScoreKind.ALL:
+            maimai_scores.scores = await provider.get_scores_all(identifier, self.client)
+        return maimai_scores

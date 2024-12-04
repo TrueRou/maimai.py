@@ -1,4 +1,5 @@
 from httpx import AsyncClient
+from maimai_py.enums import ScoreKind
 from maimai_py.exceptions import DeveloperTokenNotFoundError
 from maimai_py.models import DivingFishPlayer, Player, PlayerIdentifier, Song
 from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvider
@@ -29,3 +30,6 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             plate=resp_json["plate"],
             additional_rating=resp_json["additional_rating"],
         )
+
+    async def get_scores(self, identifier: PlayerIdentifier, kind: ScoreKind, client: AsyncClient) -> None:
+        raise NotImplementedError
