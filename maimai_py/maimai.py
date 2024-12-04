@@ -1,6 +1,7 @@
 from httpx import AsyncClient, AsyncHTTPTransport
-from maimai_py.models import DivingFishPlayer, LXNSPlayer, Song, SongAlias
-from maimai_py.providers import DivingFishProvider, IAliasProvider, IPlayerProvider, ISongProvider, LXNSProvider, YuzuProvider
+from maimai_py.enums import RecordKind
+from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlayerIdentifier, Song, SongAlias
+from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, DivingFishProvider, LXNSProvider, YuzuProvider
 
 
 class MaimaiSongs:
@@ -25,8 +26,10 @@ class MaimaiSongs:
         """
         Get a song by its ID, if it exists, otherwise return None
 
-        :param id: int, the ID of the song
-        :return: Song, the song with the given ID
+        Parameters
+        ----------
+        id: int
+            the ID of the song, always smaller than 10000, should (% 10000) if necessary
         """
         return self._song_id_dict.get(id, None)
 
@@ -34,56 +37,68 @@ class MaimaiSongs:
         """
         Get a song by its title, if it exists, otherwise return None
 
-        :param title: str, the title of the song
-        :return: Song, the song with the given title
+        Parameters
+        ----------
+        title: str
+            the title of the song
         """
         return next((song for song in self.songs if song.title == title), None)
 
     def by_alias(self, alias: str) -> Song | None:
         """
-        Get song by alias
+        Get song by one possible alias, if it exists, otherwise return None
 
-        :param alias: str, the alias of the songs
-        :param maimai_aliases: MaimaiAliases, return value of client.aliases()
-        :return: Song, the song with the given alias
+        Parameters
+        ----------
+        alias: str
+            one possible alias of the song
         """
         song_id = self._alias_entry_dict.get(alias, 0)
         return self.by_id(song_id)
 
     def by_artist(self, artist: str) -> list[Song]:
         """
-        Get songs by their artist
+        Get songs by their artist, case-sensitive, return an empty list if no song is found
 
-        :param artist: str, the artist of the songs
-        :return: list[Song], the songs with the given artist
+        Parameters
+        ----------
+        artist: str
+            the artist of the songs
         """
         return [song for song in self.songs if song.artist == artist]
 
     def by_genre(self, genre: str) -> list[Song]:
         """
-        Get songs by their genre
+        Get songs by their genre, case-sensitive, return an empty list if no song is found
 
-        :param genre: str, the genre of the songs
-        :return: list[Song], the songs with the given genre
+        Parameters
+        ----------
+        genre: str
+            the genre of the songs
         """
         return [song for song in self.songs if song.genre == genre]
 
     def by_bpm(self, minimum: int, maximum: int) -> list[Song]:
         """
-        Get songs by their BPM
+        Get songs by their BPM, return an empty list if no song is found
 
-        :param minimum: int, the minimum (inclusive) BPM of the songs
-        :param maximum: int, the maximum (inclusive) BPM of the songs
-        :return: list[Song], the songs with the given BPM range
+        Parameters
+        ----------
+        minimum: int
+            the minimum (inclusive) BPM of the songs
+        maximum: int
+            the maximum (inclusive) BPM of the songs
         """
         return [song for song in self.songs if minimum <= song.bpm <= maximum]
 
     def filter(self, **kwargs) -> list[Song]:
         """
-        Filter songs by their attributes
+        Filter songs by their attributes, all conditions are connected by AND, return an empty list if no song is found
 
-        :param kwargs: dict, the attributes to filter the songs by
-        :return: list[Song], the songs that match the attributes
+        Parameters
+        ----------
+        kwargs: dict
+            the attributes to filter the songs by=
         """
         return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items())]
 
@@ -95,16 +110,29 @@ class MaimaiClient:
         """
         Initialize the maimai.py client
 
-        :param retries: int, the number of retries to attempt on failed requests, defaults to 3
+        Parameters
+        ----------
+
+        retries: int
+            the number of retries to attempt on failed requests, defaults to 3
         """
         self.client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), **kwargs)
 
-    async def songs(self, provider: ISongProvider = LXNSProvider(), alias_provider: IAliasProvider = YuzuProvider()) -> MaimaiSongs:
+    async def songs(
+        self,
+        provider: ISongProvider = LXNSProvider(),
+        alias_provider: IAliasProvider = YuzuProvider(),
+    ) -> MaimaiSongs:
         """
-        Fetch songs from the provider
+        Fetch all maimai songs from the provider, returning a wrapper of the song list, for easier access and filtering
 
-        :param provider: ISongProvider, the source of the songs, defaults to LXNSProvider
-        :return: MaimaiSongs, a wrapper of the songs fetched from the provider
+        Parameters
+        ----------
+        provider: ISongProvider (DivingFishProvider | LXNSProvider)
+            the data source to fetch the player from, defaults to LXNSProvider
+
+        alias_provider: IAliasProvider (YuzuProvider | LXNSProvider)
+            the data source to fetch the song aliases from, defaults to YuzuProvider
         """
         aliases = await alias_provider.get_aliases(self.client) if alias_provider else None
         songs = await provider.get_songs(self.client)
@@ -113,24 +141,26 @@ class MaimaiClient:
 
     async def players(
         self,
+        identifier: PlayerIdentifier,
         provider: IPlayerProvider = DivingFishProvider(),
-        username: str | None = None,
-        friend_code: int | None = None,
-        qq: int | None = None,
     ) -> DivingFishPlayer | LXNSPlayer:
         """
         Fetch player data from the provider, using the given one identifier
 
-        :param provider: IPlayerProvider, the source of the player data
-        :param username: str, the username of the player
-        :param friend_code: int, the friend code of the player
-        :param qq: int, the QQ of the player
+        Parameters
+        ----------
+
+        identifier: PlayerIdentifier
+            the identifier of the player to fetch, e.g. PlayerIdentifier(username="turou")
+        provider: IPlayerProvider (DivingFishProvider | LXNSProvider)
+            the data source to fetch the player from, defaults to DivingFishProvider
         """
-        if username:
-            return await provider.by_username(username, self.client)
-        elif friend_code:
-            return await provider.by_friend_code(friend_code, self.client)
-        elif qq:
-            return await provider.by_qq(qq, self.client)
-        else:
-            raise ValueError("No identifier provided")
+        return await provider.get_player(identifier, self.client)
+
+    async def scores(
+        self,
+        identifier: PlayerIdentifier,
+        kind: RecordKind = RecordKind.BEST,
+        provider: IPlayerProvider = DivingFishProvider(),
+    ):
+        pass

@@ -5,9 +5,10 @@ Prebuilt Enums
 """
 
 
-class SongSource(Enum):
-    LXNS = 0
-    DIVING_FISH = 1
+class RecordKind(Enum):
+    BEST = 0
+    AP = 1
+    ALL = 2
 
 
 """

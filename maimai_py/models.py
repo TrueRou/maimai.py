@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from maimai_py.enums import LevelIndex, SongType
+from maimai_py.exceptions import PlayerIdentifierNotApplicableError
 
 
 @dataclass
@@ -52,6 +53,33 @@ class Song:
     aliases: list[str] | None
     disabled: bool
     difficulties: SongDifficulties
+
+
+@dataclass
+class PlayerIdentifier:
+    qq: int | None = None
+    username: str | None = None
+    friend_code: int | None = None
+
+    def __post_init__(self):
+        if self.qq is None and self.username is None and self.friend_code is None:
+            raise PlayerIdentifierNotApplicableError("At least one of qq, username, or friend_code must be provided")
+
+    def as_diving_fish(self):
+        if self.qq:
+            return {"qq": str(self.qq)}
+        elif self.username:
+            return {"username": self.username}
+        elif self.friend_code:
+            raise PlayerIdentifierNotApplicableError("Friend code is not applicable for Diving Fish")
+
+    def as_lxns(self):
+        if self.friend_code:
+            return str(self.friend_code)
+        elif self.qq:
+            return f"qq/{str(self.qq)}"
+        elif self.username:
+            raise PlayerIdentifierNotApplicableError("Username is not applicable for LXNS")
 
 
 @dataclass

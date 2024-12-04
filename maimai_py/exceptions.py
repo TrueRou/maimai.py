@@ -2,5 +2,9 @@ class DeveloperTokenNotFoundError(Exception):
     pass
 
 
-class ProviderApplicableError(Exception):
+class ProviderNotApplicableError(Exception):
+    pass
+
+
+class PlayerIdentifierNotApplicableError(Exception):
     pass
