@@ -1,6 +1,6 @@
 from httpx import AsyncClient, AsyncHTTPTransport
-from maimai_py.models import Song, SongAlias
-from maimai_py.providers import IAliasProvider, ISongProvider, LXNSProvider, YuzuProvider
+from maimai_py.models import DivingFishPlayer, LXNSPlayer, Song, SongAlias
+from maimai_py.providers import DivingFishProvider, IAliasProvider, IPlayerProvider, ISongProvider, LXNSProvider, YuzuProvider
 
 
 class MaimaiSongs:
@@ -110,3 +110,27 @@ class MaimaiClient:
         songs = await provider.get_songs(self.client)
         maimai_songs = MaimaiSongs(songs, aliases)
         return maimai_songs
+
+    async def players(
+        self,
+        provider: IPlayerProvider = DivingFishProvider(),
+        username: str | None = None,
+        friend_code: int | None = None,
+        qq: int | None = None,
+    ) -> DivingFishPlayer | LXNSPlayer:
+        """
+        Fetch player data from the provider, using the given one identifier
+
+        :param provider: IPlayerProvider, the source of the player data
+        :param username: str, the username of the player
+        :param friend_code: int, the friend code of the player
+        :param qq: int, the QQ of the player
+        """
+        if username:
+            return await provider.by_username(username, self.client)
+        elif friend_code:
+            return await provider.by_friend_code(friend_code, self.client)
+        elif qq:
+            return await provider.by_qq(qq, self.client)
+        else:
+            raise ValueError("No identifier provided")

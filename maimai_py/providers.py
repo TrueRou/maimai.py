@@ -3,7 +3,21 @@ from abc import abstractmethod
 from httpx import AsyncClient
 
 from maimai_py.enums import LevelIndex, SongType
-from maimai_py.models import Song, SongAlias, SongDifficulties, SongDifficulty, SongDifficultyUtage
+from maimai_py.exceptions import DeveloperTokenNotFoundError, ProviderApplicableError
+from maimai_py.models import (
+    DivingFishPlayer,
+    LXNSPlayer,
+    Player,
+    PlayerFrame,
+    PlayerIcon,
+    PlayerNamePlate,
+    PlayerTrophy,
+    Song,
+    SongAlias,
+    SongDifficulties,
+    SongDifficulty,
+    SongDifficultyUtage,
+)
 
 
 class ISongProvider:
@@ -18,8 +32,48 @@ class IAliasProvider:
         pass
 
 
-class LXNSProvider(ISongProvider, IAliasProvider):
+class IPlayerProvider:
+    @abstractmethod
+    async def by_qq(self, ident: str, client: AsyncClient) -> Player:
+        pass
+
+    @abstractmethod
+    async def by_username(self, ident: str, client: AsyncClient) -> Player:
+        pass
+
+    @abstractmethod
+    async def by_friend_code(self, ident: int, client: AsyncClient) -> Player:
+        pass
+
+
+class LXNSProvider(ISongProvider, IAliasProvider, IPlayerProvider):
     base_url = "https://maimai.lxns.net/"
+
+    @property
+    def headers(self):
+        return {"Authorization": self.developer_token}
+
+    def __init__(self, developer_token: str | None = None):
+        self.developer_token = developer_token
+
+    def _parse_player(self, resp_json: dict) -> LXNSPlayer:
+        return LXNSPlayer(
+            name=resp_json["name"],
+            rating=resp_json["rating"],
+            friend_code=resp_json["friend_code"],
+            trophy=PlayerTrophy(id=resp_json["trophy"]["id"], name=resp_json["trophy"]["name"], color=resp_json["trophy"]["color"]),
+            course_rank=resp_json["course_rank"],
+            class_rank=resp_json["class_rank"],
+            star=resp_json["star"],
+            icon=(
+                PlayerIcon(id=resp_json["icon"]["id"], name=resp_json["icon"]["name"], genre=resp_json["icon"]["genre"])
+                if "icon" in resp_json
+                else None
+            ),
+            name_plate=PlayerNamePlate(id=resp_json["name_plate"]["id"], name=resp_json["name_plate"]["name"]) if "name_plate" in resp_json else None,
+            frame=PlayerFrame(id=resp_json["frame"]["id"], name=resp_json["frame"]["name"]) if "frame" in resp_json else None,
+            upload_time=resp_json["upload_time"],
+        )
 
     async def get_songs(self, client: AsyncClient) -> list[Song]:
         resp = await client.get(self.base_url + "api/v0/maimai/song/list")
@@ -94,10 +148,64 @@ class LXNSProvider(ISongProvider, IAliasProvider):
             for song in resp_json["songs"]
         ]
 
+    async def by_friend_code(self, friend_code: int, client: AsyncClient) -> LXNSPlayer:
+        resp = await client.get(self.base_url + f"api/v0/maimai/player/{friend_code}", headers=self.headers)
+        resp.raise_for_status()
+        return self._parse_player(resp.json()["data"])
+
+    async def by_qq(self, qq: int, client: AsyncClient) -> LXNSPlayer:
+        resp = await client.get(self.base_url + f"api/v0/maimai/player/qq/{str(qq)}", headers=self.headers)
+        resp.raise_for_status()
+        return self._parse_player(resp.json()["data"])
+
+    async def by_username(self, ident: str, client: AsyncClient) -> LXNSPlayer:
+        raise ProviderApplicableError("LXNS does not support searching by username.")
+
     async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
         resp = await client.get(self.base_url + "api/v0/maimai/alias/list")
         resp.raise_for_status()
         return [SongAlias(song_id=item["song_id"], aliases=item["aliases"]) for item in resp.json()["aliases"]]
+
+
+class DivingFishProvider(ISongProvider, IPlayerProvider):
+    base_url = "https://www.diving-fish.com/api/maimaidxprober/"
+
+    def __init__(self, developer_token: str | None = None):
+        self.developer_token = developer_token
+
+    async def get_songs(self, client: AsyncClient) -> list[Song]:
+        raise NotImplementedError
+
+    async def by_qq(self, qq: int, client: AsyncClient) -> DivingFishPlayer:
+        if not self.developer_token:
+            raise DeveloperTokenNotFoundError()
+        resp = await client.post(self.base_url + "query/player", json={"qq": str(qq)})
+        resp.raise_for_status()
+        resp_json = resp.json()
+        return DivingFishPlayer(
+            name=resp_json["username"],
+            rating=resp_json["rating"],
+            nickname=resp_json["nickname"],
+            plate=resp_json["plate"],
+            additional_rating=resp_json["additional_rating"],
+        )
+
+    async def by_username(self, username: str, client: AsyncClient) -> DivingFishPlayer:
+        if not self.developer_token:
+            raise DeveloperTokenNotFoundError()
+        resp = await client.post(self.base_url + "query/player", json={"username": username})
+        resp.raise_for_status()
+        resp_json = resp.json()
+        return DivingFishPlayer(
+            name=resp_json["username"],
+            rating=resp_json["rating"],
+            nickname=resp_json["nickname"],
+            plate=resp_json["plate"],
+            additional_rating=resp_json["additional_rating"],
+        )
+
+    async def by_friend_code(self, ident: int, client: AsyncClient) -> DivingFishPlayer:
+        raise ProviderApplicableError("Diving-Fish does not support searching by friend code.")
 
 
 class YuzuProvider(IAliasProvider):

@@ -55,6 +55,58 @@ class Song:
 
 
 @dataclass
+class PlayerTrophy:
+    id: int
+    name: str
+    color: str
+
+
+@dataclass
+class PlayerIcon:
+    id: int
+    name: str
+    genre: str
+
+
+@dataclass
+class PlayerNamePlate:
+    id: int
+    name: str
+
+
+@dataclass
+class PlayerFrame:
+    id: int
+    name: str
+
+
+@dataclass
+class Player:
+    name: str
+    rating: int
+
+
+@dataclass
+class DivingFishPlayer(Player):
+    nickname: str
+    plate: str
+    additional_rating: int
+
+
+@dataclass
+class LXNSPlayer(Player):
+    friend_code: int
+    trophy: PlayerTrophy
+    course_rank: int
+    class_rank: int
+    star: int
+    icon: PlayerIcon | None
+    name_plate: PlayerNamePlate | None
+    frame: PlayerFrame | None
+    upload_time: str
+
+
+@dataclass
 class SongAlias:
     song_id: int
     aliases: list[str]
