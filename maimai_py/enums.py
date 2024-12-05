@@ -1,6 +1,45 @@
 from enum import Enum
 
 """
+Prebuilt Dicts
+"""
+
+plate_to_version: dict[str, int] = {
+    "初": 10000,  # maimai
+    "真": 11000,  # maimai PLUS
+    "超": 12000,  # GreeN
+    "檄": 13000,  # GreeN PLUS
+    "橙": 14000,  # ORANGE
+    "晓": 15000,  # ORANGE PLUS
+    "桃": 16000,  # PiNK
+    "樱": 17000,  # PiNK PLUS
+    "紫": 18000,  # MURASAKi
+    "堇": 18500,  # MURASAKi PLUS
+    "白": 19000,  # MiLK
+    "雪": 19500,  # MiLK PLUS
+    "辉": 19900,  # FiNALE
+    "熊": 20000,  # 舞萌DX
+    "华": 20000,  # 舞萌DX
+    "爽": 21000,  # 舞萌DX 2021
+    "煌": 21000,  # 舞萌DX 2021
+    "星": 22000,  # 舞萌DX 2022
+    "宙": 22000,  # 舞萌DX 2022
+    "祭": 23000,  # 舞萌DX 2023
+    "祝": 23000,  # 舞萌DX 2023
+    "双": 24000,  # 舞萌DX 2024
+    "宴": 24000,  # 舞萌DX 2024
+}
+
+plate_aliases: dict[str, str] = {
+    "暁": "晓",
+    "櫻": "樱",
+    "菫": "堇",
+    "輝": "辉",
+    "華": "华",
+    "極": "极",
+}
+
+"""
 Prebuilt Enums
 """
 
@@ -25,35 +64,35 @@ class LevelIndex(Enum):
 
 
 class FCType(Enum):
-    APP = "AP+"
-    AP = "AP"
-    FCP = "FC+"
-    FC = "FC"
+    APP = 0
+    AP = 1
+    FCP = 2
+    FC = 3
 
 
 class FSType(Enum):
-    FDXP = "FDX+"
-    FDX = "FDX"
-    FSP = "FS+"
-    FS = "FS"
-    SYNC = "SYNC PLAY"
+    SYNC = 0
+    FS = 1
+    FSP = 2
+    FSD = 3
+    FSDP = 4
 
 
 class RateType(Enum):
-    SSSP = "SSS+"
-    SSS = "SSS"
-    SSP = "SS+"
-    SS = "SS"
-    SP = "S+"
-    S = "S"
-    AAA = "AAA"
-    AA = "AA"
-    A = "A"
-    BBB = "BBB"
-    BB = "BB"
-    B = "B"
-    C = "C"
-    D = "D"
+    SSSP = 0
+    SSS = 1
+    SSP = 2
+    SS = 3
+    SP = 4
+    S = 5
+    AAA = 6
+    AA = 7
+    A = 8
+    BBB = 9
+    BB = 10
+    B = 11
+    C = 12
+    D = 13
 
 
 class SongType(Enum):

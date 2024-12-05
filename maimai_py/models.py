@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import PlayerIdentifierNotApplicableError
+from maimai_py.exceptions import MaimaiPyError
 
 
 @dataclass
@@ -54,6 +54,12 @@ class Song:
     disabled: bool
     difficulties: SongDifficulties
 
+    def levels(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+        results = [diff.difficulty for diff in (self.difficulties.standard + self.difficulties.dx)]
+        if exclude_remaster and LevelIndex.ReMASTER in results:
+            results.remove(LevelIndex.ReMASTER)
+        return results
+
 
 @dataclass
 class PlayerIdentifier:
@@ -63,7 +69,7 @@ class PlayerIdentifier:
 
     def __post_init__(self):
         if self.qq is None and self.username is None and self.friend_code is None:
-            raise PlayerIdentifierNotApplicableError("At least one of qq, username, or friend_code must be provided")
+            raise MaimaiPyError("At least one of qq, username, or friend_code must be provided")
 
     def as_diving_fish(self):
         if self.qq:
@@ -71,7 +77,7 @@ class PlayerIdentifier:
         elif self.username:
             return {"username": self.username}
         elif self.friend_code:
-            raise PlayerIdentifierNotApplicableError("Friend code is not applicable for Diving Fish")
+            raise MaimaiPyError("Friend code is not applicable for Diving Fish")
 
     def as_lxns(self):
         if self.friend_code:
@@ -79,7 +85,7 @@ class PlayerIdentifier:
         elif self.qq:
             return f"qq/{str(self.qq)}"
         elif self.username:
-            raise PlayerIdentifierNotApplicableError("Username is not applicable for LXNS")
+            raise MaimaiPyError("Username is not applicable for LXNS")
 
 
 @dataclass
@@ -153,3 +159,25 @@ class Score:
     dx_rating: float | None
     rate: RateType
     type: SongType
+
+    def compare(self, other: "Score") -> "Score":
+        if other is None:
+            return self
+        if self.dx_score and other.dx_score:  # larger value is better
+            return self if self.dx_score > other.dx_score else other
+        if self.achievements and other.achievements and self.achievements != other.achievements:  # larger value is better
+            return self if self.achievements > other.achievements else other
+        if self.rate and other.rate and self.rate != other.rate:  # smaller value is better
+            return self if self.rate.value < other.rate.value else other
+        if (self.fc.value if self.fc else 100) != (other.fc.value if self.fc else 100):  # smaller value is better
+            return self if (self.fc.value if self.fc else 100) < (other.fc.value if self.fc else 100) else other
+        if (self.fs.value if self.fs else 100) != (other.fs.value if self.fs else 100):  # smaller value is better
+            return self if (self.fs.value if self.fs else 100) < (other.fs.value if self.fs else 100) else other
+        return self  # we consider they are equal
+
+
+@dataclass
+class PlateObject:
+    song: Song
+    levels: list[LevelIndex]
+    score: list[Score] | None

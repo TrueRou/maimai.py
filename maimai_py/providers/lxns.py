@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind, SongType
-from maimai_py.exceptions import DeveloperTokenNotFoundError
+from maimai_py.exceptions import InvalidDeveloperTokenError
 from maimai_py.providers.base import IAliasProvider, IPlayerProvider, IScoreProvider, ISongProvider
 from maimai_py.models import (
     LXNSPlayer,
@@ -25,7 +25,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
     @property
     def headers(self):
         if not self.developer_token:
-            raise DeveloperTokenNotFoundError()
+            raise InvalidDeveloperTokenError()
         return {"Authorization": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):

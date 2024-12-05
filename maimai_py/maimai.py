@@ -1,6 +1,8 @@
 from httpx import AsyncClient, AsyncHTTPTransport
-from maimai_py.enums import LevelIndex, ScoreKind
-from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlayerIdentifier, Score, Song, SongAlias
+from maimai_py import enums
+from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind
+from maimai_py.exceptions import InvalidPlateError
+from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
 from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, DivingFishProvider, LXNSProvider, YuzuProvider
 from maimai_py.providers.base import IScoreProvider
 
@@ -102,6 +104,125 @@ class MaimaiSongs:
             the attributes to filter the songs by=
         """
         return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items())]
+
+
+class MaimaiPlates:
+    scores: list[Score] = []  # scores that match the plate version
+    songs: list[Song] = []  # songs that match the plate version
+    version: str
+    kind: str
+
+    def __init__(self, scores: list[Score], version_str: str, kind: str, songs: MaimaiSongs) -> None:
+        version_str = enums.plate_aliases.get(version_str, version_str)
+        kind = enums.plate_aliases.get(kind, kind)
+        if version_str == "真":
+            versions = [enums.plate_to_version["初"], enums.plate_to_version["真"]]
+        if version_str in ["霸", "舞"]:
+            versions = [ver for ver in enums.plate_to_version.values() if ver < 20000]
+        if enums.plate_to_version.get(version_str):
+            versions = [enums.plate_to_version[version_str]]
+        if not versions or kind not in ["将", "者", "极", "舞舞", "神"]:
+            raise InvalidPlateError(f"Invalid plate: {version_str}{kind}")
+
+        self.version = version_str
+        self.kind = kind
+        scores_unique = {}
+
+        for score in scores:
+            song = songs.by_id(score.id)
+            if any(song.version % ver <= 100 for ver in versions):
+                score_key = f"{score.id} {score.level_index}"
+                scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+
+        for song in songs.songs:
+            if any(song.version % ver <= 100 for ver in versions):
+                self.songs.append(song)
+
+        self.scores = list(scores_unique.values())
+
+    @property
+    def no_remaster(self) -> bool:
+        return self.version not in ["舞", "霸"]
+
+    @property
+    def remained(self) -> list[PlateObject]:
+        scores: dict[int, list[Score]] = {}
+        [scores.setdefault(score.id, []).append(score) for score in self.scores]
+        results = {song.id: PlateObject(song=song, levels=song.levels(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs}
+
+        def extract(score: Score) -> None:
+            if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
+                return  # skip ReMASTER scores if the plate is not 舞 or 霸
+            results[score.id].score.remove(score)
+            if score.level_index in results[score.id].levels:
+                results[score.id].levels.remove(score.level_index)
+
+        if self.kind == "者":
+            [extract(score) for score in self.scores if score.rate.value <= RateType.A.value]
+        elif self.kind == "将":
+            [extract(score) for score in self.scores if score.rate.value <= RateType.SSS.value]
+        elif self.kind == "极":
+            [extract(score) for score in self.scores if score.fc and score.fc.value <= FCType.FC.value]
+        elif self.kind == "舞舞":
+            [extract(score) for score in self.scores if score.fs and score.fs.value <= FSType.FSD.value]
+        elif self.kind == "神":
+            [extract(score) for score in self.scores if score.fc and score.fc.value <= FCType.AP.value]
+
+        return [plate for plate in results.values() if plate.levels != []]
+
+    @property
+    def cleared(self) -> list[PlateObject]:
+        results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
+
+        def insert(score: Score) -> None:
+            if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
+                return  # skip ReMASTER scores if the plate is not 舞 or 霸
+            results[score.id].score.append(score)
+            results[score.id].levels.append(score.level_index)
+
+        if self.kind == "者":
+            [insert(score) for score in self.scores if score.rate.value <= RateType.A.value]
+        elif self.kind == "将":
+            [insert(score) for score in self.scores if score.rate.value <= RateType.SSS.value]
+        elif self.kind == "极":
+            [insert(score) for score in self.scores if score.fc and score.fc.value <= FCType.FC.value]
+        elif self.kind == "舞舞":
+            [insert(score) for score in self.scores if score.fs and score.fs.value <= FSType.FSD.value]
+        elif self.kind == "神":
+            [insert(score) for score in self.scores if score.fc and score.fc.value <= FCType.AP.value]
+
+        return [plate for plate in results.values() if plate.levels != []]
+
+    @property
+    def played(self) -> list[PlateObject]:
+        results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
+        for score in self.scores:
+            if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
+                continue  # skip ReMASTER scores if the plate is not 舞 or 霸
+            results[score.id].score.append(score)
+            results[score.id].levels.append(score.level_index)
+        return [plate for plate in results.values() if plate.levels != []]
+
+    @property
+    def total(self) -> list[PlateObject]:
+        results = {song.id: PlateObject(song=song, levels=song.levels(self.no_remaster), score=[]) for song in self.songs}
+        return results.values()
+
+    @property
+    def played_num(self) -> int:
+        return len([level for plate in self.played for level in plate.levels])
+
+    @property
+    def cleared_num(self) -> int:
+        return len([level for plate in self.cleared for level in plate.levels])
+
+    @property
+    def remained_num(self) -> int:
+        return len([level for plate in self.remained for level in plate.levels])
+
+    @property
+    def total_num(self) -> int:
+        return len([level for plate in self.total for level in plate.levels])
 
 
 class MaimaiScores:
@@ -240,3 +361,23 @@ class MaimaiClient:
         if kind == ScoreKind.ALL:
             maimai_scores.scores = await provider.get_scores_all(identifier, self.client)
         return maimai_scores
+
+    async def plates(self, plate: str, songs: MaimaiSongs, scores: MaimaiScores | None = None) -> MaimaiPlates:
+        """
+        Get the plate information from the given plate name and player scores.
+
+        Parameters
+        ----------
+        plate: str
+            the name of the plate, e.g. "舞将", "舞舞将"
+        songs: MaimaiSongs
+            the cached wrapper of the song list, fetched by the maimai.songs() method
+        scores: MaimaiScores
+            the player scores to be processed, fetched by the maimai.scores(kind=ScoreKind.ALL) method
+
+            ScoreKind.ALL is needed to get all scores, otherwise only the best scores will be processed
+
+            left None if the player scores are not needed, e.g. when fetching only the total songs of plate.
+        """
+        scores = scores.scores if scores else []
+        return MaimaiPlates(scores, plate[0], plate[1:], songs)

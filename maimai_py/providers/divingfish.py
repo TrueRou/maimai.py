@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 from maimai_py.enums import ScoreKind
-from maimai_py.exceptions import DeveloperTokenNotFoundError
+from maimai_py.exceptions import InvalidDeveloperTokenError
 from maimai_py.models import DivingFishPlayer, Player, PlayerIdentifier, Song
 from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvider
 
@@ -10,7 +10,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
 
     def headers(self):
         if not self.developer_token:
-            raise DeveloperTokenNotFoundError()
+            raise InvalidDeveloperTokenError()
         return {"developer-token": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):
