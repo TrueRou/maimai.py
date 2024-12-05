@@ -128,15 +128,24 @@ class MaimaiPlates:
         self.kind = kind
         scores_unique = {}
 
+        # There is no plate that requires the player to play both a certain beatmap's DX and SD
         for score in scores:
             song = songs.by_id(score.id)
-            if any(song.version % ver <= 100 for ver in versions):
-                score_key = f"{score.id} {score.level_index}"
-                scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
-
+            score_key = f"{score.id} {score.type} {score.level_index}"
+            if song.difficulties.standard != []:
+                if any(song.difficulties.standard[0].version % ver <= 100 for ver in versions):
+                    scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+            if song.difficulties.dx != []:
+                if any(song.difficulties.dx[0].version % ver <= 100 for ver in versions):
+                    scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+        # There is no plate that requires the player to play both a certain beatmap's DX and SD
         for song in songs.songs:
-            if any(song.version % ver <= 100 for ver in versions):
-                self.songs.append(song)
+            if song.difficulties.standard != []:
+                if any(song.difficulties.standard[0].version % ver <= 100 for ver in versions):
+                    self.songs.append(song)
+            if song.difficulties.dx != []:
+                if any(song.difficulties.dx[0].version % ver <= 100 for ver in versions):
+                    self.songs.append(song)
 
         self.scores = list(scores_unique.values())
 
