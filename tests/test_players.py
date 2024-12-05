@@ -7,8 +7,6 @@ from tests import secrets
 
 
 @pytest.mark.asyncio()
-async def test_players_fetching():
-    maimai = MaimaiClient()
-    lxns_provider = LXNSProvider(developer_token=secrets.lxns_developer_token)
-    player = await maimai.players(PlayerIdentifier(friend_code=664994421382429), lxns_provider)
+async def test_players_fetching(maimai: MaimaiClient, lxns: LXNSProvider):
+    player = await maimai.players(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
     assert player.rating > 10000

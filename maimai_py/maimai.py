@@ -1,9 +1,9 @@
 from httpx import AsyncClient, AsyncHTTPTransport
-from maimai_py import enums
+from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind
 from maimai_py.exceptions import InvalidPlateError
 from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
-from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, DivingFishProvider, LXNSProvider, YuzuProvider
+from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, LXNSProvider, YuzuProvider
 from maimai_py.providers.base import IScoreProvider
 
 
@@ -295,11 +295,16 @@ class MaimaiClient:
 
         retries: int
             the number of retries to attempt on failed requests, defaults to 3
+        lxns_developer_token: str
+            the developer token for LXNSProvider, this will be used to construct the default LXNSProvider
+        divingfish_developer_token: str
+            the developer token for DivingFishProvider, this will be used to construct the default DivingFishProvider
         """
         self.client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), **kwargs)
 
     async def songs(
         self,
+        no_cache: bool = False,
         provider: ISongProvider = LXNSProvider(),
         alias_provider: IAliasProvider = YuzuProvider(),
     ) -> MaimaiSongs:
@@ -308,21 +313,25 @@ class MaimaiClient:
 
         Parameters
         ----------
+        no_cache: bool
+            whether to flush the cached songs, defaults to False
+
         provider: ISongProvider (DivingFishProvider | LXNSProvider)
             the data source to fetch the player from, defaults to LXNSProvider
 
         alias_provider: IAliasProvider (YuzuProvider | LXNSProvider)
             the data source to fetch the song aliases from, defaults to YuzuProvider
         """
-        aliases = await alias_provider.get_aliases(self.client) if alias_provider else None
-        songs = await provider.get_songs(self.client)
-        maimai_songs = MaimaiSongs(songs, aliases)
-        return maimai_songs
+        if not caches.cached_songs or no_cache:
+            aliases = await alias_provider.get_aliases(self.client) if alias_provider else None
+            songs = await provider.get_songs(self.client)
+            caches.cached_songs = MaimaiSongs(songs, aliases)
+        return caches.cached_songs
 
     async def players(
         self,
         identifier: PlayerIdentifier,
-        provider: IPlayerProvider = DivingFishProvider(),
+        provider: IPlayerProvider = LXNSProvider(),
     ) -> DivingFishPlayer | LXNSPlayer:
         """
         Fetch player data from the provider, using the given one identifier
@@ -350,34 +359,37 @@ class MaimaiClient:
         ----------
 
         identifier: PlayerIdentifier
-            the identifier of the player to fetch, e.g. PlayerIdentifier(username="turou")
+            the identifier of the player to fetch, e.g. PlayerIdentifier(friend_code=664994421382429)
         kind: ScoreKind
             the kind of scores list to fetch, defaults to ScoreKind.BEST
-        provider: IScoreProvider (DivingFishProvider | LXNSProvider)
-            the data source to fetch the player and scores from, defaults to DivingFishProvider
+        provider: IScoreProvider (LXNSProvider | DivingFishProvider)
+            the data source to fetch the player and scores from, defaults to LXNSProvider
         """
         b35, b15 = await provider.get_scores_best(identifier, kind == ScoreKind.AP, self.client)
         maimai_scores = MaimaiScores(b35, b15)
         if kind == ScoreKind.ALL:
+            # fetch all scores if needed, this is a separate request, because of b35 and b15 is always fetched
             maimai_scores.scores = await provider.get_scores_all(identifier, self.client)
         return maimai_scores
 
-    async def plates(self, plate: str, songs: MaimaiSongs, scores: MaimaiScores | None = None) -> MaimaiPlates:
+    async def plates(
+        self,
+        identifier: PlayerIdentifier,
+        plate: str,
+        provider: IScoreProvider = LXNSProvider(),
+    ) -> MaimaiPlates:
         """
-        Get the plate information from the given plate name and player scores.
+        Get the plate achievement of the given player and plate.
 
         Parameters
         ----------
+        identifier: PlayerIdentifier
+            the identifier of the player to fetch, e.g. PlayerIdentifier(friend_code=664994421382429)
         plate: str
             the name of the plate, e.g. "舞将", "舞舞将"
-        songs: MaimaiSongs
-            the cached wrapper of the song list, fetched by the maimai.songs() method
-        scores: MaimaiScores
-            the player scores to be processed, fetched by the maimai.scores(kind=ScoreKind.ALL) method
-
-            ScoreKind.ALL is needed to get all scores, otherwise only the best scores will be processed
-
-            left None if the player scores are not needed, e.g. when fetching only the total songs of plate.
+        provider: IScoreProvider (LXNSProvider | DivingFishProvider)
+            the data source to fetch the player and scores from, defaults to LXNSProvider
         """
-        scores = scores.scores if scores else []
+        songs = caches.cached_songs if caches.cached_songs else await self.songs()
+        scores = await provider.get_scores_all(identifier, self.client)
         return MaimaiPlates(scores, plate[0], plate[1:], songs)
