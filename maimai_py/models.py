@@ -29,8 +29,6 @@ class SongDifficultyUtage:
     slide_num: int
     touch_num: int
     break_num: int
-    left_num: int
-    right_num: int
 
 
 @dataclass

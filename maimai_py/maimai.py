@@ -304,7 +304,6 @@ class MaimaiClient:
 
     async def songs(
         self,
-        no_cache: bool = False,
         provider: ISongProvider = LXNSProvider(),
         alias_provider: IAliasProvider = YuzuProvider(),
     ) -> MaimaiSongs:
@@ -313,19 +312,15 @@ class MaimaiClient:
 
         Parameters
         ----------
-        no_cache: bool
-            whether to flush the cached songs, defaults to False
-
         provider: ISongProvider (DivingFishProvider | LXNSProvider)
             the data source to fetch the player from, defaults to LXNSProvider
 
         alias_provider: IAliasProvider (YuzuProvider | LXNSProvider)
             the data source to fetch the song aliases from, defaults to YuzuProvider
         """
-        if not caches.cached_songs or no_cache:
-            aliases = await alias_provider.get_aliases(self.client) if alias_provider else None
-            songs = await provider.get_songs(self.client)
-            caches.cached_songs = MaimaiSongs(songs, aliases)
+        aliases = await alias_provider.get_aliases(self.client) if alias_provider else None
+        songs = await provider.get_songs(self.client)
+        caches.cached_songs = MaimaiSongs(songs, aliases)
         return caches.cached_songs
 
     async def players(

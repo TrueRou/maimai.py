@@ -106,8 +106,6 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                                 slide_num=difficulty["notes"]["slide"] if "notes" in difficulty and "slide" in difficulty["notes"] else 0,
                                 touch_num=difficulty["notes"]["touch"] if "notes" in difficulty and "touch" in difficulty["notes"] else 0,
                                 break_num=difficulty["notes"]["break"] if "notes" in difficulty and "break" in difficulty["notes"] else 0,
-                                left_num=difficulty["notes"]["left"] if "notes" in difficulty and "left" in difficulty["notes"] else 0,
-                                right_num=difficulty["notes"]["right"] if "notes" in difficulty and "right" in difficulty["notes"] else 0,
                             )
                             for difficulty in song["difficulties"]["utage"]
                         ]

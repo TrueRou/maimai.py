@@ -30,6 +30,31 @@ plate_to_version: dict[str, int] = {
     "宴": 24000,  # 舞萌DX 2024
 }
 
+divingfish_to_version = {
+    "maimai": 10000,
+    "maimai PLUS": 11000,
+    "maimai GreeN": 12000,
+    "maimai GreeN PLUS": 13000,
+    "maimai ORANGE": 14000,
+    "maimai ORANGE PLUS": 15000,
+    "maimai PiNK": 16000,
+    "maimai PiNK PLUS": 17000,
+    "maimai MURASAKi": 18000,
+    "maimai MURASAKi PLUS": 18500,
+    "maimai MiLK": 19000,
+    "MiLK PLUS": 19500,
+    "maimai FiNALE": 19900,
+    "maimai でらっくす": 20000,
+    "maimai でらっくす PLUS": 20000,
+    "maimai でらっくす Splash": 21000,
+    "maimai でらっくす Splash PLUS": 21000,
+    "maimai でらっくす UNiVERSE": 22000,
+    "maimai でらっくす UNiVERSE PLUS": 22000,
+    "maimai でらっくす FESTiVAL": 23000,
+    "maimai でらっくす FESTiVAL PLUS": 23000,
+    "maimai でらっくす BUDDiES": 24000,
+}
+
 plate_aliases: dict[str, str] = {
     "暁": "晓",
     "櫻": "樱",
