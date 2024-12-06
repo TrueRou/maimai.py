@@ -152,10 +152,22 @@ class MaimaiPlates:
 
     @cached_property
     def no_remaster(self) -> bool:
+        """
+        Whether it is required to play ReMASTER levels in the plate.
+
+        Only 舞 and 霸 plates require ReMASTER levels, others don't.
+        """
         return self.version not in ["舞", "霸"]
 
     @cached_property
     def remained(self) -> list[PlateObject]:
+        """
+        Get the remained song of the player on this plate, return a list of PlateObject
+
+        If player has ramained levels on one song, the song and ramained levels_index will be included in the result, otherwise it won't.
+
+        The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
+        """
         scores: dict[int, list[Score]] = {}
         [scores.setdefault(score.id, []).append(score) for score in self.scores]
         results = {song.id: PlateObject(song=song, levels=song.levels(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs}
@@ -182,6 +194,13 @@ class MaimaiPlates:
 
     @cached_property
     def cleared(self) -> list[PlateObject]:
+        """
+        Get the cleared song of the player on this plate, return a list of PlateObject
+
+        If player has levels (one or more) that met the requirement on the song, the song and cleared level_index will be included in the result, otherwise it won't.
+
+        The distinct scores which met the plate requirement will be included in the result, the unfinished scores won't.
+        """
         results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
 
         def insert(score: Score) -> None:
@@ -205,6 +224,13 @@ class MaimaiPlates:
 
     @cached_property
     def played(self) -> list[PlateObject]:
+        """
+        Get the played song of the player on this plate, return a list of PlateObject
+
+        If player has ever played levels on the song, whether they met or not, the song and played levels_index will be included in the result.
+
+        All distinct scores will be included in the result.
+        """
         results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
         for score in self.scores:
             if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
@@ -214,25 +240,46 @@ class MaimaiPlates:
         return [plate for plate in results.values() if plate.levels != []]
 
     @cached_property
-    def total(self) -> list[PlateObject]:
+    def all(self) -> list[PlateObject]:
+        """
+        Get all songs on this plate, return a list of PlateObject, usually used for statistics of the plate
+
+        All songs will be included in the result, with all levels, whether they met or not.
+
+        No scores will be included in the result, use played, cleared, remained to get the scores.
+        """
         results = {song.id: PlateObject(song=song, levels=song.levels(self.no_remaster), score=[]) for song in self.songs}
         return results.values()
 
     @cached_property
     def played_num(self) -> int:
+        """
+        Get the number of played levels on this plate
+        """
         return len([level for plate in self.played for level in plate.levels])
 
     @cached_property
     def cleared_num(self) -> int:
+        """
+        Get the number of cleared levels on this plate
+        """
         return len([level for plate in self.cleared for level in plate.levels])
 
     @cached_property
     def remained_num(self) -> int:
+        """
+        Get the number of remained levels on this plate
+        """
         return len([level for plate in self.remained for level in plate.levels])
 
     @cached_property
-    def total_num(self) -> int:
-        return len([level for plate in self.total for level in plate.levels])
+    def all_num(self) -> int:
+        """
+        Get the number of all levels on this plate
+
+        This is the total number of levels on the plate, should equal to cleared_num + remained_num
+        """
+        return len([level for plate in self.all for level in plate.levels])
 
 
 class MaimaiScores:
@@ -408,7 +455,7 @@ class MaimaiClient:
         identifier: PlayerIdentifier
             the identifier of the player to fetch, e.g. PlayerIdentifier(friend_code=664994421382429)
         plate: str
-            the name of the plate, e.g. "舞将", "舞舞将"
+            the name of the plate, e.g. "樱将", "真舞舞"
         provider: IScoreProvider (LXNSProvider | DivingFishProvider)
             the data source to fetch the player and scores from, defaults to LXNSProvider
         """
