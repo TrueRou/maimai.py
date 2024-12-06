@@ -1,3 +1,4 @@
+from functools import cached_property
 from httpx import AsyncClient, AsyncHTTPTransport
 from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind
@@ -149,11 +150,11 @@ class MaimaiPlates:
 
         self.scores = list(scores_unique.values())
 
-    @property
+    @cached_property
     def no_remaster(self) -> bool:
         return self.version not in ["舞", "霸"]
 
-    @property
+    @cached_property
     def remained(self) -> list[PlateObject]:
         scores: dict[int, list[Score]] = {}
         [scores.setdefault(score.id, []).append(score) for score in self.scores]
@@ -179,7 +180,7 @@ class MaimaiPlates:
 
         return [plate for plate in results.values() if plate.levels != []]
 
-    @property
+    @cached_property
     def cleared(self) -> list[PlateObject]:
         results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
 
@@ -202,7 +203,7 @@ class MaimaiPlates:
 
         return [plate for plate in results.values() if plate.levels != []]
 
-    @property
+    @cached_property
     def played(self) -> list[PlateObject]:
         results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
         for score in self.scores:
@@ -212,24 +213,24 @@ class MaimaiPlates:
             results[score.id].levels.append(score.level_index)
         return [plate for plate in results.values() if plate.levels != []]
 
-    @property
+    @cached_property
     def total(self) -> list[PlateObject]:
         results = {song.id: PlateObject(song=song, levels=song.levels(self.no_remaster), score=[]) for song in self.songs}
         return results.values()
 
-    @property
+    @cached_property
     def played_num(self) -> int:
         return len([level for plate in self.played for level in plate.levels])
 
-    @property
+    @cached_property
     def cleared_num(self) -> int:
         return len([level for plate in self.cleared for level in plate.levels])
 
-    @property
+    @cached_property
     def remained_num(self) -> int:
         return len([level for plate in self.remained for level in plate.levels])
 
-    @property
+    @cached_property
     def total_num(self) -> int:
         return len([level for plate in self.total for level in plate.levels])
 
@@ -249,6 +250,23 @@ class MaimaiScores:
         self.rating_b35 = sum(score.dx_rating for score in scores_b35)
         self.rating_b15 = sum(score.dx_rating for score in scores_b15)
         self.rating = self.rating_b35 + self.rating_b15
+
+    @cached_property
+    def as_distinct(self) -> "MaimaiScores":
+        """
+        Get the distinct scores, return a new MaimaiScores object
+
+        Normally, player has more than one score for the same song and level, this method will return a new MaimaiScores object with the highest scores for each song and level.
+
+        If ScoreKind is BEST, this won't make any difference, because the scores are already the best ones.
+        """
+        new_scores = MaimaiScores(self.scores_b35, self.scores_b15)
+        scores_unique = {}
+        for score in self.scores:
+            score_key = f"{score.id} {score.type} {score.level_index}"
+            scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+        new_scores.scores = list(scores_unique.values())
+        return new_scores
 
     def by_song(self, song_id: int) -> list[Score]:
         """
