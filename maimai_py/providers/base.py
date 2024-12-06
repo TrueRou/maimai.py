@@ -25,7 +25,7 @@ class IPlayerProvider:
 
 class IScoreProvider:
     @abstractmethod
-    async def get_scores_best(self, identifier: PlayerIdentifier, ap_only: bool, client: AsyncClient) -> tuple[list[Score], list[Score]]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         raise NotImplementedError()
 
     @abstractmethod

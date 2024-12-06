@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 from maimai_py import enums
-from maimai_py.enums import LevelIndex, SongType
+from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidDeveloperTokenError
 from maimai_py.models import DivingFishPlayer, Player, PlayerIdentifier, Score, Song, SongDifficulties, SongDifficulty, SongDifficultyUtage
 from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvider
@@ -9,6 +9,7 @@ from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvi
 class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
     base_url = "https://www.diving-fish.com/api/maimaidxprober/"
 
+    @property
     def headers(self):
         if not self.developer_token:
             raise InvalidDeveloperTokenError()
@@ -16,6 +17,21 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
 
     def __init__(self, developer_token: str | None = None):
         self.developer_token = developer_token
+
+    def _parse_score(score: dict) -> Score:
+        return Score(
+            id=score["song_id"] % 10000,
+            song_name=score["title"],
+            level=score["level"],
+            level_index=LevelIndex(score["level_index"]),
+            achievements=score["achievements"],
+            fc=FCType[score["fc"].upper()] if score["fc"] else None,
+            fs=FSType[score["fs"].upper()] if score["fs"] else None,
+            dx_score=score["dxScore"],
+            dx_rating=score["ra"],
+            rate=RateType[score["rate"].upper()],
+            type=enums.divingfish_to_type[score["type"]] if score["song_id"] < 100000 else SongType.UTAGE,
+        )
 
     async def get_songs(self, client: AsyncClient) -> list[Song]:
         resp = await client.get("https://www.diving-fish.com/api/maimaidxprober/music_data")
@@ -101,8 +117,19 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             additional_rating=resp_json["additional_rating"],
         )
 
-    async def get_scores_best(self, identifier: PlayerIdentifier, ap_only: bool, client: AsyncClient) -> tuple[list[Score], list[Score]]:
-        return await super().get_scores_best(identifier, ap_only, client)
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
+        req_json = identifier.as_diving_fish()
+        req_json["b50"] = True
+        resp = await client.post(self.base_url + "query/player", json=req_json)
+        resp.raise_for_status()
+        resp_json = resp.json()
+        return (
+            [DivingFishProvider._parse_score(score) for score in resp_json["charts"]["sd"]],
+            [DivingFishProvider._parse_score(score) for score in resp_json["charts"]["dx"]],
+        )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
-        return await super().get_scores_all(identifier, client)
+        resp = await client.get(self.base_url + "dev/player/records", params=identifier.as_diving_fish(), headers=self.headers)
+        resp.raise_for_status()
+        resp_json = resp.json()
+        return [DivingFishProvider._parse_score(score) for score in resp_json["records"]]

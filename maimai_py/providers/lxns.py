@@ -139,13 +139,12 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             upload_time=resp_json["upload_time"],
         )
 
-    async def get_scores_best(self, identifier: PlayerIdentifier, ap_only: bool, client: AsyncClient) -> tuple[list[Score], list[Score]]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         if identifier.friend_code is None:
             resp = await client.get(self.base_url + f"api/v0/maimai/player/qq/{identifier.qq}", headers=self.headers)
             resp.raise_for_status()
             identifier.friend_code = resp.json()["data"]["friend_code"]
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/bests"
-        entrypoint += "/ap" if ap_only else ""
         resp = await client.get(self.base_url + entrypoint, headers=self.headers)
         resp.raise_for_status()
         return (

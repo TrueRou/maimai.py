@@ -71,8 +71,7 @@ Prebuilt Enums
 
 class ScoreKind(Enum):
     BEST = 0
-    AP = 1
-    ALL = 2
+    ALL = 1
 
 
 """
@@ -124,3 +123,9 @@ class SongType(Enum):
     STANDARD = "standard"
     DX = "dx"
     UTAGE = "utage"
+
+
+divingfish_to_type = {
+    "SD": SongType.STANDARD,
+    "DX": SongType.DX,
+}

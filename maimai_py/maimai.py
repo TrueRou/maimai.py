@@ -369,7 +369,7 @@ class MaimaiClient:
         provider: IScoreProvider (LXNSProvider | DivingFishProvider)
             the data source to fetch the player and scores from, defaults to LXNSProvider
         """
-        b35, b15 = await provider.get_scores_best(identifier, kind == ScoreKind.AP, self.client)
+        b35, b15 = await provider.get_scores_best(identifier, self.client)
         maimai_scores = MaimaiScores(b35, b15)
         if kind == ScoreKind.ALL:
             # fetch all scores if needed, this is a separate request, because of b35 and b15 is always fetched
