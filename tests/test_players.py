@@ -3,7 +3,6 @@ import pytest
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import PlayerIdentifier
 from maimai_py.providers import LXNSProvider
-from tests import secrets
 
 
 @pytest.mark.asyncio()
