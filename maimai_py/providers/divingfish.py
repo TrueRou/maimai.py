@@ -7,15 +7,29 @@ from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvi
 
 
 class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
+    """The provider that fetches data from the Diving Fish.
+
+    DivingFish: https://www.diving-fish.com/maimaidx/prober/
+    """
+
+    developer_token: str | None
+    """The developer token used to access the Diving Fish API."""
     base_url = "https://www.diving-fish.com/api/maimaidxprober/"
+    """The base URL for the Diving Fish API."""
 
     @property
     def headers(self):
+        """@private"""
         if not self.developer_token:
             raise InvalidDeveloperTokenError()
         return {"developer-token": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):
+        """Initializes the DivingFishProvider.
+
+        Args:
+            developer_token: The developer token used to access the Diving Fish API.
+        """
         self.developer_token = developer_token
 
     def _parse_score(score: dict) -> Score:

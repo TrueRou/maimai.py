@@ -70,6 +70,7 @@ class PlayerIdentifier:
             raise MaimaiPyError("At least one of qq, username, or friend_code must be provided")
 
     def as_diving_fish(self):
+        """@private"""
         if self.qq:
             return {"qq": str(self.qq)}
         elif self.username:
@@ -78,6 +79,7 @@ class PlayerIdentifier:
             raise MaimaiPyError("Friend code is not applicable for Diving Fish")
 
     def as_lxns(self):
+        """@private"""
         if self.friend_code:
             return str(self.friend_code)
         elif self.qq:
@@ -159,6 +161,7 @@ class Score:
     type: SongType
 
     def compare(self, other: "Score") -> "Score":
+        """@private"""
         if other is None:
             return self
         if self.dx_score and other.dx_score:  # larger value is better

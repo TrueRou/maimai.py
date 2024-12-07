@@ -29,6 +29,7 @@ plate_to_version: dict[str, int] = {
     "双": 24000,  # 舞萌DX 2024
     "宴": 24000,  # 舞萌DX 2024
 }
+"""@private"""
 
 divingfish_to_version = {
     "maimai": 10000,
@@ -54,6 +55,7 @@ divingfish_to_version = {
     "maimai でらっくす FESTiVAL PLUS": 23000,
     "maimai でらっくす BUDDiES": 24000,
 }
+"""@private"""
 
 plate_aliases: dict[str, str] = {
     "暁": "晓",
@@ -63,6 +65,7 @@ plate_aliases: dict[str, str] = {
     "華": "华",
     "極": "极",
 }
+"""@private"""
 
 """
 Prebuilt Enums
@@ -129,3 +132,4 @@ divingfish_to_type = {
     "SD": SongType.STANDARD,
     "DX": SongType.DX,
 }
+"""@private"""

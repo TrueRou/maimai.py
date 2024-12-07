@@ -20,15 +20,29 @@ from maimai_py.models import (
 
 
 class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider):
+    """The provider that fetches data from the LXNS.
+
+    LXNS: https://maimai.lxns.net/
+    """
+
+    developer_token: str | None
+    """The developer token used to access the LXNS API."""
     base_url = "https://maimai.lxns.net/"
+    """The base URL for the LXNS API."""
 
     @property
     def headers(self):
+        """@private"""
         if not self.developer_token:
             raise InvalidDeveloperTokenError()
         return {"Authorization": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):
+        """Initializes the LXNSProvider.
+
+        Args:
+            developer_token: The developer token used to access the LXNS API.
+        """
         self.developer_token = developer_token
 
     def _parse_score(score: dict) -> Score:

@@ -1,24 +1,13 @@
 class MaimaiPyError(Exception):
-    """
-    Base exception class for all exceptions raised by maimai_py.
-    """
-
-    pass
+    """Base exception class for all exceptions raised by maimai_py."""
 
 
 class InvalidDeveloperTokenError(MaimaiPyError):
-    """
-    Raised when the developer token is not provided or token is invalid.
-
-    Developed token should be provided in the constructor of the provider.
-    """
-
-    pass
+    """Developer token is not provided or token is invalid."""
 
 
 class InvalidPlateError(MaimaiPyError):
-    """
-    Raised when the provided version or plate is invalid.
+    """Provided version or plate is invalid.
 
     Plate should be formatted as two/three characters (version + kind), e.g. "桃将", "舞舞舞"
 
@@ -31,5 +20,3 @@ class InvalidPlateError(MaimaiPyError):
     将, 者, 極, 极, 舞舞, 神
 
     """
-
-    pass

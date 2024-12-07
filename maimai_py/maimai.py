@@ -13,6 +13,7 @@ class MaimaiSongs:
     _alias_entry_dict: dict[str, int]  # alias_entry: song_id
 
     def __init__(self, songs: list[Song], aliases: list[SongAlias] | None) -> None:
+        """@private"""
         self._song_id_dict = {song.id: song for song in songs}
         self._alias_entry_dict = {}
         for alias in aliases:
@@ -23,97 +24,98 @@ class MaimaiSongs:
                 self._alias_entry_dict[alias_entry] = alias.song_id
 
     @property
-    def songs(self):
+    def songs(self) -> list[Song]:
+        """All songs as list."""
         return self._song_id_dict.values()
 
     def by_id(self, id: int) -> Song | None:
-        """
-        Get a song by its ID, if it exists, otherwise return None
+        """Get a song by its ID.
 
-        Parameters
-        ----------
-        id: int
-            the ID of the song, always smaller than 10000, should (% 10000) if necessary
+        Args:
+            id: the ID of the song, always smaller than `10000`, should (`% 10000`) if necessary.
+        Returns:
+            the song if it exists, otherwise return None.
         """
         return self._song_id_dict.get(id, None)
 
     def by_title(self, title: str) -> Song | None:
-        """
-        Get a song by its title, if it exists, otherwise return None
+        """Get a song by its title.
 
-        Parameters
-        ----------
-        title: str
-            the title of the song
+        Args:
+            title: the title of the song.
+        Returns:
+            the song if it exists, otherwise return None.
         """
         return next((song for song in self.songs if song.title == title), None)
 
     def by_alias(self, alias: str) -> Song | None:
-        """
-        Get song by one possible alias, if it exists, otherwise return None
+        """Get song by one possible alias.
 
-        Parameters
-        ----------
-        alias: str
-            one possible alias of the song
+        Args:
+            alias: one possible alias of the song.
+        Returns:
+            the song if it exists, otherwise return None.
         """
         song_id = self._alias_entry_dict.get(alias, 0)
         return self.by_id(song_id)
 
     def by_artist(self, artist: str) -> list[Song]:
-        """
-        Get songs by their artist, case-sensitive, return an empty list if no song is found
+        """Get songs by their artist, case-sensitive.
 
-        Parameters
-        ----------
-        artist: str
-            the artist of the songs
+        Args:
+            artist: the artist of the songs.
+        Returns:
+            the list of songs that match the artist, return an empty list if no song is found.
         """
         return [song for song in self.songs if song.artist == artist]
 
     def by_genre(self, genre: str) -> list[Song]:
-        """
-        Get songs by their genre, case-sensitive, return an empty list if no song is found
+        """Get songs by their genre, case-sensitive.
 
-        Parameters
-        ----------
-        genre: str
-            the genre of the songs
+        Args:
+            genre: the genre of the songs.
+        Returns:
+            the list of songs that match the genre, return an empty list if no song is found.
         """
+
         return [song for song in self.songs if song.genre == genre]
 
     def by_bpm(self, minimum: int, maximum: int) -> list[Song]:
-        """
-        Get songs by their BPM, return an empty list if no song is found
+        """Get songs by their BPM.
 
-        Parameters
-        ----------
-        minimum: int
-            the minimum (inclusive) BPM of the songs
-        maximum: int
-            the maximum (inclusive) BPM of the songs
+        Args:
+            minimum: the minimum (inclusive) BPM of the songs.
+            maximum: the maximum (inclusive) BPM of the songs.
+        Returns:
+            the list of songs that match the BPM range, return an empty list if no song is found.
         """
         return [song for song in self.songs if minimum <= song.bpm <= maximum]
 
     def filter(self, **kwargs) -> list[Song]:
-        """
-        Filter songs by their attributes, all conditions are connected by AND, return an empty list if no song is found
+        """Filter songs by their attributes.
 
-        Parameters
-        ----------
-        kwargs: dict
-            the attributes to filter the songs by=
+        Ensure that the attribute is of the song, and the value is of the same type. All conditions are connected by AND.
+
+        Args:
+            kwargs: the attributes to filter the songs by.
+        Returns:
+            the list of songs that match all the conditions, return an empty list if no song is found.
         """
         return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items())]
 
 
 class MaimaiPlates:
-    scores: list[Score] = []  # scores that match the plate version
-    songs: list[Song] = []  # songs that match the plate version
+    scores: list[Score] = []
+    """The scores that match the plate version and kind."""
+    songs: list[Song] = []
+    """The songs that match the plate version and kind."""
     version: str
+    """The version of the plate, e.g. "真", "舞"."""
     kind: str
+    """The kind of the plate, e.g. "将", "神"."""
 
     def __init__(self, scores: list[Score], version_str: str, kind: str, songs: MaimaiSongs) -> None:
+        """@private"""
         version_str = enums.plate_aliases.get(version_str, version_str)
         kind = enums.plate_aliases.get(kind, kind)
         if version_str == "真":
@@ -152,8 +154,7 @@ class MaimaiPlates:
 
     @cached_property
     def no_remaster(self) -> bool:
-        """
-        Whether it is required to play ReMASTER levels in the plate.
+        """Whether it is required to play ReMASTER levels in the plate.
 
         Only 舞 and 霸 plates require ReMASTER levels, others don't.
         """
@@ -161,10 +162,9 @@ class MaimaiPlates:
 
     @cached_property
     def remained(self) -> list[PlateObject]:
-        """
-        Get the remained song of the player on this plate, return a list of PlateObject
+        """Get the remained song of the player on this plate.
 
-        If player has ramained levels on one song, the song and ramained levels_index will be included in the result, otherwise it won't.
+        If player has ramained levels on one song, the song and ramained `levels_index` will be included in the result, otherwise it won't.
 
         The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
         """
@@ -194,10 +194,9 @@ class MaimaiPlates:
 
     @cached_property
     def cleared(self) -> list[PlateObject]:
-        """
-        Get the cleared song of the player on this plate, return a list of PlateObject
+        """Get the cleared song of the player on this plate.
 
-        If player has levels (one or more) that met the requirement on the song, the song and cleared level_index will be included in the result, otherwise it won't.
+        If player has levels (one or more) that met the requirement on the song, the song and cleared `level_index` will be included in the result, otherwise it won't.
 
         The distinct scores which met the plate requirement will be included in the result, the unfinished scores won't.
         """
@@ -224,10 +223,9 @@ class MaimaiPlates:
 
     @cached_property
     def played(self) -> list[PlateObject]:
-        """
-        Get the played song of the player on this plate, return a list of PlateObject
+        """Get the played song of the player on this plate.
 
-        If player has ever played levels on the song, whether they met or not, the song and played levels_index will be included in the result.
+        If player has ever played levels on the song, whether they met or not, the song and played `levels_index` will be included in the result.
 
         All distinct scores will be included in the result.
         """
@@ -241,8 +239,7 @@ class MaimaiPlates:
 
     @cached_property
     def all(self) -> list[PlateObject]:
-        """
-        Get all songs on this plate, return a list of PlateObject, usually used for statistics of the plate
+        """Get all songs on this plate, usually used for statistics of the plate.
 
         All songs will be included in the result, with all levels, whether they met or not.
 
@@ -253,44 +250,44 @@ class MaimaiPlates:
 
     @cached_property
     def played_num(self) -> int:
-        """
-        Get the number of played levels on this plate
-        """
+        """Get the number of played levels on this plate."""
         return len([level for plate in self.played for level in plate.levels])
 
     @cached_property
     def cleared_num(self) -> int:
-        """
-        Get the number of cleared levels on this plate
-        """
+        """Get the number of cleared levels on this plate."""
         return len([level for plate in self.cleared for level in plate.levels])
 
     @cached_property
     def remained_num(self) -> int:
-        """
-        Get the number of remained levels on this plate
-        """
+        """Get the number of remained levels on this plate."""
         return len([level for plate in self.remained for level in plate.levels])
 
     @cached_property
     def all_num(self) -> int:
-        """
-        Get the number of all levels on this plate
+        """Get the number of all levels on this plate.
 
-        This is the total number of levels on the plate, should equal to cleared_num + remained_num
+        This is the total number of levels on the plate, should equal to `cleared_num + remained_num`.
         """
         return len([level for plate in self.all for level in plate.levels])
 
 
 class MaimaiScores:
     scores: list[Score]
+    """All scores of the player when `ScoreKind.ALL`, otherwise only the b50 scores."""
     scores_b35: list[Score]
+    """The b35 scores of the player."""
     scores_b15: list[Score]
+    """The b15 scores of the player."""
     rating: int
+    """The total rating of the player."""
     rating_b35: int
+    """The b35 rating of the player."""
     rating_b15: int
+    """The b15 rating of the player."""
 
     def __init__(self, scores_b35: list[Score], scores_b15: list[Score]) -> None:
+        """@private"""
         self.scores = scores_b35 + scores_b15
         self.scores_b35 = scores_b35
         self.scores_b15 = scores_b15
@@ -300,10 +297,9 @@ class MaimaiScores:
 
     @cached_property
     def as_distinct(self) -> "MaimaiScores":
-        """
-        Get the distinct scores, return a new MaimaiScores object
+        """Get the distinct scores.
 
-        Normally, player has more than one score for the same song and level, this method will return a new MaimaiScores object with the highest scores for each song and level.
+        Normally, player has more than one score for the same song and level, this method will return a new `MaimaiScores` object with the highest scores for each song and level.
 
         If ScoreKind is BEST, this won't make any difference, because the scores are already the best ones.
         """
@@ -316,84 +312,77 @@ class MaimaiScores:
         return new_scores
 
     def by_song(self, song_id: int) -> list[Score]:
-        """
-        Get all level scores of the song, return an empty list if no score is found
+        """Get all level scores of the song.
 
-        If ScoreKind is BEST, only the b50 scores will be filtered.
+        If `ScoreKind` is `BEST`, only the b50 scores will be filtered.
 
-        Parameters
-        ----------
-        song_id: int
-            the ID of the song to get the scores by
+        Args:
+            song_id: the ID of the song to get the scores by.
+        Returns:
+            the list of scores of the song, return an empty list if no score is found.
         """
         return [score for score in self.scores if score.id == song_id]
 
     def by_level(self, song_id: int, level_index: LevelIndex) -> Score | None:
-        """
-        Get score by the song and level index, return None if no score is found
+        """Get score by the song and level index.
 
-        If ScoreKind is BEST, only the b50 scores will be filtered.
+        If `ScoreKind` is `BEST`, only the b50 scores will be filtered.
 
-        Parameters
-        ----------
-        song_id: int
-            the ID of the song to get the scores by
-        level_index: LevelIndex
-            the level index of the scores to get
+        Args:
+            song_id: the ID of the song to get the scores by.
+            level_index: the level index of the scores to get.
+        Returns:
+            the score if it exists, otherwise return None
         """
         return next((score for score in self.scores if score.id == song_id and score.level_index == level_index), None)
 
     def filter(self, **kwargs) -> list[Score]:
-        """
-        Filter scores by their attributes, all conditions are connected by AND, return an empty list if no score is found
+        """Filter scores by their attributes.
 
-        If ScoreKind is BEST, only the b50 scores will be filtered.
+        Make sure the attribute is of the score, and the value is of the same type. All conditions are connected by AND.
 
-        Parameters
-        ----------
-        kwargs: dict
-            the attributes to filter the scores by
+        If `ScoreKind` is `BEST`, only the b50 scores will be filtered.
+
+        Args:
+            kwargs: the attributes to filter the scores by.
+        Returns:
+            the list of scores that match all the conditions, return an empty list if no score is found.
         """
         return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items())]
 
 
 class MaimaiClient:
-    client: AsyncClient
+    """The main client of maimai.py."""
+
+    _client: AsyncClient
 
     def __init__(self, retries: int = 3, **kwargs) -> None:
-        """
-        Initialize the maimai.py client
+        """Initialize the maimai.py client.
 
-        Parameters
-        ----------
-
-        retries: int
-            the number of retries to attempt on failed requests, defaults to 3
-        lxns_developer_token: str
-            the developer token for LXNSProvider, this will be used to construct the default LXNSProvider
-        divingfish_developer_token: str
-            the developer token for DivingFishProvider, this will be used to construct the default DivingFishProvider
+        Args:
+            retries: the number of retries to attempt on failed requests, defaults to 3.
         """
-        self.client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), **kwargs)
+        self._client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), **kwargs)
 
     async def songs(
         self,
         provider: ISongProvider = LXNSProvider(),
         alias_provider: IAliasProvider = YuzuProvider(),
     ) -> MaimaiSongs:
-        """
-        Fetch all maimai songs from the provider, returning a wrapper of the song list, for easier access and filtering
+        """Fetch all maimai songs from the provider.
 
-        Parameters
-        ----------
-        provider: ISongProvider (DivingFishProvider | LXNSProvider)
-            the data source to fetch the player from, defaults to LXNSProvider
+        Available providers: `DivingFishProvider`, `LXNSProvider`.
 
-        alias_provider: IAliasProvider (YuzuProvider | LXNSProvider)
-            the data source to fetch the song aliases from, defaults to YuzuProvider
+        Available alias providers: `YuzuProvider`, `LXNSProvider`.
+
+        Args:
+            provider: the data source to fetch the player from, defaults to `LXNSProvider`.
+            alias_provider: the data source to fetch the song aliases from, defaults to `YuzuProvider`.
+        Returns:
+            A wrapper of the song list, for easier access and filtering.
         """
-        aliases = await alias_provider.get_aliases(self.client) if alias_provider else None
-        songs = await provider.get_songs(self.client)
+        aliases = await alias_provider.get_aliases(self._client) if alias_provider else None
+        songs = await provider.get_songs(self._client)
         caches.cached_songs = MaimaiSongs(songs, aliases)
         return caches.cached_songs
 
@@ -402,18 +391,17 @@ class MaimaiClient:
         identifier: PlayerIdentifier,
         provider: IPlayerProvider = LXNSProvider(),
     ) -> DivingFishPlayer | LXNSPlayer:
-        """
-        Fetch player data from the provider, using the given one identifier
+        """Fetch player data from the provider.
 
-        Parameters
-        ----------
+        Available providers: `DivingFishProvider`, `LXNSProvider`.
 
-        identifier: PlayerIdentifier
-            the identifier of the player to fetch, e.g. PlayerIdentifier(username="turou")
-        provider: IPlayerProvider (DivingFishProvider | LXNSProvider)
-            the data source to fetch the player from, defaults to LXNSProvider
+        Args:
+            identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(username="turou")`.
+            provider: the data source to fetch the player from, defaults to `LXNSProvider`.
+        Returns:
+            The player object of the player, with all the data fetched.
         """
-        return await provider.get_player(identifier, self.client)
+        return await provider.get_player(identifier, self._client)
 
     async def scores(
         self,
@@ -421,24 +409,22 @@ class MaimaiClient:
         kind: ScoreKind = ScoreKind.BEST,
         provider: IScoreProvider = LXNSProvider(),
     ):
-        """
-        Fetch player's scores from the provider, using the given one identifier
+        """Fetch player's scores from the provider.
 
-        Parameters
-        ----------
+        Available providers: `DivingFishProvider`, `LXNSProvider`.
 
-        identifier: PlayerIdentifier
-            the identifier of the player to fetch, e.g. PlayerIdentifier(friend_code=664994421382429)
-        kind: ScoreKind
-            the kind of scores list to fetch, defaults to ScoreKind.BEST
-        provider: IScoreProvider (LXNSProvider | DivingFishProvider)
-            the data source to fetch the player and scores from, defaults to LXNSProvider
+        Args:
+            identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
+            kind: the kind of scores list to fetch, defaults to `ScoreKind.BEST`.
+            provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
+        Returns:
+            The scores object of the player, with all the data fetched.
         """
-        b35, b15 = await provider.get_scores_best(identifier, self.client)
+        b35, b15 = await provider.get_scores_best(identifier, self._client)
         maimai_scores = MaimaiScores(b35, b15)
         if kind == ScoreKind.ALL:
             # fetch all scores if needed, this is a separate request, because of b35 and b15 is always fetched
-            maimai_scores.scores = await provider.get_scores_all(identifier, self.client)
+            maimai_scores.scores = await provider.get_scores_all(identifier, self._client)
         return maimai_scores
 
     async def plates(
@@ -447,18 +433,15 @@ class MaimaiClient:
         plate: str,
         provider: IScoreProvider = LXNSProvider(),
     ) -> MaimaiPlates:
-        """
-        Get the plate achievement of the given player and plate.
+        """Get the plate achievement of the given player and plate.
 
-        Parameters
-        ----------
-        identifier: PlayerIdentifier
-            the identifier of the player to fetch, e.g. PlayerIdentifier(friend_code=664994421382429)
-        plate: str
-            the name of the plate, e.g. "樱将", "真舞舞"
-        provider: IScoreProvider (LXNSProvider | DivingFishProvider)
-            the data source to fetch the player and scores from, defaults to LXNSProvider
+        Args:
+            identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
+            plate: the name of the plate, e.g. "樱将", "真舞舞".
+            provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
+        Returns:
+            A wrapper of the plate achievement, with plate information, and matched player scores.
         """
         songs = caches.cached_songs if caches.cached_songs else await self.songs()
-        scores = await provider.get_scores_all(identifier, self.client)
+        scores = await provider.get_scores_all(identifier, self._client)
         return MaimaiPlates(scores, plate[0], plate[1:], songs)
