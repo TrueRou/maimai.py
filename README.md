@@ -1,7 +1,7 @@
 # maimai.py
 
 
-[![PyPI version](https://img.shields.io/pypi/v/maimai-py)](https://pypi.org/project/mkdocs-badges/)
+[![PyPI version](https://img.shields.io/pypi/v/maimai-py)](https://pypi.org/project/maimai-py/)
 ![License](https://img.shields.io/pypi/l/maimai-py)
 ![Python versions](https://img.shields.io/pypi/pyversions/maimai-py)
 [![zh](https://img.shields.io/badge/README-中文-green.svg)](https://github.com/TrueRou/maimai.py/blob/main/README_CN.md)
