@@ -19,7 +19,7 @@ jobs:
           python-version: '3.12' 
       
       - name: Generate Static Files
-        run: mkdir docs && pip install httpx pdoc && pdoc maimai_py --docformat google -o ./docs
+        run: mkdir docs && pip install httpx pdoc beautifulsoup4 && pdoc maimai_py --docformat google -o ./docs
       
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
