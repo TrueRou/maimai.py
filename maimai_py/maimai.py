@@ -3,7 +3,7 @@ from functools import cached_property
 from httpx import AsyncClient, AsyncHTTPTransport
 from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind
-from maimai_py.exceptions import InvalidPlateError
+from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
 from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
 from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, LXNSProvider, YuzuProvider
 from maimai_py.providers.base import IScoreProvider
@@ -465,3 +465,38 @@ class MaimaiClient:
         songs = caches.cached_songs if caches.cached_songs else await self.songs()
         scores = await provider.get_scores_all(identifier, self)
         return MaimaiPlates(scores, plate[0], plate[1:], songs)
+
+    async def wechat(self, r=None, t=None, code=None, state=None) -> PlayerIdentifier | str:
+        """Get the player identifier from the Wahlap Wechat OffiAccount.
+
+        Call the method with no parameters to get the URL, then redirect the user to the URL with your mitmproxy enabled.
+
+        Your mitmproxy should intercept the response from tgk-wcaime.wahlap.com, then call the method with the parameters from the intercepted response.
+
+        With the parameters from specific user's response, the method will return the user's player identifier.
+
+        Never cache or store the player identifier, as the cookies may expire at any time.
+
+        Args:
+            r: the r parameter from the request, defaults to None.
+            t: the t parameter from the request, defaults to None.
+            code: the code parameter from the request, defaults to None.
+            state: the state parameter from the request, defaults to None.
+        Returns:
+            The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
+        """
+        if not all([r, t, code, state]):
+            resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
+            return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
+        params = {"r": r, "t": t, "code": code, "state": state}
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+            "Host": "tgk-wcaime.wahlap.com",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        }
+        resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers)
+        if resp.status_code != 302:
+            raise WechatTokenExpiredError("Wechat token is expired")
+        resp_next = await self._client.get(resp.next_request.url, headers=headers)
+        resp_next.raise_for_status()
+        return PlayerIdentifier(wechat_cookies=resp_next.cookies)

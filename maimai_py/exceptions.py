@@ -24,3 +24,7 @@ class InvalidPlateError(MaimaiPyError):
     将, 者, 極, 极, 舞舞, 神
 
     """
+
+
+class WechatTokenExpiredError(MaimaiPyError):
+    """Wahlap Wechat OffiAccount token is expired."""

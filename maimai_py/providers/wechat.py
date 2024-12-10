@@ -20,6 +20,15 @@ if TYPE_CHECKING:
 
 
 class WechatProvider(IPlayerProvider, IScoreProvider):
+    """The provider that fetches data from the Wahlap Wechat OffiAccount.
+
+    PlayerIdentifier must have the `wechat_cookies` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
+
+    PlayerIdentifier should not be cached or stored in the database here, as the cookies may expire at any time.
+
+    Wahlap Wechat OffiAccount: https://maimai.wahlap.com/maimai-mobile/
+    """
+
     def _parse_score(score: dict, songs: MaimaiSongs) -> Score | None:
         if song := songs.by_title(score["title"]):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
@@ -58,11 +67,11 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         if not identifier.wechat_cookies:
-            raise InvalidPlayerIdentifierError("WeChat cookies are required to fetch scores")
+            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
         songs = caches.cached_songs if caches.cached_songs else await client.songs()
         return await self._crawl_scores(client._client, identifier.wechat_cookies, songs)
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient"):
-        # WeChat wahlap doesn't calculate best scores, so we return None
-        # This will be handled by the main client, which will then fetch all scores instead
+        # Wahlap wechat doesn't represent best scores, we have no way to access them directly
+        # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
         return None, None
