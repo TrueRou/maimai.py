@@ -89,6 +89,7 @@ class PlayerIdentifier:
     username: str | None = None
     friend_code: int | None = None
     wechat_cookies: Cookies | None = None
+    credentials: str | None = None
 
     def __post_init__(self):
         if self.qq is None and self.username is None and self.friend_code is None and self.wechat_cookies is None:

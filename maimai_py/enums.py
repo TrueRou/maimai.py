@@ -134,8 +134,4 @@ class SongType(Enum):
     UTAGE = "utage"
 
 
-divingfish_to_type = {
-    "SD": SongType.STANDARD,
-    "DX": SongType.DX,
-}
 """@private"""

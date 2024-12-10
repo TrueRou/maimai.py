@@ -424,7 +424,7 @@ class MaimaiClient:
         identifier: PlayerIdentifier,
         kind: ScoreKind = ScoreKind.BEST,
         provider: IScoreProvider = LXNSProvider(),
-    ):
+    ) -> MaimaiScores:
         """Fetch player's scores from the provider.
 
         Available providers: `DivingFishProvider`, `LXNSProvider`.
@@ -446,6 +446,29 @@ class MaimaiClient:
         if kind == ScoreKind.ALL or (b35 == None and b15 == None):
             all = await provider.get_scores_all(identifier, self)
         return MaimaiScores(b35, b15, all)
+
+    async def updates(
+        self,
+        identifier: PlayerIdentifier,
+        scores: list[Score],
+        provider: IScoreProvider = LXNSProvider(),
+    ) -> None:
+        """Update player's scores to the provider.
+
+        For Diving Fish, the player identifier should be the player's username and password, or import token, e.g.:
+
+        `PlayerIdentifier(username="turou", credentials="password")` or `PlayerIdentifier(credentials="my_diving_fish_import_token")`.
+
+        Available providers: `DivingFishProvider`, `LXNSProvider`.
+
+        Args:
+            identifier: the identifier of the player to update, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
+            scores: the scores to update, usually the scores fetched from other providers.
+            provider: the data source to update the player scores to, defaults to `LXNSProvider`.
+        Returns:
+            Nothing, failures will raise exceptions.
+        """
+        await provider.update_scores(identifier, scores, self)
 
     async def plates(
         self,

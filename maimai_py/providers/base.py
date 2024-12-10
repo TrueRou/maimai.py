@@ -46,7 +46,7 @@ class IPlayerProvider:
 class IScoreProvider:
     """The provider that fetches scores from a specific source.
 
-    Available providers: `DivingFishProvider`, `LXNSProvider`
+    Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`
     """
 
     @abstractmethod
@@ -56,5 +56,10 @@ class IScoreProvider:
 
     @abstractmethod
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        """@private"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         """@private"""
         raise NotImplementedError()

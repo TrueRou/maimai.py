@@ -29,10 +29,10 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
     Wahlap Wechat OffiAccount: https://maimai.wahlap.com/maimai-mobile/
     """
 
-    def _parse_score(score: dict, songs: MaimaiSongs) -> Score | None:
+    def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:
         if song := songs.by_title(score["title"]):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
-            song_type = SongType.UTAGE if is_utage else enums.divingfish_to_type[score["type"]]
+            song_type = SongType.STANDARD if score["type"] == "SD" else SongType.DX if score["type"] == "DX" and not is_utage else SongType.UTAGE
             level_index = LevelIndex(score["level_index"])
             if diff := song.get_diff(song_type, level_index):
                 rating = ScoreCoefficient(score["achievements"]).ra(diff.level_value)
@@ -50,14 +50,14 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
                     type=song_type,
                 )
 
-    async def _crawl_scores_diff(self, client: AsyncClient, diff: int, cookies: Cookies, songs: MaimaiSongs) -> list[Score]:
+    async def _crawl_scores_diff(self, client: AsyncClient, diff: int, cookies: Cookies, songs: "MaimaiSongs") -> list[Score]:
         await asyncio.sleep(random.randint(0, 100) / 1000)  # sleep for a random amount of time between 0 and 100ms
         resp1 = await client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
         body = re.search(r"<html.*?>([\s\S]*?)</html>", resp1.text).group(1).replace(r"\s+", " ")
         wm_json = page_parser.wmdx_html2json(body)
-        return [parsed for score in wm_json if (parsed := self._parse_score(score, songs))]
+        return [parsed for score in wm_json if (parsed := self._deser_score(score, songs))]
 
-    async def _crawl_scores(self, client: AsyncClient, cookies: Cookies, songs: MaimaiSongs) -> list[Score]:
+    async def _crawl_scores(self, client: AsyncClient, cookies: Cookies, songs: "MaimaiSongs") -> list[Score]:
         tasks = [self._crawl_scores_diff(client, diff, cookies, songs) for diff in [0, 1, 2, 3, 4]]
         results = await asyncio.gather(*tasks)
         return functools.reduce(operator.concat, results, [])

@@ -1,3 +1,4 @@
+import json
 from typing import TYPE_CHECKING
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidDeveloperTokenError
@@ -48,7 +49,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         """
         self.developer_token = developer_token
 
-    def _parse_score(score: dict) -> Score:
+    def _deser_score(score: dict) -> Score:
         return Score(
             id=score["id"],
             song_name=score["song_name"],
@@ -62,6 +63,21 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             rate=RateType[score["rate"].upper()],
             type=SongType[score["type"].upper()],
         )
+
+    def _ser_score(score: Score) -> dict:
+        return {
+            "id": score.id,
+            "song_name": score.song_name,
+            "level": score.level,
+            "level_index": score.level_index.value,
+            "achievements": score.achievements,
+            "fc": score.fc.name.lower() if score.fc else None,
+            "fs": score.fs.name.lower() if score.fs else None,
+            "dx_score": score.dx_score,
+            "dx_rating": score.dx_rating,
+            "rate": score.rate.name.lower(),
+            "type": score.type.name.lower(),
+        }
 
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/song/list")
@@ -165,8 +181,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         resp = await client._client.get(self.base_url + entrypoint, headers=self.headers)
         resp.raise_for_status()
         return (
-            [LXNSProvider._parse_score(score) for score in resp.json()["data"]["standard"]],
-            [LXNSProvider._parse_score(score) for score in resp.json()["data"]["dx"]],
+            [LXNSProvider._deser_score(score) for score in resp.json()["data"]["standard"]],
+            [LXNSProvider._deser_score(score) for score in resp.json()["data"]["dx"]],
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
@@ -177,7 +193,17 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
         resp = await client._client.get(self.base_url + entrypoint, headers=self.headers)
         resp.raise_for_status()
-        return [LXNSProvider._parse_score(score) for score in resp.json()["data"]]
+        return [LXNSProvider._deser_score(score) for score in resp.json()["data"]]
+
+    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
+        if identifier.friend_code is None:
+            resp = await client._client.get(self.base_url + f"api/v0/maimai/player/qq/{identifier.qq}", headers=self.headers)
+            resp.raise_for_status()
+            identifier.friend_code = resp.json()["data"]["friend_code"]
+        entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
+        scores_json = json.dumps([LXNSProvider._ser_score(score) for score in scores], ensure_ascii=False)
+        resp = await client._client.post(self.base_url + entrypoint, headers=self.headers, json=scores_json)
+        resp.raise_for_status()
 
     async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/alias/list")

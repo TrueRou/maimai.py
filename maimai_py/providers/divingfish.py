@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from maimai_py import enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import InvalidDeveloperTokenError
+from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError
 from maimai_py.models import DivingFishPlayer, Player, PlayerIdentifier, Score, Song, SongDifficulties, SongDifficulty, SongDifficultyUtage
 from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvider
 
@@ -35,7 +35,10 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         """
         self.developer_token = developer_token
 
-    def _parse_score(score: dict) -> Score:
+    def _deser_score(score: dict) -> Score:
+        song_type = (
+            SongType.STANDARD if score["type"] == "SD" else SongType.DX if score["type"] == "DX" and score["song_id"] < 100000 else SongType.UTAGE
+        )
         return Score(
             id=score["song_id"] % 10000,
             song_name=score["title"],
@@ -47,8 +50,25 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             dx_score=score["dxScore"],
             dx_rating=score["ra"],
             rate=RateType[score["rate"].upper()],
-            type=enums.divingfish_to_type[score["type"]] if score["song_id"] < 100000 else SongType.UTAGE,
+            type=song_type,
         )
+
+    def _ser_score(score: Score) -> dict:
+        diving_id = score.id if score.type == SongType.STANDARD else score.id + 10000 if score.type == SongType.DX else score.id + 100000
+        diving_type = "SD" if score.type == SongType.STANDARD else "DX" if score.type == SongType.DX else "UTAGE"
+        return {
+            "song_id": diving_id,
+            "title": score.song_name,
+            "level": score.level,
+            "level_index": score.level_index.value,
+            "achievements": score.achievements,
+            "fc": score.fc.name.lower() if score.fc else None,
+            "fs": score.fs.name.lower() if score.fs else None,
+            "dxScore": score.dx_score,
+            "ra": score.dx_rating,
+            "rate": score.rate.name.lower(),
+            "type": diving_type,
+        }
 
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         resp = await client._client.get("https://www.diving-fish.com/api/maimaidxprober/music_data")
@@ -141,12 +161,27 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         resp.raise_for_status()
         resp_json = resp.json()
         return (
-            [DivingFishProvider._parse_score(score) for score in resp_json["charts"]["sd"]],
-            [DivingFishProvider._parse_score(score) for score in resp_json["charts"]["dx"]],
+            [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"]],
+            [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["dx"]],
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.get(self.base_url + "dev/player/records", params=identifier.as_diving_fish(), headers=self.headers)
         resp.raise_for_status()
         resp_json = resp.json()
-        return [DivingFishProvider._parse_score(score) for score in resp_json["records"]]
+        return [DivingFishProvider._deser_score(score) for score in resp_json["records"]]
+
+    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
+        headers, cookies = None
+        if identifier.username and identifier.credentials:
+            login_json = {"username": identifier.username, "password": identifier.credentials}
+            resp1 = await client._client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
+            resp1.raise_for_status()
+            cookies = resp1.cookies
+        elif not identifier.username and identifier.credentials:
+            headers = {"Import-Token": identifier.credentials}
+        else:
+            raise InvalidPlayerIdentifierError("Either username and password or import token is required to deliver scores")
+        scores_json = [DivingFishProvider._ser_score(score) for score in scores]
+        resp2 = await client._client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
+        resp2.raise_for_status()
