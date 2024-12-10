@@ -2,6 +2,10 @@ class MaimaiPyError(Exception):
     """Base exception class for all exceptions raised by maimai_py."""
 
 
+class InvalidPlayerIdentifierError(MaimaiPyError):
+    """Player identifier is invalid for some reason."""
+
+
 class InvalidDeveloperTokenError(MaimaiPyError):
     """Developer token is not provided or token is invalid."""
 

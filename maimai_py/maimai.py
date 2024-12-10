@@ -1,3 +1,4 @@
+import asyncio
 from functools import cached_property
 from httpx import AsyncClient, AsyncHTTPTransport
 from maimai_py import caches, enums
@@ -170,7 +171,7 @@ class MaimaiPlates:
         """
         scores: dict[int, list[Score]] = {}
         [scores.setdefault(score.id, []).append(score) for score in self.scores]
-        results = {song.id: PlateObject(song=song, levels=song.levels(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs}
+        results = {song.id: PlateObject(song=song, levels=song.get_levels(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs}
 
         def extract(score: Score) -> None:
             if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
@@ -245,7 +246,7 @@ class MaimaiPlates:
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
-        results = {song.id: PlateObject(song=song, levels=song.levels(self.no_remaster), score=[]) for song in self.songs}
+        results = {song.id: PlateObject(song=song, levels=song.get_levels(self.no_remaster), score=[]) for song in self.songs}
         return results.values()
 
     @cached_property
@@ -286,13 +287,31 @@ class MaimaiScores:
     rating_b15: int
     """The b15 rating of the player."""
 
-    def __init__(self, scores_b35: list[Score], scores_b15: list[Score]) -> None:
-        """@private"""
-        self.scores = scores_b35 + scores_b15
-        self.scores_b35 = scores_b35
-        self.scores_b15 = scores_b15
-        self.rating_b35 = sum(score.dx_rating for score in scores_b35)
-        self.rating_b15 = sum(score.dx_rating for score in scores_b15)
+    @staticmethod
+    def _get_distinct_scores(scores: list[Score]) -> list[Score]:
+        scores_unique = {}
+        for score in scores:
+            score_key = f"{score.id} {score.type} {score.level_index}"
+            scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+        return list(scores_unique.values())
+
+    def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None):
+        self.scores = all or b35 + b15
+        # if b35 and b15 are not provided, try to calculate them from all scores
+        if (not b35 or not b15) and all:
+            distinct_scores = MaimaiScores._get_distinct_scores(all)  # scores have to be distinct to calculate the bests
+            songs = caches.cached_songs if caches.cached_songs else asyncio.run(MaimaiClient().songs())  # in most cases, the songs are already cached
+            scores_new: list[Score] = []
+            scores_old: list[Score] = []
+            for score in distinct_scores:
+                if song := songs.by_id(score.id):
+                    (scores_new if song.version >= enums.current_version else scores_old).append(score)
+            b35 = (scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True))[:35]
+            b15 = (scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True))[:15]
+        self.scores_b35 = b35
+        self.scores_b15 = b15
+        self.rating_b35 = sum(score.dx_rating for score in b35)
+        self.rating_b15 = sum(score.dx_rating for score in b15)
         self.rating = self.rating_b35 + self.rating_b15
 
     @cached_property
@@ -301,15 +320,12 @@ class MaimaiScores:
 
         Normally, player has more than one score for the same song and level, this method will return a new `MaimaiScores` object with the highest scores for each song and level.
 
+        This method won't modify the original scores object, it will return a new one.
+
         If ScoreKind is BEST, this won't make any difference, because the scores are already the best ones.
         """
-        new_scores = MaimaiScores(self.scores_b35, self.scores_b15)
-        scores_unique = {}
-        for score in self.scores:
-            score_key = f"{score.id} {score.type} {score.level_index}"
-            scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
-        new_scores.scores = list(scores_unique.values())
-        return new_scores
+        distinct_scores = MaimaiScores._get_distinct_scores(self.scores)
+        return MaimaiScores(b35=self.scores_b35, b15=self.scores_b15, all=distinct_scores)
 
     def by_song(self, song_id: int) -> list[Score]:
         """Get all level scores of the song.
@@ -381,8 +397,8 @@ class MaimaiClient:
         Returns:
             A wrapper of the song list, for easier access and filtering.
         """
-        aliases = await alias_provider.get_aliases(self._client) if alias_provider else None
-        songs = await provider.get_songs(self._client)
+        aliases = await alias_provider.get_aliases(self) if alias_provider else None
+        songs = await provider.get_songs(self)
         caches.cached_songs = MaimaiSongs(songs, aliases)
         return caches.cached_songs
 
@@ -401,7 +417,7 @@ class MaimaiClient:
         Returns:
             The player object of the player, with all the data fetched.
         """
-        return await provider.get_player(identifier, self._client)
+        return await provider.get_player(identifier, self)
 
     async def scores(
         self,
@@ -420,12 +436,16 @@ class MaimaiClient:
         Returns:
             The scores object of the player, with all the data fetched.
         """
-        b35, b15 = await provider.get_scores_best(identifier, self._client)
-        maimai_scores = MaimaiScores(b35, b15)
-        if kind == ScoreKind.ALL:
-            # fetch all scores if needed, this is a separate request, because of b35 and b15 is always fetched
-            maimai_scores.scores = await provider.get_scores_all(identifier, self._client)
-        return maimai_scores
+        # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
+        # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
+        # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
+        b35, b15, all = None, None, None
+        if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
+            b35, b15 = await provider.get_scores_best(identifier, self)
+        # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
+        if kind == ScoreKind.ALL or (b35 == None and b15 == None):
+            all = await provider.get_scores_all(identifier, self)
+        return MaimaiScores(b35, b15, all)
 
     async def plates(
         self,
@@ -443,5 +463,5 @@ class MaimaiClient:
             A wrapper of the plate achievement, with plate information, and matched player scores.
         """
         songs = caches.cached_songs if caches.cached_songs else await self.songs()
-        scores = await provider.get_scores_all(identifier, self._client)
+        scores = await provider.get_scores_all(identifier, self)
         return MaimaiPlates(scores, plate[0], plate[1:], songs)

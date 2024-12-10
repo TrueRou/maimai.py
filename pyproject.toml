@@ -10,6 +10,7 @@ packages = [{include = "maimai_py"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 httpx = "^0.28.0"
+beautifulsoup4 = "^4.12.3"
 
 
 [tool.poetry.group.dev.dependencies]

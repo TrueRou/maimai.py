@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+from httpx import Cookies
+
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import MaimaiPyError
+from maimai_py.exceptions import InvalidPlayerIdentifierError
 
 
 @dataclass
@@ -52,11 +54,33 @@ class Song:
     disabled: bool
     difficulties: SongDifficulties
 
-    def levels(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+    def get_levels(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+        """Get the level indexes of the song.
+
+        Args:
+            exclude_remaster: whether to exclude the ReMASTER level index.
+        Returns:
+            the level indexes of the song.
+        """
         results = [diff.difficulty for diff in (self.difficulties.standard + self.difficulties.dx)]
         if exclude_remaster and LevelIndex.ReMASTER in results:
             results.remove(LevelIndex.ReMASTER)
         return results
+
+    def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | None:
+        """Get the difficulty of the song by its type and level index.
+
+        Args:
+            type: the type of the difficulty, e.g. `SongType.DX`.
+            level_index: the index of the level, e.g. `LevelIndex.MASTER`.
+        Returns:
+            the difficulty if it exists, otherwise return None.
+        """
+        if type == SongType.DX:
+            return next((diff for diff in self.difficulties.dx if diff.difficulty == level_index), None)
+        if type == SongType.STANDARD:
+            return next((diff for diff in self.difficulties.standard if diff.difficulty == level_index), None)
+        return None
 
 
 @dataclass
@@ -64,10 +88,11 @@ class PlayerIdentifier:
     qq: int | None = None
     username: str | None = None
     friend_code: int | None = None
+    wechat_cookies: Cookies | None = None
 
     def __post_init__(self):
-        if self.qq is None and self.username is None and self.friend_code is None:
-            raise MaimaiPyError("At least one of qq, username, or friend_code must be provided")
+        if self.qq is None and self.username is None and self.friend_code is None and self.wechat_cookies is None:
+            raise InvalidPlayerIdentifierError("At least one of the following must be provided: qq, username, friend_code, wechat_cookies")
 
     def as_diving_fish(self):
         """@private"""
@@ -76,7 +101,7 @@ class PlayerIdentifier:
         elif self.username:
             return {"username": self.username}
         elif self.friend_code:
-            raise MaimaiPyError("Friend code is not applicable for Diving Fish")
+            raise InvalidPlayerIdentifierError("Friend code is not applicable for Diving Fish")
 
     def as_lxns(self):
         """@private"""
@@ -85,7 +110,7 @@ class PlayerIdentifier:
         elif self.qq:
             return f"qq/{str(self.qq)}"
         elif self.username:
-            raise MaimaiPyError("Username is not applicable for LXNS")
+            raise InvalidPlayerIdentifierError("Username is not applicable for LXNS")
 
 
 @dataclass

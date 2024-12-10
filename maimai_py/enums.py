@@ -31,6 +31,12 @@ plate_to_version: dict[str, int] = {
 }
 """@private"""
 
+current_version = list(plate_to_version.values())[-1]
+"""@private
+
+We consider the latest version to be the highest version in the plate_to_version dict.
+"""
+
 divingfish_to_version = {
     "maimai": 10000,
     "maimai PLUS": 11000,
