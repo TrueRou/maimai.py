@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 from httpx import AsyncClient, Cookies
 from maimai_py import caches
-from maimai_py import enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.models import PlayerIdentifier, Score
@@ -24,7 +23,7 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
 
     PlayerIdentifier must have the `wechat_cookies` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
 
-    PlayerIdentifier should not be cached or stored in the database here, as the cookies may expire at any time.
+    PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
     Wahlap Wechat OffiAccount: https://maimai.wahlap.com/maimai-mobile/
     """

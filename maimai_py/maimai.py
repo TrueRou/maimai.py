@@ -377,6 +377,7 @@ class MaimaiClient:
 
         Args:
             retries: the number of retries to attempt on failed requests, defaults to 3.
+            timeout: the timeout of the requests, defaults to 20.0.
         """
         self._client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), timeout=timeout, **kwargs)
 
@@ -433,7 +434,10 @@ class MaimaiClient:
     ) -> MaimaiScores:
         """Fetch player's scores from the provider.
 
-        Available providers: `DivingFishProvider`, `LXNSProvider`.
+        For WechatProvider, PlayerIdentifier must have the `wechat_cookies` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
+        Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
+
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`.
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
