@@ -1,9 +1,13 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from httpx import Cookies
+from httpx import AsyncClient, Cookies
 
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import InvalidPlayerIdentifierError
+from maimai_py.exceptions import InvalidPlayerIdentifierError, InvalidPlayerIdentifierError
+
+if TYPE_CHECKING:
+    from maimai_py.providers.lxns import LXNSProvider
 
 
 @dataclass
@@ -112,6 +116,14 @@ class PlayerIdentifier:
             return f"qq/{str(self.qq)}"
         elif self.username:
             raise InvalidPlayerIdentifierError("Username is not applicable for LXNS")
+
+    async def ensure_friend_code(self, client: AsyncClient, provider: "LXNSProvider"):
+        """@private"""
+        if self.friend_code is None:
+            resp = await client.get(provider.base_url + f"api/v0/maimai/player/qq/{self.qq}", headers=provider.headers)
+            if not resp.json()["success"]:
+                raise InvalidPlayerIdentifierError(resp.json()["message"])
+            self.friend_code = resp.json()["data"]["friend_code"]
 
 
 @dataclass

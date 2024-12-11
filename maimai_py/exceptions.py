@@ -3,7 +3,12 @@ class MaimaiPyError(Exception):
 
 
 class InvalidPlayerIdentifierError(MaimaiPyError):
-    """Player identifier is invalid for some reason."""
+    """Player identifier is invalid for the provider.
+
+    For example, friend code is not applicable for Diving Fish provider, the username is not applicable for LXNS provider.
+
+    Also, if the player is not found on that provider, this exception will be raised.
+    """
 
 
 class InvalidDeveloperTokenError(MaimaiPyError):
@@ -24,6 +29,10 @@ class InvalidPlateError(MaimaiPyError):
     将, 者, 極, 极, 舞舞, 神
 
     """
+
+
+class PrivacyLimitationError(MaimaiPyError):
+    """The user has not accepted the privacy policy or exceeded the privacy limit of the provider."""
 
 
 class WechatTokenExpiredError(MaimaiPyError):

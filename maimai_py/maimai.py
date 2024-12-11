@@ -372,13 +372,13 @@ class MaimaiClient:
 
     _client: AsyncClient
 
-    def __init__(self, retries: int = 3, **kwargs) -> None:
+    def __init__(self, retries: int = 3, timeout: float = 20.0, **kwargs) -> None:
         """Initialize the maimai.py client.
 
         Args:
             retries: the number of retries to attempt on failed requests, defaults to 3.
         """
-        self._client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), **kwargs)
+        self._client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), timeout=timeout, **kwargs)
 
     async def songs(
         self,
@@ -396,6 +396,8 @@ class MaimaiClient:
             alias_provider: the data source to fetch the song aliases from, defaults to `YuzuProvider`.
         Returns:
             A wrapper of the song list, for easier access and filtering.
+        Raises:
+            ConnectError, ReadTimeout: Request failed due to network issues.
         """
         aliases = await alias_provider.get_aliases(self) if alias_provider else None
         songs = await provider.get_songs(self)
@@ -416,6 +418,10 @@ class MaimaiClient:
             provider: the data source to fetch the player from, defaults to `LXNSProvider`.
         Returns:
             The player object of the player, with all the data fetched.
+        Raises:
+            ConnectError, ReadTimeout: Request failed due to network issues.
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
         """
         return await provider.get_player(identifier, self)
 
@@ -435,6 +441,10 @@ class MaimaiClient:
             provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
         Returns:
             The scores object of the player, with all the data fetched.
+        Raises:
+            ConnectError, ReadTimeout: Request failed due to network issues.
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
         """
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
@@ -467,6 +477,10 @@ class MaimaiClient:
             provider: the data source to update the player scores to, defaults to `LXNSProvider`.
         Returns:
             Nothing, failures will raise exceptions.
+        Raises:
+            ConnectError, ReadTimeout: Request failed due to network issues.
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found, or the import token / password is invalid.
+            PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
         """
         await provider.update_scores(identifier, scores, self)
 
@@ -484,6 +498,10 @@ class MaimaiClient:
             provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
         Returns:
             A wrapper of the plate achievement, with plate information, and matched player scores.
+        Raises:
+            ConnectError, ReadTimeout: Request failed due to network issues.
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
         """
         songs = caches.cached_songs if caches.cached_songs else await self.songs()
         scores = await provider.get_scores_all(identifier, self)
@@ -507,6 +525,9 @@ class MaimaiClient:
             state: the state parameter from the request, defaults to None.
         Returns:
             The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
+        Raises:
+            ConnectError, ReadTimeout: Request failed due to network issues.
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
         """
         if not all([r, t, code, state]):
             resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")

@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING
+
+from httpx import Response
 from maimai_py import enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError
+from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
 from maimai_py.models import DivingFishPlayer, Player, PlayerIdentifier, Score, Song, SongDifficulties, SongDifficulty, SongDifficultyUtage
 from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvider
 
@@ -69,6 +71,17 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             "rate": score.rate.name.lower(),
             "type": diving_type,
         }
+
+    def _check_response_player(self, resp: Response) -> None:
+        resp_json = resp.json()
+        if "msg" in resp_json and resp_json["msg"] in ["请先联系水鱼申请开发者token", "开发者token有误", "开发者token被禁用"]:
+            raise InvalidDeveloperTokenError(resp_json["msg"])
+        elif "message" in resp_json and resp_json["message"] in ["导入token有误", "尚未登录", "会话过期"]:
+            raise InvalidPlayerIdentifierError(resp_json["message"])
+        elif resp.status_code in [400, 401]:
+            raise InvalidPlayerIdentifierError(resp_json["message"])
+        elif resp.status_code == 403:
+            raise PrivacyLimitationError(resp_json["message"])
 
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         resp = await client._client.get("https://www.diving-fish.com/api/maimaidxprober/music_data")
@@ -144,7 +157,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
 
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> Player:
         resp = await client._client.post(self.base_url + "query/player", json=identifier.as_diving_fish())
-        resp.raise_for_status()
+        self._check_response_player(resp)
         resp_json = resp.json()
         return DivingFishPlayer(
             name=resp_json["username"],
@@ -158,7 +171,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         req_json = identifier.as_diving_fish()
         req_json["b50"] = True
         resp = await client._client.post(self.base_url + "query/player", json=req_json)
-        resp.raise_for_status()
+        self._check_response_player(resp)
         resp_json = resp.json()
         return (
             [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"]],
@@ -167,7 +180,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.get(self.base_url + "dev/player/records", params=identifier.as_diving_fish(), headers=self.headers)
-        resp.raise_for_status()
+        self._check_response_player(resp)
         resp_json = resp.json()
         return [DivingFishProvider._deser_score(score) for score in resp_json["records"]]
 
@@ -176,7 +189,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         if identifier.username and identifier.credentials:
             login_json = {"username": identifier.username, "password": identifier.credentials}
             resp1 = await client._client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
-            resp1.raise_for_status()
+            self._check_response_player(resp1)
             cookies = resp1.cookies
         elif not identifier.username and identifier.credentials:
             headers = {"Import-Token": identifier.credentials}
@@ -184,4 +197,4 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             raise InvalidPlayerIdentifierError("Either username and password or import token is required to deliver scores")
         scores_json = [DivingFishProvider._ser_score(score) for score in scores]
         resp2 = await client._client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
-        resp2.raise_for_status()
+        self._check_response_player(resp2)
