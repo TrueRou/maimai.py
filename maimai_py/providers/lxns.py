@@ -205,8 +205,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         await identifier.ensure_friend_code(client._client, self)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
-        scores_json = json.dumps([LXNSProvider._ser_score(score) for score in scores], ensure_ascii=False)
-        resp = await client._client.post(self.base_url + entrypoint, headers=self.headers, json=scores_json)
+        scores_dict = {"scores": [LXNSProvider._ser_score(score) for score in scores]}
+        resp = await client._client.post(self.base_url + entrypoint, headers=self.headers, json=scores_dict)
         if not resp.json()["success"] and resp.json()["code"] == 400:
             raise ValueError(resp.json()["message"])
         self._check_response_player(resp)

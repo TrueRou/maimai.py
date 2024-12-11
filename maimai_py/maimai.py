@@ -295,19 +295,20 @@ class MaimaiScores:
             scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
         return list(scores_unique.values())
 
-    def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None):
+    def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None, songs: "MaimaiSongs" = None):
         self.scores = all or b35 + b15
         # if b35 and b15 are not provided, try to calculate them from all scores
         if (not b35 or not b15) and all:
             distinct_scores = MaimaiScores._get_distinct_scores(all)  # scores have to be distinct to calculate the bests
-            songs = caches.cached_songs if caches.cached_songs else asyncio.run(MaimaiClient().songs())  # in most cases, the songs are already cached
             scores_new: list[Score] = []
             scores_old: list[Score] = []
             for score in distinct_scores:
                 if song := songs.by_id(score.id):
                     (scores_new if song.version >= enums.current_version else scores_old).append(score)
-            b35 = (scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True))[:35]
-            b15 = (scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True))[:15]
+            scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
+            scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
+            b35 = scores_old[:35]
+            b15 = scores_new[:15]
         self.scores_b35 = b35
         self.scores_b15 = b15
         self.rating_b35 = sum(score.dx_rating for score in b35)
@@ -453,13 +454,14 @@ class MaimaiClient:
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-        b35, b15, all = None, None, None
+        b35, b15, all, songs = None, None, None, None
         if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
             b35, b15 = await provider.get_scores_best(identifier, self)
         # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
         if kind == ScoreKind.ALL or (b35 == None and b15 == None):
+            songs = caches.cached_songs if caches.cached_songs else await self.songs()
             all = await provider.get_scores_all(identifier, self)
-        return MaimaiScores(b35, b15, all)
+        return MaimaiScores(b35, b15, all, songs)
 
     async def updates(
         self,
