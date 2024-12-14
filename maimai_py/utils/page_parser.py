@@ -1,6 +1,7 @@
 # MIT license
 # Reference: https://github.com/Diving-Fish/maimaidx-prober
 
+import re
 from bs4 import BeautifulSoup
 
 
@@ -25,9 +26,8 @@ def get_data_from_div(div, link_searched):
             return 0
 
     def get_music_icon(src: str):
-        re = "https://maimai.wahlap.com/maimai-mobile/img/music_icon_"
-        v = src.replace(re, "").replace(".png", "")
-        return v if v != "back" else ""
+        matched = re.search(r"music_icon_(.+?)\.png", src)
+        return matched.group(1) if matched and matched.group(1) != "back" else ""
 
     title = form.contents[7].string
     if title == "Link":
@@ -40,7 +40,7 @@ def get_data_from_div(div, link_searched):
             "level_index": get_level_index(form.contents[1].attrs["src"]),
             "type": type_,
             "achievements": float(form.contents[9].string[:-1]),
-            "dxScore": int(form.contents[11].string.strip().replace(",", "")),
+            "dxScore": int(form.contents[11].contents[1].string.strip().split("/")[0].replace(" ", "").replace(",", "")),
             "rate": get_music_icon(form.contents[17].attrs["src"]),
             "fc": get_music_icon(form.contents[15].attrs["src"]),
             "fs": get_music_icon(form.contents[13].attrs["src"]),

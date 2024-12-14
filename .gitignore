@@ -1,4 +1,5 @@
 config.json
+proxy.yaml
 tests/secrets.py
 .vscode/
 

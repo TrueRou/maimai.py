@@ -1,61 +1,41 @@
 import asyncio
-import json
+import logging
 import os
-from pathlib import Path
 import threading
-from typing import Any, Callable, Self
 
-from mitmproxy.addons import default_addons, script
 from mitmproxy.master import Master
 from mitmproxy.options import Options
+from mitmproxy.addons import default_addons
 
+from examples.proxy_updater.config import config
 from examples.proxy_updater.proxy import WechatWahlapAddon
+from examples.proxy_updater.updater import generate_url
 
 
-# https://stackoverflow.com/questions/51893788/using-mitmproxy-inside-python-script
-class ThreadedMitmProxy(threading.Thread):
-    def __init__(self, user_addon: Callable, **options: Any) -> None:
-        self.loop = asyncio.new_event_loop()
-        self.master = Master(Options(), event_loop=self.loop)
-        # replace the ScriptLoader with the user addon
-        self.master.addons.add(*(user_addon() if isinstance(addon, script.ScriptLoader) else addon for addon in default_addons()))
-        # set the options after the addons since some options depend on addons
-        self.master.options.update(**options)
-        super().__init__()
-
-    def run(self) -> None:
-        self.loop.run_until_complete(self.master.run())
-
-    def __enter__(self) -> Self:
-        self.start()
-        return self
-
-    def __exit__(self, *_) -> None:
-        self.master.shutdown()
-        self.join()
+class MitmMaster(Master):
+    def _asyncio_exception_handler(self, loop, context):
+        exc: Exception = context["exception"]
+        logging.exception(exc)
+        return super()._asyncio_exception_handler(loop, context)
 
 
-default_config = {
-    "listen_host": "0.0.0.0",
-    "listen_port": 8080,
-    "diving_fish": {
-        "enabled": True,
-        "username": "",
-        "credentials": "",
-    },
-    "lxns": {
-        "enabled": True,
-        "friend_code": 0,
-        "developer_token": "",
-    },
-}
+async def run_proxy_async():
+    master = MitmMaster(Options())
+    master.addons.add(*default_addons())
+    master.addons.add(WechatWahlapAddon())
+    master.options.update(listen_host=config["listen_host"], listen_port=config["listen_port"])
+    await master.run()
+
+
+def run_console_blocked():
+    os.system("cls" if os.name == "nt" else "clear")
+    print(f"\033[32mHTTPProxy Running on {config["listen_host"]}:{config["listen_port"]}.\033[0m")
+    while True:
+        input("\033[33mPress Enter to generate the Wechat URL, or Ctrl+C to exit.\n\033[0m")
+        os.system("cls" if os.name == "nt" else "clear")
+        asyncio.run(generate_url())
+
 
 if __name__ == "__main__":
-    if (Path(__file__).parent / "config.json").exists():
-        with ThreadedMitmProxy(WechatWahlapAddon, listen_host="0.0.0.0", listen_port=8080):
-            os.system("cls" if os.name == "nt" else "clear")
-            print("\033[32mHTTPProxy Running on 0.0.0.0:8080.\033[0m")
-            input("\033[31mPress any key to shutdown.\033[0m")
-    else:
-        (Path(__file__).parent / "config.json").write_text(json.dumps(default_config, indent=4, ensure_ascii=False), encoding="utf-8")
-        print("Config file created. Please configure it before running the proxy.")
+    threading.Thread(target=run_console_blocked).start()
+    asyncio.run(run_proxy_async())

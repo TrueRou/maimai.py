@@ -1,10 +1,8 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+
+from httpx import AsyncClient
 
 from maimai_py.models import Player, PlayerIdentifier, Score, Song, SongAlias
-
-if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiClient
 
 
 class ISongProvider:
@@ -14,7 +12,7 @@ class ISongProvider:
     """
 
     @abstractmethod
-    async def get_songs(self, client: "MaimaiClient") -> list[Song]:
+    async def get_songs(self, client: AsyncClient) -> list[Song]:
         """@private"""
         raise NotImplementedError()
 
@@ -26,7 +24,7 @@ class IAliasProvider:
     """
 
     @abstractmethod
-    async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
+    async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
         """@private"""
         raise NotImplementedError()
 
@@ -38,7 +36,7 @@ class IPlayerProvider:
     """
 
     @abstractmethod
-    async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> Player:
+    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
         """@private"""
         raise NotImplementedError()
 
@@ -50,16 +48,16 @@ class IScoreProvider:
     """
 
     @abstractmethod
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score], list[Score]]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
+    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
         """@private"""
         raise NotImplementedError()

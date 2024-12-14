@@ -1,6 +1,6 @@
-import asyncio
 from functools import cached_property
-from httpx import AsyncClient, AsyncHTTPTransport
+from httpx import AsyncClient
+import httpx
 from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind
 from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
@@ -373,14 +373,13 @@ class MaimaiClient:
 
     _client: AsyncClient
 
-    def __init__(self, retries: int = 3, timeout: float = 20.0, **kwargs) -> None:
+    def __init__(self, timeout: float = 20.0, **kwargs) -> None:
         """Initialize the maimai.py client.
 
         Args:
-            retries: the number of retries to attempt on failed requests, defaults to 3.
             timeout: the timeout of the requests, defaults to 20.0.
         """
-        self._client = AsyncClient(transport=AsyncHTTPTransport(retries=retries), timeout=timeout, **kwargs)
+        self._args = {"timeout": timeout, **kwargs}
 
     async def songs(
         self,
@@ -401,10 +400,11 @@ class MaimaiClient:
         Raises:
             ConnectError, ReadTimeout: Request failed due to network issues.
         """
-        aliases = await alias_provider.get_aliases(self) if alias_provider else None
-        songs = await provider.get_songs(self)
-        caches.cached_songs = MaimaiSongs(songs, aliases)
-        return caches.cached_songs
+        async with httpx.AsyncClient(**self._args) as client:
+            aliases = await alias_provider.get_aliases(client) if alias_provider else None
+            songs = await provider.get_songs(client)
+            caches.cached_songs = MaimaiSongs(songs, aliases)
+            return caches.cached_songs
 
     async def players(
         self,
@@ -425,7 +425,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
         """
-        return await provider.get_player(identifier, self)
+        async with httpx.AsyncClient(**self._args) as client:
+            return await provider.get_player(identifier, client)
 
     async def scores(
         self,
@@ -454,14 +455,15 @@ class MaimaiClient:
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-        b35, b15, all, songs = None, None, None, None
-        if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
-            b35, b15 = await provider.get_scores_best(identifier, self)
-        # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
-        if kind == ScoreKind.ALL or (b35 == None and b15 == None):
-            songs = caches.cached_songs if caches.cached_songs else await self.songs()
-            all = await provider.get_scores_all(identifier, self)
-        return MaimaiScores(b35, b15, all, songs)
+        async with httpx.AsyncClient(**self._args) as client:
+            b35, b15, all, songs = None, None, None, None
+            if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
+                b35, b15 = await provider.get_scores_best(identifier, client)
+            # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
+            if kind == ScoreKind.ALL or (b35 == None and b15 == None):
+                songs = caches.cached_songs if caches.cached_songs else await self.songs()
+                all = await provider.get_scores_all(identifier, client)
+            return MaimaiScores(b35, b15, all, songs)
 
     async def updates(
         self,
@@ -488,7 +490,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found, or the import token / password is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
         """
-        await provider.update_scores(identifier, scores, self)
+        async with httpx.AsyncClient(**self._args) as client:
+            await provider.update_scores(identifier, scores, client)
 
     async def plates(
         self,
@@ -509,9 +512,10 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
         """
-        songs = caches.cached_songs if caches.cached_songs else await self.songs()
-        scores = await provider.get_scores_all(identifier, self)
-        return MaimaiPlates(scores, plate[0], plate[1:], songs)
+        async with httpx.AsyncClient(**self._args) as client:
+            songs = caches.cached_songs if caches.cached_songs else await self.songs()
+            scores = await provider.get_scores_all(identifier, client)
+            return MaimaiPlates(scores, plate[0], plate[1:], songs)
 
     async def wechat(self, r=None, t=None, code=None, state=None) -> PlayerIdentifier | str:
         """Get the player identifier from the Wahlap Wechat OffiAccount.
@@ -534,19 +538,20 @@ class MaimaiClient:
         Raises:
             ConnectError, ReadTimeout: Request failed due to network issues.
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            WechatTokenExpiredError: Wechat token is expired, please re-authorize.
         """
-        if not all([r, t, code, state]):
-            resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
-            return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
-        params = {"r": r, "t": t, "code": code, "state": state}
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
-            "Host": "tgk-wcaime.wahlap.com",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-        }
-        resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers)
-        if resp.status_code != 302:
-            raise WechatTokenExpiredError("Wechat token is expired")
-        resp_next = await self._client.get(resp.next_request.url, headers=headers)
-        resp_next.raise_for_status()
-        return PlayerIdentifier(wechat_cookies=resp_next.cookies)
+        async with httpx.AsyncClient() as client:
+            if not all([r, t, code, state]):
+                resp = await client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
+                return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
+            params = {"r": r, "t": t, "code": code, "state": state}
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+                "Host": "tgk-wcaime.wahlap.com",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            }
+            resp = await client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers, timeout=5)
+            if resp.status_code != 302:
+                raise WechatTokenExpiredError("Wechat token is expired")
+            resp_next = await client.get(resp.next_request.url, headers=headers)
+            return PlayerIdentifier(wechat_cookies=resp_next.cookies)
