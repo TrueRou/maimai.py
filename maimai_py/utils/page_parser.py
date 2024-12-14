@@ -7,11 +7,16 @@ from bs4 import BeautifulSoup
 
 def get_data_from_div(div, link_searched):
     form = div.find(name="form")
-    type_img = div.find(name="img", recursive=False)
-    if type_img.attrs["src"].find("standard") != -1:
-        type_ = "SD"
+
+    if not re.search(r"diff_(.*).png", form.contents[1].attrs["src"]):
+        matched = re.search(r"music_(.*).png", form.contents[1].attrs["src"])
+        type_ = "SD" if matched.group(1) == "standard" else "DX"
+    elif "id" in form.parent.parent.attrs:
+        type_ = "SD" if form.parent.parent.attrs["id"][:3] == "sta" else "DX"
     else:
-        type_ = "DX"
+        src = form.parent.find_next_sibling().attrs["src"]
+        matched = re.search(r"_(.*).png", src)
+        type_ = "SD" if matched.group(1) == "standard" else "DX"
 
     def get_level_index(src: str):
         if src.find("remaster") != -1:

@@ -50,7 +50,7 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
                 )
 
     async def _crawl_scores_diff(self, client: AsyncClient, diff: int, cookies: Cookies, songs: "MaimaiSongs") -> list[Score]:
-        await asyncio.sleep(random.randint(0, 100) / 1000)  # sleep for a random amount of time between 0 and 100ms
+        await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
         # body = re.search(r"<html.*?>([\s\S]*?)</html>", resp1.text).group(1).replace(r"\s+", " ")
         wm_json = page_parser.wmdx_html2json(resp1.text)

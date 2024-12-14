@@ -1,7 +1,5 @@
 import asyncio
-from mitmproxy.http import HTTPFlow
-import mitmproxy.proxy
-import mitmproxy.proxy.layers
+from mitmproxy.http import HTTPFlow, Response
 
 from examples.proxy_updater import updater
 
@@ -21,6 +19,5 @@ class WechatWahlapAddon:
             # prevent infinite loop if the server and client are both using the proxy (user is testing in the same machine)
             if not flow.request.headers.get("Flag", None):
                 r, t, code, state = flow.request.query["r"], flow.request.query["t"], flow.request.query["code"], flow.request.query["state"]
-                await updater.update_prober(r, t, code, state)
-                flow.response.content = prompt.encode("utf-8")  # hint the user that the scores are being updated
-                flow.response.status_code = 200  # replace the 302 redirect with a 200 OK
+                # asyncio.ensure_future(updater.update_prober(r, t, code, state))
+                flow.response = Response.make(200, prompt.encode("utf-8"), {"Content-Type": "text/html", "Charset": "utf-8"})

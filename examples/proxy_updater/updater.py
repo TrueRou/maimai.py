@@ -10,7 +10,7 @@ from maimai_py.providers.lxns import LXNSProvider
 from maimai_py.providers.wechat import WechatProvider
 from examples.proxy_updater.config import config
 
-maimai = MaimaiClient()
+maimai = MaimaiClient(timeout=60)
 diving_provider = DivingFishProvider()
 lxns_provider = LXNSProvider(developer_token=config["lxns"]["developer_token"])
 
@@ -40,7 +40,9 @@ async def update_prober(r: str, t: str, code: str, state: str):
         # execute the tasks concurrently
         await asyncio.gather(*tasks)
         print(f"\033[32mProber updated successfully.\033[0m")
-    except (ConnectError, ReadTimeout, InvalidPlayerIdentifierError, PrivacyLimitationError, WechatTokenExpiredError) as e:
+    except (ConnectError, ReadTimeout) as e:
+        print(f"\033[31mConnection to the server timed out.\033[0m")
+    except (InvalidPlayerIdentifierError, PrivacyLimitationError, WechatTokenExpiredError) as e:
         print(f"\033[31m{e}.\033[0m")
     except Exception as e:
         traceback.print_exc()
