@@ -3,7 +3,7 @@ from mitmproxy.http import HTTPFlow, Response
 
 from examples.proxy_updater import updater
 
-prompt = "Your scores are currently being updated. Please wait for a moment.\n 你的成绩正在更新中，请稍等片刻。"
+prompt = "Your scores are currently being updated. Please wait for a moment.\n你的成绩正在更新中, 请稍等片刻."
 
 
 class WechatWahlapAddon:
@@ -19,5 +19,5 @@ class WechatWahlapAddon:
             # prevent infinite loop if the server and client are both using the proxy (user is testing in the same machine)
             if not flow.request.headers.get("Flag", None):
                 r, t, code, state = flow.request.query["r"], flow.request.query["t"], flow.request.query["code"], flow.request.query["state"]
-                # asyncio.ensure_future(updater.update_prober(r, t, code, state))
-                flow.response = Response.make(200, prompt.encode("utf-8"), {"Content-Type": "text/html", "Charset": "utf-8"})
+                asyncio.ensure_future(updater.update_prober(r, t, code, state))
+                flow.response = Response.make(200, prompt.encode("gbk"), {"Content-Type": "text/plain"})
