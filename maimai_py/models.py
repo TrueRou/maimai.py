@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from httpx import AsyncClient, Cookies
 
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import InvalidPlayerIdentifierError, InvalidPlayerIdentifierError
+from maimai_py.exceptions import ArcadeError, InvalidPlayerIdentifierError, QRCodeExpiredError, QRCodeFormatError
 
 if TYPE_CHECKING:
     from maimai_py.providers.lxns import LXNSProvider
@@ -92,12 +92,11 @@ class PlayerIdentifier:
     qq: int | None = None
     username: str | None = None
     friend_code: int | None = None
-    wechat_cookies: Cookies | None = None
-    credentials: str | None = None
+    credentials: str | Cookies | None = None
 
     def __post_init__(self):
-        if self.qq is None and self.username is None and self.friend_code is None and self.wechat_cookies is None:
-            raise InvalidPlayerIdentifierError("At least one of the following must be provided: qq, username, friend_code, wechat_cookies")
+        if self.qq is None and self.username is None and self.friend_code is None and self.credentials is None:
+            raise InvalidPlayerIdentifierError("At least one of the following must be provided: qq, username, friend_code, credentials")
 
     def as_diving_fish(self):
         """@private"""
@@ -124,6 +123,25 @@ class PlayerIdentifier:
             if not resp.json()["success"]:
                 raise InvalidPlayerIdentifierError(resp.json()["message"])
             self.friend_code = resp.json()["data"]["friend_code"]
+
+
+@dataclass
+class ArcadeResponse:
+    """@private"""
+
+    errno: int | None = None
+    errmsg: str | None = None
+    data: dict[str, Any] | bytes | list[Any] | None = None
+
+    @staticmethod
+    def throw_error(resp: "ArcadeResponse"):
+        """@private"""
+        if resp.errno and resp.errno != 0:
+            if resp.errno in [1, 15]:
+                raise QRCodeFormatError(resp.errmsg)
+            if resp.errno == 2:
+                raise QRCodeExpiredError(resp.errmsg)
+            raise ArcadeError(f"[{resp.errno}] {resp.errmsg}")
 
 
 @dataclass

@@ -127,6 +127,35 @@ class RateType(Enum):
     C = 12
     D = 13
 
+    def from_achievement(achievement: float) -> "RateType":
+        if achievement >= 100.5:
+            return RateType.SSSP
+        if achievement >= 100:
+            return RateType.SSS
+        if achievement >= 99.5:
+            return RateType.SSP
+        if achievement >= 99:
+            return RateType.SS
+        if achievement >= 98:
+            return RateType.SP
+        if achievement >= 97:
+            return RateType.S
+        if achievement >= 94:
+            return RateType.AAA
+        if achievement >= 90:
+            return RateType.AA
+        if achievement >= 80:
+            return RateType.A
+        if achievement >= 75:
+            return RateType.BBB
+        if achievement >= 70:
+            return RateType.BB
+        if achievement >= 60:
+            return RateType.B
+        if achievement >= 50:
+            return RateType.C
+        return RateType.D
+
 
 class SongType(Enum):
     STANDARD = "standard"

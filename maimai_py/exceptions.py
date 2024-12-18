@@ -37,3 +37,15 @@ class PrivacyLimitationError(MaimaiPyError):
 
 class WechatTokenExpiredError(MaimaiPyError):
     """Wahlap Wechat OffiAccount token is expired."""
+
+
+class ArcadeError(MaimaiPyError):
+    """Base exception class for all exceptions raised by maimai arcade."""
+
+
+class QRCodeFormatError(ArcadeError):
+    """QR code format is invalid."""
+
+
+class QRCodeExpiredError(ArcadeError):
+    """QR code is expired."""

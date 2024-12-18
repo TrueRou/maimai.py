@@ -540,6 +540,57 @@ files = [
 pyasn1 = ">=0.4.6"
 
 [[package]]
+name = "maimai-ffi"
+version = "0.2.0"
+description = "The definitive wahlap implement for maimai.py in Cython."
+optional = false
+python-versions = "*"
+files = [
+    {file = "maimai_ffi-0.2.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:c91c1a717a49224a9b8b3d277d4655cd317b3210cd0cc370bb4feaedb38cd1f9"},
+    {file = "maimai_ffi-0.2.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:df45309cea39dff1c3a85cbfd84001eb1086a31e654a556de097fd6b7fec8dec"},
+    {file = "maimai_ffi-0.2.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c7505499d865c6475acf87fa46c49f08de3416c5ee38d2a0f671bd1e59ea6cef"},
+    {file = "maimai_ffi-0.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9ba4e41434f2a0831cb099946a0d47485c7efa1d191b3e512db8bdb5274bc90a"},
+    {file = "maimai_ffi-0.2.0-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:1179ec62ac109770d6d77aa6a008a6a20371e36acd410d7433634257d5a01a1f"},
+    {file = "maimai_ffi-0.2.0-cp310-cp310-win32.whl", hash = "sha256:5b843737f643a668627b5fa72a920bdb3d3a4c2ac670ff759c1b558a3b658b73"},
+    {file = "maimai_ffi-0.2.0-cp310-cp310-win_amd64.whl", hash = "sha256:566e55b188777c641456ce8084bbfb6dbcc9fa6f8fbaaa723db09aaef5a78561"},
+    {file = "maimai_ffi-0.2.0-cp310-cp310-win_arm64.whl", hash = "sha256:c51a1c238b39cd300c3531a5a3d7a9cdfb9371f59dbfe06f705d6807ea56c97b"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:5dc6921bd9fe3f150550d914e0a1a710b524c62952ca60a36d76e3f2cb0c82b8"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:0208f9f870c9df7f6d02f9edf63a4ddafb4b009b56407145187ece24a33090ac"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:5ef7fb52715776d4ae7520886ab39752aa0019621c0a10dee22ad04bd5185f17"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b27a76dfa7ccdb1377f80e991738a731a210ae9909ed8f8d497fefb1ff99a010"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:6926fd5117124d21e68f4e8e8b982c08b98cd7b0d464e2d2935962c2ff4c5c28"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-win32.whl", hash = "sha256:9d861387f88b39b5f97777c959cac4eeecc553f9a9f013178e7f8ba74059cedb"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-win_amd64.whl", hash = "sha256:49ede1b19bcb9a64f0038c4f3c3c09913f1269f27eae93b203704c1a6f63121b"},
+    {file = "maimai_ffi-0.2.0-cp311-cp311-win_arm64.whl", hash = "sha256:9d381a682189cfc471c74c1b01bcf8331f55d629162456f870b1ba2bd220e05f"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:ccb8a0e8863282a519a4bb7834205fddc6fff3a007ce02def8f00ec0dde4961f"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:165ffe26007fde73283210ee30a7e19478c41a55dcf0652f145403bffa2562b1"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:d1698c07426779764681a48a3d14f87d44b8fd615cb080085b3e75454eef37ed"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0a7580d9a9f60f8bd53322c2b9b8ee69fb1c8c6b5a0a9ff796ccc4907c3e584e"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:8165acc5b04d8ffc3c15a7df32701c196ada70406de246f61e83e5743e6857b6"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-win32.whl", hash = "sha256:c80e02d2c66598f5677fb85ae534466af7de265a29253cb0a6def0503a19c0d6"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-win_amd64.whl", hash = "sha256:44f51d9c203c2052f6f184f223c96453c1eb562444a9b6667751455c1ec284f7"},
+    {file = "maimai_ffi-0.2.0-cp312-cp312-win_arm64.whl", hash = "sha256:06bbb0e4c85d558430aea502b8b16e451457acc6c991bd1758fe66577b95dd02"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:346ee072ed65a164ea394562eac7d3d9eb65da2bcc38457fb1e073c98193745c"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:12bbb50cb9456d600b7d56495f21aaca9ec837f5ca990584e6b84f616da05c22"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:1fa24945ebf98735d41b99b138c1f7ba0cf192bfb712e152a93ca13ee400e19b"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5a392b83a03e7f25b396e400c80da0d4647be26d327067f09629d80bd678375a"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:2826c2a2e81ccf1e2ceb2fe91c5f474ce0f9c5b4c988c2aa82bbf69b8b011693"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-win32.whl", hash = "sha256:17b43a5642aba1b56043797228330a75e2b53d9db0bb2803202343bea3ec11b5"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-win_amd64.whl", hash = "sha256:16c6db20783128d736a18cae3f15ab946aef4cd6b9b0fe7a4f741b4a9d25f9da"},
+    {file = "maimai_ffi-0.2.0-cp313-cp313-win_arm64.whl", hash = "sha256:98b557fffee866d4dcabb2005ffd6719ae04bcabd72f7c54d1eebef49ccb7cdf"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:9e7ab4be08727c0ffacd7aae5908239e3b9ce83a238a18d3e045fc4e75c28d86"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:c6b596cad7030fa5dfd2b09a63f126ab8ed0a4d8a7db76c158ad18b9f4489ca2"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:0788690197f10a0fc02b3ae1b698e63f66911b16f712165259f183f125ee5410"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:42d0b4f1ab47127c9434b229ab006ea45ecbf499b454ed1320a130a80bf1595a"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fd3485dc00259e275ac8322c0465061238872fc623d057ce4242365a6052032d"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-musllinux_1_2_aarch64.whl", hash = "sha256:6b6551b2f4793118dc191635d45ea864b11499d59c460326406c8020aed0a7e0"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:9b0060d28154118f096820ef32bc189d08f1aa73e96c48e5c24d199880c6c07f"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-win32.whl", hash = "sha256:894c7431e5ba0f931e10efb500bd7f81691e7281b9b11ec25fc056002fb8318f"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-win_amd64.whl", hash = "sha256:c3e832d243ef44754937ed274ddb2ddfbd17b65eebb312206557f65c24c97b07"},
+    {file = "maimai_ffi-0.2.0-cp39-cp39-win_arm64.whl", hash = "sha256:cb8c4c859a96b7eaa85cac822e72a9000d1415663b96f8bb7feef8454c6b7666"},
+]
+
+[[package]]
 name = "markupsafe"
 version = "3.0.2"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -1230,4 +1281,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c6aa0529ad94bd6a7b8929573dd630921d986f7c6350cc81a3ab7fbb92307b39"
+content-hash = "729d21326c2b3dc7f4acf6e36addbf3b57d8894df298654b2e548611bb717e42"

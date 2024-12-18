@@ -1,10 +1,12 @@
 from functools import cached_property
 from httpx import AsyncClient
 import httpx
+
+from maimai_ffi import arcade
 from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind
 from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
-from maimai_py.models import DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
+from maimai_py.models import ArcadeResponse, DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
 from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, LXNSProvider, YuzuProvider
 from maimai_py.providers.base import IScoreProvider
 
@@ -398,7 +400,7 @@ class MaimaiClient:
         Returns:
             A wrapper of the song list, for easier access and filtering.
         Raises:
-            ConnectError, ReadTimeout: Request failed due to network issues.
+            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             aliases = await alias_provider.get_aliases(client) if alias_provider else None
@@ -421,9 +423,9 @@ class MaimaiClient:
         Returns:
             The player object of the player, with all the data fetched.
         Raises:
-            ConnectError, ReadTimeout: Request failed due to network issues.
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             return await provider.get_player(identifier, client)
@@ -436,10 +438,13 @@ class MaimaiClient:
     ) -> MaimaiScores:
         """Fetch player's scores from the provider.
 
-        For WechatProvider, PlayerIdentifier must have the `wechat_cookies` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
+        For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
-        Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`.
+        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.qrcode()`.
+        Credentials can be reused, since it won't expire, also, userId is encrypted, can't be used in any other cases outside the maimai.py
+
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`, `ArcadeProvider`.
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
@@ -448,9 +453,10 @@ class MaimaiClient:
         Returns:
             The scores object of the player, with all the data fetched.
         Raises:
-            ConnectError, ReadTimeout: Request failed due to network issues.
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            ArcadeError: Only for ArcadeProvider, the request failed due to the maimai arcade issues.
+            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
         """
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
@@ -486,9 +492,9 @@ class MaimaiClient:
         Returns:
             Nothing, failures will raise exceptions.
         Raises:
-            ConnectError, ReadTimeout: Request failed due to network issues.
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found, or the import token / password is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             await provider.update_scores(identifier, scores, client)
@@ -508,9 +514,9 @@ class MaimaiClient:
         Returns:
             A wrapper of the plate achievement, with plate information, and matched player scores.
         Raises:
-            ConnectError, ReadTimeout: Request failed due to network issues.
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             songs = caches.cached_songs if caches.cached_songs else await self.songs()
@@ -536,9 +542,8 @@ class MaimaiClient:
         Returns:
             The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
         Raises:
-            ConnectError, ReadTimeout: Request failed due to network issues.
-            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             WechatTokenExpiredError: Wechat token is expired, please re-authorize.
+            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
         """
         async with httpx.AsyncClient() as client:
             if not all([r, t, code, state]):
@@ -554,4 +559,23 @@ class MaimaiClient:
             if resp.status_code != 302:
                 raise WechatTokenExpiredError("Wechat token is expired")
             resp_next = await client.get(resp.next_request.url, headers=headers)
-            return PlayerIdentifier(wechat_cookies=resp_next.cookies)
+            return PlayerIdentifier(credentials=resp_next.cookies)
+
+    async def qrcode(self, qrcode: str) -> PlayerIdentifier:
+        """Get the player identifier from the Wahlap QR code.
+
+        Player identifier is the encrypted userId, can't be used in any other cases outside the maimai.py.
+
+        Args:
+            qrcode: the QR code of the player, should begin with SGWCMAID.
+        Returns:
+            The player identifier of the player.
+        Raises:
+            QRCodeFormatError: QR code is invalid, please check the format.
+            QRCodeExpiredError: QR code is expired, regenerate the QR code.
+            ArcadeError: Other unknown errors from the maimai arcade.
+            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+        """
+        resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode)
+        ArcadeResponse.throw_error(resp)
+        return PlayerIdentifier(credentials=resp.data.decode())

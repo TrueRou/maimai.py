@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class WechatProvider(IPlayerProvider, IScoreProvider):
     """The provider that fetches data from the Wahlap Wechat OffiAccount.
 
-    PlayerIdentifier must have the `wechat_cookies` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
+    PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
 
     PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
@@ -65,12 +65,12 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
         return await super().get_player(identifier, client)
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
-        if not identifier.wechat_cookies:
+        if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
         if not caches.cached_songs:
             # This breaks the abstraction of the provider, but we have no choice
             caches.cached_songs = await LXNSProvider().get_songs(client)
-        scores = await self._crawl_scores(client, identifier.wechat_cookies, caches.cached_songs)
+        scores = await self._crawl_scores(client, identifier.credentials, caches.cached_songs)
         return scores
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient):
