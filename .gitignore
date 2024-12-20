@@ -3,6 +3,11 @@ proxy.yaml
 tests/secrets.py
 .vscode/
 
+# Vitepress
+docs/.vitepress/dist
+docs/.vitepress/cache
+docs/node_modules
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
