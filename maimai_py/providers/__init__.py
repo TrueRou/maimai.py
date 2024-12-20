@@ -3,6 +3,7 @@ from .divingfish import DivingFishProvider
 from .lxns import LXNSProvider
 from .yuzu import YuzuProvider
 from .wechat import WechatProvider
+from .arcade import ArcadeProvider
 
 __all__ = [
     "IAliasProvider",
@@ -13,4 +14,5 @@ __all__ = [
     "LXNSProvider",
     "YuzuProvider",
     "WechatProvider",
+    "ArcadeProvider",
 ]

@@ -19,11 +19,11 @@ jobs:
           python-version: '3.12' 
       
       - name: Generate Static Files
-        run: mkdir docs && pip install httpx pdoc beautifulsoup4 cryptography maimai-ffi && pdoc maimai_py --docformat google -o ./docs
+        run: mkdir api-docs && pip install httpx pdoc beautifulsoup4 cryptography maimai-ffi && pdoc maimai_py --docformat google -o ./api-docs
       
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy docs --project-name=maimai-py
+          command: pages deploy api-docs --project-name=maimai-py

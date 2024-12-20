@@ -400,7 +400,7 @@ class MaimaiClient:
         Returns:
             A wrapper of the song list, for easier access and filtering.
         Raises:
-            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+            RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             aliases = await alias_provider.get_aliases(client) if alias_provider else None
@@ -424,8 +424,9 @@ class MaimaiClient:
             The player object of the player, with all the data fetched.
         Raises:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+            RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             return await provider.get_player(identifier, client)
@@ -454,9 +455,10 @@ class MaimaiClient:
             The scores object of the player, with all the data fetched.
         Raises:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             ArcadeError: Only for ArcadeProvider, the request failed due to the maimai arcade issues.
-            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+            RequestError: Request failed due to network issues.
         """
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
@@ -493,8 +495,9 @@ class MaimaiClient:
             Nothing, failures will raise exceptions.
         Raises:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found, or the import token / password is invalid.
+            InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+            RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             await provider.update_scores(identifier, scores, client)
@@ -515,8 +518,10 @@ class MaimaiClient:
             A wrapper of the plate achievement, with plate information, and matched player scores.
         Raises:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            InvalidPlateError: Provided version or plate is invalid.
+            InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+            RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
             songs = caches.cached_songs if caches.cached_songs else await self.songs()
@@ -543,7 +548,7 @@ class MaimaiClient:
             The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
         Raises:
             WechatTokenExpiredError: Wechat token is expired, please re-authorize.
-            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+            RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient() as client:
             if not all([r, t, code, state]):
@@ -574,7 +579,7 @@ class MaimaiClient:
             QRCodeFormatError: QR code is invalid, please check the format.
             QRCodeExpiredError: QR code is expired, regenerate the QR code.
             ArcadeError: Other unknown errors from the maimai arcade.
-            ConnectError, ConnectTimeout, ReadTimeout: Request failed due to network issues.
+            RequestError: Request failed due to network issues.
         """
         resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode)
         ArcadeResponse.throw_error(resp)

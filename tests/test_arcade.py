@@ -1,4 +1,4 @@
-from httpx import ConnectError, ConnectTimeout, ReadTimeout
+from httpx import RequestError
 import pytest
 from maimai_py.exceptions import QRCodeExpiredError
 from maimai_py.maimai import MaimaiClient
@@ -20,5 +20,5 @@ async def test_scores_fetching_arcade(maimai: MaimaiClient):
             my_account = PlayerIdentifier(credentials=encrypted_userid)
         scores = await maimai.scores(my_account, provider=ArcadeProvider())
         assert scores.rating > 2000
-    except (ConnectError, ConnectTimeout, ReadTimeout):
+    except RequestError:
         pytest.skip("Connection error, skipping the test.")
