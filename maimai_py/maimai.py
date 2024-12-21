@@ -4,7 +4,7 @@ import httpx
 
 from maimai_ffi import arcade
 from maimai_py import caches, enums
-from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind
+from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind, SongType
 from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
 from maimai_py.models import ArcadeResponse, DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
 from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, LXNSProvider, YuzuProvider
@@ -332,37 +332,29 @@ class MaimaiScores:
         distinct_scores = MaimaiScores._get_distinct_scores(self.scores)
         return MaimaiScores(b35=self.scores_b35, b15=self.scores_b15, all=distinct_scores)
 
-    def by_song(self, song_id: int) -> list[Score]:
-        """Get all level scores of the song.
+    def by_song(self, song_id: int, song_type: SongType = None, level_index: LevelIndex = None) -> list[Score]:
+        """Get scores of the song on that type and level_index.
 
-        If `ScoreKind` is `BEST`, only the b50 scores will be filtered.
+        If song_type or level_index is not provided, all scores of the song will be returned.
 
         Args:
             song_id: the ID of the song to get the scores by.
+            song_type: the type of the song to get the scores by, defaults to None.
+            level_index: the level index of the song to get the scores by, defaults to None.
         Returns:
             the list of scores of the song, return an empty list if no score is found.
         """
-        return [score for score in self.scores if score.id == song_id]
-
-    def by_level(self, song_id: int, level_index: LevelIndex) -> Score | None:
-        """Get score by the song and level index.
-
-        If `ScoreKind` is `BEST`, only the b50 scores will be filtered.
-
-        Args:
-            song_id: the ID of the song to get the scores by.
-            level_index: the level index of the scores to get.
-        Returns:
-            the score if it exists, otherwise return None
-        """
-        return next((score for score in self.scores if score.id == song_id and score.level_index == level_index), None)
+        scores = [score for score in self.scores if score.id == song_id]
+        if song_type:
+            scores = [score for score in scores if score.type == song_type]
+        if level_index:
+            scores = [score for score in scores if score.level_index == level_index]
+        return scores
 
     def filter(self, **kwargs) -> list[Score]:
         """Filter scores by their attributes.
 
         Make sure the attribute is of the score, and the value is of the same type. All conditions are connected by AND.
-
-        If `ScoreKind` is `BEST`, only the b50 scores will be filtered.
 
         Args:
             kwargs: the attributes to filter the scores by.

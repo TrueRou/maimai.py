@@ -38,7 +38,7 @@ def by_id(self, id: int) -> Song | None:
     """通过曲目ID获取歌曲。
 
     参数:
-        id: 歌曲的ID，总是小于 `10000`，如果大于的话应该 (`% 10000`)。
+        id: 歌曲的ID，总是小于 `10000` (如果大于的话应该 `% 10000`)。
     返回:
         如果存在则返回歌曲，否则返回 None。
     """
@@ -92,7 +92,8 @@ def by_bpm(self, minimum: int, maximum: int) -> list[Song]:
 def filter(self, **kwargs) -> list[Song]:
     """根据属性筛选歌曲。
 
-    确保属性是歌曲的属性，值是相同类型的。所有条件通过 AND 连接。
+    请确保属性存在，并且类型匹配。所有条件通过 AND 连接。
+
     参数:
         kwargs: 用于筛选歌曲的属性。
     返回:

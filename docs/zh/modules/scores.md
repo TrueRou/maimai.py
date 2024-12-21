@@ -74,35 +74,23 @@
 ### 方法
 
 ```python
-def by_song(self, song_id: int) -> list[Score]:
-    """获取指定歌曲的所有成绩。
+def by_song(self, song_id: int, song_type: SongType = None, level_index: LevelIndex = None) -> list[Score]:
+    """获取指定歌曲在某歌曲类型和难度下面所有的成绩。
 
-    如果 `ScoreKind` 是 `BEST`，则只会筛选 b50 成绩。
+    如果未提供 `song_type` 或 `level_index`，则将返回该歌曲的所有分数。
 
     参数:
         song_id: 要获取成绩的歌曲ID。
+        song_type: 筛选的谱面类型, 默认为 None.
+        level_index: 筛选的难度, 默认为 None.
     返回:
         歌曲的成绩列表，如果没有找到成绩则返回空列表。
-    """
-
-def by_level(self, song_id: int, level_index: LevelIndex) -> Score | None:
-    """根据歌曲和难度索引获取成绩。
-
-    如果 `ScoreKind` 是 `BEST`，则只会筛选 b50 成绩。
-
-    参数:
-        song_id: 要获取成绩的歌曲ID。
-        level_index: 要获取成绩的难度索引。
-    返回:
-        如果存在成绩则返回成绩，否则返回 None。
     """
 
 def filter(self, **kwargs) -> list[Score]:
     """根据属性筛选成绩。
 
-    确保属性是成绩的属性，值是相同类型的。所有条件通过 AND 连接。
-
-    如果 `ScoreKind` 是 `BEST`，则只会筛选 b50 成绩。
+    请确保属性存在，并且类型匹配。所有条件通过 AND 连接。
 
     参数:
         kwargs: 用于筛选成绩的属性。
