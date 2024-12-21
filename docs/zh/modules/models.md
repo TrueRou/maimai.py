@@ -1,4 +1,4 @@
-# 音乐和玩家数据模型
+# 歌曲和玩家数据模型
 
 ## SongDifficulty 数据类
 
@@ -6,32 +6,32 @@
 
 | 字段             | 类型                 | 说明                     |
 |------------------|----------------------|------------------------|
-| `type`          | `SongType`           | 难度类型。               |
-| `difficulty`    | `LevelIndex`         | 难度等级。               |
-| `level`         | `str`                | 难度等级名称。           |
+| `type`          | `SongType`           | 谱面类型 |
+| `difficulty`    | `LevelIndex`         | 难度枚举类    |
+| `level`         | `str`                | 难度标级(例如12+) |
 | `level_value`   | `float`              | 难度等级数值。           |
-| `note_designer` | `str`                | 谱面设计者。             |
-| `version`       | `int`                | 版本号。                 |
-| `tap_num`       | `int`                | 敲击数。                 |
-| `hold_num`      | `int`                | 长按数。                 |
-| `slide_num`     | `int`                | 滑键数。                 |
-| `touch_num`     | `int`                | 触摸数。                 |
-| `break_num`     | `int`                | 断连数。                 |
+| `note_designer` | `str`                | 谱师           |
+| `version`       | `int`                | 谱面首次出现版本         |
+| `tap_num`       | `int`                | TAP 物量           |
+| `hold_num`      | `int`                | HOLD 物量          |
+| `slide_num`     | `int`                | SLIDE 物量         |
+| `touch_num`     | `int`                | TOUCH 物量         |
+| `break_num`     | `int`                | BREAK 物量         |
 
 ## SongDifficultyUtage 数据类
 
 ### 属性
 
-| 字段           | 类型                 | 说明                     |
-|----------------|----------------------|------------------------|
-| `kanji`        | `str`                | 日文名。                 |
-| `description`  | `str`                | 描述。                   |
-| `is_buddy`     | `bool`               | 是否为好友谱面。         |
-| `tap_num`      | `int`                | 敲击数。                 |
-| `hold_num`     | `int`                | 长按数。                 |
-| `slide_num`    | `int`                | 滑键数。                 |
-| `touch_num`    | `int`                | 触摸数。                 |
-| `break_num`    | `int`                | 断连数。                 |
+| 字段          | 类型   | 说明                    |
+| ------------- | ------ | ----------------------- |
+| `kanji`       | `str`  | 宴铺前缀(例如:协，狂等) |
+| `description` | `str`  | 宴谱描述                |
+| `is_buddy`    | `bool` | 是否为 BUDDY(双人) 谱面 |
+| `tap_num`     | `int`  | TAP 物量                |
+| `hold_num`    | `int`  | HOLD 物量               |
+| `slide_num`   | `int`  | SLIDE 物量              |
+| `touch_num`   | `int`  | TOUCH 物量              |
+| `break_num`   | `int`  | BREAK 物量              |
 
 ## SongDifficulties 数据类
 
@@ -39,9 +39,9 @@
 
 | 字段         | 类型                     | 说明                     |
 |-------------|--------------------------|------------------------|
-| `standard`   | `list[SongDifficulty]`    | 标准难度列表。           |
-| `dx`        | `list[SongDifficulty]`    | DX难度列表。             |
-| `utage`     | `list[SongDifficultyUtage]`| Utage难度列表。          |
+| `standard`   | `list[SongDifficulty]`    | 标谱难度列表 |
+| `dx`        | `list[SongDifficulty]`    | DX铺难度列表       |
+| `utage`     | `list[SongDifficultyUtage]`| 宴谱难度列表       |
 
 ## Song 数据类
 
@@ -49,17 +49,17 @@
 
 | 字段             | 类型                 | 说明                     |
 |------------------|----------------------|------------------------|
-| `id`             | `int`                | 歌曲ID。                 |
-| `title`          | `str`                | 歌曲标题。               |
-| `artist`         | `str`                | 艺术家。                |
-| `genre`          | `str`                | 流派。                  |
-| `bpm`            | `int`                | 每分钟节拍数。           |
-| `map`            | `str | None`         | 谱面映射。               |
-| `version`        | `int`                | 版本号。                 |
-| `rights`         | `str | None`         | 版权信息。               |
-| `aliases`        | `list[str] | None`   | 别名列表。               |
-| `disabled`       | `bool`               | 是否禁用。               |
-| `difficulties`   | `SongDifficulties`    | 难度信息。               |
+| `id`             | `int`                | 曲目 ID            |
+| `title`          | `str`                | 曲名             |
+| `artist`         | `str`                | 曲师              |
+| `genre`          | `str`                | 流派                  |
+| `bpm`            | `int`                | 曲目 BPM     |
+| `map`            | `str | None`         | 曲目所属区域     |
+| `version`        | `int`                | 曲目首次出现版本         |
+| `rights`         | `str | None`         | 曲目版权信息         |
+| `aliases`        | `list[str] | None`   | 别名列表               |
+| `disabled`       | `bool`               | 是否禁用               |
+| `difficulties`   | `SongDifficulties`    | 谱面难度类          |
 
 ### 方法
 
@@ -90,10 +90,10 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段             | 类型                     | 说明                     |
 |------------------|--------------------------|------------------------|
-| `qq`             | `int | None`             | QQ号。                   |
-| `username`       | `str | None`             | 用户名。                 |
-| `friend_code`    | `int | None`             | 好友码。                 |
-| `credentials`    | `str | Cookies | None` | 凭证。                  |
+| `qq`             | `int | None`             | QQ号                   |
+| `username`       | `str | None`             | 用户名                 |
+| `friend_code`    | `int | None`             | 好友码                 |
+| `credentials`    | `str | Cookies | None` | 凭证                  |
 
 ### 方法
 
@@ -103,9 +103,9 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段             | 类型                 | 说明                     |
 |------------------|----------------------|------------------------|
-| `errno`          | `int | None`         | 错误代码。               |
-| `errmsg`         | `str | None`         | 错误信息。               |
-| `data`           | `dict[str, Any] | bytes | list[Any] | None` | 数据。 |
+| `errno`          | `int | None`         | 错误代码               |
+| `errmsg`         | `str | None`         | 错误信息               |
+| `data`           | `dict[str, Any] | bytes | list[Any] | None` | 数据结构 |
 
 ## PlayerTrophy 数据类
 
@@ -113,9 +113,9 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
-| `id`         | `int`           | 奖杯ID。                 |
-| `name`       | `str`           | 奖杯名称。               |
-| `color`      | `str`           | 奖杯颜色。               |
+| `id`         | `int`           | 称号ID               |
+| `name`       | `str`           | 称号名称             |
+| `color`      | `str`           | 称号颜色           |
 
 ## PlayerIcon 数据类
 
@@ -123,9 +123,9 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
-| `id`         | `int`           | 图标ID。                 |
-| `name`       | `str`           | 图标名称。               |
-| `genre`      | `str`           | 图标流派。               |
+| `id`         | `int`           | 头像ID               |
+| `name`       | `str`           | 头像名称             |
+| `genre`      | `str`           | 分类(日文)     |
 
 ## PlayerNamePlate 数据类
 
@@ -133,8 +133,8 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
-| `id`         | `int`           | 名牌ID。                 |
-| `name`       | `str`           | 名称名称。               |
+| `id`         | `int`           | 姓名框ID              |
+| `name`       | `str`           | 姓名框名称            |
 
 ## PlayerFrame 数据类
 
@@ -142,8 +142,8 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
-| `id`         | `int`           | 框架ID。                 |
-| `name`       | `str`           | 框架名称。               |
+| `id`         | `int`           | 背景ID               |
+| `name`       | `str`           | 背景名称            |
 
 ## Player 数据类
 
@@ -151,8 +151,8 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
-| `name`       | `str`           | 玩家名称。               |
-| `rating`     | `int`           | 玩家评分。               |
+| `name`       | `str`           | 玩家名称               |
+| `rating`     | `int`           | 玩家rating          |
 
 ## DivingFishPlayer 数据类
 
@@ -162,9 +162,9 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段           | 类型             | 说明                     |
 |----------------|------------------|------------------------|
-| `nickname`     | `str`           | 玩家昵称。               |
-| `plate`        | `str`           | 玩家徽章。               |
-| `additional_rating` | `int` | 玩家额外评分。          |
+| `nickname`     | `str`           | 玩家名称            |
+| `plate`        | `str`           | 姓名框          |
+| `additional_rating` | `int` |  |
 
 ## LXNSPlayer 数据类
 
@@ -174,15 +174,15 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段             | 类型                     | 说明                     |
 |------------------|--------------------------|------------------------|
-| `friend_code`    | `int`                    | 玩家好友码。             |
-| `trophy`        | `PlayerTrophy`           | 玩家奖杯。               |
-| `course_rank`    | `int`                    | 玩家课程排名。           |
-| `class_rank`     | `int`                    | 玩家班级排名。           |
-| `star`           | `int`                    | 玩家星级。               |
-| `icon`          | `PlayerIcon | None`       | 玩家图标。               |
-| `name_plate`     | `PlayerNamePlate | None` | 玩家名牌。              |
-| `frame`          | `PlayerFrame | None`     | 玩家框架。              |
-| `upload_time`    | `str`                   | 玩家数据上传时间。        |
+| `friend_code`    | `int`                    | 玩家好友码             |
+| `trophy`        | `PlayerTrophy`           | 玩家称号             |
+| `course_rank`    | `int`                    | 段位 ID    |
+| `class_rank`     | `int`                    | 阶级 ID      |
+| `star`           | `int`                    | 搭档觉醒数          |
+| `icon`          | `PlayerIcon | None`       | 头像             |
+| `name_plate`     | `PlayerNamePlate | None` | 姓名框           |
+| `frame`          | `PlayerFrame | None`     | 背景            |
+| `upload_time`    | `str`                   | 玩家被同步时的 UTC 时间 |
 
 ## SongAlias 数据类
 
@@ -190,26 +190,26 @@ def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | 
 
 | 字段           | 类型             | 说明                     |
 |----------------|------------------|------------------------|
-| `song_id`      | `int`           | 歌曲ID。                 |
-| `aliases`      | `list[str]`      | 别名列表。               |
+| `song_id`      | `int`           | 曲目 ID            |
+| `aliases`      | `list[str]`      | 别名列表               |
 
 ## Score 数据类
 
 ### 属性
 
-| 字段             | 类型                 | 说明                     |
-|------------------|----------------------|------------------------|
-| `id`             | `int`                | 分数ID。                 |
-| `song_name`      | `str`                | 歌曲名称。               |
-| `level`          | `str`                | 等级名称。               |
-| `level_index`    | `LevelIndex`         | 等级索引。               |
-| `achievements`   | `float | None`       | 成就值。                 |
-| `fc`             | `FCType`             | FC类型。                 |
-| `fs`             | `FSType`             | FS类型。                 |
-| `dx_score`       | `int | None`         | DX分数。                 |
-| `dx_rating`      | `float | None`       | DX评分。                 |
-| `rate`           | `RateType`           | 评分。                   |
-| `type`           | `SongType`           | 类型。                   |
+| 字段           | 类型           | 说明            |
+| -------------- | -------------- | --------------- |
+| `id`           | `int`          | ID              |
+| `song_name`    | `str`          | 曲名            |
+| `level`        | `str`          | 难度名(14+)     |
+| `level_index`  | `LevelIndex`   | 难度枚举类      |
+| `achievements` | `float | None` | 达成率          |
+| `fc`           | `FCType`       | FULL COMBO 类型 |
+| `fs`           | `FSType`       | FULL SYNC 类型  |
+| `dx_score`     | `int | None`   | DX分数          |
+| `dx_rating`    | `float | None` | DX Rating       |
+| `rate`         | `RateType`     | 评级类型(SSS)   |
+| `type`         | `SongType`     | 谱面类型类      |
 
 ### 方法
 
@@ -224,7 +224,7 @@ def compare(self, other: "Score") -> "Score":
 
 | 字段     | 类型                     | 说明                     |
 |-----------------|------------------|------------------------|
-| `song`       | `Song`           | 歌曲对象。               |
-| `levels`      | `list[LevelIndex]` | 等级索引列表。           |
-| `score`       | `list[Score] | None` | 分数列表。               |
+| `song`       | `Song`           | 歌曲对象               |
+| `levels`      | `list[LevelIndex]` | 等级列表           |
+| `score`       | `list[Score] | None` | 成绩列表             |
 

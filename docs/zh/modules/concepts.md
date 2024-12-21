@@ -2,7 +2,7 @@
 
 在 maimai.py 中，我们使用了一种较为规范的方式定义了方法和接口的调用方式。
 
-与 Restful 规范类似，如果您能理解我们的规范，便可以直接使用符合直觉的方式进行开发，而不必过多阅读文档和API。
+与 `RESTful` 规范类似，如果您能理解我们的规范，便可以直接使用符合直觉的方式进行开发，而不必过多阅读文档和API。
 
 ## 调用接口
 
@@ -15,7 +15,7 @@ client: MaimaiClient = MaimaiClient()
 songs: MaimaiSongs = await client.songs()
 ```
 
-这里 `await client.songs()` 返回了一个包装过的 `MaimaiSongs`，与直接返回 `list[Song]` 相比，包装实例会向您提供一些方便的方法。
+这里 `await client.songs()` 返回了一个包装过的 `MaimaiSongs`，与直接返回 `list` 相比，封装实例可以提供一些方便的方法。
 
 例如，您可以直接调用 `songs.by_title()` 等方法直接进行筛选，如果需要，您也可以通过 `songs.songs` 访问原始列表。
 
@@ -37,8 +37,9 @@ from maimai_py.maimai import MaimaiClient
 client = MaimaiClient()
 lxns = LXNSProvider(developer_token="your_lxns_developer_token")
 divingfish = DivingFishProvider()
-
+#使用落雪作为数据源
 player_lxns = await maimai.players(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
+#使用水鱼作为数据源
 player_diving = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish)
 ```
 
@@ -50,7 +51,7 @@ player_diving = await maimai.players(PlayerIdentifier(username="turou"), provide
 
 `PlayerIdentifier` 是一个通用的概念，您需要根据使用场景传入合适的值，例如：
 
-- 落雪没有 `username` 这个概念，所以在使用落雪作为数据源时，传入 `username` 会抛出异常。
+- 落雪没有 `username(用户名)` 这个概念，所以在使用落雪作为数据源时，传入 `username` 会抛出异常。
 - 上传分数到水鱼时使用用户名和密码：`PlayerIdentitifer(username="Username", credentials="Password")`。
 - 上传分数到水鱼时使用Import-Token：`PlayerIdentitifer(credentials="Import-Token")`。
 - 使用机台作为数据源时，`credentials` 就是玩家加密后的userId，您可以保存并复用。
