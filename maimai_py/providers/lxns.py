@@ -1,6 +1,3 @@
-import json
-from typing import TYPE_CHECKING
-
 from httpx import AsyncClient, Response
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
@@ -20,9 +17,6 @@ from maimai_py.models import (
     SongDifficulty,
     SongDifficultyUtage,
 )
-
-if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiClient
 
 
 class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider):
@@ -65,6 +59,13 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             rate=RateType[score["rate"].upper()],
             type=SongType[score["type"].upper()],
         )
+
+    def _deser_note(diff: dict, key: str, is_buddy: bool) -> int:
+        if "notes" in diff:
+            if is_buddy:
+                return diff["notes"]["left"][key] + diff["notes"]["right"][key]
+            return diff["notes"][key]
+        return 0
 
     def _ser_score(score: Score) -> dict:
         return {
@@ -147,11 +148,11 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                                 kanji=difficulty["kanji"],
                                 description=difficulty["description"],
                                 is_buddy=difficulty["is_buddy"],
-                                tap_num=difficulty["notes"]["tap"] if "notes" in difficulty and "tap" in difficulty["notes"] else 0,
-                                hold_num=difficulty["notes"]["hold"] if "notes" in difficulty and "hold" in difficulty["notes"] else 0,
-                                slide_num=difficulty["notes"]["slide"] if "notes" in difficulty and "slide" in difficulty["notes"] else 0,
-                                touch_num=difficulty["notes"]["touch"] if "notes" in difficulty and "touch" in difficulty["notes"] else 0,
-                                break_num=difficulty["notes"]["break"] if "notes" in difficulty and "break" in difficulty["notes"] else 0,
+                                tap_num=LXNSProvider._deser_note(difficulty, "tap", difficulty["is_buddy"]),
+                                hold_num=LXNSProvider._deser_note(difficulty, "hold", difficulty["is_buddy"]),
+                                slide_num=LXNSProvider._deser_note(difficulty, "slide", difficulty["is_buddy"]),
+                                touch_num=LXNSProvider._deser_note(difficulty, "touch", difficulty["is_buddy"]),
+                                break_num=LXNSProvider._deser_note(difficulty, "break", difficulty["is_buddy"]),
                             )
                             for difficulty in song["difficulties"]["utage"]
                         ]
