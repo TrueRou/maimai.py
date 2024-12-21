@@ -19,6 +19,32 @@ export default defineConfig({
           { text: 'Get Started', link: '/get-started' },
           { text: 'Try Examples', link: '/examples' }
         ]
+      },
+      {
+        text: 'Modules',
+        items: [
+          { text: 'Core Concepts', link: '/modules/concepts' },
+          { text: 'Songs', link: '/modules/songs' },
+          { text: 'Players', link: '/modules/players' },
+          { text: 'Scores', link: '/modules/scores' },
+          { text: 'Plates', link: '/modules/plates' }
+        ]
+      },
+      {
+        text: 'Providers',
+        items: [
+          { text: 'DivingFish', link: '/providers/divingfish' },
+          { text: 'LXNS', link: '/providers/lxns' },
+          { text: 'Wechat', link: '/providers/wechat' },
+          { text: 'Arcade', link: '/providers/arcade' }
+        ]
+      },
+      {
+        text: 'Development',
+        items: [
+          { text: 'Participation', link: '/dev/participation' },
+          { text: 'Samples', link: '/dev/samples' },
+        ]
       }
     ],
 
