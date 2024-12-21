@@ -55,7 +55,7 @@
 | 异常名称             | 描述                         |
 |---------------------|------------------------------|
 | `WechatTokenExpiredError` | 微信Token已过期，请重新授权 |
-| `RequestError`       | 由于网络问题导致请求失败。       |
+| `RequestError`       | 由于网络问题导致请求失败       |
 
 ## maimai.qrcode() 方法
 

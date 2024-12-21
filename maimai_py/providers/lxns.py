@@ -113,9 +113,9 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                     standard=[
                         SongDifficulty(
                             type=SongType[difficulty["type"].upper()],
-                            difficulty=LevelIndex(difficulty["difficulty"]),
                             level=difficulty["level"],
                             level_value=difficulty["level_value"],
+                            level_index=LevelIndex(difficulty["difficulty"]),
                             note_designer=difficulty["note_designer"],
                             version=difficulty["version"],
                             tap_num=difficulty["notes"]["tap"] if "notes" in difficulty else 0,
@@ -129,9 +129,9 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                     dx=[
                         SongDifficulty(
                             type=SongType[difficulty["type"].upper()],
-                            difficulty=LevelIndex(difficulty["difficulty"]),
                             level=difficulty["level"],
                             level_value=difficulty["level_value"],
+                            level_index=LevelIndex(difficulty["difficulty"]),
                             note_designer=difficulty["note_designer"],
                             version=difficulty["version"],
                             tap_num=difficulty["notes"]["tap"] if "notes" in difficulty else 0,

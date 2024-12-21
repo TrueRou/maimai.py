@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 @dataclass
 class SongDifficulty:
     type: SongType
-    difficulty: LevelIndex
     level: str
     level_value: float
+    level_index: LevelIndex
     note_designer: str
     version: int
     tap_num: int
@@ -58,7 +58,7 @@ class Song:
     disabled: bool
     difficulties: SongDifficulties
 
-    def get_levels(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+    def get_level_index(self, exclude_remaster: bool = False) -> list[LevelIndex]:
         """Get the level indexes of the song.
 
         Args:
@@ -66,12 +66,12 @@ class Song:
         Returns:
             the level indexes of the song.
         """
-        results = [diff.difficulty for diff in (self.difficulties.standard + self.difficulties.dx)]
+        results = [diff.level_index for diff in (self.difficulties.standard + self.difficulties.dx)]
         if exclude_remaster and LevelIndex.ReMASTER in results:
             results.remove(LevelIndex.ReMASTER)
         return results
 
-    def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | None:
+    def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | None:
         """Get the difficulty of the song by its type and level index.
 
         Args:
@@ -81,9 +81,9 @@ class Song:
             the difficulty if it exists, otherwise return None.
         """
         if type == SongType.DX:
-            return next((diff for diff in self.difficulties.dx if diff.difficulty == level_index), None)
+            return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
         if type == SongType.STANDARD:
-            return next((diff for diff in self.difficulties.standard if diff.difficulty == level_index), None)
+            return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
         return None
 
 

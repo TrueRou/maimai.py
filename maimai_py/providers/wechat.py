@@ -33,7 +33,7 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
             song_type = SongType.STANDARD if score["type"] == "SD" else SongType.DX if score["type"] == "DX" and not is_utage else SongType.UTAGE
             level_index = LevelIndex(score["level_index"])
-            if diff := song.get_diff(song_type, level_index):
+            if diff := song.get_difficulty(song_type, level_index):
                 rating = ScoreCoefficient(score["achievements"]).ra(diff.level_value)
                 return Score(
                     id=song.id,

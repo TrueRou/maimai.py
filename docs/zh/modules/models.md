@@ -7,9 +7,9 @@
 | 字段             | 类型                 | 说明                     |
 |------------------|----------------------|------------------------|
 | `type`          | `SongType`           | 谱面类型 |
-| `difficulty`    | `LevelIndex`         | 难度索引    |
 | `level`         | `str`                | 难度标级，如 `14+` |
 | `level_value`   | `float`              | 谱面定数           |
+| `level_index`   | `LevelIndex`         | 难度索引    |
 | `note_designer` | `str`                | 谱师           |
 | `version`       | `int`                | 谱面首次出现版本         |
 | `tap_num`       | `int`                | TAP 物量           |
@@ -64,7 +64,7 @@
 ### 方法
 
 ```python
-def get_levels(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+def get_level_index(self, exclude_remaster: bool = False) -> list[LevelIndex]:
     """获取歌曲的所有难度索引。
 
     参数:
@@ -73,8 +73,8 @@ def get_levels(self, exclude_remaster: bool = False) -> list[LevelIndex]:
         歌曲包含的难度索引列表。
     """
 
-def get_diff(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | None:
-    """通过谱面类型和难度索引获取歌曲的难度。
+def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | None:
+    """通过谱面类型和难度索引获取歌曲的某个难度。
 
     参数:
         type: 谱面类型，例如 `SongType.DX`。

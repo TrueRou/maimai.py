@@ -31,7 +31,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider):
             level_index = LevelIndex(score["level"])
             achievement = float(score["achievement"]) / 10000
             rate_type = RateType.from_achievement(achievement)
-            if diff := song.get_diff(song_type, level_index):
+            if diff := song.get_difficulty(song_type, level_index):
                 rating = ScoreCoefficient(achievement).ra(diff.level_value)
                 return Score(
                     id=song.id,

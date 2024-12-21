@@ -104,9 +104,9 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
                 difficulties.standard = [
                     SongDifficulty(
                         type=SongType.STANDARD,
-                        difficulty=LevelIndex(idx),
                         level=song["level"][idx],
                         level_value=song["ds"][idx],
+                        level_index=LevelIndex(idx),
                         note_designer=chart["charter"],
                         version=enums.divingfish_to_version[song["basic_info"]["from"]],
                         tap_num=chart["notes"][0],
@@ -121,9 +121,9 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
                 difficulties.dx = [
                     SongDifficulty(
                         type=SongType.DX,
-                        difficulty=LevelIndex(idx),
                         level=song["level"][idx],
                         level_value=song["ds"][idx],
+                        level_index=LevelIndex(idx),
                         note_designer=chart["charter"],
                         version=enums.divingfish_to_version[song["basic_info"]["from"]],
                         tap_num=chart["notes"][0],

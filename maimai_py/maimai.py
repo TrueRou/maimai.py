@@ -173,7 +173,9 @@ class MaimaiPlates:
         """
         scores: dict[int, list[Score]] = {}
         [scores.setdefault(score.id, []).append(score) for score in self.scores]
-        results = {song.id: PlateObject(song=song, levels=song.get_levels(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs}
+        results = {
+            song.id: PlateObject(song=song, levels=song.get_level_index(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs
+        }
 
         def extract(score: Score) -> None:
             if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
@@ -248,7 +250,7 @@ class MaimaiPlates:
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
-        results = {song.id: PlateObject(song=song, levels=song.get_levels(self.no_remaster), score=[]) for song in self.songs}
+        results = {song.id: PlateObject(song=song, levels=song.get_level_index(self.no_remaster), score=[]) for song in self.songs}
         return results.values()
 
     @cached_property
