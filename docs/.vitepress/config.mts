@@ -27,7 +27,8 @@ export default defineConfig({
           { text: 'Songs', link: '/modules/songs' },
           { text: 'Players', link: '/modules/players' },
           { text: 'Scores', link: '/modules/scores' },
-          { text: 'Plates', link: '/modules/plates' }
+          { text: 'Plates', link: '/modules/plates' },
+          { text: 'Models', link: '/modules/models' },
         ]
       },
       {

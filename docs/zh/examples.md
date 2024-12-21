@@ -82,7 +82,7 @@ for plate_object in my_plate.remained:
 # 初始化MaimaiClient，初始化水鱼和落雪API
 maimai = MaimaiClient()
 lxns = LXNSProvider(developer_token="your_lxns_developer_token") # 落雪目标用户需要允许开发者上传成绩
-divingfish = DivingFishProvider() # 获取成绩信息水鱼不填写Token也可以，如果要上传到水鱼，且不提供用户的密码，则需要
+divingfish = DivingFishProvider()
 
 # 从水鱼拉取成绩，并且上传到落雪 （有点怪怪的，这里只是举个例子，正常来说应该从微信源或者机台源获取，然后上传到查分器才对）
 scores = await maimai.scores(PlayerIdentifier(username="turou"), kind=ScoreKind.ALL, provider=divingfish)

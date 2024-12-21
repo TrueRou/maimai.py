@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: 开始使用
-      link: /get-started
+      link: /zh/get-started
     - theme: alt
       text: Demo 演示
-      link: /examples
+      link: /zh/examples
     - theme: alt
       text: ⭐
       link: https://github.com/TrueRou/maimai.py
