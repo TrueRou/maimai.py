@@ -31,7 +31,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider):
             level_index = LevelIndex(score["level"])
             achievement = float(score["achievement"]) / 10000
             rate_type = RateType.from_achievement(achievement)
-            if diff := song.get_difficulty(song_type, level_index):
+            if diff := song._get_difficulty(song_type, level_index):
                 rating = ScoreCoefficient(achievement).ra(diff.level_value)
                 return Score(
                     id=song.id,
@@ -54,7 +54,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider):
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
         resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode())
-        ArcadeResponse.throw_error(resp)
+        ArcadeResponse._throw_error(resp)
         if not caches.cached_songs:
             # This breaks the abstraction of the provider, but we have no choice
             caches.cached_songs = await LXNSProvider().get_songs(client)

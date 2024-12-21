@@ -140,10 +140,10 @@ class MaimaiPlates:
             score_key = f"{score.id} {score.type} {score.level_index}"
             if song.difficulties.standard != []:
                 if any(song.difficulties.standard[0].version % ver <= 100 for ver in versions):
-                    scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+                    scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
             if song.difficulties.dx != []:
                 if any(song.difficulties.dx[0].version % ver <= 100 for ver in versions):
-                    scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+                    scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
         # There is no plate that requires the player to play both a certain beatmap's DX and SD
         for song in songs.songs:
             if song.difficulties.standard != []:
@@ -174,7 +174,7 @@ class MaimaiPlates:
         scores: dict[int, list[Score]] = {}
         [scores.setdefault(score.id, []).append(score) for score in self.scores]
         results = {
-            song.id: PlateObject(song=song, levels=song.get_level_index(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs
+            song.id: PlateObject(song=song, levels=song._get_level_index(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs
         }
 
         def extract(score: Score) -> None:
@@ -250,7 +250,7 @@ class MaimaiPlates:
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
-        results = {song.id: PlateObject(song=song, levels=song.get_level_index(self.no_remaster), score=[]) for song in self.songs}
+        results = {song.id: PlateObject(song=song, levels=song._get_level_index(self.no_remaster), score=[]) for song in self.songs}
         return results.values()
 
     @cached_property
@@ -296,7 +296,7 @@ class MaimaiScores:
         scores_unique = {}
         for score in scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
-            scores_unique[score_key] = score.compare(scores_unique.get(score_key, None))
+            scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
         return list(scores_unique.values())
 
     def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None, songs: "MaimaiSongs" = None):
@@ -576,5 +576,5 @@ class MaimaiClient:
             RequestError: Request failed due to network issues.
         """
         resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode)
-        ArcadeResponse.throw_error(resp)
+        ArcadeResponse._throw_error(resp)
         return PlayerIdentifier(credentials=resp.data.decode())

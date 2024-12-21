@@ -165,7 +165,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         ]
 
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
-        resp = await client.get(self.base_url + f"api/v0/maimai/player/{identifier.as_lxns()}", headers=self.headers)
+        resp = await client.get(self.base_url + f"api/v0/maimai/player/{identifier._as_lxns()}", headers=self.headers)
         self._check_response_player(resp)
         resp_json = resp.json()["data"]
         return LXNSPlayer(
@@ -187,7 +187,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         )
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
-        await identifier.ensure_friend_code(client, self)
+        await identifier._ensure_friend_code(client, self)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/bests"
         resp = await client.get(self.base_url + entrypoint, headers=self.headers)
         self._check_response_player(resp)
@@ -197,14 +197,14 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
-        await identifier.ensure_friend_code(client, self)
+        await identifier._ensure_friend_code(client, self)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
         resp = await client.get(self.base_url + entrypoint, headers=self.headers)
         self._check_response_player(resp)
         return [LXNSProvider._deser_score(score) for score in resp.json()["data"]]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
-        await identifier.ensure_friend_code(client, self)
+        await identifier._ensure_friend_code(client, self)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
         scores_dict = {"scores": [LXNSProvider._ser_score(score) for score in scores]}
         resp = await client.post(self.base_url + entrypoint, headers=self.headers, json=scores_dict)

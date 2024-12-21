@@ -1,51 +1,6 @@
 # 数据模型
 
-## SongDifficulty 数据类
-
-### 属性
-
-| 字段             | 类型                 | 说明                     |
-|------------------|----------------------|------------------------|
-| `type`          | `SongType`           | 谱面类型 |
-| `level`         | `str`                | 难度标级，如 `14+` |
-| `level_value`   | `float`              | 谱面定数           |
-| `level_index`   | `LevelIndex`         | 难度索引    |
-| `note_designer` | `str`                | 谱师           |
-| `version`       | `int`                | 谱面首次出现版本         |
-| `tap_num`       | `int`                | TAP 物量           |
-| `hold_num`      | `int`                | HOLD 物量          |
-| `slide_num`     | `int`                | SLIDE 物量         |
-| `touch_num`     | `int`                | TOUCH 物量         |
-| `break_num`     | `int`                | BREAK 物量         |
-
-## SongDifficultyUtage 数据类
-
-### 属性
-
-| 字段          | 类型   | 说明                    |
-| ------------- | ------ | ----------------------- |
-| `kanji`       | `str`  | 宴铺前缀，如 `协`，`狂` |
-| `description` | `str`  | 宴谱描述                |
-| `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
-| `tap_num`     | `int`  | TAP 物量                |
-| `hold_num`    | `int`  | HOLD 物量               |
-| `slide_num`   | `int`  | SLIDE 物量              |
-| `touch_num`   | `int`  | TOUCH 物量              |
-| `break_num`   | `int`  | BREAK 物量              |
-
-## SongDifficulties 数据类
-
-### 属性
-
-| 字段         | 类型                     | 说明                     |
-|-------------|--------------------------|------------------------|
-| `standard`   | `list[SongDifficulty]`    | 标谱难度列表 |
-| `dx`        | `list[SongDifficulty]`    | DX谱难度列表       |
-| `utage`     | `list[SongDifficultyUtage]`| 宴谱难度列表       |
-
 ## Song 数据类
-
-### 属性
 
 | 字段             | 类型                 | 说明                     |
 |------------------|----------------------|------------------------|
@@ -61,32 +16,44 @@
 | `disabled`       | `bool`               | 是否被禁用               |
 | `difficulties`   | `SongDifficulties`    | 谱面难度          |
 
-### 方法
+## SongDifficulties 数据类
 
-```python
-def get_level_index(self, exclude_remaster: bool = False) -> list[LevelIndex]:
-    """获取歌曲的所有难度索引。
+| 字段         | 类型                     | 说明                     |
+|-------------|--------------------------|------------------------|
+| `standard`   | `list[SongDifficulty]`    | 曲目标准谱面难度列表 |
+| `dx`        | `list[SongDifficulty]`    | 曲目 DX 谱面难度列表       |
+| `utage`     | `list[SongDifficultyUtage]`| 宴会场曲目谱面难度列表       |
 
-    参数:
-        exclude_remaster: 是否排除 ReMASTER 等级索引。
-    返回:
-        歌曲包含的难度索引列表。
-    """
+## SongDifficulty 数据类
 
-def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | None:
-    """通过谱面类型和难度索引获取歌曲的某个难度。
+| 字段             | 类型                 | 说明                     |
+|------------------|----------------------|------------------------|
+| `type`          | `SongType`           | 谱面类型 |
+| `level`         | `str`                | 难度标级，如 `14+` |
+| `level_value`   | `float`              | 难度定数           |
+| `level_index`   | `LevelIndex`         | 难度索引    |
+| `note_designer` | `str`                | 谱师           |
+| `version`       | `int`                | 谱面首次出现版本         |
+| `tap_num`       | `int`                | TAP 物量           |
+| `hold_num`      | `int`                | HOLD 物量          |
+| `slide_num`     | `int`                | SLIDE 物量         |
+| `touch_num`     | `int`                | TOUCH 物量         |
+| `break_num`     | `int`                | BREAK 物量         |
 
-    参数:
-        type: 谱面类型，例如 `SongType.DX`。
-        level_index: 难度索引，例如 `LevelIndex.MASTER`。
-    返回:
-        歌曲的某个难度，如果不存在则返回 None。
-    """
-```
+## SongDifficultyUtage 数据类
 
-## PlayerIdentifier 数据类
+| 字段          | 类型   | 说明                    |
+| ------------- | ------ | ----------------------- |
+| `kanji`       | `str`  | 宴铺前缀，如 `协`，`狂` |
+| `description` | `str`  | 宴谱描述                |
+| `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
+| `tap_num`     | `int`  | TAP 物量                |
+| `hold_num`    | `int`  | HOLD 物量               |
+| `slide_num`   | `int`  | SLIDE 物量              |
+| `touch_num`   | `int`  | TOUCH 物量              |
+| `break_num`   | `int`  | BREAK 物量              |
 
-### 属性
+## PlayerIdentifier
 
 | 字段             | 类型                     | 说明                     |
 |------------------|--------------------------|------------------------|
@@ -95,11 +62,7 @@ def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficu
 | `friend_code`    | `int \| None`             | 好友码                 |
 | `credentials`    | `str \| Cookies \| None` | 玩家凭据                 |
 
-### 方法
-
-## PlayerTrophy 数据类
-
-### 属性
+## PlayerTrophy
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
@@ -107,9 +70,7 @@ def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficu
 | `name`       | `str`           | 称号名称             |
 | `color`      | `str`           | 称号颜色           |
 
-## PlayerIcon 数据类
-
-### 属性
+## PlayerIcon
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
@@ -117,38 +78,30 @@ def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficu
 | `name`       | `str`           | 头像名称             |
 | `genre`      | `str`           | 头像分类     |
 
-## PlayerNamePlate 数据类
-
-### 属性
+## PlayerNamePlate
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
 | `id`         | `int`           | 姓名框ID              |
 | `name`       | `str`           | 姓名框名称            |
 
-## PlayerFrame 数据类
-
-### 属性
+## PlayerFrame
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
 | `id`         | `int`           | 背景ID               |
 | `name`       | `str`           | 背景名称            |
 
-## Player 数据类
-
-### 属性
+## Player
 
 | 字段     | 类型             | 说明                     |
 |-----------------|------------------|------------------------|
 | `name`       | `str`           | 玩家名称               |
 | `rating`     | `int`           | 玩家Rating          |
 
-## DivingFishPlayer 数据类
+## DivingFishPlayer
 
 继承自 `Player` 类。
-
-### 属性
 
 | 字段           | 类型             | 说明                     |
 |----------------|------------------|------------------------|
@@ -156,11 +109,9 @@ def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficu
 | `plate`        | `str`           | 玩家牌子          |
 | `additional_rating` | `int` |  |
 
-## LXNSPlayer 数据类
+## LXNSPlayer
 
 继承自 `Player` 类。
-
-### 属性
 
 | 字段             | 类型                     | 说明                     |
 |------------------|--------------------------|------------------------|
@@ -174,18 +125,7 @@ def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficu
 | `frame`          | `PlayerFrame \| None`     | 背景            |
 | `upload_time`    | `str`                   | 玩家被同步时的 UTC 时间 |
 
-## SongAlias 数据类
-
-### 属性
-
-| 字段           | 类型             | 说明                     |
-|----------------|------------------|------------------------|
-| `song_id`      | `int`           | 曲目ID            |
-| `aliases`      | `list[str]`      | 曲目别名列表               |
-
-## Score 数据类
-
-### 属性
+## Score
 
 | 字段           | 类型           | 说明            |
 | -------------- | -------------- | --------------- |
@@ -201,16 +141,7 @@ def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficu
 | `rate`         | `RateType`     | 评级类型   |
 | `type`         | `SongType`     | 谱面类型      |
 
-### 方法
-
-```python
-def compare(self, other: "Score") -> "Score":
-    """比较两个分数，返回更好的分数。"""
-```
-
-## PlateObject 数据类
-
-### 属性
+## PlateObject
 
 | 字段     | 类型                     | 说明                     |
 |-----------------|------------------|------------------------|

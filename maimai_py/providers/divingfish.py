@@ -151,7 +151,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         return list(songs_unique.values())
 
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
-        resp = await client.post(self.base_url + "query/player", json=identifier.as_diving_fish())
+        resp = await client.post(self.base_url + "query/player", json=identifier._as_diving_fish())
         self._check_response_player(resp)
         resp_json = resp.json()
         return DivingFishPlayer(
@@ -163,7 +163,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         )
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
-        req_json = identifier.as_diving_fish()
+        req_json = identifier._as_diving_fish()
         req_json["b50"] = True
         resp = await client.post(self.base_url + "query/player", json=req_json)
         self._check_response_player(resp)
@@ -174,7 +174,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
-        resp = await client.get(self.base_url + "dev/player/records", params=identifier.as_diving_fish(), headers=self.headers)
+        resp = await client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
         self._check_response_player(resp)
         resp_json = resp.json()
         return [DivingFishProvider._deser_score(score) for score in resp_json["records"]]

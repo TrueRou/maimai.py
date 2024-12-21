@@ -4,7 +4,7 @@
 
 与 `RESTful` 规范类似，如果您能理解我们的规范，便可以直接使用符合直觉的方式进行开发，而不必过多阅读文档和API。
 
-## 调用接口
+## 方法和接口
 
 在 maimai.py 中，所有方法和接口都需要通过 `MaimaiClient` 进行**异步**的调用，类似下面的形式。
 
@@ -23,13 +23,13 @@ songs: MaimaiSongs = await client.songs()
 
 > 您可以在整个应用程序中共用 `MaimaiClient` 实例，也可以在每次请求中创建新的实例。
 
-## 提供数据源
+## 数据源
 
-在 maimai.py 中，大部分方法都离不开 **“从某处 获取/提交 数据”** 的逻辑，我们将目标位置称为**数据源(Provider)**。
+在 maimai.py 中，我们引入了数据源的概念，进而支持了以通用的方式从多个位置获取或者上传数据。
 
 > 截止目前，我们已经支持水鱼、落雪、微信服务号、舞萌机台等数据源，支持向水鱼和落雪提交数据。
 
-您可以在调用方法时传入 `provider` 参数，来提示框架从何处获取数据，例如：
+您可以在调用方法时用 `provider` 参数，来指示从何处获取数据，例如：
 
 ```python
 from maimai_py.maimai import MaimaiClient
@@ -46,7 +46,7 @@ player_diving = await maimai.players(PlayerIdentifier(username="turou"), provide
 
 我们推荐您使用全局变量来储存数据源实例，这样只需要提供一次 `developer_token` 就可以了。
 
-## 提供玩家标识
+## 玩家标识
 
 在获取或上传玩家信息时，往往需要标识玩家的身份，我们使用 `PlayerIdentifier` 实例来作为标识符。
 

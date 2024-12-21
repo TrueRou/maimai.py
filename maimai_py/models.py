@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from httpx import AsyncClient, Cookies
 
@@ -8,6 +8,43 @@ from maimai_py.exceptions import ArcadeError, InvalidPlayerIdentifierError, QRCo
 
 if TYPE_CHECKING:
     from maimai_py.providers.lxns import LXNSProvider
+
+
+@dataclass
+class Song:
+    id: int
+    title: str
+    artist: str
+    genre: str
+    bpm: int
+    map: str | None
+    version: int
+    rights: str | None
+    aliases: list[str] | None
+    disabled: bool
+    difficulties: "SongDifficulties"
+
+    def _get_level_index(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+        """@private"""
+        results = [diff.level_index for diff in (self.difficulties.standard + self.difficulties.dx)]
+        if exclude_remaster and LevelIndex.ReMASTER in results:
+            results.remove(LevelIndex.ReMASTER)
+        return results
+
+    def _get_difficulty(self, type: SongType, level_index: LevelIndex) -> Optional["SongDifficulty"]:
+        """@private"""
+        if type == SongType.DX:
+            return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
+        if type == SongType.STANDARD:
+            return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
+        return None
+
+
+@dataclass
+class SongDifficulties:
+    standard: list["SongDifficulty"]
+    dx: list["SongDifficulty"]
+    utage: list["SongDifficultyUtage"]
 
 
 @dataclass
@@ -38,56 +75,6 @@ class SongDifficultyUtage:
 
 
 @dataclass
-class SongDifficulties:
-    standard: list[SongDifficulty]
-    dx: list[SongDifficulty]
-    utage: list[SongDifficultyUtage]
-
-
-@dataclass
-class Song:
-    id: int
-    title: str
-    artist: str
-    genre: str
-    bpm: int
-    map: str | None
-    version: int
-    rights: str | None
-    aliases: list[str] | None
-    disabled: bool
-    difficulties: SongDifficulties
-
-    def get_level_index(self, exclude_remaster: bool = False) -> list[LevelIndex]:
-        """Get the level indexes of the song.
-
-        Args:
-            exclude_remaster: whether to exclude the ReMASTER level index.
-        Returns:
-            the level indexes of the song.
-        """
-        results = [diff.level_index for diff in (self.difficulties.standard + self.difficulties.dx)]
-        if exclude_remaster and LevelIndex.ReMASTER in results:
-            results.remove(LevelIndex.ReMASTER)
-        return results
-
-    def get_difficulty(self, type: SongType, level_index: LevelIndex) -> SongDifficulty | None:
-        """Get the difficulty of the song by its type and level index.
-
-        Args:
-            type: the type of the difficulty, e.g. `SongType.DX`.
-            level_index: the index of the level, e.g. `LevelIndex.MASTER`.
-        Returns:
-            the difficulty if it exists, otherwise return None.
-        """
-        if type == SongType.DX:
-            return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
-        if type == SongType.STANDARD:
-            return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
-        return None
-
-
-@dataclass
 class PlayerIdentifier:
     qq: int | None = None
     username: str | None = None
@@ -98,8 +85,7 @@ class PlayerIdentifier:
         if self.qq is None and self.username is None and self.friend_code is None and self.credentials is None:
             raise InvalidPlayerIdentifierError("At least one of the following must be provided: qq, username, friend_code, credentials")
 
-    def as_diving_fish(self):
-        """@private"""
+    def _as_diving_fish(self):
         if self.qq:
             return {"qq": str(self.qq)}
         elif self.username:
@@ -107,8 +93,7 @@ class PlayerIdentifier:
         elif self.friend_code:
             raise InvalidPlayerIdentifierError("Friend code is not applicable for Diving Fish")
 
-    def as_lxns(self):
-        """@private"""
+    def _as_lxns(self):
         if self.friend_code:
             return str(self.friend_code)
         elif self.qq:
@@ -116,8 +101,7 @@ class PlayerIdentifier:
         elif self.username:
             raise InvalidPlayerIdentifierError("Username is not applicable for LXNS")
 
-    async def ensure_friend_code(self, client: AsyncClient, provider: "LXNSProvider"):
-        """@private"""
+    async def _ensure_friend_code(self, client: AsyncClient, provider: "LXNSProvider"):
         if self.friend_code is None:
             resp = await client.get(provider.base_url + f"api/v0/maimai/player/qq/{self.qq}", headers=provider.headers)
             if not resp.json()["success"]:
@@ -134,8 +118,7 @@ class ArcadeResponse:
     data: dict[str, Any] | bytes | list[Any] | None = None
 
     @staticmethod
-    def throw_error(resp: "ArcadeResponse"):
-        """@private"""
+    def _throw_error(resp: "ArcadeResponse"):
         if resp.errno and resp.errno != 0:
             if resp.errno in [1, 15]:
                 raise QRCodeFormatError(resp.errmsg)
@@ -198,6 +181,8 @@ class LXNSPlayer(Player):
 
 @dataclass
 class SongAlias:
+    """@private"""
+
     song_id: int
     aliases: list[str]
 
@@ -216,8 +201,7 @@ class Score:
     rate: RateType
     type: SongType
 
-    def compare(self, other: "Score") -> "Score":
-        """@private"""
+    def _compare(self, other: "Score") -> "Score":
         if other is None:
             return self
         if self.dx_score and other.dx_score:  # larger value is better
