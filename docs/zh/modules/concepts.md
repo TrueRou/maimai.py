@@ -2,7 +2,7 @@
 
 在 maimai.py 中，我们使用了一种较为规范的方式定义了方法和接口的调用方式。
 
-与 Restful 规范类似，如果您能理解我们的规范，便可以直接使用符合直觉的方式进行开发，而不必过多阅读文档和API。
+与 `RESTful` 规范类似，如果您能理解我们的规范，便可以直接使用符合直觉的方式进行开发，而不必过多阅读文档和API。
 
 ## 调用接口
 
@@ -15,7 +15,7 @@ client: MaimaiClient = MaimaiClient()
 songs: MaimaiSongs = await client.songs()
 ```
 
-这里 `await client.songs()` 返回了一个包装过的 `MaimaiSongs`，与直接返回 `list[Song]` 相比，包装实例会向您提供一些方便的方法。
+这里 `await client.songs()` 返回了一个封装过的 `MaimaiSongs`，与直接返回 `list[Song]` 相比，封装实例可以提供一些方便的方法。
 
 例如，您可以直接调用 `songs.by_title()` 等方法直接进行筛选，如果需要，您也可以通过 `songs.songs` 访问原始列表。
 
@@ -38,7 +38,9 @@ client = MaimaiClient()
 lxns = LXNSProvider(developer_token="your_lxns_developer_token")
 divingfish = DivingFishProvider()
 
+# 使用落雪作为数据源
 player_lxns = await maimai.players(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
+# 使用水鱼作为数据源
 player_diving = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish)
 ```
 

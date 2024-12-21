@@ -1,4 +1,4 @@
-# 玩家数据
+# 玩家
 
 ## maimai.players() 方法
 
@@ -21,22 +21,20 @@
 
 | 错误名称                           | 描述                                                         |
 |-----------------------------------|--------------------------------------------------------------|
-| InvalidPlayerIdentifierError       | 玩家标识符对于数据源无效，或者玩家未找到。                     |
-| InvalidDeveloperTokenError         | 开发者令牌未提供或令牌无效。                                  |
-| PrivacyLimitationError            | 用户尚未接受第三方访问数据。                                   |
-| RequestError                      | 由于网络问题导致请求失败。                                   |
+| InvalidPlayerIdentifierError       | 数据源不支持该玩家标识，或者玩家未找到                     |
+| InvalidDeveloperTokenError         | 未提供开发者令牌或令牌无效                                  |
+| PrivacyLimitationError            | 用户尚未同意第三方开发者访问数据                                   |
+| RequestError                      | 由于网络问题导致请求失败                                   |
 
 ## maimai.wechat() 方法
 
-该方法用于获取微信服务号玩家的玩家标识符
+该方法用于通过 **微信服务号** 来获取玩家的 `PlayerIdentifier`。
 
-调用此方法时，如果不带任何参数，将获取到一个 URL，然后将用户重定向到该 URL（需要启用 mitmproxy）。
+调用此方法时，如果不带任何参数，将获取到一个 URL，让玩家在启动代理的情况下访问URL，代理将请求转发至 mitmproxy。
 
-您的 mitmproxy 应该拦截来自 tgk-wcaime.wahlap.com 的响应，然后使用拦截到的响应参数再次调用此方法。
+转发后，您的 mitmproxy 应该拦截到了来自 `tgk-wcaime.wahlap.com` 的响应，请使用拦截到的**响应中的参数**再次调用此方法。
 
-如果使用特定用户的响应参数，该方法将返回用户的播放器标识符。
-
-切勿缓存或存储播放器标识符，因为 cookies 可能随时会过期。
+当提供**响应中的参数**（r、t、code、state）后，该方法将返回用户的 `PlayerIdentifier`。
 
 ### 参数
 
@@ -49,21 +47,21 @@
 
 ### 返回值
 
-- 如果提供了所有参数，返回玩家标识符 PlayerIdentifier。
-- 否则，返回用于获取标识符的 URL。
+- 如果提供了所有参数，将返回 `PlayerIdentifier`。
+- 如果不提供参数，将返回一个 URL，玩家需要访问该URL，之后再进行下一步的操作。
 
 ### 异常
 
 | 异常名称             | 描述                         |
 |---------------------|------------------------------|
-| `WechatTokenExpiredError` | 当微信 token 过期时，请重新授权。 |
+| `WechatTokenExpiredError` | 微信Token已过期，请重新授权 |
 | `RequestError`       | 由于网络问题导致请求失败。       |
 
 ## maimai.qrcode() 方法
 
-从 Wahlap 玩家二维码获取玩家标识符。
+从 **玩家二维码** 获取 `PlayerIdentifier`。
 
-该方法通过玩家的 QR 码获取玩家标识符，这个标识符是加密后的 userId，不能在 maimai.py 之外的任何其他情况下使用。
+该方法从舞萌机台的接口通过玩家二维码获取玩家userId，maimai.py 解析出的userId仅能在内部使用。
 
 ### 参数
 
@@ -73,13 +71,13 @@
 
 ### 返回值
 
-- 玩家标识符 `PlayerIdentifier`
+- 玩家标识 `PlayerIdentifier`
 
 ### 异常
 
 | 异常名称             | 描述                         |
 |---------------------|------------------------------|
-| `QRCodeFormatError`  | QR 码无效，请检查格式。         |
-| `QRCodeExpiredError` | QR 码已过期，请重新生成 QR 码。 |
-| `ArcadeError`       | 来自舞萌机台的其他未知错误。     |
-| `RequestError`      | 由于网络问题导致请求失败。       |
+| `QRCodeFormatError`  | 二维码无效，请检查格式         |
+| `QRCodeExpiredError` | 二维码已过期，请重新生成玩家二维码 |
+| `ArcadeError`       | 来自舞萌机台的其他未知错误     |
+| `RequestError`      | 由于网络问题导致请求失败       |
