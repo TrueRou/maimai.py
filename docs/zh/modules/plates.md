@@ -1,4 +1,4 @@
-# 玩家牌子
+# 牌子
 
 ## maimai.plates() 方法
 
@@ -22,11 +22,11 @@
 
 | 错误名称                           | 描述                                                         |
 |-----------------------------------|--------------------------------------------------------------|
-| InvalidPlayerIdentifierError       | 玩家标识符对于数据源无效，或者玩家未找到。                     |
-| InvalidPlateError                 | 提供的版本或牌子无效。                                       |
-| InvalidDeveloperTokenError         | 开发者令牌未提供或令牌无效。                                  |
-| PrivacyLimitationError            | 用户尚未接受第三方访问数据。                                   |
-| RequestError                      | 由于网络问题导致请求失败。                                   |
+| InvalidPlayerIdentifierError       | 数据源不支持该玩家标识，或者玩家未找到                     |
+| InvalidPlateError                 | 提供的牌子名称无效                                       |
+| InvalidDeveloperTokenError         | 未提供开发者令牌或令牌无效                                  |
+| PrivacyLimitationError            | 用户尚未同意第三方开发者访问数据                                   |
+| RequestError                      | 由于网络问题导致请求失败                                   |
 
 ## MaimaiPlates 对象
 
@@ -34,73 +34,73 @@
 
 | 字段     | 类型             | 说明                                                                |
 |-----------------|------------------|---------------------------------------------------------------------|
-| `scores`        | `list[Score]`     | 匹配牌子版本和种类的成绩。                                                   |
-| `songs`         | `list[Song]`      | 匹配牌子版本和种类的歌曲。                                                   |
-| `version`       | `str`             | 牌子的版本，例如 "真", "舞"。                                             |
-| `kind`          | `str`             | 牌子的种类，例如 "将", "神"。                                             |
+| `scores`        | `list[Score]`     | 与当前牌子名称相关的所有成绩                                                   |
+| `songs`         | `list[Song]`      | 与当前牌子名称相关的所有歌曲                                                   |
+| `version`       | `str`             | 牌子的版本，例如 "真", "舞"                                             |
+| `kind`          | `str`             | 牌子的种类，例如 "将", "神"                                             |
 
 ### 方法
 
 ```python
 @cached_property
 def no_remaster(self) -> bool:
-    """是否需要在牌子中玩 ReMASTER 等级。
+    """获取该牌子是否需要游玩 ReMASTER 难度。
 
-    只有 舞 和 霸 牌子需要 ReMASTER 等级，其他不需要。
+    只有 舞 和 霸 牌子需要游玩 ReMASTER 难度。
     """
 
 @cached_property
 def remained(self) -> list[PlateObject]:
-    """获取玩家在该牌子上剩余的歌曲。
+    """获取玩家在该牌子上剩余的歌曲和成绩。
 
-    如果玩家在一首歌曲上还有剩余的等级，那么这首歌曲和剩余的 `levels_index` 将被包含在结果中，否则不会。
+    如果玩家在某歌曲上还有剩余的难度未完成，那么这首歌曲和剩余难度的 `level_index` 将被包含在结果中。
 
-    没有满足牌子要求的不同的分数将被包含在结果中，完成的分数不会。
+    如果玩家有成绩，未达成要求的成绩将被包含在结果中，已经达到要求的成绩则不会包含进来。
     """
 
 @cached_property
 def cleared(self) -> list[PlateObject]:
-    """获取玩家在该牌子上已通关的歌曲。
+    """获取玩家在该牌子上已达成的歌曲和成绩。
 
-    如果玩家在一首歌曲上有一个或多个等级满足要求，那么这首歌曲和通关的 `level_index` 将被包含在结果中，否则不会。
+    如果玩家在某歌曲上有一个或多个难度满足要求，那么这首歌曲和已完成难度的 `level_index` 将被包含在结果中，否则不会。
 
-    满足牌子要求的不同分数将被包含在结果中，未完成的分数不会。
+    如果玩家有成绩，已经达到要求的成绩将被包含在结果中，未达到要求的成绩则不会包含进来。
     """
 
 @cached_property
 def played(self) -> list[PlateObject]:
-    """获取玩家在该牌子上已玩的歌曲。
+    """获取玩家在该牌子上游玩过的歌曲和成绩。
 
-    如果玩家曾经玩过一首歌曲的等级，无论是否满足要求，那么这首歌曲和已玩的 `levels_index` 将被包含在结果中。
+    如果玩家曾经玩过一首歌曲的任何难度，无论是否满足要求，那么这首歌曲和玩过的 `level_index` 将被包含在结果中。
 
-    所有不同的分数都将被包含在结果中。
+    所有的成绩都将被包含在结果中。
     """
 
 @cached_property
 def all(self) -> list[PlateObject]:
-    """获取该牌子上的所有歌曲，通常用于牌子的统计。
+    """获取该牌子上的所有歌曲，通常用于查询牌子信息。
 
-    所有歌曲都将被包含在结果中，包含所有等级，无论是否满足要求。
+    所有相关的歌曲都将被包含在结果中，包含所有难度。
 
-    结果中不会包含分数，使用 played, cleared, remained 来获取分数。
+    结果中不会包含成绩，请使用 `played`, `cleared`, `remained` 属性来获取玩家成绩。
     """
 
 @cached_property
 def played_num(self) -> int:
-    """获取该牌子上已玩等级的数量。"""
+    """获取该牌子上已玩难度的数量。"""
 
 @cached_property
 def cleared_num(self) -> int:
-    """获取该牌子上已通关等级的数量。"""
+    """获取该牌子上已达成难度的数量。"""
 
 @cached_property
 def remained_num(self) -> int:
-    """获取该牌子上剩余等级的数量。"""
+    """获取该牌子上剩余难度的数量。"""
 
 @cached_property
 def all_num(self) -> int:
-    """获取该牌子上所有等级的数量。
+    """获取该牌子上所有难度的数量。
 
-    这个牌子上所有等级的总数，应该等于 `cleared_num + remained_num`。
+    这个牌子上所有难度的总数，应该等于 `cleared_num + remained_num`。
     """
 ```

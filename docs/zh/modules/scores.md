@@ -1,12 +1,10 @@
-# 玩家分数
+# 分数
 
 ## maimai.scores() 方法
 
 从数据源获取玩家的成绩。
 
-对于`WechatProvider`，`PlayerIdentifier`必须具有credentials属性，我们建议您使用`maimai.wechat()`方法来获取玩家标识符。同时，不应缓存`PlayerIdentifier`或将其存储在数据库中，因为`cookies`可能随时会过期。
-
-对于`ArcadeProvider`，`PlayerIdentifier`必须具有credentials属性，这是玩家加密后的userId，可以从`maimai.qrcode()`中获得。credentials可以重复使用，因为它不会过期，同时，userId是加密的，不能在 maimai.py 之外的任何其他情况下使用。
+对于 `WechatProvider` 和 `ArcadeProvider`，玩家标识必须具有 `credentials` 属性。具体做法可以阅读对应数据源的文档。
 
 **支持的数据源**：`DivingFishProvider`、`WechatProvider`、`ArcadeProvider`、`LXNSProvider`
 
@@ -26,9 +24,9 @@
 
 | 错误名称                           | 描述                                                         |
 |-----------------------------------|--------------------------------------------------------------|
-| InvalidPlayerIdentifierError       | 玩家标识符对于数据源无效，或者玩家未找到                     |
-| InvalidDeveloperTokenError         | 开发者令牌未提供或令牌无效                                  |
-| PrivacyLimitationError            | 用户尚未接受第三方访问数据                                   |
+| InvalidPlayerIdentifierError       | 数据源不支持该玩家标识，或者玩家未找到                     |
+| InvalidDeveloperTokenError         | 未提供开发者令牌或令牌无效                                  |
+| PrivacyLimitationError            | 用户尚未同意第三方开发者访问数据                                   |
 | ArcadeError                       | 仅适用于ArcadeProvider，由于舞萌机台问题导致请求失败         |
 | RequestError                      | 由于网络问题导致请求失败                                   |
 
@@ -42,8 +40,8 @@
 
 | 参数名   | 类型               | 说明                                                         |
 |----------|--------------------|--------------------------------------------------------------|
-| identifier | `PlayerIdentifier` | 要更新分数的玩家标识符，例如 `PlayerIdentifier(friend_code=664994421382429)` |
-| scores   | `list[Score]`      | 要更新的分数，通常是从其他提供者获取的分数                     |
+| identifier | `PlayerIdentifier` | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
+| scores   | `list[Score]`      | 分数列表，通常是从其他数据源获取的分数                     |
 | provider | `IScoreProvider`   | 数据源，默认为 `LXNSProvider`                                 |
 
 ### 返回值
@@ -54,9 +52,9 @@
 
 | 异常名称                         | 描述                                                         |
 |---------------------------------|--------------------------------------------------------------|
-| `InvalidPlayerIdentifierError`   | 玩家标识符对于数据源无效，或者玩家未找到，或者导入令牌/密码无效 |
-| `InvalidDeveloperTokenError`     | 开发者令牌未提供或令牌无效                                  |
-| `PrivacyLimitationError`        | 用户尚未接受第三方访问数据                                   |
+| `InvalidPlayerIdentifierError`   | 数据源不支持该玩家标识，或者玩家未找到，或者 Import-Token/密码 无效 |
+| `InvalidDeveloperTokenError`     | 未提供开发者令牌或令牌无效                                  |
+| `PrivacyLimitationError`        | 用户尚未同意第三方开发者访问数据                                   |
 | `RequestError`                  | 由于网络问题导致请求失败                                   |
 
 ## MaimaiScores 对象
@@ -68,16 +66,16 @@
 | `scores`        | `list[Score]`     | 玩家所有成绩，当 `ScoreKind.ALL` 时返回所有成绩，否则仅返回 B50 成绩 |
 | `scores_b35`    | `list[Score]`     | 玩家 B35 成绩                                                     |
 | `scores_b15`    | `list[Score]`     | 玩家 B15 成绩                                                     |
-| `rating`        | `int`             | 玩家总rating                                                  |
-| `rating_b35`    | `int`             | 玩家 B35 的rating                                             |
-| `rating_b15`    | `int`             | 玩家 B15  的rating                                            |
+| `rating`        | `int`             | 玩家 总 Rating                                                  |
+| `rating_b35`    | `int`             | 玩家 B35 Rating                                             |
+| `rating_b15`    | `int`             | 玩家 B15 Rating                                            |
 | `as_distinct`   | `MaimaiScores`| 获取去重后的最佳成绩。通常情况下，玩家对同一首歌和难度会有多个成绩，调用此方法将返回一个新的 `MaimaiScores` 对象，只包含每首歌和难度的最高成绩 |
 
 ### 方法
 
 ```python
 def by_song(self, song_id: int) -> list[Score]:
-    """获取指定歌曲的所有难度成绩。
+    """获取指定歌曲的所有成绩。
 
     如果 `ScoreKind` 是 `BEST`，则只会筛选 b50 成绩。
 

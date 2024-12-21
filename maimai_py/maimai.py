@@ -165,9 +165,9 @@ class MaimaiPlates:
 
     @cached_property
     def remained(self) -> list[PlateObject]:
-        """Get the remained song of the player on this plate.
+        """Get the remained songs and scores of the player on this plate.
 
-        If player has ramained levels on one song, the song and ramained `levels_index` will be included in the result, otherwise it won't.
+        If player has ramained levels on one song, the song and ramained `level_index` will be included in the result, otherwise it won't.
 
         The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
         """
@@ -197,7 +197,7 @@ class MaimaiPlates:
 
     @cached_property
     def cleared(self) -> list[PlateObject]:
-        """Get the cleared song of the player on this plate.
+        """Get the cleared songs and scores of the player on this plate.
 
         If player has levels (one or more) that met the requirement on the song, the song and cleared `level_index` will be included in the result, otherwise it won't.
 
@@ -226,9 +226,9 @@ class MaimaiPlates:
 
     @cached_property
     def played(self) -> list[PlateObject]:
-        """Get the played song of the player on this plate.
+        """Get the played songs and scores of the player on this plate.
 
-        If player has ever played levels on the song, whether they met or not, the song and played `levels_index` will be included in the result.
+        If player has ever played levels on the song, whether they met or not, the song and played `level_index` will be included in the result.
 
         All distinct scores will be included in the result.
         """
@@ -242,7 +242,7 @@ class MaimaiPlates:
 
     @cached_property
     def all(self) -> list[PlateObject]:
-        """Get all songs on this plate, usually used for statistics of the plate.
+        """Get all songs and scores on this plate, usually used for statistics of the plate.
 
         All songs will be included in the result, with all levels, whether they met or not.
 
