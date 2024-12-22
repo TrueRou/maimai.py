@@ -6,6 +6,8 @@ hero:
   name: "maimai.py"
   text: "舞萌Python工具库"
   tagline: 用于国服舞萌相关开发的最佳Python工具库，封装水鱼/落雪查分器常用函数。
+  image:
+    src: https://s2.loli.net/2024/12/23/jOngPm1bECdSw5N.png
   actions:
     - theme: brand
       text: 开始使用

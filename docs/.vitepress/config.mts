@@ -15,6 +15,11 @@ export default defineConfig({
       provider: 'local'
     },
 
+    footer: {
+      message: 'MIT License',
+      copyright: 'Copyright © 2019-2024 TrueRou'
+    },
+
     sidebar: [
       {
         text: 'Introduction',

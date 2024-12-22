@@ -3,3 +3,33 @@
     max-width: 928px !important;
   }
 }
+
+@media (min-width: 960px) {
+  .VPNavBar {
+    background-color: var(--vp-nav-bg-color);
+  }
+}
+
+@media (min-width: 960px) {
+  .VPContent {
+    padding-top: 128px !important;
+  }
+}
+
+.VPFooter {
+  border-top: none !important;
+  background-color: transparent !important;
+}
+
+#VPContent > div > div.VPHero.VPHomeHero > div > div > h1 > span {
+  color: #3451b2; !important;
+  -webkit-text-fill-color: #3451b2; !important;
+}
+
+#VPContent > div > div.VPHero.VPHomeHero > div > div > p.text {
+  color: rgba(60, 60, 67); !important;
+}
+
+#VPContent > div > div.VPHero.VPHomeHero > div > div > p.tagline {
+  color: rgba(60, 60, 67, 0.78); !important;
+}
