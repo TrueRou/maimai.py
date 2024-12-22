@@ -25,11 +25,15 @@ After running `python main.py` for the first time, `config.json` and `proxy.yaml
 
 You can modify the IP and port defined in `config.json` and `proxy.yaml` to suit your workspace environment.
 
-> `proxy.yaml` is a configuration file for **Clash** that can be imported into any proxy tool that supports the Clash configuration
+::: info
+`proxy.yaml` is a configuration file for **Clash** that can be imported into any proxy tool that supports the Clash configuration
+:::
 
 The configuration file allows you to enable or disable the uploading to each probers. For divingfish prober uploads, you need to provide your username and password, and for LXNS, you need to provide your friend code and developer token.
 
-> For divingfish prober upload, you can use `Import-Token`, just leave the username empty and put `Import-Token` in the `credentials`.
+::: tip
+For divingfish prober upload, you can use `Import-Token`, just leave the username empty and put `Import-Token` in the `credentials`.
+:::
 
 After modifying the configuration file, restart the program, you can now test the sample project. 
 
@@ -39,13 +43,17 @@ After the program starts, it will prompt to click enter to generate a `Wechat UR
 
 Copy the link and open it in WeChat on the device with **Proxy** running to start the import process.
 
-> Due to the WeChat verification system, the verification link expires quickly, once it expires you can see the error message in the CLI and simply regenerate it.
+::: tip
+Due to the WeChat verification system, the verification link expires quickly, once it expires you can see the error message in the CLI and simply regenerate it.
+:::
 
 ### Principle
 
 The principle refers to [Bakapiano program](https://github.com/bakapiano/maimaidx-prober-proxy-updater), here quote Bakapiano's original words:
 
+
 > Modify the redirect_uri link in WeChat OAuth2 authentication, change https://example.com to http://example.com and intercept it via HTTP proxy. After that, the server will get the Maimai score data through the authentication information. Theoretically, all platforms are supported, as long as the built-in WeChat browser on the corresponding platform uses the global HTTP proxy.
+
 
 We provide `maimai.wechat()` method and `maimai.scores(wx_player, ScoreKind.ALL, WechatProvider())` method to wrap the above principle, which is convenient for developers to invoke.
 

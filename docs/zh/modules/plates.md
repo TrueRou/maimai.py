@@ -8,11 +8,11 @@
 
 ### 参数
 
-| 参数名 | 类型 | 说明 |
-|-|-|-|
-| identifier | PlayerIdentifier | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
-| plate | str | 牌子名称，例如 "樱将", "真舞舞" |
-| provider | IScoreProvider | 数据源，默认为 `LXNSProvider` |
+| 参数名     | 类型               | 说明                                                          |
+|------------|--------------------|-------------------------------------------------------------|
+| identifier | `PlayerIdentifier` | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
+| plate      | `str`              | 牌子名称，例如 "樱将", "真舞舞"                                |
+| provider   | `IScoreProvider`   | 数据源，默认为 `LXNSProvider`                                  |
 
 ### 返回值
 
@@ -20,24 +20,24 @@
 
 ### 异常
 
-| 错误名称                           | 描述                                                         |
-|-----------------------------------|--------------------------------------------------------------|
-| InvalidPlayerIdentifierError       | 数据源不支持该玩家标识，或者玩家未找到                     |
-| InvalidPlateError                 | 提供的牌子名称无效                                       |
-| InvalidDeveloperTokenError         | 未提供开发者令牌或令牌无效                                  |
-| PrivacyLimitationError            | 用户尚未同意第三方开发者访问数据                                   |
-| RequestError                      | 由于网络问题导致请求失败                                   |
+| 错误名称                       | 描述                                  |
+|--------------------------------|-------------------------------------|
+| `InvalidPlayerIdentifierError` | 数据源不支持该玩家标识，或者玩家未找到 |
+| `InvalidPlateError`            | 提供的牌子名称无效                    |
+| `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效            |
+| `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据      |
+| `RequestError`                 | 由于网络问题导致请求失败              |
 
 ## MaimaiPlates 对象
 
 ### 属性
 
-| 字段     | 类型             | 说明                                                                |
-|-----------------|------------------|---------------------------------------------------------------------|
-| `scores`        | `list[Score]`     | 与当前牌子名称相关的所有成绩                                                   |
-| `songs`         | `list[Song]`      | 与当前牌子名称相关的所有歌曲                                                   |
-| `version`       | `str`             | 牌子的版本，例如 "真", "舞"                                             |
-| `kind`          | `str`             | 牌子的种类，例如 "将", "神"                                             |
+| 字段      | 类型          | 说明                         |
+|-----------|---------------|----------------------------|
+| `scores`  | `list[Score]` | 与当前牌子名称相关的所有成绩 |
+| `songs`   | `list[Song]`  | 与当前牌子名称相关的所有歌曲 |
+| `version` | `str`         | 牌子的版本，例如 "真", "舞"   |
+| `kind`    | `str`         | 牌子的种类，例如 "将", "神"   |
 
 ### 方法
 

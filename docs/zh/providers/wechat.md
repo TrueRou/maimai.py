@@ -12,7 +12,7 @@
 
 ## 如何使用
 
-使用 WechatProvider 需要配合代理，具体使用例子可以查看 示例项目 部分。
+使用 WechatProvider 需要配合代理，具体使用例子可以查看 [示例项目](../dev/samples.md) 部分。
 
 ## 实现原理
 

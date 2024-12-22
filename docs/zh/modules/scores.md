@@ -10,11 +10,11 @@
 
 ### 参数
 
-| 参数名 | 类型 | 说明 |
-|-|-|-|
-| identifier | PlayerIdentifier | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
-| kind | ScoreKind | 分数列表类型，默认为 `ScoreKind.BEST` |
-| provider | IScoreProvider | 数据源，默认为 `LXNSProvider` |
+| 参数名     | 类型               | 说明                                                          |
+|------------|--------------------|-------------------------------------------------------------|
+| identifier | `PlayerIdentifier` | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
+| kind       | `ScoreKind`        | 分数列表类型，默认为 `ScoreKind.BEST`                          |
+| provider   | `IScoreProvider`   | 数据源，默认为 `LXNSProvider`                                  |
 
 ### 返回值
 
@@ -22,13 +22,13 @@
 
 ### 异常
 
-| 错误名称                           | 描述                                                         |
-|-----------------------------------|--------------------------------------------------------------|
-| InvalidPlayerIdentifierError       | 数据源不支持该玩家标识，或者玩家未找到                     |
-| InvalidDeveloperTokenError         | 未提供开发者令牌或令牌无效                                  |
-| PrivacyLimitationError            | 用户尚未同意第三方开发者访问数据                                   |
-| ArcadeError                       | 仅适用于ArcadeProvider，由于舞萌机台问题导致请求失败         |
-| RequestError                      | 由于网络问题导致请求失败                                   |
+| 错误名称                       | 描述                                                |
+|--------------------------------|---------------------------------------------------|
+| `InvalidPlayerIdentifierError` | 数据源不支持该玩家标识，或者玩家未找到               |
+| `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效                          |
+| `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据                    |
+| `ArcadeError`                  | 仅适用于ArcadeProvider，由于舞萌机台问题导致请求失败 |
+| `RequestError`                 | 由于网络问题导致请求失败                            |
 
 ## maimai.updates() 方法
 
@@ -38,11 +38,11 @@
 
 ### 参数
 
-| 参数名   | 类型               | 说明                                                         |
-|----------|--------------------|--------------------------------------------------------------|
+| 参数名     | 类型               | 说明                                                          |
+|------------|--------------------|-------------------------------------------------------------|
 | identifier | `PlayerIdentifier` | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
-| scores   | `list[Score]`      | 分数列表，通常是从其他数据源获取的分数                     |
-| provider | `IScoreProvider`   | 数据源，默认为 `LXNSProvider`                                 |
+| scores     | `list[Score]`      | 分数列表，通常是从其他数据源获取的分数                         |
+| provider   | `IScoreProvider`   | 数据源，默认为 `LXNSProvider`                                  |
 
 ### 返回值
 
@@ -50,26 +50,26 @@
 
 ### 异常
 
-| 异常名称                         | 描述                                                         |
-|---------------------------------|--------------------------------------------------------------|
-| `InvalidPlayerIdentifierError`   | 数据源不支持该玩家标识，或者玩家未找到，或者 Import-Token/密码 无效 |
-| `InvalidDeveloperTokenError`     | 未提供开发者令牌或令牌无效                                  |
-| `PrivacyLimitationError`        | 用户尚未同意第三方开发者访问数据                                   |
-| `RequestError`                  | 由于网络问题导致请求失败                                   |
+| 异常名称                       | 描述                                                              |
+|--------------------------------|-----------------------------------------------------------------|
+| `InvalidPlayerIdentifierError` | 数据源不支持该玩家标识，或者玩家未找到，或者 Import-Token/密码 无效 |
+| `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效                                        |
+| `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据                                  |
+| `RequestError`                 | 由于网络问题导致请求失败                                          |
 
 ## MaimaiScores 对象
 
 ### 属性
 
-| 字段     | 类型             | 说明                                                                |
-|-----------------|------------------|---------------------------------------------------------------------|
-| `scores`        | `list[Score]`     | 玩家所有成绩，当 `ScoreKind.ALL` 时返回所有成绩，否则仅返回 B50 成绩 |
-| `scores_b35`    | `list[Score]`     | 玩家 B35 成绩                                                     |
-| `scores_b15`    | `list[Score]`     | 玩家 B15 成绩                                                     |
-| `rating`        | `int`             | 玩家 总 Rating                                                  |
-| `rating_b35`    | `int`             | 玩家 B35 Rating                                             |
-| `rating_b15`    | `int`             | 玩家 B15 Rating                                            |
-| `as_distinct`   | `MaimaiScores`| 获取去重后的最佳成绩。通常情况下，玩家对同一首歌和难度会有多个成绩，调用此方法将返回一个新的 `MaimaiScores` 对象，只包含每首歌和难度的最高成绩 |
+| 字段          | 类型           | 说明                                                               |
+|---------------|----------------|------------------------------------------------------------------|
+| `scores`      | `list[Score]`  | 玩家所有成绩，当 `ScoreKind.ALL` 时返回所有成绩，否则仅返回 B50 成绩 |
+| `scores_b35`  | `list[Score]`  | 玩家 B35 成绩                                                      |
+| `scores_b15`  | `list[Score]`  | 玩家 B15 成绩                                                      |
+| `rating`      | `int`          | 玩家 总 Rating                                                     |
+| `rating_b35`  | `int`          | 玩家 B35 Rating                                                    |
+| `rating_b15`  | `int`          | 玩家 B15 Rating                                                    |
+| `as_distinct` | `MaimaiScores` | 对成绩进行去重，只保留最佳的那一个成绩。                             |
 
 ### 方法
 

@@ -89,7 +89,7 @@ scores = await maimai.scores(PlayerIdentifier(username=“turou”), kind=ScoreK
 await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
 ```
 
-## Get scores from the machine and update the prober
+### Get scores from the arcade
 
 ```python
 maimai = MaimaiClient()
@@ -101,6 +101,26 @@ scores = await maimai.scores(my_account, provider=ArcadeProvider())
 await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
 ```
 
-## Updating the scores prober by means of a proxy
+### Get scores from the proxy
 
-This is a long section, so you can go to the sample project section to learn more about it.
+```python
+maimai = MaimaiClient()
+lxns = LXNSProvider(developer_token="your_lxns_developer_token") # 落雪目标用户需要允许开发者上传成绩
+divingfish = DivingFishProvider()
+
+wx_player = await maimai.wechat(r, t, code, state)
+scores = await maimai.scores(wx_player, ScoreKind.ALL, WechatProvider())
+diving_player = PlayerIdentifier(username=config["diving_fish"]["username"], credentials=config["diving_fish"]["credentials"])
+lxns_player = PlayerIdentifier(friend_code=config["lxns"]["friend_code"])
+
+tasks = [
+    maimai.updates(diving_player, scores.scores, provider=divingfish),
+    maimai.updates(lxns_player, scores.scores, provider=lxns)
+]
+
+await asyncio.gather(*tasks)
+```
+
+::: info
+Read [Sample Projects](./dev/samples.md) for more.
+:::

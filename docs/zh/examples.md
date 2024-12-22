@@ -89,7 +89,7 @@ scores = await maimai.scores(PlayerIdentifier(username="turou"), kind=ScoreKind.
 await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
 ```
 
-## 从机台获取成绩并更新查分器
+### 从机台获取成绩
 
 ```python
 maimai = MaimaiClient()
@@ -101,6 +101,26 @@ scores = await maimai.scores(my_account, provider=ArcadeProvider())
 await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
 ```
 
-## 通过代理的方式更新查分器
+### 通过代理获取成绩
 
-这部分由于篇幅较长，可以移步至 示例项目 部分来了解更多
+```python
+maimai = MaimaiClient()
+lxns = LXNSProvider(developer_token="your_lxns_developer_token") # 落雪目标用户需要允许开发者上传成绩
+divingfish = DivingFishProvider()
+
+wx_player = await maimai.wechat(r, t, code, state)
+scores = await maimai.scores(wx_player, ScoreKind.ALL, WechatProvider())
+diving_player = PlayerIdentifier(username=config["diving_fish"]["username"], credentials=config["diving_fish"]["credentials"])
+lxns_player = PlayerIdentifier(friend_code=config["lxns"]["friend_code"])
+
+tasks = [
+    maimai.updates(diving_player, scores.scores, provider=divingfish),
+    maimai.updates(lxns_player, scores.scores, provider=lxns)
+]
+
+await asyncio.gather(*tasks)
+```
+
+::: info
+
+阅读 [示例项目](./dev/samples.md) 了解更多

@@ -1,4 +1,4 @@
-# maimai.py
+# Getting Started
 
 maimai.py is a library for MaimaiCN-related development, wrapping commonly used functions and models for developers.
 

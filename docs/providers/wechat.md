@@ -12,7 +12,7 @@ Source: https://maimai.wahlap.com/maimai-mobile/
 
 ## How to use
 
-To use WechatProvider, you need to use a proxy, please refer to the Sample Projects section for examples.
+To use WechatProvider, you need to use a proxy, please refer to the [Sample Projects](./dev/samples.md) section for examples.
 
 ## How it works
 

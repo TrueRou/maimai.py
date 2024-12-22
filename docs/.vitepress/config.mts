@@ -3,14 +3,17 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "maimai.py",
-  description: "maimai.py docs",
+  description: "The definitive python wrapper for MaimaiCN related development, wrapping the common functions and models.",
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/get-started' },
       { text: 'API', link: 'https://maimai-py.pages.dev/' }
     ],
+
+    search: {
+      provider: 'local'
+    },
 
     sidebar: [
       {
@@ -61,6 +64,60 @@ export default defineConfig({
     zh: {
       label: '简体中文',
       lang: 'zh',
+      description: "用于国服舞萌相关开发的最佳Python工具库, 封装水鱼/落雪查分器常用函数. ",
+      themeConfig: {
+        nav: [
+          { text: '主页', link: '/zh' },
+          { text: '指南', link: '/zh/get-started' },
+          { text: 'API', link: 'https://maimai-py.pages.dev/' }
+        ],
+
+        sidebar: [
+          {
+            text: '介绍',
+            items: [
+              { text: '开始', link: '/zh/get-started' },
+              { text: '例子', link: '/zh/examples' }
+            ]
+          },
+          {
+            text: '功能',
+            items: [
+              { text: '核心概念', link: '/zh/modules/concepts' },
+              { text: '曲目', link: '/zh/modules/songs' },
+              { text: '玩家', link: '/zh/modules/players' },
+              { text: '分数', link: '/zh/modules/scores' },
+              { text: '牌子', link: '/zh/modules/plates' },
+              { text: '数据模型', link: '/zh/modules/models' },
+            ]
+          },
+          {
+            text: '数据源',
+            items: [
+              { text: 'DivingFish', link: '/zh/providers/divingfish' },
+              { text: 'LXNS', link: '/zh/providers/lxns' },
+              { text: 'Wechat', link: '/zh/providers/wechat' },
+              { text: 'Arcade', link: '/zh/providers/arcade' }
+            ]
+          },
+          {
+            text: '开发',
+            items: [
+              { text: '参与开发', link: '/zh/dev/participation' },
+              { text: '示例项目', link: '/zh/dev/samples' },
+            ]
+          }
+        ],
+
+        docFooter: {
+          prev: '上一页',
+          next: '下一页'
+        },
+
+        outline: {
+          label: '本页内容',
+        },
+      },
     }
   }
 })

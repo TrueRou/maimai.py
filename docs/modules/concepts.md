@@ -21,13 +21,17 @@ For example, you can call `songs.by_title()` to filter songs, or `songs.songs` t
 
 We have wrapped most of elements (`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`), you can check them out by yourself.
 
-> You can share `MaimaiClient` instances throughout your application, or create new instances on each request.
+::: tip
+You can share `MaimaiClient` instances throughout your application, or create new instances on each request.
+:::
 
 ## Data Provider
 
 In maimai.py, we introduced the concept of data provider, which enables a common way of fetching or uploading data from multiple sources.
 
-> As of now, we have supported data providers such as divingfish, LXNS, WeChat OffiAccount, and Maimai Arcade, which support submitting data to divingfish and LXNS.
+::: info
+As of now, we have supported data providers such as divingfish, LXNS, WeChat OffiAccount, and Maimai Arcade, which support submitting data to divingfish and LXNS.
+:::
 
 You can use the `provider` parameter when calling a method to indicate where to get the data from, for example:
 
