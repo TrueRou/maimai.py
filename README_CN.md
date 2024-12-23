@@ -1,9 +1,15 @@
-# maimai.py ([文档](https://maimai.turou.fun/zh/))
+# maimai.py ([文档](https://maimai.turou.fun/zh))
 
 [![PyPI version](https://img.shields.io/pypi/v/maimai-py)](https://pypi.org/project/maimai-py/)
 ![License](https://img.shields.io/pypi/l/maimai-py)
 ![Python versions](https://img.shields.io/pypi/pyversions/maimai-py)
 [![en](https://img.shields.io/badge/README-en-red.svg)](https://github.com/TrueRou/maimai.py/blob/main/README.md)
+
+<p align="center">
+  <a href="https://maimai.turou.fun/zh">
+      <img src="https://s2.loli.net/2024/12/23/oXGnIBJS3Whd54p.png" alt="maimai.py" />
+  </a>
+</p>
 
 用于国服舞萌相关开发的最佳Python工具库, 封装水鱼/落雪查分器常用函数.
 

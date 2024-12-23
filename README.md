@@ -1,11 +1,15 @@
-# maimai.py ([documentation](https://maimai.turou.fun/))
-
+# maimai.py ([documentation](https://maimai.turou.fun))
 
 [![PyPI version](https://img.shields.io/pypi/v/maimai-py)](https://pypi.org/project/maimai-py/)
 ![License](https://img.shields.io/pypi/l/maimai-py)
 ![Python versions](https://img.shields.io/pypi/pyversions/maimai-py)
 [![zh](https://img.shields.io/badge/README-中文-green.svg)](https://github.com/TrueRou/maimai.py/blob/main/README_CN.md)
 
+<p align="center">
+  <a href="https://maimai.turou.fun">
+      <img src="https://s2.loli.net/2024/12/23/7T5nbMfzdAi8BtF.png" alt="maimai.py" />
+  </a>
+</p>
 
 The definitive python wrapper for MaimaiCN related development, wrapping the frequently used methods from DivingFish and LXNS.
 
