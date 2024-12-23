@@ -6,6 +6,6 @@ We are not providing this page with your specific language, please check out our
 You can refer to the links below about this content.
 :::
 
-- https://maimai-py.pages.dev/maimai_py#MaimaiClient.scores
-- https://maimai-py.pages.dev/maimai_py#MaimaiClient.updates
-- https://maimai-py.pages.dev/maimai_py/maimai#MaimaiScores
+- https://api.maimai.turou.fun/maimai_py#MaimaiClient.scores
+- https://api.maimai.turou.fun/maimai_py#MaimaiClient.updates
+- https://api.maimai.turou.fun/maimai_py/maimai#MaimaiScores

@@ -65,4 +65,4 @@ At this point, you have learned all the core concepts of maimai.py.
 
 - You are now capable of developing a maimai-related project based on maimai.py and are ready to start the journey.
 - If you want to learn more about our features in detail, you can continue reading the documentation.
-- For experienced developers, you can also [read the API documentation](https://maimai-py.pages.dev/maimai_py).
+- For experienced developers, you can also [read the API documentation](https://api.maimai.turou.fun/maimai_py).

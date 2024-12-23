@@ -1,4 +1,4 @@
-# maimai.py
+# maimai.py ([documentation](https://maimai.turou.fun/))
 
 
 [![PyPI version](https://img.shields.io/pypi/v/maimai-py)](https://pypi.org/project/maimai-py/)
@@ -27,7 +27,7 @@ To upgrade:
 pip install -U maimai-py
 ```
 
-For more, read the docs: https://maimai-py.pages.dev/.
+For more, read the docs: https://maimai.turou.fun/.
 
 ## Quickstart
 
@@ -61,9 +61,3 @@ asyncio.run(quick_start())
 maimai.py is fully asynchronous by default, and there are no plans to provide synchronous methods.
 
 If you don't want to be asynchronous, you can use the `asyncio.run` wrapper to call asynchronous methods synchronously.
-
-## Documentations
-
-You can checkout our api docs at https://maimai-py.pages.dev/.
-
-User friendly documentations are still under development.

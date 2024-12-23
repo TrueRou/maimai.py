@@ -1,4 +1,4 @@
-# maimai.py
+# maimai.py ([文档](https://maimai.turou.fun/zh/))
 
 [![PyPI version](https://img.shields.io/pypi/v/maimai-py)](https://pypi.org/project/maimai-py/)
 ![License](https://img.shields.io/pypi/l/maimai-py)
@@ -25,7 +25,7 @@ pip install maimai-py
 pip install -U maimai-py
 ```
 
-更多内容请查看文档: https://maimai-py.pages.dev/.
+更多内容请查看文档: https://maimai.turou.fun/zh/.
 
 ## 快速开始
 
@@ -59,9 +59,3 @@ asyncio.run(quick_start())
 maimai.py 默认采用全异步, 且暂时没有提供同步方法和接口的计划.
 
 如果您不希望采用异步, 可以使用 `asyncio.run` 包裹方法, 将异步方法同步调用.
-
-## 文档
-
-可以在这里访问我们的API文档: https://maimai-py.pages.dev/.
-
-指引性的文档以及中文文档仍然在编写中.

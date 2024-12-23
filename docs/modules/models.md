@@ -6,4 +6,4 @@ We are not providing this page with your specific language, please check out our
 You can refer to the links below about this content.
 :::
 
-- https://maimai-py.pages.dev/maimai_py/models
+- https://api.maimai.turou.fun/maimai_py/models

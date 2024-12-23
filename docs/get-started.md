@@ -11,7 +11,7 @@ The key features are:
 - **Advanced**: Support fetching player scores with WeChat OpenID, parse scores HTML, and upload to data source.
 - **Arcade✨**: Allows to get players' scores from the arcade via players' QR codes. In the progress, userId are powerful encrypted to keep safe.
 
-You can checkout our api docs at https://maimai-py.pages.dev/.
+You can checkout our api docs at https://api.maimai.turou.fun/.
 
 ## Installation
 

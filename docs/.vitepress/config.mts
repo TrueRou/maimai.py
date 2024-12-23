@@ -8,7 +8,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/get-started' },
-      { text: 'API', link: 'https://maimai-py.pages.dev/' }
+      { text: 'API', link: 'https://api.maimai.turou.fun/' }
     ],
 
     search: {
@@ -74,7 +74,7 @@ export default defineConfig({
         nav: [
           { text: '主页', link: '/zh' },
           { text: '指南', link: '/zh/get-started' },
-          { text: 'API', link: 'https://maimai-py.pages.dev/' }
+          { text: 'API', link: 'https://api.maimai.turou.fun/' }
         ],
 
         sidebar: [

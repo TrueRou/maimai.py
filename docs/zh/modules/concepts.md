@@ -67,4 +67,4 @@ player_diving = await maimai.players(PlayerIdentifier(username="turou"), provide
 
 - 您已经具备了基于 maimai.py 开发舞萌相关项目的能力，可以开始旅程了。
 - 如果想要更进一步详细了解我们的功能，可以继续阅读文档。
-- 对于有经验的开发者，也可以直接[阅读API文档](https://maimai-py.pages.dev/maimai_py)。
+- 对于有经验的开发者，也可以直接[阅读API文档](https://api.maimai.turou.fun/maimai_py)。
