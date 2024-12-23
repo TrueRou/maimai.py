@@ -1,6 +1,4 @@
-## Participate in development
-
-## Open source repository
+# Participation
 
 maimai.py is a semi-open source project, and welcomes you to participate.
 
