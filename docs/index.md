@@ -6,6 +6,8 @@ hero:
   name: "maimai.py"
   text: "The python wrapper for MaimaiCN"
   tagline: The definitive python wrapper for MaimaiCN related development, wrapping the common functions and models.
+  image:
+    src: https://s2.loli.net/2024/12/23/jOngPm1bECdSw5N.png
   actions:
     - theme: brand
       text: Get Started
