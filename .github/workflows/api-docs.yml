@@ -1,4 +1,4 @@
-name: Generate VitePress Docs
+name: Generate API Docs
 
 on:
   workflow_dispatch:
@@ -6,34 +6,27 @@ on:
     branches:
       - main
     paths:
-      - "docs/**"
-
+      - "maimai_py/**"
 jobs:
-  docs:
+  backend:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch the repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: 20
+          python-version: "3.12"
 
-      - name: Install npm dependencies
-        working-directory: ./docs
-        run: npm install
-
-      - name: Run build task
-        working-directory: ./docs
-        run: npm run docs:build
+      - name: Generate Static Files
+        run: mkdir api-docs && pip install httpx pdoc beautifulsoup4 cryptography maimai-ffi && pdoc maimai_py --docformat google -o ./api-docs
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "docs/.vitepress/dist/"
+          SOURCE: "api-docs/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}/maimai-py.turou.fun
+          TARGET: ${{ secrets.REMOTE_TARGET }}/maimai-api.turou.fun
