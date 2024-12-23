@@ -29,4 +29,4 @@ jobs:
           SOURCE: "api-docs/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}/maimai-api.turou.fun
+          TARGET: ${{ secrets.REMOTE_TARGET }}/api.maimai.turou.fun

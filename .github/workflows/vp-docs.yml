@@ -36,4 +36,4 @@ jobs:
           SOURCE: "docs/.vitepress/dist/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}/maimai-py.turou.fun
+          TARGET: ${{ secrets.REMOTE_TARGET }}/maimai.turou.fun
