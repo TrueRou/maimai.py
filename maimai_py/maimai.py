@@ -6,25 +6,33 @@ from maimai_ffi import arcade
 from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind, SongType
 from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
-from maimai_py.models import ArcadeResponse, DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
-from maimai_py.providers import IAliasProvider, IPlayerProvider, ISongProvider, LXNSProvider, YuzuProvider
-from maimai_py.providers.base import IScoreProvider
+from maimai_py.models import ArcadeResponse, CurveObject, DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
+from maimai_py.providers import LXNSProvider, YuzuProvider, DivingFishProvider
+from maimai_py.providers.base import IAliasProvider, IPlayerProvider, ISongProvider, ICurveProvider, IScoreProvider
 
 
 class MaimaiSongs:
     _song_id_dict: dict[int, Song]  # song_id: song
     _alias_entry_dict: dict[str, int]  # alias_entry: song_id
 
-    def __init__(self, songs: list[Song], aliases: list[SongAlias] | None) -> None:
+    def __init__(self, songs: list[Song], aliases: list[SongAlias] | None, curves: dict[str, list[CurveObject | None]]) -> None:
         """@private"""
         self._song_id_dict = {song.id: song for song in songs}
         self._alias_entry_dict = {}
-        for alias in aliases:
-            target_song = self._song_id_dict.get(alias.song_id)
-            if target_song:
-                target_song.aliases = alias.aliases
+        for alias in aliases or []:
+            if song := self._song_id_dict.get(alias.song_id):
+                song.aliases = alias.aliases
             for alias_entry in alias.aliases:
                 self._alias_entry_dict[alias_entry] = alias.song_id
+        for idx, curve_list in (curves or {}).items():
+            song_type: SongType = SongType._from_id(int(idx))
+            song_id = int(idx) % 10000
+            if song := self._song_id_dict.get(song_id):
+                diffs = song.difficulties._get_child(song_type)
+                if len(diffs) < len(curve_list):
+                    # ignore the extra curves, diving fish may return more curves than the song has, which is a bug
+                    curve_list = curve_list[: len(diffs)]
+                [diffs[i].__setattr__("curve", curve) for i, curve in enumerate(curve_list)]
 
     @property
     def songs(self) -> list[Song]:
@@ -381,12 +389,15 @@ class MaimaiClient:
         self,
         provider: ISongProvider = LXNSProvider(),
         alias_provider: IAliasProvider = YuzuProvider(),
+        curve_provider: ICurveProvider = DivingFishProvider(),
     ) -> MaimaiSongs:
         """Fetch all maimai songs from the provider.
 
         Available providers: `DivingFishProvider`, `LXNSProvider`.
 
         Available alias providers: `YuzuProvider`, `LXNSProvider`.
+
+        Available curve providers: `DivingFishProvider`.
 
         Args:
             provider: the data source to fetch the player from, defaults to `LXNSProvider`.
@@ -398,8 +409,10 @@ class MaimaiClient:
         """
         async with httpx.AsyncClient(**self._args) as client:
             aliases = await alias_provider.get_aliases(client) if alias_provider else None
+            curves = await curve_provider.get_curves(client) if curve_provider else None
             songs = await provider.get_songs(client)
-            caches.cached_songs = MaimaiSongs(songs, aliases)
+
+            caches.cached_songs = MaimaiSongs(songs, aliases, curves)
             return caches.cached_songs
 
     async def players(

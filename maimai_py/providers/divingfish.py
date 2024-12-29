@@ -4,11 +4,21 @@ from httpx import AsyncClient, Response
 from maimai_py import enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
-from maimai_py.models import DivingFishPlayer, Player, PlayerIdentifier, Score, Song, SongDifficulties, SongDifficulty, SongDifficultyUtage
-from maimai_py.providers.base import IPlayerProvider, IScoreProvider, ISongProvider
+from maimai_py.models import (
+    CurveObject,
+    DivingFishPlayer,
+    Player,
+    PlayerIdentifier,
+    Score,
+    Song,
+    SongDifficulties,
+    SongDifficulty,
+    SongDifficultyUtage,
+)
+from maimai_py.providers.base import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
 
-class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
+class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider):
     """The provider that fetches data from the Diving Fish.
 
     DivingFish: https://www.diving-fish.com/maimaidx/prober/
@@ -64,6 +74,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
                 slide_num=chart["notes"][2],
                 touch_num=chart["notes"][3],
                 break_num=chart["notes"][4] if len(chart["notes"]) > 4 else 0,
+                curve=None,
             )
             if song_type == SongType.UTAGE:
                 song_diff = SongDifficultyUtage(
@@ -104,6 +115,16 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             "type": score.type._to_abbr(),
         }
 
+    def _deser_curve(chart: dict) -> CurveObject:
+        return CurveObject(
+            sample_size=chart["cnt"],
+            fit_level_value=chart["fit_diff"],
+            avg_achievements=chart["avg"],
+            avg_dx_score=chart["avg_dx"],
+            rate_sample_size={v: chart["dist"][13 - i] for i, v in enumerate(RateType)},
+            fc_sample_size={v: chart["dist"][4 - i] for i, v in enumerate(FCType)},
+        )
+
     def _check_response_player(self, resp: Response) -> None:
         resp_json = resp.json()
         if "msg" in resp_json and resp_json["msg"] in ["请先联系水鱼申请开发者token", "开发者token有误", "开发者token被禁用"]:
@@ -116,7 +137,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             raise PrivacyLimitationError(resp_json["message"])
 
     async def get_songs(self, client: AsyncClient) -> list[Song]:
-        resp = await client.get("https://www.diving-fish.com/api/maimaidxprober/music_data")
+        resp = await client.get(self.base_url + "music_data")
         resp.raise_for_status()
         resp_json = resp.json()
         unique_songs: dict[int, Song] = {}
@@ -172,3 +193,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         scores_json = [DivingFishProvider._ser_score(score) for score in scores]
         resp2 = await client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
         self._check_response_player(resp2)
+
+    async def get_curves(self, client: AsyncClient) -> dict[str, list[CurveObject | None]]:
+        resp = await client.get(self.base_url + "chart_stats")
+        resp.raise_for_status()
+        return {idx: ([DivingFishProvider._deser_curve(chart) for chart in charts if chart != {}]) for idx, charts in (resp.json())["charts"].items()}

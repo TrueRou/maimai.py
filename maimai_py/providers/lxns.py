@@ -81,6 +81,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             slide_num=LXNSProvider._deser_note(difficulty, "slide"),
             touch_num=LXNSProvider._deser_note(difficulty, "touch"),
             break_num=LXNSProvider._deser_note(difficulty, "break"),
+            curve=None,
         )
 
     def _deser_diff_utage(difficulty: dict) -> list[SongDifficultyUtage]:

@@ -11,6 +11,7 @@ async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfi
     song1 = songs.by_id(1231)  # 生命不詳
     assert song1.title == "生命不詳"
     assert song1.difficulties.dx[3].note_designer == "はっぴー"
+    assert song1.difficulties.dx[3].curve.sample_size > 10000
 
     song2 = songs.by_alias("不知死活")
     assert song2.id == song1.id

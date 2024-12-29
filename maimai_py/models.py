@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Optional
 
 from httpx import AsyncClient, Cookies
@@ -43,10 +43,23 @@ class Song:
 
 
 @dataclass
+class CurveObject:
+    sample_size: int
+    fit_level_value: float
+    avg_achievements: float
+    avg_dx_score: float
+    rate_sample_size: dict[RateType, int]
+    fc_sample_size: dict[FCType, int]
+
+
+@dataclass
 class SongDifficulties:
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
+
+    def _get_child(self, song_type: SongType) -> list["SongDifficulty"] | list["SongDifficultyUtage"]:
+        return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
 
 
 @dataclass
@@ -62,6 +75,7 @@ class SongDifficulty:
     slide_num: int
     touch_num: int
     break_num: int
+    curve: CurveObject | None
 
 
 @dataclass

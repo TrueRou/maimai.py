@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from httpx import AsyncClient
 
-from maimai_py.models import Player, PlayerIdentifier, Score, Song, SongAlias
+from maimai_py.models import CurveObject, Player, PlayerIdentifier, Score, Song, SongAlias
 
 
 class ISongProvider:
@@ -59,5 +59,17 @@ class IScoreProvider:
 
     @abstractmethod
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
+        """@private"""
+        raise NotImplementedError()
+
+
+class ICurveProvider:
+    """The provider that fetches statistics curves from a specific source.
+
+    Available providers: `DivingFishProvider`
+    """
+
+    @abstractmethod
+    async def get_curves(self, client: AsyncClient) -> dict[str, list[CurveObject | None]]:
         """@private"""
         raise NotImplementedError()
