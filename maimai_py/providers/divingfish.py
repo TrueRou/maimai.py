@@ -1,3 +1,5 @@
+import dataclasses
+from typing import Generator
 from httpx import AsyncClient, Response
 from maimai_py import enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
@@ -32,10 +34,47 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         """
         self.developer_token = developer_token
 
-    def _deser_score(score: dict) -> Score:
-        song_type = (
-            SongType.STANDARD if score["type"] == "SD" else SongType.DX if score["type"] == "DX" and score["song_id"] < 100000 else SongType.UTAGE
+    def _deser_song(song: dict) -> Song:
+        return Song(
+            id=int(song["id"]) % 10000,
+            title=song["basic_info"]["title"],
+            artist=song["basic_info"]["artist"],
+            genre=song["basic_info"]["genre"],
+            bpm=song["basic_info"]["bpm"],
+            map=None,
+            rights=None,
+            aliases=None,
+            version=enums.divingfish_to_version[song["basic_info"]["from"]],
+            disabled=False,
+            difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
         )
+
+    def _deser_diffs(song: dict) -> Generator[SongDifficulty | SongDifficultyUtage, None, None]:
+        song_type = SongType._from_id(song["id"])
+        for idx, chart in enumerate(song["charts"]):
+            song_diff = SongDifficulty(
+                type=song_type,
+                level=song["level"][idx],
+                level_value=song["ds"][idx],
+                level_index=LevelIndex(idx),
+                note_designer=chart["charter"],
+                version=enums.divingfish_to_version[song["basic_info"]["from"]],
+                tap_num=chart["notes"][0],
+                hold_num=chart["notes"][1],
+                slide_num=chart["notes"][2],
+                touch_num=chart["notes"][3],
+                break_num=chart["notes"][4] if len(chart["notes"]) > 4 else 0,
+            )
+            if song_type == SongType.UTAGE:
+                song_diff = SongDifficultyUtage(
+                    **dataclasses.asdict(song_diff),
+                    kanji=song["basic_info"]["title"][1:2],
+                    description="LET'S PARTY!",
+                    is_buddy=False,
+                )
+            yield song_diff
+
+    def _deser_score(score: dict) -> Score:
         return Score(
             id=score["song_id"] % 10000,
             song_name=score["title"],
@@ -47,14 +86,12 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             dx_score=score["dxScore"],
             dx_rating=score["ra"],
             rate=RateType[score["rate"].upper()],
-            type=song_type,
+            type=SongType._from_id(score["song_id"]),
         )
 
     def _ser_score(score: Score) -> dict:
-        diving_id = score.id if score.type == SongType.STANDARD else score.id + 10000 if score.type == SongType.DX else score.id + 100000
-        diving_type = "SD" if score.type == SongType.STANDARD else "DX" if score.type == SongType.DX else "UTAGE"
         return {
-            "song_id": diving_id,
+            "song_id": score.type._to_id(score.id),
             "title": score.song_name,
             "level": score.level,
             "level_index": score.level_index.value,
@@ -64,7 +101,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
             "dxScore": score.dx_score,
             "ra": score.dx_rating,
             "rate": score.rate.name.lower(),
-            "type": diving_type,
+            "type": score.type._to_abbr(),
         }
 
     def _check_response_player(self, resp: Response) -> None:
@@ -82,73 +119,15 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider):
         resp = await client.get("https://www.diving-fish.com/api/maimaidxprober/music_data")
         resp.raise_for_status()
         resp_json = resp.json()
-        songs_unique: dict[int, Song] = {}
+        unique_songs: dict[int, Song] = {}
         for song in resp_json:
-            song_key = int(song["id"]) % 10000
-            if song_key not in songs_unique:
-                songs_unique[song_key] = Song(
-                    id=int(song["id"]) % 10000,
-                    title=song["basic_info"]["title"],
-                    artist=song["basic_info"]["artist"],
-                    genre=song["basic_info"]["genre"],
-                    bpm=song["basic_info"]["bpm"],
-                    map=None,
-                    rights=None,
-                    aliases=None,
-                    version=enums.divingfish_to_version[song["basic_info"]["from"]],
-                    disabled=False,
-                    difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
-                )
-            difficulties = songs_unique[song_key].difficulties
-            if song["type"] == "SD":
-                difficulties.standard = [
-                    SongDifficulty(
-                        type=SongType.STANDARD,
-                        level=song["level"][idx],
-                        level_value=song["ds"][idx],
-                        level_index=LevelIndex(idx),
-                        note_designer=chart["charter"],
-                        version=enums.divingfish_to_version[song["basic_info"]["from"]],
-                        tap_num=chart["notes"][0],
-                        hold_num=chart["notes"][1],
-                        slide_num=chart["notes"][2],
-                        touch_num=chart["notes"][3],
-                        break_num=chart["notes"][4] if len(chart["notes"]) > 4 else 0,
-                    )
-                    for idx, chart in enumerate(song["charts"])
-                ]
-            elif song["type"] == "DX" and int(song["id"]) < 100000:
-                difficulties.dx = [
-                    SongDifficulty(
-                        type=SongType.DX,
-                        level=song["level"][idx],
-                        level_value=song["ds"][idx],
-                        level_index=LevelIndex(idx),
-                        note_designer=chart["charter"],
-                        version=enums.divingfish_to_version[song["basic_info"]["from"]],
-                        tap_num=chart["notes"][0],
-                        hold_num=chart["notes"][1],
-                        slide_num=chart["notes"][2],
-                        touch_num=chart["notes"][3],
-                        break_num=chart["notes"][4],
-                    )
-                    for idx, chart in enumerate(song["charts"])
-                ]
-            elif int(song["id"]) > 100000:
-                difficulties.utage = [
-                    SongDifficultyUtage(
-                        kanji=song["basic_info"]["title"][1:2],
-                        description="LET'S PARTY!",
-                        is_buddy=False,
-                        tap_num=chart["notes"][0],
-                        hold_num=chart["notes"][1],
-                        slide_num=chart["notes"][2],
-                        touch_num=chart["notes"][3],
-                        break_num=chart["notes"][4],
-                    )
-                    for chart in song["charts"]
-                ]
-        return list(songs_unique.values())
+            unique_key = int(song["id"]) % 10000
+            song_type: SongType = SongType._from_id(song["id"])
+            if unique_key not in unique_songs:
+                unique_songs[unique_key] = DivingFishProvider._deser_song(song)
+            difficulties: list[SongDifficulty] = unique_songs[unique_key].difficulties.__getattribute__(song_type.value)
+            difficulties.extend(DivingFishProvider._deser_diffs(song))
+        return list(unique_songs.values())
 
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
         resp = await client.post(self.base_url + "query/player", json=identifier._as_diving_fish())

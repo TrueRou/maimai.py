@@ -31,12 +31,14 @@ class Song:
             results.remove(LevelIndex.ReMASTER)
         return results
 
-    def _get_difficulty(self, type: SongType, level_index: LevelIndex) -> Optional["SongDifficulty"]:
+    def _get_difficulty(self, type: SongType, level_index: LevelIndex | None) -> Optional["SongDifficulty"]:
         """@private"""
         if type == SongType.DX:
             return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
         if type == SongType.STANDARD:
             return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
+        if type == SongType.UTAGE:
+            return next(iter(self.difficulties.utage), None)
         return None
 
 
@@ -63,15 +65,10 @@ class SongDifficulty:
 
 
 @dataclass
-class SongDifficultyUtage:
+class SongDifficultyUtage(SongDifficulty):
     kanji: str
     description: str
     is_buddy: bool
-    tap_num: int
-    hold_num: int
-    slide_num: int
-    touch_num: int
-    break_num: int
 
 
 @dataclass

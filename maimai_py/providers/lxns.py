@@ -1,3 +1,4 @@
+import dataclasses
 from httpx import AsyncClient, Response
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
@@ -45,6 +46,51 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         """
         self.developer_token = developer_token
 
+    def _deser_note(diff: dict, key: str) -> int:
+        if "notes" in diff:
+            if "is_buddy" in diff and diff["is_buddy"]:
+                return diff["notes"]["left"][key] + diff["notes"]["right"][key]
+            return diff["notes"][key]
+        return 0
+
+    def _deser_song(song: dict) -> Song:
+        return Song(
+            id=song["id"],
+            title=song["title"],
+            artist=song["artist"],
+            genre=song["genre"],
+            bpm=song["bpm"],
+            aliases=song["aliases"] if "aliases" in song else None,
+            map=song["map"] if "map" in song else None,
+            version=song["version"],
+            rights=song["rights"] if "rights" in song else None,
+            disabled=song["disabled"] if "disabled" in song else False,
+            difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
+        )
+
+    def _deser_diff(difficulty: dict) -> SongDifficulty:
+        return SongDifficulty(
+            type=SongType[difficulty["type"].upper()],
+            level=difficulty["level"],
+            level_value=difficulty["level_value"],
+            level_index=LevelIndex(difficulty["difficulty"]),
+            note_designer=difficulty["note_designer"],
+            version=difficulty["version"],
+            tap_num=LXNSProvider._deser_note(difficulty, "tap"),
+            hold_num=LXNSProvider._deser_note(difficulty, "hold"),
+            slide_num=LXNSProvider._deser_note(difficulty, "slide"),
+            touch_num=LXNSProvider._deser_note(difficulty, "touch"),
+            break_num=LXNSProvider._deser_note(difficulty, "break"),
+        )
+
+    def _deser_diff_utage(difficulty: dict) -> list[SongDifficultyUtage]:
+        return SongDifficultyUtage(
+            **dataclasses.asdict(LXNSProvider._deser_diff(difficulty)),
+            kanji=difficulty["kanji"],
+            description=difficulty["description"],
+            is_buddy=difficulty["is_buddy"],
+        )
+
     def _deser_score(score: dict) -> Score:
         return Score(
             id=score["id"],
@@ -59,13 +105,6 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             rate=RateType[score["rate"].upper()],
             type=SongType[score["type"].upper()],
         )
-
-    def _deser_note(diff: dict, key: str, is_buddy: bool) -> int:
-        if "notes" in diff:
-            if is_buddy:
-                return diff["notes"]["left"][key] + diff["notes"]["right"][key]
-            return diff["notes"][key]
-        return 0
 
     def _ser_score(score: Score) -> dict:
         return {
@@ -97,72 +136,16 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         resp = await client.get(self.base_url + "api/v0/maimai/song/list")
         resp.raise_for_status()
         resp_json = resp.json()
-        return [
-            Song(
-                id=song["id"],
-                title=song["title"],
-                artist=song["artist"],
-                genre=song["genre"],
-                bpm=song["bpm"],
-                aliases=None,
-                map=song["map"] if "map" in song else None,
-                version=song["version"],
-                rights=song["rights"] if "rights" in song else None,
-                disabled=song["disabled"] if "disabled" in song else False,
-                difficulties=SongDifficulties(
-                    standard=[
-                        SongDifficulty(
-                            type=SongType[difficulty["type"].upper()],
-                            level=difficulty["level"],
-                            level_value=difficulty["level_value"],
-                            level_index=LevelIndex(difficulty["difficulty"]),
-                            note_designer=difficulty["note_designer"],
-                            version=difficulty["version"],
-                            tap_num=difficulty["notes"]["tap"] if "notes" in difficulty else 0,
-                            hold_num=difficulty["notes"]["hold"] if "notes" in difficulty else 0,
-                            slide_num=difficulty["notes"]["slide"] if "notes" in difficulty else 0,
-                            touch_num=difficulty["notes"]["touch"] if "notes" in difficulty else 0,
-                            break_num=difficulty["notes"]["break"] if "notes" in difficulty else 0,
-                        )
-                        for difficulty in song["difficulties"]["standard"]
-                    ],
-                    dx=[
-                        SongDifficulty(
-                            type=SongType[difficulty["type"].upper()],
-                            level=difficulty["level"],
-                            level_value=difficulty["level_value"],
-                            level_index=LevelIndex(difficulty["difficulty"]),
-                            note_designer=difficulty["note_designer"],
-                            version=difficulty["version"],
-                            tap_num=difficulty["notes"]["tap"] if "notes" in difficulty else 0,
-                            hold_num=difficulty["notes"]["hold"] if "notes" in difficulty else 0,
-                            slide_num=difficulty["notes"]["slide"] if "notes" in difficulty else 0,
-                            touch_num=difficulty["notes"]["touch"] if "notes" in difficulty else 0,
-                            break_num=difficulty["notes"]["break"] if "notes" in difficulty else 0,
-                        )
-                        for difficulty in song["difficulties"]["dx"]
-                    ],
-                    utage=(
-                        [
-                            SongDifficultyUtage(
-                                kanji=difficulty["kanji"],
-                                description=difficulty["description"],
-                                is_buddy=difficulty["is_buddy"],
-                                tap_num=LXNSProvider._deser_note(difficulty, "tap", difficulty["is_buddy"]),
-                                hold_num=LXNSProvider._deser_note(difficulty, "hold", difficulty["is_buddy"]),
-                                slide_num=LXNSProvider._deser_note(difficulty, "slide", difficulty["is_buddy"]),
-                                touch_num=LXNSProvider._deser_note(difficulty, "touch", difficulty["is_buddy"]),
-                                break_num=LXNSProvider._deser_note(difficulty, "break", difficulty["is_buddy"]),
-                            )
-                            for difficulty in song["difficulties"]["utage"]
-                        ]
-                        if "utage" in song["difficulties"]
-                        else []
-                    ),
-                ),
-            )
-            for song in resp_json["songs"]
-        ]
+        unique_songs: dict[int, Song] = {}
+        for song in resp_json["songs"]:
+            unique_key = int(song["id"]) % 10000
+            if unique_key not in unique_songs:
+                unique_songs[unique_key] = LXNSProvider._deser_song(song)
+            difficulties = unique_songs[unique_key].difficulties
+            difficulties.standard.extend(LXNSProvider._deser_diff(difficulty) for difficulty in song["difficulties"].get("standard", []))
+            difficulties.dx.extend(LXNSProvider._deser_diff(difficulty) for difficulty in song["difficulties"].get("dx", []))
+            difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty) for difficulty in song["difficulties"].get("utage", []))
+        return list(unique_songs.values())
 
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
         resp = await client.get(self.base_url + f"api/v0/maimai/player/{identifier._as_lxns()}", headers=self.headers)

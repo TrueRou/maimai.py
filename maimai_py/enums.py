@@ -73,19 +73,10 @@ plate_aliases: dict[str, str] = {
 }
 """@private"""
 
-"""
-Prebuilt Enums
-"""
-
 
 class ScoreKind(Enum):
     BEST = 0
     ALL = 1
-
-
-"""
-Maimai Enums
-"""
 
 
 class LevelIndex(Enum):
@@ -127,7 +118,7 @@ class RateType(Enum):
     C = 12
     D = 13
 
-    def from_achievement(achievement: float) -> "RateType":
+    def _from_achievement(achievement: float) -> "RateType":
         if achievement >= 100.5:
             return RateType.SSSP
         if achievement >= 100:
@@ -162,5 +153,12 @@ class SongType(Enum):
     DX = "dx"
     UTAGE = "utage"
 
+    def _from_id(id: int | str) -> "SongType":
+        id = int(id)
+        return SongType.UTAGE if id > 100000 else SongType.DX if id > 10000 else SongType.STANDARD
 
-"""@private"""
+    def _to_id(self, id: int | str) -> int:
+        return id if self == SongType.STANDARD else id + 10000 if self == SongType.DX else id + 100000
+
+    def _to_abbr(self) -> str:
+        return "SD" if self == SongType.STANDARD else "DX" if self else "UTAGE"

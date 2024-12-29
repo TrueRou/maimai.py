@@ -25,25 +25,22 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider):
     """
 
     def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:
+        song_type = SongType._from_id(score["musicId"])
+        level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
+        achievement = float(score["achievement"]) / 10000
         if song := songs.by_id(score["musicId"] % 10000):
-            is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
-            song_type = SongType.STANDARD if score["musicId"] < 10000 else SongType.DX if not is_utage else SongType.UTAGE
-            level_index = LevelIndex(score["level"])
-            achievement = float(score["achievement"]) / 10000
-            rate_type = RateType.from_achievement(achievement)
             if diff := song._get_difficulty(song_type, level_index):
-                rating = ScoreCoefficient(achievement).ra(diff.level_value)
                 return Score(
                     id=song.id,
                     song_name=song.title,
-                    level=score["level"],
-                    level_index=level_index,
+                    level=diff.level,
+                    level_index=diff.level_index,
                     achievements=achievement,
                     fc=FCType(4 - score["comboStatus"]) if score["comboStatus"] != 0 else None,
                     fs=FSType(score["syncStatus"]) if score["syncStatus"] not in [0, 5] else FSType.SYNC if score["comboStatus"] == 5 else None,
                     dx_score=score["deluxscoreMax"],
-                    dx_rating=rating,
-                    rate=rate_type,
+                    dx_rating=ScoreCoefficient(achievement).ra(diff.level_value),
+                    rate=RateType._from_achievement(achievement),
                     type=song_type,
                 )
 
