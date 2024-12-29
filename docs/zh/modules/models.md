@@ -42,16 +42,13 @@
 
 ## SongDifficultyUtage 数据类
 
-| 字段          | 类型   | 说明                     |
+继承自 `SongDifficulty` 类。
+
+| 额外字段      | 类型   | 说明                     |
 |---------------|--------|------------------------|
 | `kanji`       | `str`  | 宴铺前缀，如 `协`，`狂`    |
 | `description` | `str`  | 宴谱描述                 |
 | `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
-| `tap_num`     | `int`  | TAP 物量                 |
-| `hold_num`    | `int`  | HOLD 物量                |
-| `slide_num`   | `int`  | SLIDE 物量               |
-| `touch_num`   | `int`  | TOUCH 物量               |
-| `break_num`   | `int`  | BREAK 物量               |
 
 ## PlayerIdentifier
 
@@ -103,7 +100,7 @@
 
 继承自 `Player` 类。
 
-| 字段                | 类型  | 说明     |
+| 额外字段            | 类型  | 说明     |
 |---------------------|-------|----------|
 | `nickname`          | `str` | 玩家昵称 |
 | `plate`             | `str` | 玩家牌子 |
@@ -113,7 +110,7 @@
 
 继承自 `Player` 类。
 
-| 字段          | 类型                      | 说明                    |
+| 额外字段      | 类型                      | 说明                    |
 |---------------|---------------------------|-----------------------|
 | `friend_code` | `int`                     | 玩家好友码              |
 | `trophy`      | `PlayerTrophy`            | 玩家称号                |

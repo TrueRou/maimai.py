@@ -43,9 +43,9 @@ class ArcadeError(MaimaiPyError):
     """Base exception class for all exceptions raised by maimai arcade."""
 
 
-class QRCodeFormatError(ArcadeError):
-    """QR code format is invalid."""
+class AimeServerError(MaimaiPyError):
+    """Base exception class for all exceptions raised by maimai aime server."""
 
 
-class QRCodeExpiredError(ArcadeError):
-    """QR code is expired."""
+class TitleServerError(MaimaiPyError):
+    """Base exception class for all exceptions raised by maimai title server."""

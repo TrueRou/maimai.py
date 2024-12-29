@@ -451,8 +451,10 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            ArcadeError: Only for ArcadeProvider, the request failed due to the maimai arcade issues.
             RequestError: Request failed due to network issues.
+        Raises:
+            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
@@ -570,10 +572,8 @@ class MaimaiClient:
         Returns:
             The player identifier of the player.
         Raises:
-            QRCodeFormatError: QR code is invalid, please check the format.
-            QRCodeExpiredError: QR code is expired, regenerate the QR code.
-            ArcadeError: Other unknown errors from the maimai arcade.
-            RequestError: Request failed due to network issues.
+            AimeServerError: Maimai Aime server error, may be invalid QR code or QR code has expired.
+            TitleServerError: Maimai title server related errors, possibly network problems.
         """
         resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode)
         ArcadeResponse._throw_error(resp)

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from httpx import AsyncClient, Cookies
 
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import ArcadeError, InvalidPlayerIdentifierError, QRCodeExpiredError, QRCodeFormatError
+from maimai_py.exceptions import InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
 
 if TYPE_CHECKING:
     from maimai_py.providers.lxns import LXNSProvider
@@ -114,14 +114,14 @@ class ArcadeResponse:
     errmsg: str | None = None
     data: dict[str, Any] | bytes | list[Any] | None = None
 
-    @staticmethod
     def _throw_error(resp: "ArcadeResponse"):
         if resp.errno and resp.errno != 0:
-            if resp.errno in [1, 15]:
-                raise QRCodeFormatError(resp.errmsg)
-            if resp.errno == 2:
-                raise QRCodeExpiredError(resp.errmsg)
-            raise ArcadeError(f"[{resp.errno}] {resp.errmsg}")
+            if resp.errno > 0:
+                raise AimeServerError(resp.errmsg)
+            elif resp.errno > 100:
+                raise TitleServerError(resp.errmsg)
+            elif resp.errno > 1000:
+                raise ArcadeError(resp.errmsg)
 
 
 @dataclass

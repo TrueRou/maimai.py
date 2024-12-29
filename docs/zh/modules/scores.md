@@ -22,13 +22,19 @@
 
 ### 异常
 
-| 错误名称                       | 描述                                                |
-|--------------------------------|---------------------------------------------------|
-| `InvalidPlayerIdentifierError` | 数据源不支持该玩家标识，或者玩家未找到               |
-| `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效                          |
-| `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据                    |
-| `ArcadeError`                  | 仅适用于ArcadeProvider，由于舞萌机台问题导致请求失败 |
-| `RequestError`                 | 由于网络问题导致请求失败                            |
+| 错误名称                       | 描述                                  |
+|--------------------------------|-------------------------------------|
+| `InvalidPlayerIdentifierError` | 数据源不支持该玩家标识，或者玩家未找到 |
+| `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效            |
+| `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据      |
+| `RequestError`                 | 由于网络问题导致请求失败              |
+
+只有使用 `ArcadeProvider` 才可能触发的异常:
+
+| 错误名称           | 描述                                      |
+|--------------------|-----------------------------------------|
+| `TitleServerError` | 舞萌标题服务器的相关错误，可能是网络问题   |
+| `ArcadeError`      | 舞萌 Response 非法，或者提供的玩家标识有误 |
 
 ## maimai.updates() 方法
 
