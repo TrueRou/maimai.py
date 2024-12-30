@@ -47,6 +47,7 @@ class CurveObject:
     sample_size: int
     fit_level_value: float
     avg_achievements: float
+    stdev_achievements: float
     avg_dx_score: float
     rate_sample_size: dict[RateType, int]
     fc_sample_size: dict[FCType, int]

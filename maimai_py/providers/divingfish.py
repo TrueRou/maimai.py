@@ -120,6 +120,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             sample_size=chart["cnt"],
             fit_level_value=chart["fit_diff"],
             avg_achievements=chart["avg"],
+            stdev_achievements=chart["std_dev"],
             avg_dx_score=chart["avg_dx"],
             rate_sample_size={v: chart["dist"][13 - i] for i, v in enumerate(RateType)},
             fc_sample_size={v: chart["dist"][4 - i] for i, v in enumerate(FCType)},

@@ -4,11 +4,13 @@
 
 源站：https://maimai.lxns.net/
 
-申请开发者Token：https://maimai.lxns.net/developer
+开发者文档：https://maimai.lxns.net/docs/api/maimai
 
 开发者交流群：991669419
 
 ## 关于开发者Token
+
+申请开发者Token：https://maimai.lxns.net/developer
 
 落雪的开发者Token仅在以下场景是必须提供的：
 

@@ -404,6 +404,7 @@ class MaimaiClient:
         Args:
             provider: the data source to fetch the player from, defaults to `LXNSProvider`.
             alias_provider: the data source to fetch the song aliases from, defaults to `YuzuProvider`.
+            curve_provider: the data source to fetch the song curves from, defaults to `DivingFishProvider`.
         Returns:
             A wrapper of the song list, for easier access and filtering.
         Raises:

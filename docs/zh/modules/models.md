@@ -26,19 +26,20 @@
 
 ## SongDifficulty 数据类
 
-| 字段            | 类型         | 说明              |
-|-----------------|--------------|-----------------|
-| `type`          | `SongType`   | 谱面类型          |
-| `level`         | `str`        | 难度标级，如 `14+` |
-| `level_value`   | `float`      | 难度定数          |
-| `level_index`   | `LevelIndex` | 难度索引          |
-| `note_designer` | `str`        | 谱师              |
-| `version`       | `int`        | 谱面首次出现版本  |
-| `tap_num`       | `int`        | TAP 物量          |
-| `hold_num`      | `int`        | HOLD 物量         |
-| `slide_num`     | `int`        | SLIDE 物量        |
-| `touch_num`     | `int`        | TOUCH 物量        |
-| `break_num`     | `int`        | BREAK 物量        |
+| 字段            | 类型                   | 说明              |
+|-----------------|------------------------|-----------------|
+| `type`          | `SongType`             | 谱面类型          |
+| `level`         | `str`                  | 难度标级，如 `14+` |
+| `level_value`   | `float`                | 难度定数          |
+| `level_index`   | `LevelIndex`           | 难度索引          |
+| `note_designer` | `str`                  | 谱师              |
+| `version`       | `int`                  | 谱面首次出现版本  |
+| `tap_num`       | `int`                  | TAP 物量          |
+| `hold_num`      | `int`                  | HOLD 物量         |
+| `slide_num`     | `int`                  | SLIDE 物量        |
+| `touch_num`     | `int`                  | TOUCH 物量        |
+| `break_num`     | `int`                  | BREAK 物量        |
+| `curve`         | `CurveObject \| None ` | 相对难度数据      |
 
 ## SongDifficultyUtage 数据类
 
@@ -49,6 +50,20 @@
 | `kanji`       | `str`  | 宴铺前缀，如 `协`，`狂`    |
 | `description` | `str`  | 宴谱描述                 |
 | `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
+
+## CurveObject 数据类
+
+| 字段                 | 类型                  | 说明                     |
+|----------------------|-----------------------|------------------------|
+| `sample_size`        | `int`                 | 样本数量                 |
+| `fit_level_value`    | `float`               | 拟合难度定数             |
+| `avg_achievements`   | `float`               | 平均达成率               |
+| `stdev_achievements` | `float`               | 达成率标准差             |
+| `avg_dx_score`       | `float`               | 平均DX分数               |
+| `rate_sample_size`   | `dict[RateType, int]` | 不同 `RateType` 样本数量 |
+| `fc_sample_size`     | `dict[FCType, int]`   | 不同 `FCType` 样本数量   |
+
+
 
 ## PlayerIdentifier
 

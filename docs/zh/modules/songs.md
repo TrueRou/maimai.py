@@ -8,10 +8,11 @@
 
 ### 参数
 
-| 参数名         | 类型             | 说明                             |
-|----------------|------------------|--------------------------------|
-| provider       | `ISongProvider`  | 数据源，默认为 `LXNSProvider`     |
-| alias_provider | `IAliasProvider` | 别名数据源，默认为 `YuzuProvider` |
+| 参数名         | 类型             | 说明                                          |
+|----------------|------------------|---------------------------------------------|
+| provider       | `ISongProvider`  | 数据源，默认为 `LXNSProvider`                  |
+| alias_provider | `IAliasProvider` | 别名数据源，默认为 `YuzuProvider`              |
+| curve_provider | `ICurveProvider` | 相对难度曲线数据源，默认为`DivingFishProvider` |
 
 ### 返回值
 
