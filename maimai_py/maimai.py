@@ -1,3 +1,4 @@
+import asyncio
 from functools import cached_property
 from httpx import AsyncClient
 import httpx
@@ -9,6 +10,7 @@ from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
 from maimai_py.models import ArcadeResponse, CurveObject, DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
 from maimai_py.providers import LXNSProvider, YuzuProvider, DivingFishProvider
 from maimai_py.providers.base import IAliasProvider, IPlayerProvider, ISongProvider, ICurveProvider, IScoreProvider
+from maimai_py.utils.tasks import build_tasks
 
 
 class MaimaiSongs:
@@ -408,10 +410,14 @@ class MaimaiClient:
             RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
-            aliases = await alias_provider.get_aliases(client) if alias_provider else None
-            curves = await curve_provider.get_curves(client) if curve_provider else None
-            songs = await provider.get_songs(client)
-
+            tasks = build_tasks(
+                tasks=[
+                    alias_provider.get_aliases(client) if alias_provider else None,
+                    curve_provider.get_curves(client) if curve_provider else None,
+                    provider.get_songs(client),
+                ],
+            )
+            aliases, curves, songs = await asyncio.gather(*tasks)
             caches.cached_songs = MaimaiSongs(songs, aliases, curves)
             return caches.cached_songs
 
