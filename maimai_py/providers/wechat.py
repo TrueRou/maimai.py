@@ -2,20 +2,15 @@ import asyncio
 import functools
 import operator
 import random
-from typing import TYPE_CHECKING
-
 from httpx import AsyncClient, Cookies
-from maimai_py import caches
+
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.models import PlayerIdentifier, Score
 from maimai_py.providers.base import IPlayerProvider, IScoreProvider
-from maimai_py.providers.lxns import LXNSProvider
 from maimai_py.utils import page_parser
 from maimai_py.utils.coefficient import ScoreCoefficient
-
-if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiSongs
+from maimai_py.maimai import MaimaiSongs
 
 
 class WechatProvider(IPlayerProvider, IScoreProvider):
@@ -67,10 +62,8 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
-        if not caches.cached_songs:
-            # This breaks the abstraction of the provider, but we have no choice
-            caches.cached_songs = await LXNSProvider().get_songs(client)
-        scores = await self._crawl_scores(client, identifier.credentials, caches.cached_songs)
+        msongs = await MaimaiSongs._get_or_fetch()
+        scores = await self._crawl_scores(client, identifier.credentials, msongs)
         return scores
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient):

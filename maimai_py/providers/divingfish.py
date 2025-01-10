@@ -1,9 +1,11 @@
 import dataclasses
 from typing import Generator
 from httpx import AsyncClient, Response
+
 from maimai_py import enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
+from maimai_py.providers.base import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 from maimai_py.models import (
     CurveObject,
     DivingFishPlayer,
@@ -15,7 +17,6 @@ from maimai_py.models import (
     SongDifficulty,
     SongDifficultyUtage,
 )
-from maimai_py.providers.base import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
 
 class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider):

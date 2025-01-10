@@ -1,4 +1,44 @@
-from typing import Any
+import httpx
+import asyncio
 
 
-cached_songs: Any | None = None
+CacheItems = list | dict | type
+Provider = type
+
+
+class MaimaiCaches:
+    _caches: dict[str, CacheItems] = {}
+    _caches_provider: dict[str, Provider] = {}
+    _available_keys = ["songs", "aliases", "curves", "icons", "plates", "frames", "trophy", "chara", "partner"]
+
+    def update(self, key: str, new_val: CacheItems) -> CacheItems:
+        if isinstance(new_val, dict):
+            value_dict: dict = self._caches.setdefault(key, {})
+            value_dict.update(new_val)
+        if isinstance(new_val, list):
+            value_list: list = self._caches.setdefault(key, [])
+            value_list[:] = new_val
+        elif new_val is None:
+            self._caches[key] = None  # None is a valid value
+        return new_val
+
+    async def get_or_fetch(self, key: str, flush=False) -> CacheItems:
+        item = self._caches.get(key, None)
+        need_flush = not item or flush
+        if key in self._available_keys and need_flush:
+            async with httpx.AsyncClient() as client:
+                provider = self._caches_provider[key]
+                item = await getattr(provider, f"get_{key}")(client) if provider else None
+                self.update(key, item)
+        return item
+
+    async def flush(self) -> None:
+        managed_keys = set(self._caches.keys()) & set(self._available_keys)
+        tasks = [self.get_or_fetch(key, flush=True) for key in managed_keys]
+        await asyncio.gather(*tasks)
+        unmanaged_keys = set(self._caches.keys()) - set(self._available_keys)
+        tasks = [getattr(self._caches[key], "_flush") for key in unmanaged_keys]
+        await asyncio.gather(*tasks)
+
+
+default_caches = MaimaiCaches()

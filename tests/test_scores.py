@@ -1,4 +1,5 @@
 import pytest
+
 from maimai_py.enums import LevelIndex, ScoreKind
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import PlayerIdentifier

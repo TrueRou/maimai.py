@@ -1,5 +1,4 @@
 from abc import abstractmethod
-
 from httpx import AsyncClient
 
 from maimai_py.models import CurveObject, Player, PlayerIdentifier, PlayerRegion, Score, Song, SongAlias
@@ -85,3 +84,7 @@ class IRegionProvider:
     async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
         """@private"""
         raise NotImplementedError()
+
+
+class LocalProvider:
+    pass

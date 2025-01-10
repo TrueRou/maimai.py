@@ -1,12 +1,13 @@
-import asyncio
-from functools import cached_property
-from httpx import AsyncClient
 import httpx
+import asyncio
+from httpx import AsyncClient
+from functools import cached_property
 
+from maimai_py import enums
 from maimai_ffi import arcade
-from maimai_py import caches, enums
-from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind, SongType
+from maimai_py.caches import default_caches
 from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
+from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind, SongType
 from maimai_py.models import (
     ArcadePlayer,
     ArcadeResponse,
@@ -20,26 +21,33 @@ from maimai_py.models import (
     Song,
     SongAlias,
 )
-from maimai_py.providers import LXNSProvider, YuzuProvider, DivingFishProvider
-from maimai_py.providers.arcade import ArcadeProvider
-from maimai_py.providers.base import IAliasProvider, IPlayerProvider, IRegionProvider, ISongProvider, ICurveProvider, IScoreProvider
-from maimai_py.utils.tasks import build_tasks
 
 
 class MaimaiSongs:
+    _cached_songs: list[Song]
+    _cached_aliases: list[SongAlias]
+    _cached_curves: dict[str, list[CurveObject | None]]
+
     _song_id_dict: dict[int, Song]  # song_id: song
     _alias_entry_dict: dict[str, int]  # alias_entry: song_id
 
     def __init__(self, songs: list[Song], aliases: list[SongAlias] | None, curves: dict[str, list[CurveObject | None]]) -> None:
         """@private"""
-        self._song_id_dict = {song.id: song for song in songs}
+        self._cached_songs = songs
+        self._cached_aliases = aliases
+        self._cached_curves = curves
+        self._song_id_dict = {}
         self._alias_entry_dict = {}
-        for alias in aliases or []:
+        self._flush()
+
+    def _flush(self) -> None:
+        self._song_id_dict = {song.id: song for song in self._cached_songs}
+        for alias in self._cached_aliases or []:
             if song := self._song_id_dict.get(alias.song_id):
                 song.aliases = alias.aliases
             for alias_entry in alias.aliases:
                 self._alias_entry_dict[alias_entry] = alias.song_id
-        for idx, curve_list in (curves or {}).items():
+        for idx, curve_list in (self._cached_curves or {}).items():
             song_type: SongType = SongType._from_id(int(idx))
             song_id = int(idx) % 10000
             if song := self._song_id_dict.get(song_id):
@@ -48,6 +56,18 @@ class MaimaiSongs:
                     # ignore the extra curves, diving fish may return more curves than the song has, which is a bug
                     curve_list = curve_list[: len(diffs)]
                 [diffs[i].__setattr__("curve", curve) for i, curve in enumerate(curve_list)]
+
+    @staticmethod
+    async def _get_or_fetch(flush=False) -> "MaimaiSongs":
+        if "msongs" not in default_caches._caches or flush:
+            tasks = [
+                default_caches.get_or_fetch("songs", flush=flush),
+                default_caches.get_or_fetch("aliases", flush=flush),
+                default_caches.get_or_fetch("curves", flush=flush),
+            ]
+            songs, aliases, curves = await asyncio.gather(*tasks)
+            default_caches._caches["msongs"] = MaimaiSongs(songs, aliases, curves)
+        return default_caches._caches["msongs"]
 
     @property
     def songs(self) -> list[Song]:
@@ -322,7 +342,7 @@ class MaimaiScores:
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
         return list(scores_unique.values())
 
-    def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None, songs: "MaimaiSongs" = None):
+    def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None, songs: MaimaiSongs = None):
         self.scores = all or b35 + b15
         # if b35 and b15 are not provided, try to calculate them from all scores
         if (not b35 or not b15) and all:
@@ -390,6 +410,27 @@ class MaimaiScores:
 class MaimaiClient:
     """The main client of maimai.py."""
 
+    from maimai_py.providers import LXNSProvider, YuzuProvider, DivingFishProvider, ArcadeProvider
+    from maimai_py.providers.base import (
+        IAliasProvider,
+        IPlayerProvider,
+        IRegionProvider,
+        ISongProvider,
+        ICurveProvider,
+        IScoreProvider,
+        LocalProvider,
+    )
+
+    default_caches._caches_provider["songs"] = LXNSProvider()
+    default_caches._caches_provider["aliases"] = YuzuProvider()
+    default_caches._caches_provider["curves"] = DivingFishProvider()
+    default_caches._caches_provider["icons"] = LXNSProvider()
+    default_caches._caches_provider["plates"] = LXNSProvider()
+    default_caches._caches_provider["frames"] = LXNSProvider()
+    default_caches._caches_provider["trophy"] = LocalProvider()
+    default_caches._caches_provider["chara"] = LocalProvider()
+    default_caches._caches_provider["partner"] = LocalProvider()
+
     _client: AsyncClient
 
     def __init__(self, timeout: float = 20.0, **kwargs) -> None:
@@ -424,16 +465,10 @@ class MaimaiClient:
             RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
-            tasks = build_tasks(
-                tasks=[
-                    alias_provider.get_aliases(client) if alias_provider else None,
-                    curve_provider.get_curves(client) if curve_provider else None,
-                    provider.get_songs(client),
-                ],
-            )
-            aliases, curves, songs = await asyncio.gather(*tasks)
-            caches.cached_songs = MaimaiSongs(songs, aliases, curves)
-            return caches.cached_songs
+            default_caches._caches_provider["songs"] = provider
+            default_caches._caches_provider["aliases"] = alias_provider
+            default_caches._caches_provider["curves"] = curve_provider
+            return await MaimaiSongs._get_or_fetch(flush=True)
 
     async def players(
         self,
@@ -495,13 +530,15 @@ class MaimaiClient:
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
+        from maimai_py.providers import LXNSProvider
+
         async with httpx.AsyncClient(**self._args) as client:
             b35, b15, all, songs = None, None, None, None
             if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
                 b35, b15 = await provider.get_scores_best(identifier, client)
             # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
             if kind == ScoreKind.ALL or (b35 == None and b15 == None):
-                songs = caches.cached_songs if caches.cached_songs else await self.songs()
+                songs = await MaimaiSongs._get_or_fetch()
                 all = await provider.get_scores_all(identifier, client)
             return MaimaiScores(b35, b15, all, songs)
 
@@ -571,7 +608,7 @@ class MaimaiClient:
             RequestError: Request failed due to network issues.
         """
         async with httpx.AsyncClient(**self._args) as client:
-            songs = caches.cached_songs if caches.cached_songs else await self.songs()
+            songs = await MaimaiSongs._get_or_fetch()
             scores = await provider.get_scores_all(identifier, client)
             return MaimaiPlates(scores, plate[0], plate[1:], songs)
 
