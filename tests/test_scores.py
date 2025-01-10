@@ -28,3 +28,7 @@ async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingf
 async def test_scores_updating(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
     scores = await maimai.scores(PlayerIdentifier(username="turou"), kind=ScoreKind.ALL, provider=divingfish)
     await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])

@@ -37,8 +37,7 @@ class MaimaiCaches:
         tasks = [self.get_or_fetch(key, flush=True) for key in managed_keys]
         await asyncio.gather(*tasks)
         unmanaged_keys = set(self._caches.keys()) - set(self._available_keys)
-        tasks = [getattr(self._caches[key], "_flush") for key in unmanaged_keys]
-        await asyncio.gather(*tasks)
+        [getattr(self._caches[key], "_flush") for key in unmanaged_keys]
 
 
 default_caches = MaimaiCaches()

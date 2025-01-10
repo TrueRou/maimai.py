@@ -666,3 +666,10 @@ class MaimaiClient:
         resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode)
         ArcadeResponse._throw_error(resp)
         return PlayerIdentifier(credentials=resp.data.decode())
+
+    async def flush(self) -> None:
+        """Flush the caches of the client, this will perform a full re-fetch of all the data.
+
+        Notice that only items ("songs", "aliases", "curves", "icons", "plates", "frames", "trophy", "chara", "partner") will be cached, this will only affect those items.
+        """
+        await default_caches.flush()

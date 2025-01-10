@@ -22,3 +22,7 @@ async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
         assert any(region.region_id == 2 for region in regions)
     except TitleServerError:
         pytest.skip("Connection error, skipping the test.")
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])
