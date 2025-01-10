@@ -7,9 +7,21 @@ from maimai_ffi import arcade
 from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind, SongType
 from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
-from maimai_py.models import ArcadeResponse, CurveObject, DivingFishPlayer, LXNSPlayer, PlateObject, PlayerIdentifier, Score, Song, SongAlias
+from maimai_py.models import (
+    ArcadeResponse,
+    CurveObject,
+    DivingFishPlayer,
+    LXNSPlayer,
+    PlateObject,
+    PlayerIdentifier,
+    PlayerRegion,
+    Score,
+    Song,
+    SongAlias,
+)
 from maimai_py.providers import LXNSProvider, YuzuProvider, DivingFishProvider
-from maimai_py.providers.base import IAliasProvider, IPlayerProvider, ISongProvider, ICurveProvider, IScoreProvider
+from maimai_py.providers.arcade import ArcadeProvider
+from maimai_py.providers.base import IAliasProvider, IPlayerProvider, IRegionProvider, ISongProvider, ICurveProvider, IScoreProvider
 from maimai_py.utils.tasks import build_tasks
 
 
@@ -429,7 +441,7 @@ class MaimaiClient:
     ) -> DivingFishPlayer | LXNSPlayer:
         """Fetch player data from the provider.
 
-        Available providers: `DivingFishProvider`, `LXNSProvider`.
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`.
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(username="turou")`.
@@ -441,6 +453,9 @@ class MaimaiClient:
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             RequestError: Request failed due to network issues.
+        Raises:
+            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
         async with httpx.AsyncClient(**self._args) as client:
             return await provider.get_player(identifier, client)
@@ -488,6 +503,21 @@ class MaimaiClient:
                 songs = caches.cached_songs if caches.cached_songs else await self.songs()
                 all = await provider.get_scores_all(identifier, client)
             return MaimaiScores(b35, b15, all, songs)
+
+    async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
+        """Get the player's regions that they have played.
+
+        Args:
+            identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(credentials="encrypted_user_id")`.
+            provider: the data source to fetch the player from, defaults to `ArcadeProvider`.
+        Returns:
+            The list of regions that the player has played.
+        Raises:
+            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+        """
+        async with httpx.AsyncClient(**self._args) as client:
+            return await provider.get_regions(identifier, client)
 
     async def updates(
         self,

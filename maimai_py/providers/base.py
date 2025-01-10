@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from httpx import AsyncClient
 
-from maimai_py.models import CurveObject, Player, PlayerIdentifier, Score, Song, SongAlias
+from maimai_py.models import CurveObject, Player, PlayerIdentifier, PlayerRegion, Score, Song, SongAlias
 
 
 class ISongProvider:
@@ -71,5 +71,17 @@ class ICurveProvider:
 
     @abstractmethod
     async def get_curves(self, client: AsyncClient) -> dict[str, list[CurveObject | None]]:
+        """@private"""
+        raise NotImplementedError()
+
+
+class IRegionProvider:
+    """The provider that fetches player regions from a specific source.
+
+    Available providers: `ArcadeProvider`
+    """
+
+    @abstractmethod
+    async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
         """@private"""
         raise NotImplementedError()

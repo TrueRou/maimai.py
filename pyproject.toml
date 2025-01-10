@@ -12,7 +12,7 @@ python = "^3.9"
 httpx = "^0.28.0"
 beautifulsoup4 = "^4.12.3"
 cryptography = ">=38.0"
-maimai-ffi = "^0.2.1"
+maimai-ffi = "^0.3.0"
 
 
 [tool.poetry.group.dev.dependencies]

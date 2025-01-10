@@ -1,11 +1,12 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 from httpx import AsyncClient
 from maimai_ffi import arcade
 from maimai_py import caches
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
 from maimai_py.exceptions import InvalidPlayerIdentifierError
-from maimai_py.models import ArcadeResponse, PlayerIdentifier, Score
-from maimai_py.providers.base import IPlayerProvider, IScoreProvider
+from maimai_py.models import ArcadePlayer, ArcadeResponse, PlayerIdentifier, PlayerRegion, Score
+from maimai_py.providers.base import IPlayerProvider, IRegionProvider, IScoreProvider
 
 from maimai_py.providers.lxns import LXNSProvider
 from maimai_py.utils.coefficient import ScoreCoefficient
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiSongs
 
 
-class ArcadeProvider(IPlayerProvider, IScoreProvider):
+class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     """The provider that fetches data from the wahlap maimai arcade.
 
     This part of the maimai.py is not open-source, we distribute the compiled version of this part of the code as maimai_ffi.
@@ -45,7 +46,18 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider):
                 )
 
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient):
-        return await super().get_player(identifier, client)
+        if not identifier.credentials:
+            raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
+        resp: ArcadeResponse = await arcade.get_user_preview(identifier.credentials.encode())
+        ArcadeResponse._throw_error(resp)
+        return ArcadePlayer(
+            name=resp.data["userName"],
+            rating=resp.data["playerRating"],
+            is_login=resp.data["isLogin"],
+            name_plate=resp.data["nameplateId"],
+            icon=resp.data["iconId"],
+            trophy=resp.data["trophyId"],
+        )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         if not identifier.credentials:
@@ -60,3 +72,18 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider):
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
         return None, None
+
+    async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
+        if not identifier.credentials:
+            raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
+        resp: ArcadeResponse = await arcade.get_user_region(identifier.credentials.encode())
+        ArcadeResponse._throw_error(resp)
+        return [
+            PlayerRegion(
+                region_id=region["regionId"],
+                region_name=region["regionName"],
+                play_count=region["playCount"],
+                created_at=datetime.strptime(region["created"], "%Y-%m-%d %H:%M:%S"),
+            )
+            for region in resp.data["userRegionList"]
+        ]

@@ -2,6 +2,7 @@ import os
 import pytest
 
 from maimai_py.maimai import MaimaiClient
+from maimai_py.providers.arcade import ArcadeProvider
 from maimai_py.providers.divingfish import DivingFishProvider
 from maimai_py.providers.lxns import LXNSProvider
 
@@ -27,3 +28,8 @@ def divingfish():
 
         token = secrets.divingfish_developer_token
     return DivingFishProvider(developer_token=token)
+
+
+@pytest.fixture(scope="session")
+def arcade():
+    return ArcadeProvider()

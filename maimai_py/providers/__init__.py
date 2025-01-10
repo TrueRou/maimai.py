@@ -1,4 +1,4 @@
-from .base import IAliasProvider, IPlayerProvider, ISongProvider, IScoreProvider, ICurveProvider
+from .base import IAliasProvider, IPlayerProvider, ISongProvider, IScoreProvider, ICurveProvider, IRegionProvider
 from .divingfish import DivingFishProvider
 from .lxns import LXNSProvider
 from .yuzu import YuzuProvider
@@ -11,6 +11,7 @@ __all__ = [
     "ISongProvider",
     "IScoreProvider",
     "ICurveProvider",
+    "IRegionProvider",
     "DivingFishProvider",
     "LXNSProvider",
     "YuzuProvider",

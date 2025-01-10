@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
 
 from httpx import AsyncClient, Cookies
@@ -192,6 +193,14 @@ class LXNSPlayer(Player):
 
 
 @dataclass
+class ArcadePlayer(Player):
+    is_login: bool
+    name_plate: int  # TODO: Use name plate dataclass
+    icon: int  # TODO: Use icon dataclass
+    trophy: int  # TODO: Use trophy dataclass
+
+
+@dataclass
 class SongAlias:
     """@private"""
 
@@ -234,3 +243,11 @@ class PlateObject:
     song: Song
     levels: list[LevelIndex]
     score: list[Score] | None
+
+
+@dataclass
+class PlayerRegion:
+    region_id: int
+    region_name: str
+    play_count: int
+    created_at: datetime

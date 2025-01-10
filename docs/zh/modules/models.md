@@ -1,6 +1,6 @@
 # 数据模型
 
-## Song 数据类
+## Song
 
 | 字段           | 类型                | 说明             |
 |----------------|---------------------|----------------|
@@ -16,7 +16,7 @@
 | `disabled`     | `bool`              | 是否被禁用       |
 | `difficulties` | `SongDifficulties`  | 谱面难度         |
 
-## SongDifficulties 数据类
+## SongDifficulties
 
 | 字段       | 类型                        | 说明                   |
 |------------|-----------------------------|----------------------|
@@ -24,7 +24,7 @@
 | `dx`       | `list[SongDifficulty]`      | 曲目 DX 谱面难度列表   |
 | `utage`    | `list[SongDifficultyUtage]` | 宴会场曲目谱面难度列表 |
 
-## SongDifficulty 数据类
+## SongDifficulty
 
 | 字段            | 类型                   | 说明              |
 |-----------------|------------------------|-----------------|
@@ -41,7 +41,7 @@
 | `break_num`     | `int`                  | BREAK 物量        |
 | `curve`         | `CurveObject \| None ` | 相对难度数据      |
 
-## SongDifficultyUtage 数据类
+## SongDifficultyUtage
 
 继承自 `SongDifficulty` 类。
 
@@ -51,7 +51,7 @@
 | `description` | `str`  | 宴谱描述                 |
 | `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
 
-## CurveObject 数据类
+## CurveObject
 
 | 字段                 | 类型                  | 说明                     |
 |----------------------|-----------------------|------------------------|
@@ -137,6 +137,17 @@
 | `frame`       | `PlayerFrame \| None`     | 背景                    |
 | `upload_time` | `str`                     | 玩家被同步时的 UTC 时间 |
 
+## ArcadePlayer
+
+继承自 `Player` 类。
+
+| 额外字段     | 类型   | 说明                 |
+|--------------|--------|--------------------|
+| `is_login`   | `bool` | 玩家目前是否已经登录 |
+| `trophy`     | `int`  | 玩家称号ID           |
+| `icon`       | `int`  | 头像ID               |
+| `name_plate` | `int`  | 姓名框ID             |
+
 ## Score
 
 | 字段           | 类型            | 说明              |
@@ -161,3 +172,11 @@
 | `levels` | `list[LevelIndex]`    | 难度索引列表 |
 | `score`  | `list[Score] \| None` | 成绩列表     |
 
+## PlayerRegion
+
+| 字段          | 类型       | 说明           |
+|---------------|------------|--------------|
+| `region_id`   | `int`      | 地区ID         |
+| `region_name` | `str`      | 地区名称       |
+| `play_count`  | `int`      | 游玩次数       |
+| `created_at`  | `datetime` | 第一次游玩时间 |

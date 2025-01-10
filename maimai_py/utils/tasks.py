@@ -1,5 +1,4 @@
-from asyncio import AbstractEventLoop
-from typing import Coroutine, Generator, Iterable
+from typing import Coroutine, Iterable
 
 
 async def empty_task() -> None:
