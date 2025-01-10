@@ -1,5 +1,5 @@
 import pytest
-from httpx import RequestError
+from maimai_py.exceptions import TitleServerError
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import PlayerIdentifier
 from maimai_py.providers.arcade import ArcadeProvider
@@ -20,5 +20,5 @@ async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
 
         regions = await maimai.regions(my_account, provider=arcade)
         assert any(region.region_id == 2 for region in regions)
-    except RequestError:
+    except TitleServerError:
         pytest.skip("Connection error, skipping the test.")

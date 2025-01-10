@@ -8,6 +8,7 @@ from maimai_py import caches, enums
 from maimai_py.enums import FCType, FSType, LevelIndex, RateType, ScoreKind, SongType
 from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
 from maimai_py.models import (
+    ArcadePlayer,
     ArcadeResponse,
     CurveObject,
     DivingFishPlayer,
@@ -438,7 +439,7 @@ class MaimaiClient:
         self,
         identifier: PlayerIdentifier,
         provider: IPlayerProvider = LXNSProvider(),
-    ) -> DivingFishPlayer | LXNSPlayer:
+    ) -> DivingFishPlayer | LXNSPlayer | ArcadePlayer:
         """Fetch player data from the provider.
 
         Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`.

@@ -132,12 +132,12 @@ class ArcadeResponse:
 
     def _throw_error(resp: "ArcadeResponse"):
         if resp.errno and resp.errno != 0:
-            if resp.errno > 0:
-                raise AimeServerError(resp.errmsg)
+            if resp.errno > 1000:
+                raise ArcadeError(resp.errmsg)
             elif resp.errno > 100:
                 raise TitleServerError(resp.errmsg)
-            elif resp.errno > 1000:
-                raise ArcadeError(resp.errmsg)
+            elif resp.errno > 0:
+                raise AimeServerError(resp.errmsg)
 
 
 @dataclass
