@@ -178,7 +178,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         resp = await client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
         self._check_response_player(resp)
         resp_json = resp.json()
-        return [DivingFishProvider._deser_score(score) for score in resp_json["records"]]
+        return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
         headers, cookies = None, None

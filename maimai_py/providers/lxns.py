@@ -176,8 +176,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         resp = await client.get(self.base_url + entrypoint, headers=self.headers)
         self._check_response_player(resp)
         return (
-            [LXNSProvider._deser_score(score) for score in resp.json()["data"]["standard"]],
-            [LXNSProvider._deser_score(score) for score in resp.json()["data"]["dx"]],
+            [s for score in resp.json()["data"]["standard"] if (s := LXNSProvider._deser_score(score))],
+            [s for score in resp.json()["data"]["dx"] if (s := LXNSProvider._deser_score(score))],
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
@@ -185,7 +185,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
         resp = await client.get(self.base_url + entrypoint, headers=self.headers)
         self._check_response_player(resp)
-        return [LXNSProvider._deser_score(score) for score in resp.json()["data"]]
+        return [s for score in resp.json()["data"] if (s := LXNSProvider._deser_score(score))]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
         await identifier._ensure_friend_code(client, self)

@@ -67,7 +67,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
         if not caches.cached_songs:
             # This breaks the abstraction of the provider, but we have no choice
             caches.cached_songs = await LXNSProvider().get_songs(client)
-        return [ArcadeProvider._deser_score(score, caches.cached_songs) for score in resp.data]
+        return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, caches.cached_songs))]
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
