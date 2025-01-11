@@ -3,11 +3,11 @@ from httpx import AsyncClient, Response
 
 from maimai_py.models import *
 from maimai_py.enums import *
-from maimai_py.providers import IAliasProvider, IPlayerProvider, IScoreProvider, ISongProvider
+from maimai_py.providers import IAliasProvider, IPlayerProvider, IScoreProvider, ISongProvider, IItemListProvider
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
 
 
-class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider):
+class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider, IItemListProvider):
     """The provider that fetches data from the LXNS.
 
     LXNS: https://maimai.lxns.net/
@@ -46,6 +46,14 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                 return diff["notes"]["left"][key] + diff["notes"]["right"][key]
             return diff["notes"][key]
         return 0
+
+    def _deser_item(item: dict, cls: type) -> object:
+        return cls(
+            id=item["id"],
+            name=item["name"],
+            description=item["description"] if "description" in item else None,
+            genre=item["genre"] if "genre" in item else None,
+        )
 
     def _deser_song(song: dict) -> Song:
         return Song(
@@ -195,17 +203,17 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         resp.raise_for_status()
         return [SongAlias(song_id=item["song_id"], aliases=item["aliases"]) for item in resp.json()["aliases"]]
 
-    async def get_icons(self, client: AsyncClient) -> list[PlayerIcon]:
+    async def get_icons(self, client: AsyncClient) -> dict[int, PlayerIcon]:
         resp = await client.get(self.base_url + "api/v0/maimai/icon/list")
         resp.raise_for_status()
-        return resp.json()["icons"]
+        return {item["id"]: LXNSProvider._deser_item(item, PlayerIcon) for item in resp.json()["icons"]}
 
-    async def get_plates(self, client: AsyncClient) -> list[PlayerNamePlate]:
+    async def get_nameplates(self, client: AsyncClient) -> dict[int, PlayerNamePlate]:
         resp = await client.get(self.base_url + "api/v0/maimai/plate/list")
         resp.raise_for_status()
-        return resp.json()["plates"]
+        return {item["id"]: LXNSProvider._deser_item(item, PlayerNamePlate) for item in resp.json()["plates"]}
 
-    async def get_frames(self, client: AsyncClient) -> list[PlayerFrame]:
+    async def get_frames(self, client: AsyncClient) -> dict[int, PlayerFrame]:
         resp = await client.get(self.base_url + "api/v0/maimai/frame/list")
         resp.raise_for_status()
-        return resp.json()["frames"]
+        return {item["id"]: LXNSProvider._deser_item(item, PlayerFrame) for item in resp.json()["frames"]}

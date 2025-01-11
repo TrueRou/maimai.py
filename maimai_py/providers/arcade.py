@@ -61,10 +61,6 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
         msongs: MaimaiSongs = await MaimaiSongs._get_or_fetch()
         return [ArcadeProvider._deser_score(score, msongs) for score in resp.data]
 
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
-        # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
-        return None, None
-
     async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")

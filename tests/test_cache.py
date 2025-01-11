@@ -1,3 +1,4 @@
+import asyncio
 import time
 import pytest
 
@@ -9,7 +10,7 @@ from maimai_py.providers import LXNSProvider
 @pytest.mark.asyncio()
 @pytest.mark.slow()
 async def test_songs_caching(maimai: MaimaiClient, lxns: LXNSProvider):
-    caches.default_caches = {}  # ensure that the cache is empty
+    caches.default_caches._caches = {}  # ensure that the cache is empty
 
     # Fetch the songs for the first time
     start_time = time.time()
@@ -24,6 +25,13 @@ async def test_songs_caching(maimai: MaimaiClient, lxns: LXNSProvider):
     await maimai.flush()  # to test whether the flush is working properly
 
     assert second_time * 10 <= first_time  # the second time should be much faster than the first time
+
+
+@pytest.mark.asyncio()
+@pytest.mark.slow()
+async def test_items_caching(maimai: MaimaiClient, lxns: LXNSProvider):
+    tasks = [caches.default_caches.get_or_fetch(item) for item in ["icons", "nameplates", "frames", "trophies", "charas", "partners"]]
+    await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":

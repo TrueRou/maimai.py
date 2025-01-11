@@ -2,14 +2,14 @@ import httpx
 import asyncio
 
 
-CacheItems = list | dict | type
-Provider = type
+CacheItems = list | dict | object
+Provider = object
 
 
 class MaimaiCaches:
     _caches: dict[str, CacheItems] = {}
     _caches_provider: dict[str, Provider] = {}
-    _available_keys = ["songs", "aliases", "curves", "icons", "plates", "frames", "trophy", "chara", "partner"]
+    _available_keys = ["songs", "aliases", "curves", "icons", "nameplates", "frames", "trophies", "charas", "partners"]
 
     def update(self, key: str, new_val: CacheItems) -> CacheItems:
         if isinstance(new_val, dict):

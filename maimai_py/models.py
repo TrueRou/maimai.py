@@ -143,17 +143,34 @@ class PlayerTrophy:
 class PlayerIcon:
     id: int
     name: str
-    genre: str
+    description: str | None = None
+    genre: str | None = None
 
 
 @dataclass
 class PlayerNamePlate:
     id: int
     name: str
+    description: str | None = None
+    genre: str | None = None
 
 
 @dataclass
 class PlayerFrame:
+    id: int
+    name: str
+    description: str | None = None
+    genre: str | None = None
+
+
+@dataclass
+class PlayerPartner:
+    id: int
+    name: str
+
+
+@dataclass
+class PlayerChara:
     id: int
     name: str
 

@@ -63,8 +63,3 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
         msongs = await MaimaiSongs._get_or_fetch()
         scores = await self._crawl_scores(client, identifier.credentials, msongs)
         return scores
-
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient):
-        # Wahlap wechat doesn't represent best scores, we have no way to access them directly
-        # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
-        return None, None

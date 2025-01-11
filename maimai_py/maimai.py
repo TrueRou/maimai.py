@@ -16,11 +16,11 @@ class MaimaiClient:
     default_caches._caches_provider["aliases"] = YuzuProvider()
     default_caches._caches_provider["curves"] = DivingFishProvider()
     default_caches._caches_provider["icons"] = LXNSProvider()
-    default_caches._caches_provider["plates"] = LXNSProvider()
+    default_caches._caches_provider["nameplates"] = LXNSProvider()
     default_caches._caches_provider["frames"] = LXNSProvider()
-    default_caches._caches_provider["trophy"] = LocalProvider()
-    default_caches._caches_provider["chara"] = LocalProvider()
-    default_caches._caches_provider["partner"] = LocalProvider()
+    default_caches._caches_provider["trophies"] = LocalProvider()
+    default_caches._caches_provider["charas"] = LocalProvider()
+    default_caches._caches_provider["partners"] = LocalProvider()
 
     _client: AsyncClient
 
