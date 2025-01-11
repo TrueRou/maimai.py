@@ -43,17 +43,6 @@ class Song:
 
 
 @dataclass
-class CurveObject:
-    sample_size: int
-    fit_level_value: float
-    avg_achievements: float
-    stdev_achievements: float
-    avg_dx_score: float
-    rate_sample_size: dict[RateType, int]
-    fc_sample_size: dict[FCType, int]
-
-
-@dataclass
 class SongDifficulties:
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
@@ -76,7 +65,7 @@ class SongDifficulty:
     slide_num: int
     touch_num: int
     break_num: int
-    curve: CurveObject | None
+    curve: "CurveObject" | None
 
 
 @dataclass
@@ -84,6 +73,25 @@ class SongDifficultyUtage(SongDifficulty):
     kanji: str
     description: str
     is_buddy: bool
+
+
+@dataclass
+class CurveObject:
+    sample_size: int
+    fit_level_value: float
+    avg_achievements: float
+    stdev_achievements: float
+    avg_dx_score: float
+    rate_sample_size: dict[RateType, int]
+    fc_sample_size: dict[FCType, int]
+
+
+@dataclass
+class SongAlias:
+    """@private"""
+
+    song_id: int
+    aliases: list[str]
 
 
 @dataclass
@@ -176,6 +184,14 @@ class PlayerChara:
 
 
 @dataclass
+class PlayerRegion:
+    region_id: int
+    region_name: str
+    play_count: int
+    created_at: datetime
+
+
+@dataclass
 class Player:
     name: str
     rating: int
@@ -207,14 +223,6 @@ class ArcadePlayer(Player):
     name_plate: int  # TODO: Use name plate dataclass
     icon: int  # TODO: Use icon dataclass
     trophy: int  # TODO: Use trophy dataclass
-
-
-@dataclass
-class SongAlias:
-    """@private"""
-
-    song_id: int
-    aliases: list[str]
 
 
 @dataclass
@@ -252,14 +260,6 @@ class PlateObject:
     song: Song
     levels: list[LevelIndex]
     score: list[Score] | None
-
-
-@dataclass
-class PlayerRegion:
-    region_id: int
-    region_name: str
-    play_count: int
-    created_at: datetime
 
 
 class MaimaiSongs:
