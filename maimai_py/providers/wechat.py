@@ -4,13 +4,11 @@ import operator
 import random
 from httpx import AsyncClient, Cookies
 
-from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
+from maimai_py.enums import *
+from maimai_py.models import *
+from maimai_py.providers import IPlayerProvider, IScoreProvider
 from maimai_py.exceptions import InvalidPlayerIdentifierError
-from maimai_py.models import PlayerIdentifier, Score
-from maimai_py.providers.base import IPlayerProvider, IScoreProvider
-from maimai_py.utils import page_parser
-from maimai_py.utils.coefficient import ScoreCoefficient
-from maimai_py.maimai import MaimaiSongs
+from maimai_py.utils import ScoreCoefficient, wmdx_html2json
 
 
 class WechatProvider(IPlayerProvider, IScoreProvider):
@@ -48,7 +46,7 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
         # body = re.search(r"<html.*?>([\s\S]*?)</html>", resp1.text).group(1).replace(r"\s+", " ")
-        wm_json = page_parser.wmdx_html2json(resp1.text)
+        wm_json = wmdx_html2json(resp1.text)
         return [parsed for score in wm_json if (parsed := WechatProvider._deser_score(score, songs))]
 
     async def _crawl_scores(self, client: AsyncClient, cookies: Cookies, songs: "MaimaiSongs") -> list[Score]:

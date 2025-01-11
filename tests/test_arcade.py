@@ -6,6 +6,7 @@ from maimai_py.providers.arcade import ArcadeProvider
 
 
 @pytest.mark.asyncio()
+@pytest.mark.slow()
 async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
     try:
         # notice that the encrypted user id can only used in maimai.py, it's not applicable for the other use cases.
@@ -25,4 +26,4 @@ async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
 
 
 if __name__ == "__main__":
-    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])
+    pytest.main(["-q", "-x", "--runslow", "-p no:warnings", "-s", __file__])

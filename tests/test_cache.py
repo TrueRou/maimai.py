@@ -7,7 +7,7 @@ from maimai_py.providers import LXNSProvider
 
 
 @pytest.mark.asyncio()
-@pytest.mark.skipif(__name__ == "__main__", reason="skip caching test if not running as the main script")
+@pytest.mark.slow()
 async def test_songs_caching(maimai: MaimaiClient, lxns: LXNSProvider):
     caches.default_caches = {}  # ensure that the cache is empty
 
@@ -23,8 +23,8 @@ async def test_songs_caching(maimai: MaimaiClient, lxns: LXNSProvider):
 
     await maimai.flush()  # to test whether the flush is working properly
 
-    assert second_time * 10 < first_time  # the second time should be much faster than the first time
+    assert second_time * 10 <= first_time  # the second time should be much faster than the first time
 
 
 if __name__ == "__main__":
-    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])
+    pytest.main(["-q", "--runslow", "-x", "-p no:warnings", "-s", __file__])

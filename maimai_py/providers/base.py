@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from httpx import AsyncClient
 
-from maimai_py.models import CurveObject, Player, PlayerIdentifier, PlayerRegion, Score, Song, SongAlias
+from maimai_py.models import *
 
 
 class ISongProvider:

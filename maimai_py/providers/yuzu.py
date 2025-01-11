@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
 from maimai_py.models import SongAlias
-from maimai_py.providers.base import IAliasProvider
+from maimai_py.providers import IAliasProvider
 
 
 class YuzuProvider(IAliasProvider):
