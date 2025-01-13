@@ -48,9 +48,9 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             name=resp.data["userName"],
             rating=resp.data["playerRating"],
             is_login=resp.data["isLogin"],
-            name_plate=resp.data["nameplateId"],
-            icon=resp.data["iconId"],
-            trophy=resp.data["trophyId"],
+            name_plate=(await default_caches.get_or_fetch("nameplates")).get(resp.data["nameplateId"], None),
+            icon=(await default_caches.get_or_fetch("icons")).get(resp.data["iconId"], None),
+            trophy=(await default_caches.get_or_fetch("trophies")).get(resp.data["trophyId"], None),
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
