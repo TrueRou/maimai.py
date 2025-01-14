@@ -16,6 +16,12 @@
 | `disabled`     | `bool`              | 是否被禁用       |
 | `difficulties` | `SongDifficulties`  | 谱面难度         |
 
+额外方法:
+
+| 方法名                                 | 返回值           | 说明                   |
+|----------------------------------------|------------------|----------------------|
+| `get_difficulty(SongType, LevelIndex)` | `SongDifficulty` | 直接获取对应的谱面难度 |
+
 ## SongDifficulties
 
 | 字段       | 类型                        | 说明                   |
@@ -150,19 +156,21 @@
 
 ## Score
 
-| 字段           | 类型            | 说明              |
-|----------------|-----------------|-------------------|
-| `id`           | `int`           | 曲目ID            |
-| `song_name`    | `str`           | 曲名              |
-| `level`        | `str`           | 难度标级，如 `14+` |
-| `level_index`  | `LevelIndex`    | 难度索引          |
-| `achievements` | `float \| None` | 达成率            |
-| `fc`           | `FCType`        | FULL COMBO 类型   |
-| `fs`           | `FSType`        | FULL SYNC 类型    |
-| `dx_score`     | `int \| None`   | DX分数            |
-| `dx_rating`    | `float \| None` | DX Rating         |
-| `rate`         | `RateType`      | 评级类型          |
-| `type`         | `SongType`      | 谱面类型          |
+| 字段           | 类型             | 说明              |
+|----------------|------------------|-------------------|
+| `id`           | `int`            | 曲目ID            |
+| `song_name`    | `str`            | 曲名              |
+| `level`        | `str`            | 难度标级，如 `14+` |
+| `level_index`  | `LevelIndex`     | 难度索引          |
+| `achievements` | `float \| None`  | 达成率            |
+| `fc`           | `FCType`         | FULL COMBO 类型   |
+| `fs`           | `FSType`         | FULL SYNC 类型    |
+| `dx_score`     | `int \| None`    | DX分数            |
+| `dx_rating`    | `float \| None`  | DX Rating         |
+| `rate`         | `RateType`       | 评级类型          |
+| `type`         | `SongType`       | 谱面类型          |
+| `song`         | `Song`           | 对应曲目对象      |
+| `difficulty`   | `SongDifficulty` | 对应难度对象      |
 
 ## PlateObject
 

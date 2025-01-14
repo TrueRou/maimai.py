@@ -4,9 +4,9 @@ In maimai.py, we have defined how functions and methods are called in a more com
 
 Similar to the `RESTful` specification, if you understand our specification, you can develop in an intuitive way without having to read too much documentation and APIs.
 
-## Functions and methods
+## Asynchronous
 
-In maimai.py, all functions and methods need to be called **asynchronously** via ``MaimaiClient``, which looks like this:
+In maimai.py, all methods and interfaces need to be called **asynchronously** through `MaimaiClient`, as shown below.
 
 ```python
 from maimai_py.maimai import MaimaiClient, MaimaiSongs
@@ -15,15 +15,23 @@ client: MaimaiClient = MaimaiClient()
 songs: MaimaiSongs = await client.songs()
 ```
 
-Here `await client.songs()` returns a wrapped `MaimaiSongs`, and the wrapped instance provides you with some convenience utils compared to returning `list[Song]` directly.
+For IO-intensive applications, asynchronous calls can provide significant development advantages by avoiding blocking without affecting readability. **maimai.py only supports asynchronous calls**.
 
-For example, you can call `songs.by_title()` to filter songs, or `songs.songs` to access the original list if desired.
-
-We have wrapped most of elements (`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`), you can check them out by yourself.
+We do not currently have plans to provide synchronous calls. If you encounter any difficulties, please contact us, and we will do our best to assist you.
 
 ::: tip
-You can share `MaimaiClient` instances throughout your application, or create new instances on each request.
+You can share a `MaimaiClient` instance throughout the application or create a new instance for each request.
 :::
+
+## Encapsulate
+
+The previously mentioned `MaimaiSongs` is an encapsulated object. Compared to directly returning `list[Song]`, encapsulated objects provide some convenient methods.
+
+For example, you can directly call methods like `songs.by_title()` for filtering. If needed, you can access the original list through `songs.songs`.
+
+We have encapsulated most data (`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`), and readers can explore the predefined methods.
+
+Due to the flexibility of encapsulated objects, we have designed a caching mechanism based on them to avoid multiple requests for chart information and other data. For details on the caching mechanism and cache refresh, please refer to the caching strategy section.
 
 ## Data Provider
 
