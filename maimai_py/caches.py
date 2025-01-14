@@ -18,8 +18,6 @@ class MaimaiCaches:
         if isinstance(new_val, list):
             value_list: list = self._caches.setdefault(key, [])
             value_list[:] = new_val
-        elif new_val is None:
-            self._caches[key] = None  # None is a valid value
         return new_val
 
     async def get_or_fetch(self, key: str, flush=False) -> CacheItems:
