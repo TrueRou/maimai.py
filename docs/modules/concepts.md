@@ -31,7 +31,7 @@ For example, you can directly call methods like `songs.by_title()` for filtering
 
 We have encapsulated most data (`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`), and readers can explore the predefined methods.
 
-Due to the flexibility of encapsulated objects, we have designed a caching mechanism based on them to avoid multiple requests for chart information and other data. For details on the caching mechanism and cache refresh, please refer to the caching strategy section.
+Due to the flexibility of encapsulated objects, we have designed a caching mechanism based on them to avoid multiple requests for chart information and other data. For details on the caching mechanism and cache refresh, please refer to the [Caching Strategy](./caches.md) section.
 
 ## Data Provider
 

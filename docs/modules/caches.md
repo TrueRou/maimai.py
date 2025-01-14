@@ -1,6 +1,6 @@
-# Cache Strategy
+# Caching Strategy
 
-## Cache Strategy
+## Caching Strategy
 
 In the current version of maimai.py, there are a total of 9 types of data that will be cached, as shown in the table below.
 

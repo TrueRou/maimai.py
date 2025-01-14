@@ -92,8 +92,8 @@ await asyncio.gather(*tasks)
 ```
 
 ::: info
-
 阅读 [示例项目](./dev/samples.md) 了解更多
+:::
 
 ## 获取牌子信息
 
