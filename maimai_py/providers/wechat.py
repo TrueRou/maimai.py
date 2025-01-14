@@ -2,20 +2,13 @@ import asyncio
 import functools
 import operator
 import random
-from typing import TYPE_CHECKING
-
 from httpx import AsyncClient, Cookies
-from maimai_py import caches
-from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
-from maimai_py.exceptions import InvalidPlayerIdentifierError
-from maimai_py.models import PlayerIdentifier, Score
-from maimai_py.providers.base import IPlayerProvider, IScoreProvider
-from maimai_py.providers.lxns import LXNSProvider
-from maimai_py.utils import page_parser
-from maimai_py.utils.coefficient import ScoreCoefficient
 
-if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiSongs
+from maimai_py.enums import *
+from maimai_py.models import *
+from maimai_py.providers import IPlayerProvider, IScoreProvider
+from maimai_py.exceptions import InvalidPlayerIdentifierError
+from maimai_py.utils import ScoreCoefficient, wmdx_html2json
 
 
 class WechatProvider(IPlayerProvider, IScoreProvider):
@@ -33,7 +26,7 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
             song_type = SongType.STANDARD if score["type"] == "SD" else SongType.DX if score["type"] == "DX" and not is_utage else SongType.UTAGE
             level_index = LevelIndex(score["level_index"])
-            if diff := song._get_difficulty(song_type, level_index):
+            if diff := song.get_difficulty(song_type, level_index):
                 rating = ScoreCoefficient(score["achievements"]).ra(diff.level_value)
                 return Score(
                     id=song.id,
@@ -53,7 +46,7 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
         # body = re.search(r"<html.*?>([\s\S]*?)</html>", resp1.text).group(1).replace(r"\s+", " ")
-        wm_json = page_parser.wmdx_html2json(resp1.text)
+        wm_json = wmdx_html2json(resp1.text)
         return [parsed for score in wm_json if (parsed := WechatProvider._deser_score(score, songs))]
 
     async def _crawl_scores(self, client: AsyncClient, cookies: Cookies, songs: "MaimaiSongs") -> list[Score]:
@@ -67,13 +60,6 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
-        if not caches.cached_songs:
-            # This breaks the abstraction of the provider, but we have no choice
-            caches.cached_songs = await LXNSProvider().get_songs(client)
-        scores = await self._crawl_scores(client, identifier.credentials, caches.cached_songs)
+        msongs = await MaimaiSongs._get_or_fetch()
+        scores = await self._crawl_scores(client, identifier.credentials, msongs)
         return scores
-
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient):
-        # Wahlap wechat doesn't represent best scores, we have no way to access them directly
-        # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
-        return None, None

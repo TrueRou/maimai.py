@@ -1,8 +1,7 @@
 from abc import abstractmethod
-
 from httpx import AsyncClient
 
-from maimai_py.models import CurveObject, Player, PlayerIdentifier, PlayerRegion, Score, Song, SongAlias
+from maimai_py.models import *
 
 
 class ISongProvider:
@@ -50,7 +49,8 @@ class IScoreProvider:
     @abstractmethod
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         """@private"""
-        raise NotImplementedError()
+        # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
+        return None, None
 
     @abstractmethod
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
@@ -83,5 +83,43 @@ class IRegionProvider:
 
     @abstractmethod
     async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
+        """@private"""
+        raise NotImplementedError()
+
+
+class IItemListProvider:
+    """The provider that fetches player item list data from a specific source.
+
+    Available providers: `LXNSProvider`, `LocalProvider`
+    """
+
+    @abstractmethod
+    async def get_icons(self, client: AsyncClient) -> dict[int, PlayerIcon]:
+        """@private"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def get_nameplates(self, client: AsyncClient) -> dict[int, PlayerNamePlate]:
+        """@private"""
+        raise NotImplementedError()
+
+    # frames
+    @abstractmethod
+    async def get_frames(self, client: AsyncClient) -> dict[int, PlayerFrame]:
+        """@private"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def get_partners(self, client: AsyncClient) -> dict[int, PlayerPartner]:
+        """@private"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def get_charas(self, client: AsyncClient) -> dict[int, PlayerChara]:
+        """@private"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def get_trophies(self, client: AsyncClient) -> dict[int, PlayerTrophy]:
         """@private"""
         raise NotImplementedError()

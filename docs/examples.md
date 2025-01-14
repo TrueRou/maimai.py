@@ -49,44 +49,14 @@ divingfish = DivingFishProvider()
 my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
 # Returns a list of scores that can be calculated like rating, rating_b35, rating_b15, etc.
 assert my_scores.rating_b35 > 10000
-# You can also get individual ratings for the song 1231 MASTER by_level
-assert my_scores.by_level(1231, LevelIndex.MASTER).dx_rating >= 308 # life not detailed MASTER SSS+
+# You can also get specific scores for the song 1231 MASTER by calling by_song
+assert my_scores.by_song(1231, SongType.DX, LevelIndex.MASTER).dx_rating >= 308 # 生命不詳 MASTER SSS+
+# Access song difficulty object and find the level value of the chart
+assert my_scores.by_song(1231, SongType.DX, LevelIndex.MASTER).difficulty.level_value == 13.7
 
 # Get the data from the divingfish and do something similar
 my_scores = await maimai.scores(PlayerIdentifier(username=“turou”), provider=divingfish)
 assert my_scores.rating > 15000
-assert my_scores.by_level(1231, LevelIndex.MASTER).dx_rating >= 308 # Life is not long MASTER SSS+
-```
-
-## Get information about the plates
-
-```python
-# Initialize MaimaiClient, initialize LXNS APIs
-maimai = MaimaiClient()
-lxns = LXNSProvider(developer_token=“your_lxns_developer_token”)
-
-# Get 664994421382429 player's 舞将 achievements from LXNS
-my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), “舞将”, provider=lxns)
-assert my_plate.cleared_num + my_plate.remained_num == my_plate.all_num
-
-# Print out the performance information for those who played, but didn't reach their goals
-for plate_object in my_plate.remained.
-    message = f “Your goal for the {plate_object.song.title} song on the 舞将 was not met, you played but did not fulfill the condition with the following score:”
-    for score in plate_object.scores:
-        message += f"{score.level} difficulty: {score.dx_rating} %\n”
-```
-
-## Updating scores to a data provider
-
-```python
-## Initialize MaimaiClient, initialize divingfish and LXNS APIs
-maimai = MaimaiClient()
-lxns = LXNSProvider(developer_token=“your_lxns_developer_token”)
-divingfish = DivingFishProvider()
-
-# pull scores from divingfish and upload to LXNS (kinda weird, just an example here, normally it should be fetched from wechat or arcade and then uploaded to the prober)
-scores = await maimai.scores(PlayerIdentifier(username=“turou”), kind=ScoreKind.ALL, provider=divingfish)
-await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
 ```
 
 ### Get scores from the arcade
@@ -124,3 +94,34 @@ await asyncio.gather(*tasks)
 ::: info
 Read [Sample Projects](./dev/samples.md) for more.
 :::
+
+## Get plates information
+
+```python
+# Initialize MaimaiClient, initialize LXNS APIs
+maimai = MaimaiClient()
+lxns = LXNSProvider(developer_token=“your_lxns_developer_token”)
+
+# Get 664994421382429 player's 舞将 achievements from LXNS
+my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), “舞将”, provider=lxns)
+assert my_plate.cleared_num + my_plate.remained_num == my_plate.all_num
+
+# Print out the performance information for those who played, but didn't reach their goals
+for plate_object in my_plate.remained.
+    message = f “Your goal for the {plate_object.song.title} song on the 舞将 was not met, you played but did not fulfill the condition with the following score:”
+    for score in plate_object.scores:
+        message += f"{score.level} difficulty: {score.dx_rating} %\n”
+```
+
+## Updating scores to a data provider
+
+```python
+## Initialize MaimaiClient, initialize divingfish and LXNS APIs
+maimai = MaimaiClient()
+lxns = LXNSProvider(developer_token=“your_lxns_developer_token”)
+divingfish = DivingFishProvider()
+
+# pull scores from divingfish and upload to LXNS (kinda weird, just an example here, normally it should be fetched from wechat or arcade and then uploaded to the prober)
+scores = await maimai.scores(PlayerIdentifier(username=“turou”), kind=ScoreKind.ALL, provider=divingfish)
+await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
+```

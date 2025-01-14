@@ -1,14 +1,11 @@
 import asyncio
 import traceback
 from httpx import ConnectError, ReadTimeout
-from maimai_py.enums import ScoreKind
-from maimai_py.exceptions import InvalidPlayerIdentifierError, PrivacyLimitationError, WechatTokenExpiredError
-from maimai_py.maimai import MaimaiClient
-from maimai_py.models import PlayerIdentifier
-from maimai_py.providers.divingfish import DivingFishProvider
-from maimai_py.providers.lxns import LXNSProvider
-from maimai_py.providers.wechat import WechatProvider
+
 from examples.proxy_updater.config import config
+from maimai_py import MaimaiClient, ScoreKind, PlayerIdentifier, DivingFishProvider, LXNSProvider, WechatProvider
+from maimai_py.exceptions import InvalidPlayerIdentifierError, PrivacyLimitationError, WechatTokenExpiredError
+
 
 maimai = MaimaiClient(timeout=60)
 diving_provider = DivingFishProvider()

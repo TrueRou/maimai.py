@@ -23,3 +23,7 @@ async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfi
     songs = await maimai.songs(provider=divingfish)
     song4 = songs.by_id(1231)
     assert song4.title == song1.title
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])

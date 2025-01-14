@@ -1,0 +1,8624 @@
+{
+  "data": {
+    "1": {
+      "title": "新人出道",
+      "rareType": "Normal"
+    },
+    "2": {
+      "title": "随机组合",
+      "rareType": "Normal"
+    },
+    "11": {
+      "title": "欢迎来到“舞萌DX”！",
+      "rareType": "Normal"
+    },
+    "12": {
+      "title": "评级1000 达成！",
+      "rareType": "Normal"
+    },
+    "13": {
+      "title": "评级2000 达成！",
+      "rareType": "Normal"
+    },
+    "14": {
+      "title": "评级3000 达成！",
+      "rareType": "Normal"
+    },
+    "15": {
+      "title": "评级4000 达成！",
+      "rareType": "Normal"
+    },
+    "16": {
+      "title": "评级5000 达成！",
+      "rareType": "Normal"
+    },
+    "17": {
+      "title": "评级6000 达成！",
+      "rareType": "Bronze"
+    },
+    "18": {
+      "title": "评级7000 达成！",
+      "rareType": "Silver"
+    },
+    "19": {
+      "title": "评级8000 达成！",
+      "rareType": "Gold"
+    },
+    "20": {
+      "title": "彩虹评级熊！",
+      "rareType": "Rainbow"
+    },
+    "21": {
+      "title": "评级9000 达成！",
+      "rareType": "Rainbow"
+    },
+    "22": {
+      "title": "评级9500 达成！",
+      "rareType": "Rainbow"
+    },
+    "23": {
+      "title": "评级10000 达成！",
+      "rareType": "Rainbow"
+    },
+    "24": {
+      "title": "白帯",
+      "rareType": "Bronze"
+    },
+    "25": {
+      "title": "黒帯",
+      "rareType": "Bronze"
+    },
+    "26": {
+      "title": "紅白帯",
+      "rareType": "Silver"
+    },
+    "27": {
+      "title": "紅帯",
+      "rareType": "Gold"
+    },
+    "28": {
+      "title": "记住了胜利的滋味",
+      "rareType": "Silver"
+    },
+    "29": {
+      "title": "但求一败",
+      "rareType": "Silver"
+    },
+    "30": {
+      "title": "欢乐的聚会就要开始喽",
+      "rareType": "Silver"
+    },
+    "31": {
+      "title": "真开心呀",
+      "rareType": "Silver"
+    },
+    "32": {
+      "title": "玩具坏了…",
+      "rareType": "Silver"
+    },
+    "33": {
+      "title": "游戏中心岛今天也很平静呢",
+      "rareType": "Silver"
+    },
+    "34": {
+      "title": "发售游戏中心岛的居民证喽！",
+      "rareType": "Silver"
+    },
+    "35": {
+      "title": "DX岛的指南",
+      "rareType": "Silver"
+    },
+    "36": {
+      "title": "徒步来哒",
+      "rareType": "Normal"
+    },
+    "37": {
+      "title": "跑步来哒",
+      "rareType": "Bronze"
+    },
+    "38": {
+      "title": "全力飞奔来哒",
+      "rareType": "Silver"
+    },
+    "39": {
+      "title": "瞬间移动来哒",
+      "rareType": "Gold"
+    },
+    "40": {
+      "title": "おとくいさマイマイマー",
+      "rareType": "Bronze"
+    },
+    "101": {
+      "title": "でらっくま 推し",
+      "rareType": "Silver"
+    },
+    "102": {
+      "title": "いえてぃっくま 推し",
+      "rareType": "Silver"
+    },
+    "103": {
+      "title": "りすっくま 推し",
+      "rareType": "Silver"
+    },
+    "104": {
+      "title": "ぱんだっくま 推し",
+      "rareType": "Silver"
+    },
+    "105": {
+      "title": "みつよしっくま 推し",
+      "rareType": "Silver"
+    },
+    "198": {
+      "title": "ちほーツアーすぺしゃるプランナー",
+      "rareType": "Gold"
+    },
+    "199": {
+      "title": "はじまりのちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "201": {
+      "title": "水野舞衣 推し",
+      "rareType": "Silver"
+    },
+    "202": {
+      "title": "青沼優 推し",
+      "rareType": "Silver"
+    },
+    "203": {
+      "title": "葵巴 推し",
+      "rareType": "Silver"
+    },
+    "204": {
+      "title": "花田美空 推し",
+      "rareType": "Silver"
+    },
+    "205": {
+      "title": "浅葱光一 推し",
+      "rareType": "Silver"
+    },
+    "298": {
+      "title": "6人目の親友",
+      "rareType": "Gold"
+    },
+    "299": {
+      "title": "青春ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "301": {
+      "title": "ラズ 推し",
+      "rareType": "Silver"
+    },
+    "302": {
+      "title": "ソルト 推し",
+      "rareType": "Silver"
+    },
+    "303": {
+      "title": "シフォン 推し",
+      "rareType": "Silver"
+    },
+    "304": {
+      "title": "乙姫 推し",
+      "rareType": "Silver"
+    },
+    "305": {
+      "title": "しゃま 推し",
+      "rareType": "Silver"
+    },
+    "306": {
+      "title": "みるく 推し",
+      "rareType": "Silver"
+    },
+    "392": {
+      "title": "たぬっくま 推し",
+      "rareType": "Silver"
+    },
+    "393": {
+      "title": "ひげっくま 推し",
+      "rareType": "Silver"
+    },
+    "394": {
+      "title": "おねむっくま 推し",
+      "rareType": "Silver"
+    },
+    "395": {
+      "title": "めがねっくま 推し",
+      "rareType": "Silver"
+    },
+    "401": {
+      "title": "SAM_RAI 推し",
+      "rareType": "Silver"
+    },
+    "402": {
+      "title": "BEN_KEI 推し",
+      "rareType": "Silver"
+    },
+    "403": {
+      "title": "SIN_BA 推し",
+      "rareType": "Silver"
+    },
+    "404": {
+      "title": "TO_KI 推し",
+      "rareType": "Silver"
+    },
+    "405": {
+      "title": "黒姫 推し",
+      "rareType": "Silver"
+    },
+    "498": {
+      "title": "伝説のスーパーメカニック",
+      "rareType": "Gold"
+    },
+    "499": {
+      "title": "メトロポリスちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "501": {
+      "title": "バハムート 推し",
+      "rareType": "Silver"
+    },
+    "502": {
+      "title": "ニーズヘッグ 推し",
+      "rareType": "Silver"
+    },
+    "503": {
+      "title": "ファフニール 推し",
+      "rareType": "Silver"
+    },
+    "504": {
+      "title": "ラタトスク 推し",
+      "rareType": "Silver"
+    },
+    "505": {
+      "title": "フレーズベルグ 推し",
+      "rareType": "Silver"
+    },
+    "598": {
+      "title": "伝説のドラゴンライダー",
+      "rareType": "Gold"
+    },
+    "599": {
+      "title": "ドラゴンちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "601": {
+      "title": "百合咲ミカ 推し",
+      "rareType": "Silver"
+    },
+    "602": {
+      "title": "白銅寺アズリ 推し",
+      "rareType": "Silver"
+    },
+    "603": {
+      "title": "兎花宮イオフィ 推し",
+      "rareType": "Silver"
+    },
+    "604": {
+      "title": "白王院ラグ 推し",
+      "rareType": "Silver"
+    },
+    "605": {
+      "title": "兎花宮サラ 推し",
+      "rareType": "Silver"
+    },
+    "698": {
+      "title": "天使を統べる者",
+      "rareType": "Gold"
+    },
+    "699": {
+      "title": "天界ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "701": {
+      "title": "アウル 推し",
+      "rareType": "Silver"
+    },
+    "702": {
+      "title": "リッツ 推し",
+      "rareType": "Silver"
+    },
+    "703": {
+      "title": "ニック 推し",
+      "rareType": "Silver"
+    },
+    "704": {
+      "title": "エリー 推し",
+      "rareType": "Silver"
+    },
+    "705": {
+      "title": "ヒュド・ルー 推し",
+      "rareType": "Silver"
+    },
+    "706": {
+      "title": "クレメンス 推し",
+      "rareType": "Silver"
+    },
+    "707": {
+      "title": "ラルフ 推し",
+      "rareType": "Silver"
+    },
+    "708": {
+      "title": "バイロン 推し",
+      "rareType": "Silver"
+    },
+    "709": {
+      "title": "マスティマ 推し",
+      "rareType": "Silver"
+    },
+    "799": {
+      "title": "BLACK ROSE 箱推し",
+      "rareType": "Gold"
+    },
+    "3301": {
+      "title": "紲星あかり 推し",
+      "rareType": "Silver"
+    },
+    "3302": {
+      "title": "結月ゆかり 推し",
+      "rareType": "Silver"
+    },
+    "3303": {
+      "title": "弦巻マキ 推し",
+      "rareType": "Silver"
+    },
+    "3304": {
+      "title": "琴葉　茜 推し",
+      "rareType": "Silver"
+    },
+    "3305": {
+      "title": "琴葉　葵 推し",
+      "rareType": "Silver"
+    },
+    "3306": {
+      "title": "GYARI 推し",
+      "rareType": "Silver"
+    },
+    "3399": {
+      "title": "GYARI 箱推し",
+      "rareType": "Gold"
+    },
+    "3401": {
+      "title": "博麗霊夢 推し",
+      "rareType": "Silver"
+    },
+    "3402": {
+      "title": "霧雨魔理沙 推し",
+      "rareType": "Silver"
+    },
+    "3403": {
+      "title": "十六夜咲夜 推し",
+      "rareType": "Silver"
+    },
+    "3404": {
+      "title": "レミリア・スカーレット 推し",
+      "rareType": "Silver"
+    },
+    "3405": {
+      "title": "フランドール・スカーレット 推し",
+      "rareType": "Silver"
+    },
+    "3406": {
+      "title": "魂魄妖夢 推し",
+      "rareType": "Silver"
+    },
+    "3407": {
+      "title": "八雲紫 推し",
+      "rareType": "Silver"
+    },
+    "3408": {
+      "title": "鈴仙・優曇華院・イナバ 推し",
+      "rareType": "Silver"
+    },
+    "3409": {
+      "title": "蓬莱山輝夜 推し",
+      "rareType": "Silver"
+    },
+    "3410": {
+      "title": "藤原妹紅 推し",
+      "rareType": "Silver"
+    },
+    "3499": {
+      "title": "東方Project 箱推し",
+      "rareType": "Gold"
+    },
+    "3501": {
+      "title": "初音ミク 推し",
+      "rareType": "Silver"
+    },
+    "3502": {
+      "title": "初音ミクV3 推し",
+      "rareType": "Silver"
+    },
+    "3503": {
+      "title": "エトワール 推し",
+      "rareType": "Silver"
+    },
+    "3504": {
+      "title": "天袖 推し",
+      "rareType": "Silver"
+    },
+    "3505": {
+      "title": "巡音ルカ 推し",
+      "rareType": "Silver"
+    },
+    "3506": {
+      "title": "鏡音リン 推し",
+      "rareType": "Silver"
+    },
+    "3507": {
+      "title": "鏡音レン 推し",
+      "rareType": "Silver"
+    },
+    "3508": {
+      "title": "MEIKO 推し",
+      "rareType": "Silver"
+    },
+    "3509": {
+      "title": "KAITO 推し",
+      "rareType": "Silver"
+    },
+    "3599": {
+      "title": "Project DIVA 箱推し",
+      "rareType": "Gold"
+    },
+    "3901": {
+      "title": "からめる/ねこ/ラーメン 推し",
+      "rareType": "Silver"
+    },
+    "3902": {
+      "title": "からめる/ねこ/DJ 推し",
+      "rareType": "Silver"
+    },
+    "3903": {
+      "title": "からめる/人/まいった 推し",
+      "rareType": "Silver"
+    },
+    "3904": {
+      "title": "からめる/人/刺身 推し",
+      "rareType": "Silver"
+    },
+    "3905": {
+      "title": "からめる/レース 推し",
+      "rareType": "Silver"
+    },
+    "3999": {
+      "title": "からめる 箱推し",
+      "rareType": "Gold"
+    },
+    "4001": {
+      "title": "明坂 芹菜 推し",
+      "rareType": "Silver"
+    },
+    "4002": {
+      "title": "御形 アリシアナ 推し",
+      "rareType": "Silver"
+    },
+    "4003": {
+      "title": "天王洲 なずな 推し",
+      "rareType": "Silver"
+    },
+    "4004": {
+      "title": "小仏 凪 推し",
+      "rareType": "Silver"
+    },
+    "4005": {
+      "title": "箱部 なる 推し",
+      "rareType": "Silver"
+    },
+    "4006": {
+      "title": "月鈴 那知 推し",
+      "rareType": "Silver"
+    },
+    "4007": {
+      "title": "月鈴 白奈 推し",
+      "rareType": "Silver"
+    },
+    "4008": {
+      "title": "五十嵐 撫子 推し",
+      "rareType": "Silver"
+    },
+    "4009": {
+      "title": "萩原 七々瀬 推し",
+      "rareType": "Silver"
+    },
+    "4099": {
+      "title": "イロドリミドリ 箱推し",
+      "rareType": "Gold"
+    },
+    "4201": {
+      "title": "結月ゆかり/幾望の月 推し",
+      "rareType": "Silver"
+    },
+    "4202": {
+      "title": "結月ゆかり/フリィダム ロリィタ 推し",
+      "rareType": "Silver"
+    },
+    "4203": {
+      "title": "結月ゆかり/チュルリラ・チュルリラ・ダッダッダ！ 推し",
+      "rareType": "Silver"
+    },
+    "4204": {
+      "title": "結月ゆかり/幸せになれる隠しコマンドがあるらしい 推し",
+      "rareType": "Silver"
+    },
+    "4205": {
+      "title": "結月ゆかり/サヨナラチェーンソー 推し",
+      "rareType": "Silver"
+    },
+    "4299": {
+      "title": "結月ゆかり 箱推し",
+      "rareType": "Gold"
+    },
+    "5101": {
+      "title": "千本桜",
+      "rareType": "Gold"
+    },
+    "5102": {
+      "title": "39",
+      "rareType": "Gold"
+    },
+    "5103": {
+      "title": "脳漿炸裂ガール",
+      "rareType": "Gold"
+    },
+    "5104": {
+      "title": "いーあるふぁんくらぶ",
+      "rareType": "Gold"
+    },
+    "5105": {
+      "title": "六兆年と一夜物語",
+      "rareType": "Gold"
+    },
+    "5106": {
+      "title": "患部で止まってすぐ溶ける～狂気の優曇華院",
+      "rareType": "Gold"
+    },
+    "5107": {
+      "title": "幻想のサテライト",
+      "rareType": "Gold"
+    },
+    "5108": {
+      "title": "Oshama Scramble!",
+      "rareType": "Gold"
+    },
+    "5109": {
+      "title": "Change Our MIRAI！",
+      "rareType": "Gold"
+    },
+    "5110": {
+      "title": "かくしん的☆めたまるふぉ～ぜっ！",
+      "rareType": "Gold"
+    },
+    "5111": {
+      "title": "シュガーソングとビターステップ",
+      "rareType": "Gold"
+    },
+    "5112": {
+      "title": "月に叢雲華に風",
+      "rareType": "Gold"
+    },
+    "5113": {
+      "title": "回レ！雪月花",
+      "rareType": "Gold"
+    },
+    "5114": {
+      "title": "Scream out! -maimai SONIC WASHER Edit-",
+      "rareType": "Gold"
+    },
+    "5115": {
+      "title": "conflict",
+      "rareType": "Gold"
+    },
+    "5116": {
+      "title": "Calamity Fortune",
+      "rareType": "Gold"
+    },
+    "5117": {
+      "title": "チルノのパーフェクトさんすう教室　⑨周年バージョン",
+      "rareType": "Gold"
+    },
+    "5118": {
+      "title": "ようこそジャパリパークへ",
+      "rareType": "Gold"
+    },
+    "5119": {
+      "title": "WARNING×WARNING×WARNING",
+      "rareType": "Gold"
+    },
+    "5120": {
+      "title": "シャルル",
+      "rareType": "Gold"
+    },
+    "5122": {
+      "title": "ENERGY SYNERGY MATRIX",
+      "rareType": "Gold"
+    },
+    "5123": {
+      "title": "BLACK ROSE",
+      "rareType": "Gold"
+    },
+    "5124": {
+      "title": "Secret Sleuth",
+      "rareType": "Gold"
+    },
+    "5125": {
+      "title": "でらっくmaimai♪てんてこまい!",
+      "rareType": "Gold"
+    },
+    "5126": {
+      "title": "MAXRAGE",
+      "rareType": "Gold"
+    },
+    "5127": {
+      "title": "バーチャルダム　ネーション",
+      "rareType": "Gold"
+    },
+    "5128": {
+      "title": "P-qoq",
+      "rareType": "Gold"
+    },
+    "5129": {
+      "title": "超常マイマイン",
+      "rareType": "Gold"
+    },
+    "5130": {
+      "title": "Crazy Circle",
+      "rareType": "Gold"
+    },
+    "5131": {
+      "title": "STEREOSCAPE",
+      "rareType": "Gold"
+    },
+    "5132": {
+      "title": "STARTLINER",
+      "rareType": "Gold"
+    },
+    "5133": {
+      "title": "♡マイマイマイラブ♡",
+      "rareType": "Gold"
+    },
+    "5134": {
+      "title": "一か罰",
+      "rareType": "Gold"
+    },
+    "5135": {
+      "title": "キリキリ舞Mine",
+      "rareType": "Gold"
+    },
+    "5136": {
+      "title": "福宿音屋魂音泉",
+      "rareType": "Gold"
+    },
+    "5137": {
+      "title": "Now or Never",
+      "rareType": "Gold"
+    },
+    "5138": {
+      "title": "Scarlet Wings",
+      "rareType": "Gold"
+    },
+    "5139": {
+      "title": "Technicians High",
+      "rareType": "Gold"
+    },
+    "5140": {
+      "title": "魔ジョ狩リ",
+      "rareType": "Gold"
+    },
+    "5141": {
+      "title": "TwisteD! XD",
+      "rareType": "Gold"
+    },
+    "5142": {
+      "title": "Blows Up Everything",
+      "rareType": "Gold"
+    },
+    "5143": {
+      "title": "Agitation！",
+      "rareType": "Gold"
+    },
+    "5144": {
+      "title": "管弦楽組曲 第3番 ニ長調「第2曲（G線上のアリア）」BWV.1068-2",
+      "rareType": "Gold"
+    },
+    "5145": {
+      "title": "TEmPTaTiON",
+      "rareType": "Gold"
+    },
+    "5146": {
+      "title": "アポカリプスに反逆の焔を焚べろ",
+      "rareType": "Gold"
+    },
+    "5147": {
+      "title": "玩具狂奏曲 -終焉-",
+      "rareType": "Gold"
+    },
+    "5148": {
+      "title": "Titania",
+      "rareType": "Gold"
+    },
+    "5149": {
+      "title": "BOKUTO",
+      "rareType": "Gold"
+    },
+    "5150": {
+      "title": "立川浄穢捕物帳",
+      "rareType": "Gold"
+    },
+    "5151": {
+      "title": "METEOR",
+      "rareType": "Gold"
+    },
+    "5152": {
+      "title": "LOSER",
+      "rareType": "Gold"
+    },
+    "5153": {
+      "title": "U.S.A.",
+      "rareType": "Gold"
+    },
+    "5154": {
+      "title": "HOT LIMIT",
+      "rareType": "Gold"
+    },
+    "5155": {
+      "title": "新宝島",
+      "rareType": "Gold"
+    },
+    "5156": {
+      "title": "UNION",
+      "rareType": "Gold"
+    },
+    "5157": {
+      "title": "乗ってけ！ジャパリビート",
+      "rareType": "Gold"
+    },
+    "5158": {
+      "title": "フレ！フレ！ベストフレンズ",
+      "rareType": "Gold"
+    },
+    "5159": {
+      "title": "メルト",
+      "rareType": "Gold"
+    },
+    "5160": {
+      "title": "メルティランドナイトメア",
+      "rareType": "Gold"
+    },
+    "5161": {
+      "title": "アウトサイダー",
+      "rareType": "Gold"
+    },
+    "5162": {
+      "title": "アディショナルメモリー",
+      "rareType": "Gold"
+    },
+    "5163": {
+      "title": "ジャガーノート",
+      "rareType": "Gold"
+    },
+    "5164": {
+      "title": "ナイト・オブ・ナイツ (Cranky Remix)",
+      "rareType": "Gold"
+    },
+    "5165": {
+      "title": "Strobe♡Girl",
+      "rareType": "Gold"
+    },
+    "5166": {
+      "title": "Destr0yer",
+      "rareType": "Gold"
+    },
+    "5167": {
+      "title": "グリーンライツ・セレナーデ",
+      "rareType": "Gold"
+    },
+    "5171": {
+      "title": "デンパラダイム",
+      "rareType": "Gold"
+    },
+    "5172": {
+      "title": "骸骨楽団とリリア",
+      "rareType": "Gold"
+    },
+    "5173": {
+      "title": "星屑ユートピア",
+      "rareType": "Gold"
+    },
+    "5174": {
+      "title": "アマツキツネ",
+      "rareType": "Gold"
+    },
+    "5177": {
+      "title": "Little \"Sister\" Bitch",
+      "rareType": "Gold"
+    },
+    "5178": {
+      "title": "Yakumo >>JOINT STRUGGLE (2019 Update)",
+      "rareType": "Gold"
+    },
+    "5179": {
+      "title": "げきオコスティックファイナリアリティぷんぷんマスタースパーク",
+      "rareType": "Gold"
+    },
+    "5180": {
+      "title": "CocktaiL",
+      "rareType": "Gold"
+    },
+    "5181": {
+      "title": "太陽系デスコ",
+      "rareType": "Gold"
+    },
+    "5182": {
+      "title": "だからパンを焼いたんだ",
+      "rareType": "Gold"
+    },
+    "5185": {
+      "title": "アカリがやってきたぞっ",
+      "rareType": "Gold"
+    },
+    "5186": {
+      "title": "プナイプナイせんそう",
+      "rareType": "Gold"
+    },
+    "5188": {
+      "title": "デビル☆アイドル",
+      "rareType": "Gold"
+    },
+    "5189": {
+      "title": "quiet room",
+      "rareType": "Gold"
+    },
+    "5191": {
+      "title": "Jump!! Jump!! Jump!!",
+      "rareType": "Gold"
+    },
+    "5192": {
+      "title": "サンバランド",
+      "rareType": "Gold"
+    },
+    "5193": {
+      "title": "サヨナラチェーンソー",
+      "rareType": "Gold"
+    },
+    "5194": {
+      "title": "イカサマライフゲイム",
+      "rareType": "Gold"
+    },
+    "5195": {
+      "title": "Halcyon",
+      "rareType": "Gold"
+    },
+    "5196": {
+      "title": "だれかの心臓になれたなら",
+      "rareType": "Gold"
+    },
+    "5197": {
+      "title": "幾望の月",
+      "rareType": "Gold"
+    },
+    "5198": {
+      "title": "39みゅーじっく！",
+      "rareType": "Gold"
+    },
+    "5501": {
+      "title": "M.A.I.",
+      "rareType": "Silver"
+    },
+    "5502": {
+      "title": "どっちかの夜は昼間",
+      "rareType": "Bronze"
+    },
+    "5503": {
+      "title": "ナマ足魅惑のmaimaiマー",
+      "rareType": "Normal"
+    },
+    "5504": {
+      "title": "ウオタミ",
+      "rareType": "Silver"
+    },
+    "5505": {
+      "title": "世話の焼けるパートナー",
+      "rareType": "Bronze"
+    },
+    "5506": {
+      "title": "鳴り止まないシンフォニー",
+      "rareType": "Silver"
+    },
+    "5518": {
+      "title": "で！",
+      "rareType": "Normal"
+    },
+    "5519": {
+      "title": "３話切りが怖い",
+      "rareType": "Bronze"
+    },
+    "5524": {
+      "title": "溶けてしまいそう",
+      "rareType": "Silver"
+    },
+    "5525": {
+      "title": "――なんてね♪",
+      "rareType": "Bronze"
+    },
+    "5526": {
+      "title": "友達なんかに、なりたくなかった",
+      "rareType": "Silver"
+    },
+    "5527": {
+      "title": "少年は平穏に暮らしたかった",
+      "rareType": "Silver"
+    },
+    "5528": {
+      "title": "ｶﾞﾀﾝｺﾞﾄﾝ　ｶﾞﾀﾝｺﾞﾄﾝ　ｶﾞﾀﾝｺﾞﾄﾝ　ｶﾞﾀﾝｺﾞﾄﾝﾄﾝ",
+      "rareType": "Bronze"
+    },
+    "5529": {
+      "title": "ミ　ー　テ　ィ　ア　ふ　り　か　け",
+      "rareType": "Silver"
+    },
+    "5530": {
+      "title": "虹色に輝く  マジカルミライへと！",
+      "rareType": "Bronze"
+    },
+    "5531": {
+      "title": "おやすみ世界。",
+      "rareType": "Bronze"
+    },
+    "5532": {
+      "title": "【処理速度が追いついていません】",
+      "rareType": "Bronze"
+    },
+    "5533": {
+      "title": "音を失った国、ひとりの少女の空想楽団",
+      "rareType": "Silver"
+    },
+    "5534": {
+      "title": "夜空に描いた非現実",
+      "rareType": "Gold"
+    },
+    "5535": {
+      "title": "狐の嫁入り",
+      "rareType": "Silver"
+    },
+    "5536": {
+      "title": "おこだよ",
+      "rareType": "Bronze"
+    },
+    "5537": {
+      "title": "★==============Σ(ﾟдﾟ；)",
+      "rareType": "Gold"
+    },
+    "5538": {
+      "title": "-LAST BOSS-",
+      "rareType": "Gold"
+    },
+    "5539": {
+      "title": "エモD",
+      "rareType": "Silver"
+    },
+    "5540": {
+      "title": "宇宙最速の出前",
+      "rareType": "Bronze"
+    },
+    "5541": {
+      "title": "「これから」を奏でていこうよ！！",
+      "rareType": "Bronze"
+    },
+    "5542": {
+      "title": "お求めやすくなって新登場！",
+      "rareType": "Bronze"
+    },
+    "5543": {
+      "title": "MAiTECH NINJA",
+      "rareType": "Gold"
+    },
+    "5544": {
+      "title": "毎時　毎分　♡maimai　LOVE♡",
+      "rareType": "Silver"
+    },
+    "5545": {
+      "title": "じゃじゃーん！",
+      "rareType": "Gold"
+    },
+    "5546": {
+      "title": "天才タイプじゃないから 毎日コツコツ反復してるんだ",
+      "rareType": "Silver"
+    },
+    "5547": {
+      "title": "切って切って切ってぶった切って",
+      "rareType": "Normal"
+    },
+    "6101": {
+      "title": "神",
+      "rareType": "Gold"
+    },
+    "6102": {
+      "title": "舞舞",
+      "rareType": "Gold"
+    },
+    "6103": {
+      "title": "maimai♪ガール♪2012",
+      "rareType": "Gold"
+    },
+    "6104": {
+      "title": "公式maimaiガール 2012",
+      "rareType": "Gold"
+    },
+    "6105": {
+      "title": "美しすぎるmaimaiガール",
+      "rareType": "Gold"
+    },
+    "6106": {
+      "title": "楽しすぎるmaimaiガール",
+      "rareType": "Gold"
+    },
+    "6107": {
+      "title": "おかしすぎるmaimaiガール",
+      "rareType": "Gold"
+    },
+    "6108": {
+      "title": "1st Champion",
+      "rareType": "Gold"
+    },
+    "6109": {
+      "title": "2nd Champion",
+      "rareType": "Gold"
+    },
+    "6110": {
+      "title": "3rd Champion",
+      "rareType": "Gold"
+    },
+    "6111": {
+      "title": "maimai動画殿堂入りプレーヤー",
+      "rareType": "Gold"
+    },
+    "6112": {
+      "title": "人気うｐ主",
+      "rareType": "Gold"
+    },
+    "6113": {
+      "title": "チュウニズムなマイマイマー",
+      "rareType": "Silver"
+    },
+    "6114": {
+      "title": "ロケテストご協力ありがとうございます",
+      "rareType": "Gold"
+    },
+    "6115": {
+      "title": "厨二式古舞術の使い手",
+      "rareType": "Gold"
+    },
+    "6116": {
+      "title": "『オンゲキ』のロケテストに参加したよ！",
+      "rareType": "Silver"
+    },
+    "6117": {
+      "title": "maimaiでらっくすのロケテストに遊びに来たよ！",
+      "rareType": "Bronze"
+    },
+    "6118": {
+      "title": "でらっくすなまいまいまー",
+      "rareType": "Silver"
+    },
+    "6119": {
+      "title": "Thank you for playing!!!!!!!",
+      "rareType": "Normal"
+    },
+    "6120": {
+      "title": "「はじめまして」も、はたまた「久しぶり」も、みんなありがとう",
+      "rareType": "Normal"
+    },
+    "6121": {
+      "title": "偏差値15.00",
+      "rareType": "Normal"
+    },
+    "6122": {
+      "title": "偏差値∞",
+      "rareType": "Normal"
+    },
+    "6123": {
+      "title": "東（京都）大（田区）一のずのー",
+      "rareType": "Normal"
+    },
+    "6124": {
+      "title": "ラテアートの魔術師",
+      "rareType": "Gold"
+    },
+    "6125": {
+      "title": "変幻自在の菓子職人",
+      "rareType": "Gold"
+    },
+    "6126": {
+      "title": "小麦粉の芸術家",
+      "rareType": "Gold"
+    },
+    "6127": {
+      "title": "乙姫チャーンス！",
+      "rareType": "Gold"
+    },
+    "6128": {
+      "title": "全ての女性を美しく…！",
+      "rareType": "Gold"
+    },
+    "6129": {
+      "title": "一日牛乳千本ノックにゃ！",
+      "rareType": "Gold"
+    },
+    "6130": {
+      "title": "三連コンボ！ドーン！",
+      "rareType": "Gold"
+    },
+    "6131": {
+      "title": "いつも待ち椅子で見てるよ。ありがとう。",
+      "rareType": "Gold"
+    },
+    "6132": {
+      "title": "maimaiって楽しいよね！！！！！！！",
+      "rareType": "Gold"
+    },
+    "6133": {
+      "title": "ｸﾞﾙｰﾌﾞｦｶﾝｼﾞﾛ!",
+      "rareType": "Gold"
+    },
+    "6134": {
+      "title": "人気バーチャルマイマイマーになりたい。",
+      "rareType": "Gold"
+    },
+    "6135": {
+      "title": "お前がmaimaiヲタクだ！",
+      "rareType": "Gold"
+    },
+    "6136": {
+      "title": "幻の赤譜面",
+      "rareType": "Gold"
+    },
+    "6137": {
+      "title": "アナタハ maimaiマニア",
+      "rareType": "Gold"
+    },
+    "6138": {
+      "title": "全部-100号のせい",
+      "rareType": "Gold"
+    },
+    "6139": {
+      "title": "【業務外】カンストのご挨拶【ゴールです】",
+      "rareType": "Rainbow"
+    },
+    "6140": {
+      "title": "平成:5都道府県制覇",
+      "rareType": "Bronze"
+    },
+    "6141": {
+      "title": "平成:10都道府県制覇",
+      "rareType": "Bronze"
+    },
+    "6142": {
+      "title": "平成:20都道府県制覇",
+      "rareType": "Silver"
+    },
+    "6143": {
+      "title": "平成:30都道府県制覇",
+      "rareType": "Silver"
+    },
+    "6144": {
+      "title": "平成:40都道府県制覇",
+      "rareType": "Gold"
+    },
+    "6145": {
+      "title": "平成:全国制覇",
+      "rareType": "Rainbow"
+    },
+    "6146": {
+      "title": "第二回 天下一音ゲ祭",
+      "rareType": "Normal"
+    },
+    "6147": {
+      "title": "第二回 天下一音ゲ祭 ファイナリスト",
+      "rareType": "Gold"
+    },
+    "6148": {
+      "title": "第二回 天下一音ゲ祭 チャンピオン",
+      "rareType": "Rainbow"
+    },
+    "6149": {
+      "title": "【速報】100万人目のマイマイマー誕生！【やったぜ☆】",
+      "rareType": "Silver"
+    },
+    "6150": {
+      "title": "「平成二十八年 博麗神社 秋季例大祭」に行ってきました。",
+      "rareType": "Silver"
+    },
+    "6151": {
+      "title": "第三回 天下一音ゲ祭",
+      "rareType": "Normal"
+    },
+    "6152": {
+      "title": "第三回 天下一音ゲ祭 ファイナリスト",
+      "rareType": "Gold"
+    },
+    "6153": {
+      "title": "第三回 天下一音ゲ祭 チャンピオン",
+      "rareType": "Rainbow"
+    },
+    "6154": {
+      "title": "音ゲー界のカリスマ",
+      "rareType": "Gold"
+    },
+    "6155": {
+      "title": "第四回 天下一音ゲ祭 ブロック決勝 チャンピオン",
+      "rareType": "Rainbow"
+    },
+    "6156": {
+      "title": "第五回 天下一音ゲ祭",
+      "rareType": "Normal"
+    },
+    "6157": {
+      "title": "第五回 天下一音ゲ祭 ファイナリスト",
+      "rareType": "Gold"
+    },
+    "6158": {
+      "title": "第五回 天下一音ゲ祭 チャンピオン",
+      "rareType": "Rainbow"
+    },
+    "6159": {
+      "title": "debut",
+      "rareType": "Normal"
+    },
+    "50101": {
+      "title": "あおはるっくま 推し",
+      "rareType": "Silver"
+    },
+    "50102": {
+      "title": "にんじゃっくま 推し",
+      "rareType": "Silver"
+    },
+    "50103": {
+      "title": "どらごっくま 推し",
+      "rareType": "Silver"
+    },
+    "50104": {
+      "title": "えんじぇっくま 推し",
+      "rareType": "Silver"
+    },
+    "50105": {
+      "title": "くろばらっくま 推し",
+      "rareType": "Silver"
+    },
+    "50199": {
+      "title": "ちほーツアーすぺしゃるガイド",
+      "rareType": "Gold"
+    },
+    "50201": {
+      "title": "ピリポ 推し",
+      "rareType": "Silver"
+    },
+    "50202": {
+      "title": "ケファ 推し",
+      "rareType": "Silver"
+    },
+    "50203": {
+      "title": "バルトルメ 推し",
+      "rareType": "Silver"
+    },
+    "50204": {
+      "title": "アンドレアス 推し",
+      "rareType": "Silver"
+    },
+    "50205": {
+      "title": "イーシュ 推し",
+      "rareType": "Silver"
+    },
+    "50399": {
+      "title": "最後の創造主",
+      "rareType": "Gold"
+    },
+    "50401": {
+      "title": "萌木ゆずか 推し",
+      "rareType": "Silver"
+    },
+    "50402": {
+      "title": "萌木ほのか 推し",
+      "rareType": "Silver"
+    },
+    "50403": {
+      "title": "萌木はるか 推し",
+      "rareType": "Silver"
+    },
+    "50404": {
+      "title": "萌木いよか 推し",
+      "rareType": "Silver"
+    },
+    "50405": {
+      "title": "萌木せとか 推し",
+      "rareType": "Silver"
+    },
+    "50599": {
+      "title": "6人目のSF(すこしふしぎ)能力者",
+      "rareType": "Gold"
+    },
+    "50601": {
+      "title": "ブリュンヒルデ 推し",
+      "rareType": "Silver"
+    },
+    "50602": {
+      "title": "ジグニュー 推し",
+      "rareType": "Silver"
+    },
+    "50603": {
+      "title": "ジークルーネ 推し",
+      "rareType": "Silver"
+    },
+    "50604": {
+      "title": "グリムゲルデ 推し",
+      "rareType": "Silver"
+    },
+    "50605": {
+      "title": "シュヴェルトライテ 推し",
+      "rareType": "Silver"
+    },
+    "50606": {
+      "title": "ヴァルトラウテ 推し",
+      "rareType": "Silver"
+    },
+    "50607": {
+      "title": "オーディン 推し",
+      "rareType": "Silver"
+    },
+    "50699": {
+      "title": "ヴァルキュリーを統べる者",
+      "rareType": "Gold"
+    },
+    "50701": {
+      "title": "maimaiちゃん 推し",
+      "rareType": "Silver"
+    },
+    "50702": {
+      "title": "はっぴー 推し",
+      "rareType": "Silver"
+    },
+    "50703": {
+      "title": "カメ 推し",
+      "rareType": "Silver"
+    },
+    "50704": {
+      "title": "タイ 推し",
+      "rareType": "Silver"
+    },
+    "50705": {
+      "title": "エリザビー 推し",
+      "rareType": "Silver"
+    },
+    "50797": {
+      "title": "おしゃま牛乳",
+      "rareType": "Gold"
+    },
+    "50798": {
+      "title": "竜宮茶館",
+      "rareType": "Gold"
+    },
+    "50799": {
+      "title": "caféMiLK",
+      "rareType": "Gold"
+    },
+    "50801": {
+      "title": "ルイ 推し",
+      "rareType": "Silver"
+    },
+    "50802": {
+      "title": "ニック（悪魔憑き） 推し",
+      "rareType": "Silver"
+    },
+    "50803": {
+      "title": "ティノ 推し",
+      "rareType": "Silver"
+    },
+    "50804": {
+      "title": "エレノラ 推し",
+      "rareType": "Silver"
+    },
+    "50999": {
+      "title": "BLACK ROSE2 箱推し",
+      "rareType": "Gold"
+    },
+    "53301": {
+      "title": "星咲 あかり 推し",
+      "rareType": "Silver"
+    },
+    "53302": {
+      "title": "藤沢 柚子 推し",
+      "rareType": "Silver"
+    },
+    "53303": {
+      "title": "三角 葵 推し",
+      "rareType": "Silver"
+    },
+    "53304": {
+      "title": "日向 千夏 推し",
+      "rareType": "Silver"
+    },
+    "53305": {
+      "title": "藍原 椿 推し",
+      "rareType": "Silver"
+    },
+    "53306": {
+      "title": "九條 楓 推し",
+      "rareType": "Silver"
+    },
+    "53399": {
+      "title": "オンゲキ 箱推し",
+      "rareType": "Gold"
+    },
+    "53401": {
+      "title": "グスタフ ハイドリヒ 推し",
+      "rareType": "Silver"
+    },
+    "53402": {
+      "title": "マリア=S=レオンブルク 推し",
+      "rareType": "Silver"
+    },
+    "53403": {
+      "title": "ヴィーナス ポロロッチョ 推し",
+      "rareType": "Silver"
+    },
+    "53404": {
+      "title": "メグメグ 推し",
+      "rareType": "Silver"
+    },
+    "53405": {
+      "title": "Voidoll 推し",
+      "rareType": "Silver"
+    },
+    "53406": {
+      "title": "リリカ 推し",
+      "rareType": "Silver"
+    },
+    "53407": {
+      "title": "ルチアーノ 推し",
+      "rareType": "Silver"
+    },
+    "53408": {
+      "title": "双挽 乃保 推し",
+      "rareType": "Silver"
+    },
+    "53409": {
+      "title": "桜華 忠臣 推し",
+      "rareType": "Silver"
+    },
+    "53499": {
+      "title": "＃コンパス 箱推し",
+      "rareType": "Gold"
+    },
+    "53601": {
+      "title": "カク 推し",
+      "rareType": "Silver"
+    },
+    "53602": {
+      "title": "イムラ 推し",
+      "rareType": "Silver"
+    },
+    "53603": {
+      "title": "ミツイ 推し",
+      "rareType": "Silver"
+    },
+    "53604": {
+      "title": "クロヌマ 推し",
+      "rareType": "Silver"
+    },
+    "53605": {
+      "title": "ツチダ 推し",
+      "rareType": "Silver"
+    },
+    "53699": {
+      "title": "ポンコツクエスト 箱推し",
+      "rareType": "Gold"
+    },
+    "53701": {
+      "title": "DIVA 初音ミク/スクール 推し",
+      "rareType": "Silver"
+    },
+    "53702": {
+      "title": "DIVA 初音ミク/マジシャン 推し",
+      "rareType": "Silver"
+    },
+    "53703": {
+      "title": "DIVA 初音ミク/リボンガール 推し",
+      "rareType": "Silver"
+    },
+    "53704": {
+      "title": "DIVA 初音ミク/クリスマス 推し",
+      "rareType": "Silver"
+    },
+    "53705": {
+      "title": "DIVA 初音ミク/∞ 推し",
+      "rareType": "Silver"
+    },
+    "53799": {
+      "title": "Project DIVA2 箱推し",
+      "rareType": "Gold"
+    },
+    "53901": {
+      "title": "霧雨魔理沙 すき",
+      "rareType": "Silver"
+    },
+    "53902": {
+      "title": "鈴仙優曇華院イナバ 推し",
+      "rareType": "Silver"
+    },
+    "53903": {
+      "title": "洩矢諏訪子 推し",
+      "rareType": "Silver"
+    },
+    "53904": {
+      "title": "藤原妹紅 すき",
+      "rareType": "Silver"
+    },
+    "53905": {
+      "title": "火焔猫燐 推し",
+      "rareType": "Silver"
+    },
+    "53999": {
+      "title": "東方Project×アトレ秋葉原 箱推し",
+      "rareType": "Gold"
+    },
+    "55101": {
+      "title": "STEEL TRANSONIC",
+      "rareType": "Gold"
+    },
+    "55102": {
+      "title": "Flashkick",
+      "rareType": "Gold"
+    },
+    "55103": {
+      "title": "Stardust Memories",
+      "rareType": "Gold"
+    },
+    "55104": {
+      "title": "My My My",
+      "rareType": "Gold"
+    },
+    "55105": {
+      "title": "UniTas",
+      "rareType": "Gold"
+    },
+    "55106": {
+      "title": "ここからはじまるプロローグ。",
+      "rareType": "Gold"
+    },
+    "55107": {
+      "title": "絡めトリック利己ライザー",
+      "rareType": "Gold"
+    },
+    "55108": {
+      "title": "モ°ルモ°ル",
+      "rareType": "Gold"
+    },
+    "55109": {
+      "title": "ブレインジャックシンドローム",
+      "rareType": "Gold"
+    },
+    "55110": {
+      "title": "共鳴",
+      "rareType": "Gold"
+    },
+    "55111": {
+      "title": "Ututu",
+      "rareType": "Gold"
+    },
+    "55112": {
+      "title": "シエルブルーマルシェ",
+      "rareType": "Gold"
+    },
+    "55113": {
+      "title": "GRÄNDIR",
+      "rareType": "Gold"
+    },
+    "55114": {
+      "title": "封焔の135秒",
+      "rareType": "Gold"
+    },
+    "55115": {
+      "title": "渦状銀河のシンフォニエッタ",
+      "rareType": "Gold"
+    },
+    "55116": {
+      "title": "ヤミツキ",
+      "rareType": "Gold"
+    },
+    "55117": {
+      "title": "ワードワードワード",
+      "rareType": "Gold"
+    },
+    "55118": {
+      "title": "Valsqotch",
+      "rareType": "Gold"
+    },
+    "55119": {
+      "title": "最強 the サマータイム!!!!!",
+      "rareType": "Gold"
+    },
+    "55120": {
+      "title": "UTAKATA",
+      "rareType": "Gold"
+    },
+    "55121": {
+      "title": "タテマエと本心の大乱闘",
+      "rareType": "Gold"
+    },
+    "55122": {
+      "title": "はちみつアドベンチャー",
+      "rareType": "Gold"
+    },
+    "55123": {
+      "title": "popcorn",
+      "rareType": "Gold"
+    },
+    "55124": {
+      "title": "ハム太郎とっとこうた",
+      "rareType": "Gold"
+    },
+    "55125": {
+      "title": "青空のラプソディ",
+      "rareType": "Gold"
+    },
+    "55126": {
+      "title": "だから僕は音楽を辞めた",
+      "rareType": "Gold"
+    },
+    "55127": {
+      "title": "ラブ・ドラマティック feat. 伊原六花",
+      "rareType": "Gold"
+    },
+    "55129": {
+      "title": "いつかいい感じにアレしよう",
+      "rareType": "Gold"
+    },
+    "55132": {
+      "title": "ビターチョコデコレーション",
+      "rareType": "Gold"
+    },
+    "55133": {
+      "title": "アンドロイドガール",
+      "rareType": "Gold"
+    },
+    "55134": {
+      "title": "スターリースカイ☆パレード",
+      "rareType": "Gold"
+    },
+    "55135": {
+      "title": "スロウダウナー",
+      "rareType": "Gold"
+    },
+    "55136": {
+      "title": "クレイジー・ビート",
+      "rareType": "Gold"
+    },
+    "55137": {
+      "title": "バイオレンストリガー",
+      "rareType": "Gold"
+    },
+    "55138": {
+      "title": "グラーヴェ",
+      "rareType": "Gold"
+    },
+    "55139": {
+      "title": "KILLER B",
+      "rareType": "Gold"
+    },
+    "55140": {
+      "title": "CHOCOLATE BOMB!!!!",
+      "rareType": "Gold"
+    },
+    "55141": {
+      "title": "すーぱーぬこになれんかった",
+      "rareType": "Gold"
+    },
+    "55142": {
+      "title": "アスヘノBRAVE",
+      "rareType": "Gold"
+    },
+    "55143": {
+      "title": "深海シティアンダーグラウンド",
+      "rareType": "Gold"
+    },
+    "55144": {
+      "title": "表裏一体",
+      "rareType": "Gold"
+    },
+    "55145": {
+      "title": "Catch the Wave",
+      "rareType": "Gold"
+    },
+    "55146": {
+      "title": "ソリッド",
+      "rareType": "Gold"
+    },
+    "55147": {
+      "title": "全力ハッピーライフ",
+      "rareType": "Gold"
+    },
+    "55148": {
+      "title": "Oath Act",
+      "rareType": "Gold"
+    },
+    "55149": {
+      "title": "Witches night",
+      "rareType": "Gold"
+    },
+    "55150": {
+      "title": "Drive Your Fire",
+      "rareType": "Gold"
+    },
+    "55151": {
+      "title": "wheel",
+      "rareType": "Gold"
+    },
+    "55152": {
+      "title": "Black Lair",
+      "rareType": "Gold"
+    },
+    "55153": {
+      "title": "energy trixxx",
+      "rareType": "Gold"
+    },
+    "55154": {
+      "title": "NULCTRL",
+      "rareType": "Gold"
+    },
+    "55155": {
+      "title": "アトロポスと最果の探究者",
+      "rareType": "Gold"
+    },
+    "55156": {
+      "title": "六厘歌",
+      "rareType": "Gold"
+    },
+    "55158": {
+      "title": "Lunar Mare",
+      "rareType": "Gold"
+    },
+    "55159": {
+      "title": "Saika",
+      "rareType": "Gold"
+    },
+    "55160": {
+      "title": "CHAOS",
+      "rareType": "Gold"
+    },
+    "55161": {
+      "title": "Maboroshi",
+      "rareType": "Gold"
+    },
+    "55162": {
+      "title": "ウマイネームイズうまみちゃん",
+      "rareType": "Gold"
+    },
+    "55163": {
+      "title": "馬と鹿",
+      "rareType": "Gold"
+    },
+    "55164": {
+      "title": "コネクト",
+      "rareType": "Gold"
+    },
+    "55166": {
+      "title": "君の知らない物語",
+      "rareType": "Gold"
+    },
+    "55167": {
+      "title": "Bad Apple!! feat.nomico (REDALiCE Remix)",
+      "rareType": "Gold"
+    },
+    "55501": {
+      "title": "師匠の弟子",
+      "rareType": "Silver"
+    },
+    "55502": {
+      "title": "あ",
+      "rareType": "Gold"
+    },
+    "55503": {
+      "title": "マ°イマ°イ",
+      "rareType": "Gold"
+    },
+    "55504": {
+      "title": "我々は山本真央樹ではない",
+      "rareType": "Normal"
+    },
+    "55505": {
+      "title": "ずっと夏!!!!!",
+      "rareType": "Normal"
+    },
+    "55506": {
+      "title": "いざ、推して参ります",
+      "rareType": "Silver"
+    },
+    "55507": {
+      "title": "ふふ、構って欲しいの？",
+      "rareType": "Silver"
+    },
+    "55508": {
+      "title": "あわせっち",
+      "rareType": "Gold"
+    },
+    "55509": {
+      "title": "パーへくち",
+      "rareType": "Gold"
+    },
+    "55510": {
+      "title": "へけっ",
+      "rareType": "Bronze"
+    },
+    "55511": {
+      "title": "今日はとっても楽しかったね。明日はも～っと楽しくなるよね。ねっハム太郎♪",
+      "rareType": "Bronze"
+    },
+    "55512": {
+      "title": "マジやばくね",
+      "rareType": "Silver"
+    },
+    "55513": {
+      "title": "チョロゴン",
+      "rareType": "Normal"
+    },
+    "55514": {
+      "title": "だけど僕はmaimaiでらっくすを始めた",
+      "rareType": "Normal"
+    },
+    "55515": {
+      "title": "平成最後の大型新人",
+      "rareType": "Gold"
+    },
+    "55516": {
+      "title": "お可愛いこと…",
+      "rareType": "Normal"
+    },
+    "55518": {
+      "title": "つってんだー",
+      "rareType": "Normal"
+    },
+    "55519": {
+      "title": "おじいさんだから分かんない",
+      "rareType": "Normal"
+    },
+    "55520": {
+      "title": "ドルファヘキセンダー",
+      "rareType": "Bronze"
+    },
+    "55524": {
+      "title": "奇跡も、魔法も、あるんだよ",
+      "rareType": "Silver"
+    },
+    "55525": {
+      "title": "ワケガワカラナイヨ",
+      "rareType": "Gold"
+    },
+    "55526": {
+      "title": "あたしって、ほんとバカ",
+      "rareType": "Normal"
+    },
+    "55527": {
+      "title": "もう何も怖くない",
+      "rareType": "Bronze"
+    },
+    "55528": {
+      "title": "君は、本当に神になるつもりかい！？",
+      "rareType": "Gold"
+    },
+    "55533": {
+      "title": "ぱないの！",
+      "rareType": "Silver"
+    },
+    "55534": {
+      "title": "「MASTER FULLSYNC」僕はキメ顔でそう言った。",
+      "rareType": "Silver"
+    },
+    "55535": {
+      "title": "「構ってもっと　足りないの」",
+      "rareType": "Bronze"
+    },
+    "55536": {
+      "title": "ベイビー まるでチェリーパイね？",
+      "rareType": "Silver"
+    },
+    "55537": {
+      "title": "デンジャラス ハイテンション",
+      "rareType": "Silver"
+    },
+    "55538": {
+      "title": "禁忌の代償",
+      "rareType": "Silver"
+    },
+    "55539": {
+      "title": "もう我慢できないわ",
+      "rareType": "Silver"
+    },
+    "55540": {
+      "title": "ヾ(*ΦωΦ)ﾉ",
+      "rareType": "Normal"
+    },
+    "55541": {
+      "title": "☆(･ω･ﾉﾉﾞ☆(･ω･ﾉﾉﾞ☆",
+      "rareType": "Silver"
+    },
+    "55542": {
+      "title": "ソウルメイト",
+      "rareType": "Silver"
+    },
+    "55543": {
+      "title": "マリアナ海溝よりお届けします。",
+      "rareType": "Normal"
+    },
+    "55544": {
+      "title": "僕らの未来 震わせよう",
+      "rareType": "Bronze"
+    },
+    "55545": {
+      "title": "もし変われるのなら白になる",
+      "rareType": "Silver"
+    },
+    "55546": {
+      "title": "計算違い",
+      "rareType": "Normal"
+    },
+    "55547": {
+      "title": "せーので一緒にハッピーライフ！",
+      "rareType": "Gold"
+    },
+    "55548": {
+      "title": "Native God's My Oath",
+      "rareType": "Gold"
+    },
+    "55549": {
+      "title": "魔法の合言葉 ビルラ",
+      "rareType": "Silver"
+    },
+    "55550": {
+      "title": "不滅の砲撃",
+      "rareType": "Silver"
+    },
+    "55551": {
+      "title": "まいまいまいまいでらっくすを廻して",
+      "rareType": "Gold"
+    },
+    "55552": {
+      "title": "つけめんを文化に",
+      "rareType": "Normal"
+    },
+    "55553": {
+      "title": "がむしゃらなままもがき続ける俺たちはマイマイマー",
+      "rareType": "Gold"
+    },
+    "55554": {
+      "title": "Can you hear me?",
+      "rareType": "Gold"
+    },
+    "55555": {
+      "title": "うまいまい",
+      "rareType": "Gold"
+    },
+    "55556": {
+      "title": "ありがとうベリーマッチ",
+      "rareType": "Bronze"
+    },
+    "55557": {
+      "title": "う魔い法!!",
+      "rareType": "Silver"
+    },
+    "55558": {
+      "title": "うまい棒で解決デス！",
+      "rareType": "Silver"
+    },
+    "55559": {
+      "title": "上手い棒",
+      "rareType": "Gold"
+    },
+    "55560": {
+      "title": "やさいサラダ味",
+      "rareType": "Normal"
+    },
+    "55561": {
+      "title": "コーンポタージュ味",
+      "rareType": "Normal"
+    },
+    "55562": {
+      "title": "たこやき味",
+      "rareType": "Bronze"
+    },
+    "55563": {
+      "title": "めんたい味",
+      "rareType": "Bronze"
+    },
+    "55564": {
+      "title": "シュガーラスク味",
+      "rareType": "Silver"
+    },
+    "100012": {
+      "title": "评级1000 达成！ 2021",
+      "rareType": "Normal"
+    },
+    "100013": {
+      "title": "评级2000 达成！ 2021",
+      "rareType": "Normal"
+    },
+    "100014": {
+      "title": "评级3000 达成！ 2021",
+      "rareType": "Normal"
+    },
+    "100015": {
+      "title": "评级4000 达成！ 2021",
+      "rareType": "Normal"
+    },
+    "100016": {
+      "title": "评级5000 达成！ 2021",
+      "rareType": "Normal"
+    },
+    "100017": {
+      "title": "评级6000 达成！ 2021",
+      "rareType": "Bronze"
+    },
+    "100018": {
+      "title": "评级7000 达成！ 2021",
+      "rareType": "Silver"
+    },
+    "100019": {
+      "title": "评级8000 达成！ 2021",
+      "rareType": "Gold"
+    },
+    "100020": {
+      "title": "彩虹评级熊！ 2021",
+      "rareType": "Rainbow"
+    },
+    "100021": {
+      "title": "评级9000 达成！ 2021",
+      "rareType": "Rainbow"
+    },
+    "100022": {
+      "title": "评级9500 达成！ 2021",
+      "rareType": "Rainbow"
+    },
+    "100023": {
+      "title": "评级10000 达成！ 2021",
+      "rareType": "Rainbow"
+    },
+    "100024": {
+      "title": "白帯 2021",
+      "rareType": "Bronze"
+    },
+    "100025": {
+      "title": "黒帯 2021",
+      "rareType": "Bronze"
+    },
+    "100026": {
+      "title": "紅白帯 2021",
+      "rareType": "Silver"
+    },
+    "100027": {
+      "title": "紅帯 2021",
+      "rareType": "Gold"
+    },
+    "100028": {
+      "title": "免許皆伝 2021",
+      "rareType": "Gold"
+    },
+    "100041": {
+      "title": "很高兴能和☆您☆拼机！ ​",
+      "rareType": "Gold"
+    },
+    "100101": {
+      "title": "らいむっくま 推し",
+      "rareType": "Silver"
+    },
+    "100102": {
+      "title": "れもんっくま 推し",
+      "rareType": "Silver"
+    },
+    "100103": {
+      "title": "でらっくま すき",
+      "rareType": "Silver"
+    },
+    "100104": {
+      "title": "らん 推し",
+      "rareType": "Silver"
+    },
+    "100105": {
+      "title": "どりー 推し",
+      "rareType": "Silver"
+    },
+    "100199": {
+      "title": "ぼくたちといっしょに　しゅわっしゅわ！",
+      "rareType": "Gold"
+    },
+    "100301": {
+      "title": "壱王 推し",
+      "rareType": "Silver"
+    },
+    "100302": {
+      "title": "仁王 推し",
+      "rareType": "Silver"
+    },
+    "100303": {
+      "title": "雷天 推し",
+      "rareType": "Silver"
+    },
+    "100304": {
+      "title": "焔天 推し",
+      "rareType": "Silver"
+    },
+    "100305": {
+      "title": "黒姫 すき",
+      "rareType": "Silver"
+    },
+    "100399": {
+      "title": "ラプラスの悪魔",
+      "rareType": "Gold"
+    },
+    "100401": {
+      "title": "モモ 推し",
+      "rareType": "Silver"
+    },
+    "100402": {
+      "title": "アカツキ 推し",
+      "rareType": "Silver"
+    },
+    "100403": {
+      "title": "ナノハ 推し",
+      "rareType": "Silver"
+    },
+    "100404": {
+      "title": "ソウ 推し",
+      "rareType": "Silver"
+    },
+    "100405": {
+      "title": "ノア 推し",
+      "rareType": "Silver"
+    },
+    "100499": {
+      "title": "蝶のはばたきを追う者",
+      "rareType": "Gold"
+    },
+    "100501": {
+      "title": "百合咲ミカ すき",
+      "rareType": "Silver"
+    },
+    "100502": {
+      "title": "八剱月アルマ 推し",
+      "rareType": "Silver"
+    },
+    "100503": {
+      "title": "白銅寺アズリ すき",
+      "rareType": "Silver"
+    },
+    "100504": {
+      "title": "白法院ラグ 推し",
+      "rareType": "Silver"
+    },
+    "100505": {
+      "title": "八剱月アルマ（堕天） 推し",
+      "rareType": "Silver"
+    },
+    "100599": {
+      "title": "過ぎし日の定点観測者",
+      "rareType": "Gold"
+    },
+    "100601": {
+      "title": "ロー 推し",
+      "rareType": "Silver"
+    },
+    "100602": {
+      "title": "マリー 推し",
+      "rareType": "Silver"
+    },
+    "100603": {
+      "title": "ハンナ 推し",
+      "rareType": "Silver"
+    },
+    "100604": {
+      "title": "トリスタン 推し",
+      "rareType": "Silver"
+    },
+    "100605": {
+      "title": "クレメンス（悪魔） 推し",
+      "rareType": "Silver"
+    },
+    "100699": {
+      "title": "失踪事件の目撃者",
+      "rareType": "Gold"
+    },
+    "105301": {
+      "title": "アンドロメダ子 推し",
+      "rareType": "Silver"
+    },
+    "105302": {
+      "title": "アンドロメダ男 推し",
+      "rareType": "Silver"
+    },
+    "105303": {
+      "title": "チビキャラA 推し",
+      "rareType": "Silver"
+    },
+    "105304": {
+      "title": "チビキャラB 推し",
+      "rareType": "Silver"
+    },
+    "105305": {
+      "title": "チビキャラC 推し",
+      "rareType": "Silver"
+    },
+    "105306": {
+      "title": "チビキャラD 推し",
+      "rareType": "Silver"
+    },
+    "105399": {
+      "title": "ナユタン星人 箱推し",
+      "rareType": "Gold"
+    },
+    "105401": {
+      "title": "琴葉　葵 チョコミント（Ice!） 推し",
+      "rareType": "Silver"
+    },
+    "105402": {
+      "title": "琴葉　葵 チョコミント（慈悲） 推し",
+      "rareType": "Silver"
+    },
+    "105403": {
+      "title": "琴葉　茜 チョコミント（？） 推し",
+      "rareType": "Silver"
+    },
+    "105404": {
+      "title": "琴葉　茜 チョコミント（おかわりや） 推し",
+      "rareType": "Silver"
+    },
+    "105405": {
+      "title": "チョコミン党 推し",
+      "rareType": "Silver"
+    },
+    "105499": {
+      "title": "GYARI2 箱推し",
+      "rareType": "Gold"
+    },
+    "105501": {
+      "title": "アリス・マーガトロイド 推し",
+      "rareType": "Silver"
+    },
+    "105502": {
+      "title": "霧雨魔理沙 ガチ勢",
+      "rareType": "Silver"
+    },
+    "105503": {
+      "title": "チルノ 推し",
+      "rareType": "Silver"
+    },
+    "105504": {
+      "title": "博麗霊夢 すき",
+      "rareType": "Silver"
+    },
+    "105505": {
+      "title": "射命丸文 推し",
+      "rareType": "Silver"
+    },
+    "105599": {
+      "title": "東方Projectリバイバル 箱推し",
+      "rareType": "Gold"
+    },
+    "105601": {
+      "title": "光／サマー 推し",
+      "rareType": "Silver"
+    },
+    "105602": {
+      "title": "対立／サマー 推し",
+      "rareType": "Silver"
+    },
+    "105603": {
+      "title": "サヤ 推し",
+      "rareType": "Silver"
+    },
+    "105604": {
+      "title": "叶永 推し",
+      "rareType": "Silver"
+    },
+    "105605": {
+      "title": "エト 推し",
+      "rareType": "Silver"
+    },
+    "105606": {
+      "title": "ルナ 推し",
+      "rareType": "Silver"
+    },
+    "105607": {
+      "title": "紅 推し",
+      "rareType": "Silver"
+    },
+    "105608": {
+      "title": "レーテー 推し",
+      "rareType": "Silver"
+    },
+    "105699": {
+      "title": "Arcaea 箱推し",
+      "rareType": "Gold"
+    },
+    "105701": {
+      "title": "v flower/ベノム 推し",
+      "rareType": "Silver"
+    },
+    "105702": {
+      "title": "GUMI/マネマネサイコトロピック 推し",
+      "rareType": "Silver"
+    },
+    "105703": {
+      "title": "魔法少女リリカ/アルカリレットウセイ 推し",
+      "rareType": "Silver"
+    },
+    "105704": {
+      "title": "かいりきベア 推し",
+      "rareType": "Silver"
+    },
+    "105705": {
+      "title": "宍戸 美鈴 推し",
+      "rareType": "Silver"
+    },
+    "105799": {
+      "title": "かいりきベア 箱推し",
+      "rareType": "Gold"
+    },
+    "105901": {
+      "title": "える 推し",
+      "rareType": "Silver"
+    },
+    "105902": {
+      "title": "シスター・クレア 推し",
+      "rareType": "Silver"
+    },
+    "105903": {
+      "title": "ジョー・力一 推し",
+      "rareType": "Silver"
+    },
+    "105904": {
+      "title": "ドーラ 推し",
+      "rareType": "Silver"
+    },
+    "105905": {
+      "title": "月ノ美兎 推し",
+      "rareType": "Silver"
+    },
+    "105906": {
+      "title": "剣持刀也 推し",
+      "rareType": "Silver"
+    },
+    "105907": {
+      "title": "森中花咲 推し",
+      "rareType": "Silver"
+    },
+    "105908": {
+      "title": "静凛 推し",
+      "rareType": "Silver"
+    },
+    "105909": {
+      "title": "鷹宮リオン 推し",
+      "rareType": "Silver"
+    },
+    "105910": {
+      "title": "樋口楓 推し",
+      "rareType": "Silver"
+    },
+    "105911": {
+      "title": "本間ひまわり 推し",
+      "rareType": "Silver"
+    },
+    "105912": {
+      "title": "緑仙 推し",
+      "rareType": "Silver"
+    },
+    "105999": {
+      "title": "にじさんじ 箱推し",
+      "rareType": "Gold"
+    },
+    "106001": {
+      "title": "踊っているくまのイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106002": {
+      "title": "踊っているいぬのイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106003": {
+      "title": "踊っているねこのイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106004": {
+      "title": "踊っているうさぎのイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106005": {
+      "title": "元気な男性のイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106006": {
+      "title": "元気な女性のイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106007": {
+      "title": "ドラム式洗濯機のイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106008": {
+      "title": "コウテイペンギンのイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106009": {
+      "title": "コウテイペンギンのヒナのイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106010": {
+      "title": "バナナボートに乗る人たちのイラスト 推し",
+      "rareType": "Silver"
+    },
+    "106099": {
+      "title": "いらすとや 箱推し",
+      "rareType": "Gold"
+    },
+    "106101": {
+      "title": "柏木 美亜 推し",
+      "rareType": "Silver"
+    },
+    "106102": {
+      "title": "東雲 つむぎ 推し",
+      "rareType": "Silver"
+    },
+    "106103": {
+      "title": "高瀬 梨緒 推し",
+      "rareType": "Silver"
+    },
+    "106104": {
+      "title": "逢坂 茜 推し",
+      "rareType": "Silver"
+    },
+    "106105": {
+      "title": "珠洲島 有栖 推し",
+      "rareType": "Silver"
+    },
+    "106199": {
+      "title": "オンゲキ2 箱推し",
+      "rareType": "Gold"
+    },
+    "108101": {
+      "title": "ぼくたちいつでも　しゅわっしゅわ！",
+      "rareType": "Gold"
+    },
+    "108102": {
+      "title": "Boys O’Clock",
+      "rareType": "Gold"
+    },
+    "108103": {
+      "title": "居並ぶ穀物と溜息まじりの運送屋",
+      "rareType": "Gold"
+    },
+    "108104": {
+      "title": "ARAIS",
+      "rareType": "Gold"
+    },
+    "108106": {
+      "title": "Aetheric Energy",
+      "rareType": "Gold"
+    },
+    "108107": {
+      "title": "Komplexe",
+      "rareType": "Gold"
+    },
+    "108108": {
+      "title": "Beautiful Future",
+      "rareType": "Gold"
+    },
+    "108109": {
+      "title": "Mutation",
+      "rareType": "Gold"
+    },
+    "108110": {
+      "title": "オリフィス",
+      "rareType": "Gold"
+    },
+    "108111": {
+      "title": "ユメヒバナ",
+      "rareType": "Gold"
+    },
+    "108112": {
+      "title": "REAL VOICE",
+      "rareType": "Gold"
+    },
+    "108113": {
+      "title": "パラボラ",
+      "rareType": "Gold"
+    },
+    "108114": {
+      "title": "Regulus",
+      "rareType": "Gold"
+    },
+    "108115": {
+      "title": "ワンダーシャッフェンの法則",
+      "rareType": "Gold"
+    },
+    "108116": {
+      "title": "BIRTH",
+      "rareType": "Gold"
+    },
+    "108117": {
+      "title": "シアトリカル・ケース",
+      "rareType": "Gold"
+    },
+    "108118": {
+      "title": "YURUSHITE",
+      "rareType": "Gold"
+    },
+    "108119": {
+      "title": "ポケットからぬりつぶせ！",
+      "rareType": "Gold"
+    },
+    "108120": {
+      "title": "トリドリ⇒モリモリ！Lovely fruits☆",
+      "rareType": "Gold"
+    },
+    "108121": {
+      "title": "Desperado Waltz",
+      "rareType": "Gold"
+    },
+    "108122": {
+      "title": "宛城、炎上！！",
+      "rareType": "Gold"
+    },
+    "108123": {
+      "title": "Climax",
+      "rareType": "Gold"
+    },
+    "108124": {
+      "title": "レーイレーイ",
+      "rareType": "Gold"
+    },
+    "108125": {
+      "title": "ノーポイッ!",
+      "rareType": "Gold"
+    },
+    "108126": {
+      "title": "町かどタンジェント",
+      "rareType": "Gold"
+    },
+    "108127": {
+      "title": "紅蓮華",
+      "rareType": "Gold"
+    },
+    "108130": {
+      "title": "Virtual to LIVE",
+      "rareType": "Gold"
+    },
+    "108131": {
+      "title": "命に嫌われている",
+      "rareType": "Gold"
+    },
+    "108132": {
+      "title": "アンクローズ・ヒューマン",
+      "rareType": "Gold"
+    },
+    "108133": {
+      "title": "乙女解剖",
+      "rareType": "Gold"
+    },
+    "108134": {
+      "title": "絶え間なく藍色",
+      "rareType": "Gold"
+    },
+    "108135": {
+      "title": "ガランド",
+      "rareType": "Gold"
+    },
+    "108136": {
+      "title": "とりあえずアナタがいなくなるまえに",
+      "rareType": "Gold"
+    },
+    "108137": {
+      "title": "明星ギャラクティカ",
+      "rareType": "Gold"
+    },
+    "108138": {
+      "title": "絶対にチョコミントを食べるアオイチャン",
+      "rareType": "Gold"
+    },
+    "108139": {
+      "title": "デリヘル呼んだら君が来た",
+      "rareType": "Gold"
+    },
+    "108140": {
+      "title": "ベノム",
+      "rareType": "Gold"
+    },
+    "108141": {
+      "title": "マネマネサイコトロピック",
+      "rareType": "Gold"
+    },
+    "108143": {
+      "title": "アスノヨゾラ哨戒班",
+      "rareType": "Gold"
+    },
+    "108144": {
+      "title": "悪戯センセーション",
+      "rareType": "Gold"
+    },
+    "108145": {
+      "title": "Paranoia",
+      "rareType": "Gold"
+    },
+    "108146": {
+      "title": "絡繰りドール",
+      "rareType": "Gold"
+    },
+    "108147": {
+      "title": "物凄いヴァイブスで魔理沙が物凄いラップ",
+      "rareType": "Gold"
+    },
+    "108148": {
+      "title": "Sweet Requiem",
+      "rareType": "Gold"
+    },
+    "108149": {
+      "title": "Dive into The Sky ～initialized～",
+      "rareType": "Gold"
+    },
+    "108150": {
+      "title": "BATTLE NO.1",
+      "rareType": "Gold"
+    },
+    "108151": {
+      "title": "Ether Strike",
+      "rareType": "Gold"
+    },
+    "108152": {
+      "title": "Cyaegha",
+      "rareType": "Gold"
+    },
+    "108153": {
+      "title": "Grievous Lady",
+      "rareType": "Gold"
+    },
+    "108154": {
+      "title": "c.s.q.n.",
+      "rareType": "Gold"
+    },
+    "108155": {
+      "title": "カラッポ・ノンフィクション",
+      "rareType": "Gold"
+    },
+    "108156": {
+      "title": "emomomo",
+      "rareType": "Gold"
+    },
+    "108157": {
+      "title": "Arty Party",
+      "rareType": "Gold"
+    },
+    "108158": {
+      "title": "Jörqer",
+      "rareType": "Gold"
+    },
+    "108159": {
+      "title": "Sqlupp (Camellia's \"Sqleipd*Hiytex\" Remix)",
+      "rareType": "Gold"
+    },
+    "108160": {
+      "title": "felys -final remix-",
+      "rareType": "Gold"
+    },
+    "108161": {
+      "title": "Pretender",
+      "rareType": "Gold"
+    },
+    "108163": {
+      "title": "Prismatic",
+      "rareType": "Gold"
+    },
+    "108165": {
+      "title": "≠彡\"/了→",
+      "rareType": "Gold"
+    },
+    "108166": {
+      "title": "天ノ弱",
+      "rareType": "Gold"
+    },
+    "108168": {
+      "title": "ダンスロボットダンス",
+      "rareType": "Gold"
+    },
+    "108169": {
+      "title": "BREaK! BREaK! BREaK!",
+      "rareType": "Gold"
+    },
+    "108501": {
+      "title": "ちゃんとリズムとれるもん！",
+      "rareType": "Normal"
+    },
+    "108504": {
+      "title": "pvq",
+      "rareType": "Normal"
+    },
+    "108505": {
+      "title": "owl＊PERFECT",
+      "rareType": "Gold"
+    },
+    "108506": {
+      "title": "YURUSARENAI",
+      "rareType": "Normal"
+    },
+    "108507": {
+      "title": "にゃっふっふっふ～～～",
+      "rareType": "Bronze"
+    },
+    "108508": {
+      "title": "負けませんから",
+      "rareType": "Normal"
+    },
+    "108509": {
+      "title": "敵襲ーーーー！！！！！",
+      "rareType": "Normal"
+    },
+    "108510": {
+      "title": "死ぬ！死ぬ！死ぬ！死ぬ！死ぬ！死ぬ！無理！無理！無理！無理！無理！無理！我が命もここまでか～～～！！",
+      "rareType": "Normal"
+    },
+    "108511": {
+      "title": "マ？マ？マ？マ？",
+      "rareType": "Normal"
+    },
+    "108512": {
+      "title": "「……そろそろお別れみたい」",
+      "rareType": "Silver"
+    },
+    "108513": {
+      "title": "シャミ子が悪いんだよ",
+      "rareType": "Normal"
+    },
+    "108514": {
+      "title": "ヒノカミ神楽　円舞",
+      "rareType": "Bronze"
+    },
+    "108520": {
+      "title": "我にじさんじぞ？",
+      "rareType": "Normal"
+    },
+    "108521": {
+      "title": "だ　い　さ　ん　じ",
+      "rareType": "Normal"
+    },
+    "108522": {
+      "title": "どうしようもなく今を生きている",
+      "rareType": "Normal"
+    },
+    "108523": {
+      "title": "わたくしで隠さなきゃ",
+      "rareType": "Normal"
+    },
+    "108525": {
+      "title": "ノーツに嫌われている。",
+      "rareType": "Normal"
+    },
+    "108526": {
+      "title": "敬愛。",
+      "rareType": "Normal"
+    },
+    "108527": {
+      "title": "絶え間なく黄色",
+      "rareType": "Bronze"
+    },
+    "108528": {
+      "title": "ボビデバビデンベッデボン",
+      "rareType": "Normal"
+    },
+    "108529": {
+      "title": "とりあえず譜面がいなくなるまえに",
+      "rareType": "Bronze"
+    },
+    "108530": {
+      "title": "パッパッパーヤ パッパパパーヤ",
+      "rareType": "Silver"
+    },
+    "108531": {
+      "title": "溢れる感動で言葉も出んか",
+      "rareType": "Normal"
+    },
+    "108532": {
+      "title": "あなたの好みの譜面になって帰ってきました",
+      "rareType": "Bronze"
+    },
+    "108533": {
+      "title": "デリバリーヘルプ",
+      "rareType": "Normal"
+    },
+    "108534": {
+      "title": "叫べベベノム",
+      "rareType": "Normal"
+    },
+    "108535": {
+      "title": "「ああ…　自分がもう一人いればいいのにな…」",
+      "rareType": "Bronze"
+    },
+    "108537": {
+      "title": "あなたに共鳴して止まないの！",
+      "rareType": "Silver"
+    },
+    "108538": {
+      "title": "天国とは、地獄の一種だ。",
+      "rareType": "Bronze"
+    },
+    "108539": {
+      "title": "そもそも、何かですらなかった。",
+      "rareType": "Bronze"
+    },
+    "108540": {
+      "title": "時は流れた。彼女は変わった。",
+      "rareType": "Bronze"
+    },
+    "108541": {
+      "title": "PURE MEMORY",
+      "rareType": "Gold"
+    },
+    "108542": {
+      "title": "research feeling",
+      "rareType": "Bronze"
+    },
+    "108543": {
+      "title": "ハッとなって きゅっとして ドッカーン！",
+      "rareType": "Normal"
+    },
+    "108544": {
+      "title": "夢枕にご先祖総立ち",
+      "rareType": "Normal"
+    },
+    "108545": {
+      "title": "The dolls invade me",
+      "rareType": "Normal"
+    },
+    "108546": {
+      "title": "I'm a RapStar",
+      "rareType": "Normal"
+    },
+    "108547": {
+      "title": "世界はプリズマティック",
+      "rareType": "Normal"
+    },
+    "109085": {
+      "title": "Re:JACKY [Remix]",
+      "rareType": "Gold"
+    },
+    "109111": {
+      "title": "Re:Sky High [Reborn]",
+      "rareType": "Gold"
+    },
+    "109115": {
+      "title": "Re:DADDY MULK -Groove remix-",
+      "rareType": "Gold"
+    },
+    "109133": {
+      "title": "Re:We Gonna Party",
+      "rareType": "Gold"
+    },
+    "109134": {
+      "title": "Re:Night Fly",
+      "rareType": "Gold"
+    },
+    "109144": {
+      "title": "Re:air's gravity",
+      "rareType": "Gold"
+    },
+    "109155": {
+      "title": "Re:泣き虫O'clock",
+      "rareType": "Gold"
+    },
+    "109239": {
+      "title": "Re:System “Z”",
+      "rareType": "Gold"
+    },
+    "109240": {
+      "title": "Re:Beat of getting entangled",
+      "rareType": "Gold"
+    },
+    "109248": {
+      "title": "Re:Backyun! －悪い女－",
+      "rareType": "Gold"
+    },
+    "109260": {
+      "title": "Re:LUCIA",
+      "rareType": "Gold"
+    },
+    "109261": {
+      "title": "Re:Death Scythe",
+      "rareType": "Gold"
+    },
+    "109364": {
+      "title": "Re:DON’T STOP ROCKIN’",
+      "rareType": "Gold"
+    },
+    "109367": {
+      "title": "Re:Dragoon",
+      "rareType": "Gold"
+    },
+    "109378": {
+      "title": "Re:planet dancer",
+      "rareType": "Gold"
+    },
+    "109463": {
+      "title": "Re:FEEL the BEATS",
+      "rareType": "Gold"
+    },
+    "109472": {
+      "title": "Re:アージェントシンメトリー",
+      "rareType": "Gold"
+    },
+    "150001": {
+      "title": "レーティング5桁なので気軽に話しかけてください",
+      "rareType": "Normal"
+    },
+    "150002": {
+      "title": "Rating Achiever -BRONZE-",
+      "rareType": "Bronze"
+    },
+    "150003": {
+      "title": "Rating Achiever -SILVER-",
+      "rareType": "Bronze"
+    },
+    "150004": {
+      "title": "Rating Achiever -GOLD-",
+      "rareType": "Silver"
+    },
+    "150006": {
+      "title": "Rating Achiever -RAINBOW-",
+      "rareType": "Gold"
+    },
+    "150007": {
+      "title": "【祝】舞萌DX 2022 虹RATING【到達】",
+      "rareType": "Gold"
+    },
+    "150101": {
+      "title": "乙姫 すき",
+      "rareType": "Silver"
+    },
+    "150102": {
+      "title": "ラズ すき",
+      "rareType": "Silver"
+    },
+    "150103": {
+      "title": "シフォン すき",
+      "rareType": "Silver"
+    },
+    "150104": {
+      "title": "ソルト すき",
+      "rareType": "Silver"
+    },
+    "150105": {
+      "title": "しゃま すき",
+      "rareType": "Silver"
+    },
+    "150106": {
+      "title": "みるく すき",
+      "rareType": "Silver"
+    },
+    "150199": {
+      "title": "ぼくたちといっしょに弾けてこー！",
+      "rareType": "Gold"
+    },
+    "150201": {
+      "title": "アウル(幼少期) 推し",
+      "rareType": "Silver"
+    },
+    "150202": {
+      "title": "トリスタン すき",
+      "rareType": "Silver"
+    },
+    "150203": {
+      "title": "アウル すき",
+      "rareType": "Silver"
+    },
+    "150299": {
+      "title": "探偵回顧録の語り手",
+      "rareType": "Gold"
+    },
+    "150301": {
+      "title": "モモ すき",
+      "rareType": "Silver"
+    },
+    "150302": {
+      "title": "トキヤ 推し",
+      "rareType": "Silver"
+    },
+    "150303": {
+      "title": "コハク 推し",
+      "rareType": "Silver"
+    },
+    "150304": {
+      "title": "ノア すき",
+      "rareType": "Silver"
+    },
+    "150305": {
+      "title": "アカツキ すき",
+      "rareType": "Silver"
+    },
+    "150399": {
+      "title": "5つの裡面へいざなう蝶",
+      "rareType": "Gold"
+    },
+    "150401": {
+      "title": "ナノ 推し",
+      "rareType": "Silver"
+    },
+    "150402": {
+      "title": "アサド 推し",
+      "rareType": "Silver"
+    },
+    "150403": {
+      "title": "ローヴェ 推し",
+      "rareType": "Silver"
+    },
+    "150404": {
+      "title": "ドメニカ 推し",
+      "rareType": "Silver"
+    },
+    "150405": {
+      "title": "テルス 推し",
+      "rareType": "Silver"
+    },
+    "150499": {
+      "title": "ビビッドカラフルワールドにようこそ！",
+      "rareType": "Gold"
+    },
+    "150501": {
+      "title": "ニギ 推し",
+      "rareType": "Silver"
+    },
+    "150502": {
+      "title": "シンキョウ 推し",
+      "rareType": "Silver"
+    },
+    "150503": {
+      "title": "メノウ 推し",
+      "rareType": "Silver"
+    },
+    "150504": {
+      "title": "アマヒコ 推し",
+      "rareType": "Silver"
+    },
+    "150505": {
+      "title": "オオヒメ 推し",
+      "rareType": "Silver"
+    },
+    "150599": {
+      "title": "八百万の神とゆらゆら鬼退治",
+      "rareType": "Gold"
+    },
+    "155201": {
+      "title": "ひよこ？ 推し",
+      "rareType": "Silver"
+    },
+    "155202": {
+      "title": "しろくま 推し",
+      "rareType": "Silver"
+    },
+    "155203": {
+      "title": "ぺんぎん？ 推し",
+      "rareType": "Silver"
+    },
+    "155204": {
+      "title": "とんかつ 推し",
+      "rareType": "Silver"
+    },
+    "155205": {
+      "title": "ねこ 推し",
+      "rareType": "Silver"
+    },
+    "155206": {
+      "title": "とかげ 推し",
+      "rareType": "Silver"
+    },
+    "155207": {
+      "title": "ざっそう 推し",
+      "rareType": "Silver"
+    },
+    "155208": {
+      "title": "えびふらいのしっぽ 推し",
+      "rareType": "Silver"
+    },
+    "155299": {
+      "title": "すみっコぐらし 箱推し",
+      "rareType": "Gold"
+    },
+    "155301": {
+      "title": "五十嵐 撫子（決意の夏合宿編） 推し",
+      "rareType": "Silver"
+    },
+    "155302": {
+      "title": "萩原 七々瀬（決意の夏合宿編） 推し",
+      "rareType": "Silver"
+    },
+    "155303": {
+      "title": "葛城 華 推し",
+      "rareType": "Silver"
+    },
+    "155304": {
+      "title": "小野 美苗 推し",
+      "rareType": "Silver"
+    },
+    "155399": {
+      "title": "HaNaMiNa 箱推し",
+      "rareType": "Gold"
+    },
+    "155401": {
+      "title": "t+pazolite 推し",
+      "rareType": "Silver"
+    },
+    "155402": {
+      "title": "REDALiCE 推し",
+      "rareType": "Silver"
+    },
+    "155403": {
+      "title": "DJ Myosuke 推し",
+      "rareType": "Silver"
+    },
+    "155404": {
+      "title": "USAO 推し",
+      "rareType": "Silver"
+    },
+    "155405": {
+      "title": "Massive New Krew 推し",
+      "rareType": "Silver"
+    },
+    "155406": {
+      "title": "Laur 推し",
+      "rareType": "Silver"
+    },
+    "155407": {
+      "title": "DORO*C 推し",
+      "rareType": "Silver"
+    },
+    "155499": {
+      "title": "HARDCORE TANO*C 箱推し",
+      "rareType": "Gold"
+    },
+    "155501": {
+      "title": "メルラン・プリズムリバー 推し",
+      "rareType": "Silver"
+    },
+    "155502": {
+      "title": "ルナサ・プリズムリバー 推し",
+      "rareType": "Silver"
+    },
+    "155503": {
+      "title": "リリカ・プリズムリバー 推し",
+      "rareType": "Silver"
+    },
+    "155504": {
+      "title": "丁礼田舞 推し",
+      "rareType": "Silver"
+    },
+    "155505": {
+      "title": "爾子田里乃 推し",
+      "rareType": "Silver"
+    },
+    "155506": {
+      "title": "ミスティア・ローレライ 推し",
+      "rareType": "Silver"
+    },
+    "155507": {
+      "title": "鬼人正邪 推し",
+      "rareType": "Silver"
+    },
+    "155599": {
+      "title": "東方Projectリバイバル2 箱推し",
+      "rareType": "Gold"
+    },
+    "155901": {
+      "title": "メルティ 推し",
+      "rareType": "Silver"
+    },
+    "155902": {
+      "title": "青い子 推し",
+      "rareType": "Silver"
+    },
+    "155903": {
+      "title": "ナナ 推し",
+      "rareType": "Silver"
+    },
+    "155904": {
+      "title": "リリ 推し",
+      "rareType": "Silver"
+    },
+    "155905": {
+      "title": "マカロン 推し",
+      "rareType": "Silver"
+    },
+    "155999": {
+      "title": "はるまきごはん 箱推し",
+      "rareType": "Gold"
+    },
+    "156001": {
+      "title": "桜井 春菜 推し",
+      "rareType": "Silver"
+    },
+    "156002": {
+      "title": "早乙女 彩華 推し",
+      "rareType": "Silver"
+    },
+    "156003": {
+      "title": "井之原 小星 推し",
+      "rareType": "Silver"
+    },
+    "156004": {
+      "title": "柏木 咲姫 推し",
+      "rareType": "Silver"
+    },
+    "156005": {
+      "title": "結城 莉玖 推し",
+      "rareType": "Silver"
+    },
+    "156099": {
+      "title": "オンゲキ3 箱推し",
+      "rareType": "Gold"
+    },
+    "158101": {
+      "title": "Heavenly Blast",
+      "rareType": "Gold"
+    },
+    "158102": {
+      "title": "Paradisoda",
+      "rareType": "Gold"
+    },
+    "158103": {
+      "title": "VANTABLACK RAVER",
+      "rareType": "Gold"
+    },
+    "158104": {
+      "title": "時計の国のジェミニ",
+      "rareType": "Gold"
+    },
+    "158105": {
+      "title": "Xenovcipher",
+      "rareType": "Gold"
+    },
+    "158106": {
+      "title": "星めぐり、果ての君へ。",
+      "rareType": "Gold"
+    },
+    "158107": {
+      "title": "スローアライズ",
+      "rareType": "Gold"
+    },
+    "158108": {
+      "title": "チエルカ／エソテリカ",
+      "rareType": "Gold"
+    },
+    "158109": {
+      "title": "生命不詳",
+      "rareType": "Gold"
+    },
+    "158110": {
+      "title": "Never Give Up!",
+      "rareType": "Gold"
+    },
+    "158111": {
+      "title": "Starry Colors",
+      "rareType": "Gold"
+    },
+    "158112": {
+      "title": "ほしぞらスペクタクル",
+      "rareType": "Gold"
+    },
+    "158113": {
+      "title": "VIIIbit Explorer",
+      "rareType": "Gold"
+    },
+    "158114": {
+      "title": "Last Samurai",
+      "rareType": "Gold"
+    },
+    "158115": {
+      "title": "蒼穹舞楽",
+      "rareType": "Gold"
+    },
+    "158116": {
+      "title": "AMABIE",
+      "rareType": "Gold"
+    },
+    "158117": {
+      "title": "オーケー？　オーライ！",
+      "rareType": "Gold"
+    },
+    "158118": {
+      "title": "サヨナラフリーウェイ",
+      "rareType": "Gold"
+    },
+    "158119": {
+      "title": "単一指向性オーバーブルーム",
+      "rareType": "Gold"
+    },
+    "158120": {
+      "title": "みなえをチェック！",
+      "rareType": "Gold"
+    },
+    "158121": {
+      "title": "ハジマリノピアノ",
+      "rareType": "Gold"
+    },
+    "158122": {
+      "title": "BOUNCE & DANCE",
+      "rareType": "Gold"
+    },
+    "158123": {
+      "title": "Kiss Me Kiss",
+      "rareType": "Gold"
+    },
+    "158124": {
+      "title": "MEGATON BLAST",
+      "rareType": "Gold"
+    },
+    "158125": {
+      "title": "Splash Dance!!",
+      "rareType": "Gold"
+    },
+    "158127": {
+      "title": "冬のこもりうた",
+      "rareType": "Gold"
+    },
+    "158129": {
+      "title": "おジャ魔女カーニバル!!",
+      "rareType": "Gold"
+    },
+    "158130": {
+      "title": "秒針を噛む",
+      "rareType": "Gold"
+    },
+    "158131": {
+      "title": "タケモトピアノCMソング",
+      "rareType": "Gold"
+    },
+    "158136": {
+      "title": "ネガティブ進化論",
+      "rareType": "Gold"
+    },
+    "158137": {
+      "title": "雨とペトラ",
+      "rareType": "Gold"
+    },
+    "158138": {
+      "title": "永遠にゲームで対戦したいキリタン",
+      "rareType": "Gold"
+    },
+    "158139": {
+      "title": "KING",
+      "rareType": "Gold"
+    },
+    "158140": {
+      "title": "幽霊東京",
+      "rareType": "Gold"
+    },
+    "158141": {
+      "title": "Alice in 冷凍庫",
+      "rareType": "Gold"
+    },
+    "158142": {
+      "title": "キラメキ居残り大戦争",
+      "rareType": "Gold"
+    },
+    "158143": {
+      "title": "ディカディズム",
+      "rareType": "Gold"
+    },
+    "158144": {
+      "title": "猫猫的宇宙論",
+      "rareType": "Gold"
+    },
+    "158145": {
+      "title": "ラットが死んだnew words",
+      "rareType": "Gold"
+    },
+    "158146": {
+      "title": "阿吽のビーツ",
+      "rareType": "Gold"
+    },
+    "158147": {
+      "title": "再会",
+      "rareType": "Gold"
+    },
+    "158148": {
+      "title": "約束",
+      "rareType": "Gold"
+    },
+    "158149": {
+      "title": "トラフィック・ジャム",
+      "rareType": "Gold"
+    },
+    "158150": {
+      "title": "アルティメットセンパイ",
+      "rareType": "Gold"
+    },
+    "158151": {
+      "title": "ロストワードクロニカル",
+      "rareType": "Gold"
+    },
+    "158152": {
+      "title": "今、誰が為のかがり火へ",
+      "rareType": "Gold"
+    },
+    "158153": {
+      "title": "Melody！",
+      "rareType": "Gold"
+    },
+    "158154": {
+      "title": "下克上々",
+      "rareType": "Gold"
+    },
+    "158155": {
+      "title": "ハウリング",
+      "rareType": "Gold"
+    },
+    "158156": {
+      "title": "トランスダンスアナーキー",
+      "rareType": "Gold"
+    },
+    "158157": {
+      "title": "Re：End of a Dream",
+      "rareType": "Gold"
+    },
+    "158158": {
+      "title": "もぺもぺ",
+      "rareType": "Gold"
+    },
+    "158159": {
+      "title": "Sound Chimera",
+      "rareType": "Gold"
+    },
+    "158160": {
+      "title": "CO5M1C R4ILR0AD",
+      "rareType": "Gold"
+    },
+    "158161": {
+      "title": "MAKE IT FUNKY NOW",
+      "rareType": "Gold"
+    },
+    "158162": {
+      "title": "Rush-More",
+      "rareType": "Gold"
+    },
+    "158163": {
+      "title": "Strange Bar",
+      "rareType": "Gold"
+    },
+    "158164": {
+      "title": "Big Daddy",
+      "rareType": "Gold"
+    },
+    "158165": {
+      "title": "ベースラインやってる？笑",
+      "rareType": "Gold"
+    },
+    "158166": {
+      "title": "ALiVE",
+      "rareType": "Gold"
+    },
+    "158167": {
+      "title": "ヒミツCULT",
+      "rareType": "Gold"
+    },
+    "158168": {
+      "title": "MEGATON KICK",
+      "rareType": "Gold"
+    },
+    "158169": {
+      "title": "LOSE CONTROL",
+      "rareType": "Gold"
+    },
+    "158170": {
+      "title": "ステップアンドライム",
+      "rareType": "Gold"
+    },
+    "158171": {
+      "title": "届かない花束",
+      "rareType": "Gold"
+    },
+    "158501": {
+      "title": "Heavenly Crown",
+      "rareType": "Gold"
+    },
+    "158502": {
+      "title": "ズバリ今作は本格派の強炭酸",
+      "rareType": "Bronze"
+    },
+    "158503": {
+      "title": "諦めんなよ！諦めんなお前！どうしてそこでやめるんだそこで！",
+      "rareType": "Normal"
+    },
+    "158504": {
+      "title": "侍",
+      "rareType": "Gold"
+    },
+    "158505": {
+      "title": "イエー！イエーイエーイエー！！！フゥー↑",
+      "rareType": "Normal"
+    },
+    "158506": {
+      "title": "ついに停止した",
+      "rareType": "Normal"
+    },
+    "158507": {
+      "title": "そういうとこだかんね",
+      "rareType": "Normal"
+    },
+    "158508": {
+      "title": "注目！ 注目！ 注目！ 注目！ 注目！",
+      "rareType": "Normal"
+    },
+    "158509": {
+      "title": "ちょっとだけドラムが叩けます",
+      "rareType": "Normal"
+    },
+    "158510": {
+      "title": "GIGATON POWER",
+      "rareType": "Gold"
+    },
+    "158511": {
+      "title": "MEGA+MEGAはGIGAじゃないぞ。オレたちはMEGA+MEGAでTERAだ！10倍だぞ10倍",
+      "rareType": "Gold"
+    },
+    "158513": {
+      "title": "ここがおちつくんです",
+      "rareType": "Normal"
+    },
+    "158514": {
+      "title": "筐体も噛む",
+      "rareType": "Normal"
+    },
+    "158515": {
+      "title": "ピアノ打って頂戴",
+      "rareType": "Normal"
+    },
+    "158516": {
+      "title": "ピアノ売ってちょーだい！",
+      "rareType": "Normal"
+    },
+    "158517": {
+      "title": "みんな-まあるく",
+      "rareType": "Normal"
+    },
+    "158521": {
+      "title": "あ～～～ゲームたのし～～～～",
+      "rareType": "Normal"
+    },
+    "158522": {
+      "title": "対戦よろしk >>ファーーーーーーーーーーーーー!!<<",
+      "rareType": "Normal"
+    },
+    "158523": {
+      "title": "この遊びが この時こそが 僕らの場所だ",
+      "rareType": "Normal"
+    },
+    "158524": {
+      "title": "自称有名実況者",
+      "rareType": "Normal"
+    },
+    "158525": {
+      "title": "You are KING",
+      "rareType": "Normal"
+    },
+    "158526": {
+      "title": "東京勢（仮）",
+      "rareType": "Normal"
+    },
+    "158527": {
+      "title": "許してくれ",
+      "rareType": "Normal"
+    },
+    "158528": {
+      "title": "ずっとこどものままで居よう",
+      "rareType": "Normal"
+    },
+    "158529": {
+      "title": "もう一度どこかで巡り合う気がした",
+      "rareType": "Normal"
+    },
+    "158530": {
+      "title": "壊して作ってガッチャンコ 壊して作ってガッチャンコ",
+      "rareType": "Silver"
+    },
+    "158531": {
+      "title": "夢の終りは新たな始まり",
+      "rareType": "Silver"
+    },
+    "158532": {
+      "title": "Nice boat.",
+      "rareType": "Normal"
+    },
+    "158533": {
+      "title": "※自主規制",
+      "rareType": "Gold"
+    },
+    "158534": {
+      "title": "ナーナナナーｗｗナーナナナーｗｗナーナーナーｗｗ",
+      "rareType": "Bronze"
+    },
+    "158535": {
+      "title": "はい…本当に申し訳ないと思っています…反省文も書きます…",
+      "rareType": "Normal"
+    },
+    "200101": {
+      "title": "でらっくま（ゆにばーす） 推し",
+      "rareType": "Silver"
+    },
+    "200102": {
+      "title": "れもんっくま（ゆにばーす） 推し",
+      "rareType": "Silver"
+    },
+    "200103": {
+      "title": "らいむっくま（ゆにばーす） 推し",
+      "rareType": "Silver"
+    },
+    "200104": {
+      "title": "しゃま（ゆにばーす） 推し",
+      "rareType": "Silver"
+    },
+    "200105": {
+      "title": "みるく（ゆにばーす） 推し",
+      "rareType": "Silver"
+    },
+    "200199": {
+      "title": "UNiVERSEいちの魔法使いにゃ～!!",
+      "rareType": "Gold"
+    },
+    "200201": {
+      "title": "ルキ 推し",
+      "rareType": "Silver"
+    },
+    "200202": {
+      "title": "ラキ 推し",
+      "rareType": "Silver"
+    },
+    "200203": {
+      "title": "アトロ 推し",
+      "rareType": "Silver"
+    },
+    "200204": {
+      "title": "クロト 推し",
+      "rareType": "Silver"
+    },
+    "200205": {
+      "title": "ルシファー 推し",
+      "rareType": "Silver"
+    },
+    "200299": {
+      "title": "天使審判の陪審員",
+      "rareType": "Gold"
+    },
+    "200301": {
+      "title": "濡羽 推し",
+      "rareType": "Silver"
+    },
+    "200302": {
+      "title": "高麗 推し",
+      "rareType": "Silver"
+    },
+    "200303": {
+      "title": "黒橡 推し",
+      "rareType": "Silver"
+    },
+    "200304": {
+      "title": "赤墨 推し",
+      "rareType": "Silver"
+    },
+    "200305": {
+      "title": "紫黒 推し",
+      "rareType": "Silver"
+    },
+    "200399": {
+      "title": "五摂家の任命者",
+      "rareType": "Gold"
+    },
+    "200401": {
+      "title": "リズ 推し",
+      "rareType": "Silver"
+    },
+    "200402": {
+      "title": "シュトルツ 推し",
+      "rareType": "Silver"
+    },
+    "200403": {
+      "title": "リヒティカイト 推し",
+      "rareType": "Silver"
+    },
+    "200404": {
+      "title": "エーペルージュ 推し",
+      "rareType": "Silver"
+    },
+    "200405": {
+      "title": "アシッド 推し",
+      "rareType": "Silver"
+    },
+    "200499": {
+      "title": "全ての物語りを見届ける者",
+      "rareType": "Gold"
+    },
+    "200601": {
+      "title": "エリザ 推し",
+      "rareType": "Silver"
+    },
+    "200602": {
+      "title": "カイン 推し",
+      "rareType": "Silver"
+    },
+    "200603": {
+      "title": "ジャック 推し",
+      "rareType": "Silver"
+    },
+    "200604": {
+      "title": "アナスタシア 推し",
+      "rareType": "Silver"
+    },
+    "200605": {
+      "title": "ラルフ(悪魔憑き) 推し",
+      "rareType": "Silver"
+    },
+    "200699": {
+      "title": "月無夜と無慈悲なホロスコープ",
+      "rareType": "Gold"
+    },
+    "205101": {
+      "title": "最上 静香 推し",
+      "rareType": "Silver"
+    },
+    "205102": {
+      "title": "箱崎 星梨花 推し",
+      "rareType": "Silver"
+    },
+    "205103": {
+      "title": "野々原 茜 推し",
+      "rareType": "Silver"
+    },
+    "205104": {
+      "title": "北沢 志保 推し",
+      "rareType": "Silver"
+    },
+    "205105": {
+      "title": "北上 麗花 推し",
+      "rareType": "Silver"
+    },
+    "205199": {
+      "title": "アイドルマスター ミリオンライブ！ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "205201": {
+      "title": "天道 輝 推し",
+      "rareType": "Silver"
+    },
+    "205202": {
+      "title": "桜庭 薫 推し",
+      "rareType": "Silver"
+    },
+    "205203": {
+      "title": "柏木 翼 推し",
+      "rareType": "Silver"
+    },
+    "205299": {
+      "title": "アイドルマスター SideMちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "205301": {
+      "title": "cosMo＠暴走P 推し",
+      "rareType": "Silver"
+    },
+    "205302": {
+      "title": "cosMo＠暴走P（バ美肉） 推し",
+      "rareType": "Silver"
+    },
+    "205303": {
+      "title": "空気が嫁ないBoy 推し",
+      "rareType": "Silver"
+    },
+    "205304": {
+      "title": "空気が嫁ないGirl 推し",
+      "rareType": "Silver"
+    },
+    "205305": {
+      "title": "GOBOU 推し",
+      "rareType": "Silver"
+    },
+    "205306": {
+      "title": "HACKPSY 推し",
+      "rareType": "Silver"
+    },
+    "205307": {
+      "title": "うさぎのもちよ 推し",
+      "rareType": "Silver"
+    },
+    "205399": {
+      "title": "cosMo@暴走Pちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "205401": {
+      "title": "オーイシマサヨシ 推し",
+      "rareType": "Silver"
+    },
+    "205402": {
+      "title": "加藤純一 推し",
+      "rareType": "Silver"
+    },
+    "205499": {
+      "title": "オーイシ×加藤のピザラジオちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "205501": {
+      "title": "博麗 霊夢 推し",
+      "rareType": "Silver"
+    },
+    "205502": {
+      "title": "霧雨 魔理沙 推し",
+      "rareType": "Silver"
+    },
+    "205503": {
+      "title": "八雲 紫 推し",
+      "rareType": "Silver"
+    },
+    "205504": {
+      "title": "宇佐見 菫子 推し",
+      "rareType": "Silver"
+    },
+    "205505": {
+      "title": "魂魄 妖夢 推し",
+      "rareType": "Silver"
+    },
+    "205599": {
+      "title": "東方ダンマクカグラちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "205601": {
+      "title": "キノシタ 推し",
+      "rareType": "Silver"
+    },
+    "205602": {
+      "title": "鏡音リン（ポッピンキャンディ☆フィーバー！） 推し",
+      "rareType": "Silver"
+    },
+    "205603": {
+      "title": "音街ウナ（ポッピンキャンディ☆フィーバー！） 推し",
+      "rareType": "Silver"
+    },
+    "205604": {
+      "title": "音街ウナ（どぅーまいべすと！） 推し",
+      "rareType": "Silver"
+    },
+    "205605": {
+      "title": "鏡音リン（スターリースカイ☆パレード） 推し",
+      "rareType": "Silver"
+    },
+    "205606": {
+      "title": "音街ウナ（スターリースカイ☆パレード） 推し",
+      "rareType": "Silver"
+    },
+    "205607": {
+      "title": "音街ウナ（はやくそれになりたい！） 推し",
+      "rareType": "Silver"
+    },
+    "205699": {
+      "title": "キノシタちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "205901": {
+      "title": "緑仙 すき",
+      "rareType": "Silver"
+    },
+    "205902": {
+      "title": "三枝明那 推し",
+      "rareType": "Silver"
+    },
+    "205903": {
+      "title": "童田明治 推し",
+      "rareType": "Silver"
+    },
+    "205904": {
+      "title": "鈴木勝 推し",
+      "rareType": "Silver"
+    },
+    "205905": {
+      "title": "える すき",
+      "rareType": "Silver"
+    },
+    "205906": {
+      "title": "ジョー・力一 すき",
+      "rareType": "Silver"
+    },
+    "205999": {
+      "title": "Rain Dropsちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "206101": {
+      "title": "DIVA 初音ミク/アバンガード 推し",
+      "rareType": "Silver"
+    },
+    "206102": {
+      "title": "DIVA 巡音ルカ/サクセサー 推し",
+      "rareType": "Silver"
+    },
+    "206103": {
+      "title": "DIVA 鏡音リン/トランスミッター 推し",
+      "rareType": "Silver"
+    },
+    "206104": {
+      "title": "DIVA 鏡音レン/レシーバー 推し",
+      "rareType": "Silver"
+    },
+    "206105": {
+      "title": "DIVA KAITO/オンザロック 推し",
+      "rareType": "Silver"
+    },
+    "206106": {
+      "title": "DIVA MEIKO/スカーレット 推し",
+      "rareType": "Silver"
+    },
+    "206199": {
+      "title": "Project DIVAちほー3 箱推し",
+      "rareType": "Gold"
+    },
+    "206201": {
+      "title": "星咲 あかり（No Limit RED Force） 推し",
+      "rareType": "Silver"
+    },
+    "206202": {
+      "title": "藤沢 柚子（No Limit RED Force） 推し",
+      "rareType": "Silver"
+    },
+    "206203": {
+      "title": "三角 葵（No Limit RED Force） 推し",
+      "rareType": "Silver"
+    },
+    "206204": {
+      "title": "皇城 セツナ 推し",
+      "rareType": "Silver"
+    },
+    "206205": {
+      "title": "珠洲島 有栖（ぱくぱく☆がーる） 推し",
+      "rareType": "Silver"
+    },
+    "206299": {
+      "title": "オンゲキちほー4 箱推し",
+      "rareType": "Gold"
+    },
+    "206301": {
+      "title": "藤堂 陽南袴 推し",
+      "rareType": "Silver"
+    },
+    "206302": {
+      "title": "桔梗 小夜曲 推し",
+      "rareType": "Silver"
+    },
+    "206303": {
+      "title": "芒崎 奏 推し",
+      "rareType": "Silver"
+    },
+    "206399": {
+      "title": "舞ヶ原シンセ研究会ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "208101": {
+      "title": "宿星審判",
+      "rareType": "Gold"
+    },
+    "208102": {
+      "title": "脳天直撃",
+      "rareType": "Gold"
+    },
+    "208103": {
+      "title": "とびだせ！TO THE COSMIC!!",
+      "rareType": "Gold"
+    },
+    "208104": {
+      "title": "噛み係",
+      "rareType": "Gold"
+    },
+    "208105": {
+      "title": "トリアージ",
+      "rareType": "Gold"
+    },
+    "208106": {
+      "title": "NAGAREBOSHI☆ROCKET",
+      "rareType": "Gold"
+    },
+    "208107": {
+      "title": "U&iVERSE -銀河鸞翔-",
+      "rareType": "Gold"
+    },
+    "208108": {
+      "title": "華の集落、秋のお届け",
+      "rareType": "Gold"
+    },
+    "208109": {
+      "title": "BLACK SWAN",
+      "rareType": "Gold"
+    },
+    "208110": {
+      "title": "星詠みとデスペラード",
+      "rareType": "Gold"
+    },
+    "208111": {
+      "title": "Round Round Spinning Around",
+      "rareType": "Gold"
+    },
+    "208112": {
+      "title": "Alcyone",
+      "rareType": "Gold"
+    },
+    "208113": {
+      "title": "Raven Emperor",
+      "rareType": "Gold"
+    },
+    "208114": {
+      "title": "Yorugao",
+      "rareType": "Gold"
+    },
+    "208115": {
+      "title": "ヨミビトシラズ",
+      "rareType": "Gold"
+    },
+    "208116": {
+      "title": "前衛的Landscape",
+      "rareType": "Gold"
+    },
+    "208117": {
+      "title": "Trick tear",
+      "rareType": "Gold"
+    },
+    "208118": {
+      "title": "躯樹の墓守",
+      "rareType": "Gold"
+    },
+    "208119": {
+      "title": "ぱくぱく☆がーる",
+      "rareType": "Gold"
+    },
+    "208120": {
+      "title": "No Limit RED Force",
+      "rareType": "Gold"
+    },
+    "208121": {
+      "title": "LiftOff",
+      "rareType": "Gold"
+    },
+    "208122": {
+      "title": "Falsum Atlantis.",
+      "rareType": "Gold"
+    },
+    "208123": {
+      "title": "We Are Us",
+      "rareType": "Gold"
+    },
+    "208124": {
+      "title": "Limits",
+      "rareType": "Gold"
+    },
+    "208125": {
+      "title": "スピカの天秤",
+      "rareType": "Gold"
+    },
+    "208126": {
+      "title": "ハードコア・シンドローム",
+      "rareType": "Gold"
+    },
+    "208127": {
+      "title": "夜に駆ける",
+      "rareType": "Gold"
+    },
+    "208128": {
+      "title": "うっせぇわ",
+      "rareType": "Gold"
+    },
+    "208129": {
+      "title": "Shooting Stars",
+      "rareType": "Gold"
+    },
+    "208130": {
+      "title": "MOON NIGHTのせいにして",
+      "rareType": "Gold"
+    },
+    "208131": {
+      "title": "テレキャスタービーボーイ",
+      "rareType": "Gold"
+    },
+    "208132": {
+      "title": "僕は空気が嫁ない",
+      "rareType": "Gold"
+    },
+    "208133": {
+      "title": "デッドマンズバラッド",
+      "rareType": "Gold"
+    },
+    "208135": {
+      "title": "竹",
+      "rareType": "Gold"
+    },
+    "208136": {
+      "title": "スーパーシンメトリー",
+      "rareType": "Gold"
+    },
+    "208137": {
+      "title": "Southern Cross",
+      "rareType": "Gold"
+    },
+    "208138": {
+      "title": "Upshift",
+      "rareType": "Gold"
+    },
+    "208139": {
+      "title": "MOBILYS",
+      "rareType": "Gold"
+    },
+    "208140": {
+      "title": "ドラゴンエネルギー",
+      "rareType": "Gold"
+    },
+    "208142": {
+      "title": "Sweets Time",
+      "rareType": "Gold"
+    },
+    "208143": {
+      "title": "紅星ミゼラブル～廃憶編",
+      "rareType": "Gold"
+    },
+    "208144": {
+      "title": "幻想に咲いた花",
+      "rareType": "Gold"
+    },
+    "208145": {
+      "title": "マツヨイナイトバグ",
+      "rareType": "Gold"
+    },
+    "208146": {
+      "title": "ポッピンキャンディ☆フィーバー！",
+      "rareType": "Gold"
+    },
+    "208147": {
+      "title": "どぅーまいべすと！",
+      "rareType": "Gold"
+    },
+    "208148": {
+      "title": "泥の分際で私だけの大切を奪おうだなんて",
+      "rareType": "Gold"
+    },
+    "208149": {
+      "title": "VOLTAGE",
+      "rareType": "Gold"
+    },
+    "208150": {
+      "title": "失敗作少女",
+      "rareType": "Gold"
+    },
+    "208151": {
+      "title": "悪魔の踊り方",
+      "rareType": "Gold"
+    },
+    "208152": {
+      "title": "ノイローゼ",
+      "rareType": "Gold"
+    },
+    "208154": {
+      "title": "グッバイ宣言",
+      "rareType": "Gold"
+    },
+    "208155": {
+      "title": "春嵐",
+      "rareType": "Gold"
+    },
+    "208156": {
+      "title": "ラグトレイン",
+      "rareType": "Gold"
+    },
+    "208158": {
+      "title": "インドア系ならトラックメイカー",
+      "rareType": "Gold"
+    },
+    "208159": {
+      "title": "アカツキアライヴァル",
+      "rareType": "Gold"
+    },
+    "208160": {
+      "title": "リモコン",
+      "rareType": "Gold"
+    },
+    "208161": {
+      "title": "on the rocks",
+      "rareType": "Gold"
+    },
+    "208162": {
+      "title": "響け！CHIREI MY WAY!",
+      "rareType": "Gold"
+    },
+    "208163": {
+      "title": "神々が恋した幻想郷",
+      "rareType": "Gold"
+    },
+    "208164": {
+      "title": "Lia=Fail",
+      "rareType": "Gold"
+    },
+    "208165": {
+      "title": "アンビバレンス",
+      "rareType": "Gold"
+    },
+    "208166": {
+      "title": "veil",
+      "rareType": "Gold"
+    },
+    "208167": {
+      "title": "廻廻奇譚",
+      "rareType": "Gold"
+    },
+    "208168": {
+      "title": "さんさーら！",
+      "rareType": "Gold"
+    },
+    "208171": {
+      "title": "ヒステリックナイトガール",
+      "rareType": "Gold"
+    },
+    "208172": {
+      "title": "GIGANTØMAKHIA",
+      "rareType": "Gold"
+    },
+    "208173": {
+      "title": "ゴーストルール",
+      "rareType": "Gold"
+    },
+    "208174": {
+      "title": "taboo tears you up",
+      "rareType": "Gold"
+    },
+    "208501": {
+      "title": "二人が揃ったら怖くなんかにゃいにゃ～",
+      "rareType": "Silver"
+    },
+    "208502": {
+      "title": "Let’s牛乳Death!!",
+      "rareType": "Gold"
+    },
+    "208503": {
+      "title": "半径25cmの窓で",
+      "rareType": "Normal"
+    },
+    "208504": {
+      "title": "どうかこのまま時間を止めて",
+      "rareType": "Normal"
+    },
+    "208505": {
+      "title": "私  の  脳  天  貫  く",
+      "rareType": "Normal"
+    },
+    "208506": {
+      "title": "運命の石に刺さりし伝説の剣",
+      "rareType": "Gold"
+    },
+    "208507": {
+      "title": "ま",
+      "rareType": "Normal"
+    },
+    "208508": {
+      "title": "ＫＹつったやつがＫＹなんですー！ぷっぷー！",
+      "rareType": "Normal"
+    },
+    "208509": {
+      "title": "ね゛え゛聞゛い゛て゛る゛？た゛ま゛に゛は゛仲゛良゛く゛し゛て゛く゛れ゛な゛い゛か゛な゛？ っ゛て゛",
+      "rareType": "Normal"
+    },
+    "208512": {
+      "title": "はい優勝！",
+      "rareType": "Normal"
+    },
+    "208513": {
+      "title": "縛りプレイもいい所じゃない？！",
+      "rareType": "Bronze"
+    },
+    "208514": {
+      "title": "みんな騒げー！！",
+      "rareType": "Normal"
+    },
+    "208515": {
+      "title": "間違いだらけに　オヤスミナサイ",
+      "rareType": "Normal"
+    },
+    "208516": {
+      "title": "二度と誰も愛せないな",
+      "rareType": "Normal"
+    },
+    "208517": {
+      "title": "あらまぁ、お行儀が良いこと",
+      "rareType": "Normal"
+    },
+    "208518": {
+      "title": "キミの代役は、他の誰にもできはしないから────",
+      "rareType": "Normal"
+    },
+    "208519": {
+      "title": "L R L R STOP＆Dash＆up＆talk B B A B S",
+      "rareType": "Silver"
+    },
+    "208520": {
+      "title": "二人でいよう",
+      "rareType": "Normal"
+    },
+    "208521": {
+      "title": "私が俗に言う天才です",
+      "rareType": "Normal"
+    },
+    "208522": {
+      "title": "あなたが思うより健康です",
+      "rareType": "Normal"
+    },
+    "208523": {
+      "title": "うっせぇうっせぇうっせぇわ",
+      "rareType": "Normal"
+    },
+    "208526": {
+      "title": "エビデイ　エビナイ　トラックメイカー",
+      "rareType": "Normal"
+    },
+    "208527": {
+      "title": "玉砕です",
+      "rareType": "Normal"
+    },
+    "208528": {
+      "title": "宙に舞った言葉じゃあなたを救えないのだろう",
+      "rareType": "Normal"
+    },
+    "208529": {
+      "title": "舞舞奇譚",
+      "rareType": "Normal"
+    },
+    "208530": {
+      "title": "脳天直撃 セガサターン",
+      "rareType": "Normal"
+    },
+    "208531": {
+      "title": "教育してやる",
+      "rareType": "Normal"
+    },
+    "208532": {
+      "title": "This Place その証 刻む歌",
+      "rareType": "Normal"
+    },
+    "208533": {
+      "title": "絶望と希望、戦いのはじまり。",
+      "rareType": "Normal"
+    },
+    "208534": {
+      "title": "(゜Д゜)",
+      "rareType": "Normal"
+    },
+    "208535": {
+      "title": "H -竹- H",
+      "rareType": "Normal"
+    },
+    "208536": {
+      "title": "奥義[竹筒羊羹]",
+      "rareType": "Silver"
+    },
+    "208537": {
+      "title": "竹の魅力に首ったけ",
+      "rareType": "Normal"
+    },
+    "208538": {
+      "title": "SymmetrYrtemmyS",
+      "rareType": "Normal"
+    },
+    "208539": {
+      "title": "今ここで君が生きているこの瞬間は君が年老いた時きっと宝物になるから",
+      "rareType": "Normal"
+    },
+    "208540": {
+      "title": "一般人だけど20代最後なのでプロにオリ曲を作ってもらった",
+      "rareType": "Normal"
+    },
+    "208541": {
+      "title": "最高泣（さいこうきゅう）かい…",
+      "rareType": "Silver"
+    },
+    "208543": {
+      "title": "甘党",
+      "rareType": "Normal"
+    },
+    "208544": {
+      "title": "太陽にも負けない私たちは輝き光る",
+      "rareType": "Normal"
+    },
+    "208545": {
+      "title": "君を待ってるから",
+      "rareType": "Normal"
+    },
+    "208546": {
+      "title": "百曲征服者",
+      "rareType": "Gold"
+    },
+    "208547": {
+      "title": "三周年见证",
+      "rareType": "Normal"
+    },
+    "250001": {
+      "title": "【祝】舞萌DX 2023 虹RATING【到達】",
+      "rareType": "Gold"
+    },
+    "250011": {
+      "title": "お前の中の-100号出せよ！！",
+      "rareType": "Gold"
+    },
+    "250012": {
+      "title": "神譜面できた？",
+      "rareType": "Gold"
+    },
+    "250013": {
+      "title": "そば(うどん)",
+      "rareType": "Gold"
+    },
+    "250014": {
+      "title": "パーフェクトオンスケ",
+      "rareType": "Gold"
+    },
+    "250026": {
+      "title": "工数ガン無視",
+      "rareType": "Gold"
+    },
+    "250027": {
+      "title": "勤怠登録をしてコレに「いいね！」",
+      "rareType": "Gold"
+    },
+    "250028": {
+      "title": "遅れます。多分エアコンのせいです。",
+      "rareType": "Gold"
+    },
+    "250029": {
+      "title": "レールのないジェットコースターみたい",
+      "rareType": "Gold"
+    },
+    "250030": {
+      "title": "これの思い出を出しました。２",
+      "rareType": "Gold"
+    },
+    "250031": {
+      "title": "多分操作まちがってるだけじゃない？",
+      "rareType": "Gold"
+    },
+    "250101": {
+      "title": "ちびみるく 推し",
+      "rareType": "Silver"
+    },
+    "250102": {
+      "title": "SDしゃま 推し",
+      "rareType": "Silver"
+    },
+    "250103": {
+      "title": "SDみるく 推し",
+      "rareType": "Silver"
+    },
+    "250104": {
+      "title": "金の牛乳瓶 推し",
+      "rareType": "Silver"
+    },
+    "250105": {
+      "title": "Joker 推し",
+      "rareType": "Silver"
+    },
+    "250199": {
+      "title": "ゴキゲンなメンバーに仲間入りにゃ♪",
+      "rareType": "Gold"
+    },
+    "250201": {
+      "title": "家菊 推し",
+      "rareType": "Silver"
+    },
+    "250202": {
+      "title": "橘花 推し",
+      "rareType": "Silver"
+    },
+    "250203": {
+      "title": "黒桜 推し",
+      "rareType": "Silver"
+    },
+    "250204": {
+      "title": "紫藤 推し",
+      "rareType": "Silver"
+    },
+    "250205": {
+      "title": "藪椿 推し",
+      "rareType": "Silver"
+    },
+    "250299": {
+      "title": "次世代育成のスペシャリスト",
+      "rareType": "Gold"
+    },
+    "250301": {
+      "title": "百合咲ミカ ガチ勢",
+      "rareType": "Silver"
+    },
+    "250302": {
+      "title": "白銅寺アズリ ガチ勢",
+      "rareType": "Silver"
+    },
+    "250303": {
+      "title": "白法院ラグ すき",
+      "rareType": "Silver"
+    },
+    "250304": {
+      "title": "兎花宮イオフィ すき",
+      "rareType": "Silver"
+    },
+    "250305": {
+      "title": "庭白ガヴィ 推し",
+      "rareType": "Silver"
+    },
+    "250399": {
+      "title": "天の楽団のコンダクター",
+      "rareType": "Gold"
+    },
+    "250401": {
+      "title": "リズ すき",
+      "rareType": "Silver"
+    },
+    "250402": {
+      "title": "アシッド すき",
+      "rareType": "Silver"
+    },
+    "250403": {
+      "title": "ゲルプテディ 推し",
+      "rareType": "Silver"
+    },
+    "250404": {
+      "title": "オーランジェット 推し",
+      "rareType": "Silver"
+    },
+    "250405": {
+      "title": "W?K?Y? 推し",
+      "rareType": "Silver"
+    },
+    "250499": {
+      "title": "虹色のジュエリーメーカー",
+      "rareType": "Gold"
+    },
+    "250601": {
+      "title": "クレメンス すき",
+      "rareType": "Silver"
+    },
+    "250602": {
+      "title": "バイロン すき",
+      "rareType": "Silver"
+    },
+    "250603": {
+      "title": "エリー すき",
+      "rareType": "Silver"
+    },
+    "250699": {
+      "title": "MEMORY OF BLACKROSE",
+      "rareType": "Gold"
+    },
+    "255201": {
+      "title": "くらべられっ子ちゃん 推し",
+      "rareType": "Silver"
+    },
+    "255202": {
+      "title": "あのバスちゃん 推し",
+      "rareType": "Silver"
+    },
+    "255203": {
+      "title": "天使ちゃん 推し",
+      "rareType": "Silver"
+    },
+    "255204": {
+      "title": "ナイ 推し",
+      "rareType": "Silver"
+    },
+    "255299": {
+      "title": "ツユちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "255301": {
+      "title": "出雲咲姫 推し",
+      "rareType": "Silver"
+    },
+    "255302": {
+      "title": "新島衣舞紀 推し",
+      "rareType": "Silver"
+    },
+    "255303": {
+      "title": "花巻乙和 推し",
+      "rareType": "Silver"
+    },
+    "255304": {
+      "title": "福島ノア 推し",
+      "rareType": "Silver"
+    },
+    "255305": {
+      "title": "桜田美夢 推し",
+      "rareType": "Silver"
+    },
+    "255306": {
+      "title": "春日春奈 推し",
+      "rareType": "Silver"
+    },
+    "255307": {
+      "title": "白鳥胡桃 推し",
+      "rareType": "Silver"
+    },
+    "255308": {
+      "title": "竹下みいこ 推し",
+      "rareType": "Silver"
+    },
+    "255399": {
+      "title": "D4DJ Groovy Mixちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "255401": {
+      "title": "大空 彩 推し",
+      "rareType": "Silver"
+    },
+    "255402": {
+      "title": "白戒 推し",
+      "rareType": "Silver"
+    },
+    "255403": {
+      "title": "silky6 推し",
+      "rareType": "Silver"
+    },
+    "255404": {
+      "title": "削除 推し",
+      "rareType": "Silver"
+    },
+    "255405": {
+      "title": "BADASS 推し",
+      "rareType": "Silver"
+    },
+    "255499": {
+      "title": "Diverse Systemちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "255599": {
+      "title": "Rain Dropsちほー2 箱推し",
+      "rareType": "Gold"
+    },
+    "255601": {
+      "title": "有野課長 推し",
+      "rareType": "Silver"
+    },
+    "255602": {
+      "title": "12代目AD松井 推し",
+      "rareType": "Silver"
+    },
+    "255603": {
+      "title": "16代目AD加賀 推し",
+      "rareType": "Silver"
+    },
+    "255604": {
+      "title": "MA谷澤＆14代目AD大須賀 推し",
+      "rareType": "Silver"
+    },
+    "255605": {
+      "title": "カメラマン阿部 推し",
+      "rareType": "Silver"
+    },
+    "255606": {
+      "title": "王様 推し",
+      "rareType": "Silver"
+    },
+    "255699": {
+      "title": "ゲームセンターCXちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "255801": {
+      "title": "No.9_ニナ 推し",
+      "rareType": "Silver"
+    },
+    "255802": {
+      "title": "シルヴィアス 推し",
+      "rareType": "Silver"
+    },
+    "255803": {
+      "title": "マゼラン・マゼラン 推し",
+      "rareType": "Silver"
+    },
+    "255804": {
+      "title": "ミゼラン・ミゼラン 推し",
+      "rareType": "Silver"
+    },
+    "255805": {
+      "title": "チュウニペンギン 推し",
+      "rareType": "Silver"
+    },
+    "255806": {
+      "title": "ショウニペンギン 推し",
+      "rareType": "Silver"
+    },
+    "255899": {
+      "title": "CHUNITHMちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "255901": {
+      "title": "すりぃ 推し",
+      "rareType": "Silver"
+    },
+    "255902": {
+      "title": "ナース 推し",
+      "rareType": "Silver"
+    },
+    "255903": {
+      "title": "ボーイ 推し",
+      "rareType": "Silver"
+    },
+    "255904": {
+      "title": "ガール 推し",
+      "rareType": "Silver"
+    },
+    "255905": {
+      "title": "審査員 推し",
+      "rareType": "Silver"
+    },
+    "255906": {
+      "title": "親衛隊 推し",
+      "rareType": "Silver"
+    },
+    "255907": {
+      "title": "ひょっとこJK 推し",
+      "rareType": "Silver"
+    },
+    "255908": {
+      "title": "ピエロ 推し",
+      "rareType": "Silver"
+    },
+    "255909": {
+      "title": "侍 推し",
+      "rareType": "Silver"
+    },
+    "255910": {
+      "title": "牛男 推し",
+      "rareType": "Silver"
+    },
+    "255911": {
+      "title": "舞踏会の姉貴 推し",
+      "rareType": "Silver"
+    },
+    "255912": {
+      "title": "黒須 紘 推し",
+      "rareType": "Silver"
+    },
+    "255999": {
+      "title": "すりぃちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "256001": {
+      "title": "星咲 あかり（Transcend Lights） 推し",
+      "rareType": "Silver"
+    },
+    "256002": {
+      "title": "藤沢 柚子（Transcend Lights） 推し",
+      "rareType": "Silver"
+    },
+    "256003": {
+      "title": "三角 葵（Transcend Lights） 推し",
+      "rareType": "Silver"
+    },
+    "256004": {
+      "title": "日向 千夏（Transcend Lights） 推し",
+      "rareType": "Silver"
+    },
+    "256005": {
+      "title": "皇城 セツナ（Transcend Lights） 推し",
+      "rareType": "Silver"
+    },
+    "256006": {
+      "title": "高瀬 梨緒（シュータードレス） 推し",
+      "rareType": "Silver"
+    },
+    "256007": {
+      "title": "結城 莉玖（シュータードレス） 推し",
+      "rareType": "Silver"
+    },
+    "256008": {
+      "title": "藍原 椿（シュータードレス） 推し",
+      "rareType": "Silver"
+    },
+    "256099": {
+      "title": "オンゲキちほー5 箱推し",
+      "rareType": "Gold"
+    },
+    "258101": {
+      "title": "Starlight Disco",
+      "rareType": "Gold"
+    },
+    "258102": {
+      "title": "セツナトリップ",
+      "rareType": "Gold"
+    },
+    "258103": {
+      "title": "Grip & Break down !!",
+      "rareType": "Gold"
+    },
+    "258104": {
+      "title": "春を告げる",
+      "rareType": "Gold"
+    },
+    "258105": {
+      "title": "ミルキースター・シューティングスター",
+      "rareType": "Gold"
+    },
+    "258106": {
+      "title": "ｉｓｏｐｈｏｔｅ",
+      "rareType": "Gold"
+    },
+    "258107": {
+      "title": "パラマウント☆ショータイム！！",
+      "rareType": "Gold"
+    },
+    "258108": {
+      "title": "Strive against fate",
+      "rareType": "Gold"
+    },
+    "258109": {
+      "title": "sølips",
+      "rareType": "Gold"
+    },
+    "258110": {
+      "title": "パーフェクション",
+      "rareType": "Gold"
+    },
+    "258111": {
+      "title": "デーモンベット",
+      "rareType": "Gold"
+    },
+    "258112": {
+      "title": "HECATONCHEIR",
+      "rareType": "Gold"
+    },
+    "258113": {
+      "title": "Irresistible",
+      "rareType": "Gold"
+    },
+    "258114": {
+      "title": "HAGAKIRI",
+      "rareType": "Gold"
+    },
+    "258115": {
+      "title": "N3V3R G3T OV3R",
+      "rareType": "Gold"
+    },
+    "258116": {
+      "title": "Swift Swing",
+      "rareType": "Gold"
+    },
+    "258117": {
+      "title": "星空パーティーチューン",
+      "rareType": "Gold"
+    },
+    "258118": {
+      "title": "チューリングの跡",
+      "rareType": "Gold"
+    },
+    "258119": {
+      "title": "Sage",
+      "rareType": "Gold"
+    },
+    "258120": {
+      "title": "OTOGEMA",
+      "rareType": "Gold"
+    },
+    "258121": {
+      "title": "WiPE OUT MEMORIES",
+      "rareType": "Gold"
+    },
+    "258122": {
+      "title": "Metamorphosism",
+      "rareType": "Gold"
+    },
+    "258123": {
+      "title": "白花の天使",
+      "rareType": "Gold"
+    },
+    "258124": {
+      "title": "World's end loneliness",
+      "rareType": "Gold"
+    },
+    "258125": {
+      "title": "Jouez Avec Moi?",
+      "rareType": "Gold"
+    },
+    "258126": {
+      "title": "テリトリーバトル",
+      "rareType": "Gold"
+    },
+    "258127": {
+      "title": "Good bye, Merry-Go-Round.",
+      "rareType": "Gold"
+    },
+    "258128": {
+      "title": "ツクヨミステップ",
+      "rareType": "Gold"
+    },
+    "258129": {
+      "title": "folern",
+      "rareType": "Gold"
+    },
+    "258130": {
+      "title": "コスモポップファンクラブ",
+      "rareType": "Gold"
+    },
+    "258131": {
+      "title": "撩乱乙女†無双劇",
+      "rareType": "Gold"
+    },
+    "258132": {
+      "title": "See The Light",
+      "rareType": "Gold"
+    },
+    "258133": {
+      "title": "エータ・ベータ・イータ",
+      "rareType": "Gold"
+    },
+    "258135": {
+      "title": "くらべられっ子",
+      "rareType": "Gold"
+    },
+    "258136": {
+      "title": "あの世行きのバスに乗ってさらば。",
+      "rareType": "Gold"
+    },
+    "258138": {
+      "title": "ヴァンパイア",
+      "rareType": "Gold"
+    },
+    "258139": {
+      "title": "エンヴィーベイビー",
+      "rareType": "Gold"
+    },
+    "258140": {
+      "title": "初音天地開闢神話",
+      "rareType": "Gold"
+    },
+    "258141": {
+      "title": "Armageddon",
+      "rareType": "Gold"
+    },
+    "258142": {
+      "title": "Dreadnought",
+      "rareType": "Gold"
+    },
+    "258143": {
+      "title": "enchanted love",
+      "rareType": "Gold"
+    },
+    "258144": {
+      "title": "Caterpillar Song",
+      "rareType": "Gold"
+    },
+    "258145": {
+      "title": "Photon Melodies",
+      "rareType": "Gold"
+    },
+    "258146": {
+      "title": "吾輩よ猫であれ",
+      "rareType": "Gold"
+    },
+    "258147": {
+      "title": "None",
+      "rareType": "Gold"
+    },
+    "258148": {
+      "title": "BLUE ZONE",
+      "rareType": "Gold"
+    },
+    "258149": {
+      "title": "Estahv",
+      "rareType": "Gold"
+    },
+    "258150": {
+      "title": "First Dance",
+      "rareType": "Gold"
+    },
+    "258151": {
+      "title": "Mjölnir",
+      "rareType": "Gold"
+    },
+    "258152": {
+      "title": "Define",
+      "rareType": "Gold"
+    },
+    "258153": {
+      "title": "BANG!",
+      "rareType": "Gold"
+    },
+    "258154": {
+      "title": "Love's Theme of BADASS ～バッド・アス 愛のテーマ～",
+      "rareType": "Gold"
+    },
+    "258155": {
+      "title": "オントロジー",
+      "rareType": "Gold"
+    },
+    "258156": {
+      "title": "剣を抜け！GCCX MAX",
+      "rareType": "Gold"
+    },
+    "258157": {
+      "title": "Princess♂",
+      "rareType": "Gold"
+    },
+    "258158": {
+      "title": "ヒトガタ",
+      "rareType": "Gold"
+    },
+    "258159": {
+      "title": "Spring of Dreams",
+      "rareType": "Gold"
+    },
+    "258160": {
+      "title": "大輪の魂 (feat. AO, 司芭扶)",
+      "rareType": "Gold"
+    },
+    "258161": {
+      "title": "紅に染まる恋の花",
+      "rareType": "Gold"
+    },
+    "258162": {
+      "title": "三妖精SAY YA!!!",
+      "rareType": "Gold"
+    },
+    "258163": {
+      "title": "Reach For The Stars (Re-Colors)",
+      "rareType": "Gold"
+    },
+    "258164": {
+      "title": "ジャンキーナイトタウンオーケストラ",
+      "rareType": "Gold"
+    },
+    "258165": {
+      "title": "終焉逃避行",
+      "rareType": "Gold"
+    },
+    "258166": {
+      "title": "8-EM",
+      "rareType": "Gold"
+    },
+    "258167": {
+      "title": "若い力",
+      "rareType": "Gold"
+    },
+    "258168": {
+      "title": "遺伝子レベル∞スパイラル",
+      "rareType": "Gold"
+    },
+    "258169": {
+      "title": "otorii INNOVATED -[i]3-",
+      "rareType": "Gold"
+    },
+    "258170": {
+      "title": "エゴロック",
+      "rareType": "Gold"
+    },
+    "258171": {
+      "title": "ただ選択があった",
+      "rareType": "Gold"
+    },
+    "258172": {
+      "title": "パズルリボン",
+      "rareType": "Gold"
+    },
+    "258173": {
+      "title": "YONA YONA DANCE",
+      "rareType": "Gold"
+    },
+    "258174": {
+      "title": "Transcend Lights",
+      "rareType": "Gold"
+    },
+    "258501": {
+      "title": "『全ては一つの幸福に集約された。今日と言う日は人類が真の幸福へ舵を切った輝かしい歴史の転換である』",
+      "rareType": "Gold"
+    },
+    "258502": {
+      "title": "U,iNVERSE",
+      "rareType": "Gold"
+    },
+    "258503": {
+      "title": "N3V3R G3T OV3R DRiV3",
+      "rareType": "Gold"
+    },
+    "258504": {
+      "title": "世紀末",
+      "rareType": "Gold"
+    },
+    "258505": {
+      "title": "ロケ地：大鳥居セガ",
+      "rareType": "Normal"
+    },
+    "258506": {
+      "title": "Be For 舞",
+      "rareType": "Bronze"
+    },
+    "258507": {
+      "title": "まずはこっちおいで",
+      "rareType": "Normal"
+    },
+    "258508": {
+      "title": "あたしヴァンパイア",
+      "rareType": "Bronze"
+    },
+    "258509": {
+      "title": "きみもヴァンパイア",
+      "rareType": "Normal"
+    },
+    "258510": {
+      "title": "ジャマママ マ",
+      "rareType": "Normal"
+    },
+    "258511": {
+      "title": "「次は君のいる世界に　この歌を　届けに行くよ」",
+      "rareType": "Normal"
+    },
+    "258512": {
+      "title": "どーでもいいこと呟いてんな",
+      "rareType": "Normal"
+    },
+    "258513": {
+      "title": "逃げてしまえたら。",
+      "rareType": "Normal"
+    },
+    "258514": {
+      "title": "ネットの髑髏",
+      "rareType": "Normal"
+    },
+    "258515": {
+      "title": "勝ち負け取り憑かれナンセンス",
+      "rareType": "Normal"
+    },
+    "258516": {
+      "title": "ほらテンテコへンテコ舞舞",
+      "rareType": "Silver"
+    },
+    "258517": {
+      "title": "はぁ～～～～～～～～～～",
+      "rareType": "Normal"
+    },
+    "258518": {
+      "title": "ただ洗濯機があった",
+      "rareType": "Bronze"
+    },
+    "258519": {
+      "title": "人生は選択の連続",
+      "rareType": "Normal"
+    },
+    "258522": {
+      "title": "私をほっといて",
+      "rareType": "Normal"
+    },
+    "258526": {
+      "title": "夢に見た様なそんな未来さ",
+      "rareType": "Normal"
+    },
+    "258527": {
+      "title": "雨天決行",
+      "rareType": "Normal"
+    },
+    "258528": {
+      "title": "一機やらしてもらってよかですか？",
+      "rareType": "Normal"
+    },
+    "258529": {
+      "title": "パターン入った！",
+      "rareType": "Normal"
+    },
+    "258530": {
+      "title": "ゲームセンターCX！ 課長ON！！",
+      "rareType": "Normal"
+    },
+    "258531": {
+      "title": "たまに行くならこんなゲームセンター",
+      "rareType": "Normal"
+    },
+    "258532": {
+      "title": "人畜無害な面したサイコパス",
+      "rareType": "Normal"
+    },
+    "258533": {
+      "title": "ココロを叫べ！",
+      "rareType": "Normal"
+    },
+    "258534": {
+      "title": "返せ返せ僕のSYNCを",
+      "rareType": "Normal"
+    },
+    "258535": {
+      "title": "≡縦連打は人生≡",
+      "rareType": "Gold"
+    },
+    "258536": {
+      "title": "ばーか",
+      "rareType": "Normal"
+    },
+    "258537": {
+      "title": "ATM",
+      "rareType": "Normal"
+    },
+    "258538": {
+      "title": "4月1日でございます",
+      "rareType": "Normal"
+    },
+    "258539": {
+      "title": "maimaiをプレイして感覚を掴め",
+      "rareType": "Normal"
+    },
+    "258540": {
+      "title": "確実にゴッ！",
+      "rareType": "Normal"
+    },
+    "258541": {
+      "title": "向こうの部屋に行きましょうか",
+      "rareType": "Normal"
+    },
+    "258542": {
+      "title": "のらねこさい",
+      "rareType": "Normal"
+    },
+    "258543": {
+      "title": "恐れ知らず",
+      "rareType": "Normal"
+    },
+    "258544": {
+      "title": "愛してますよ、王子様。",
+      "rareType": "Normal"
+    },
+    "258545": {
+      "title": "いもむし先生",
+      "rareType": "Normal"
+    },
+    "258546": {
+      "title": "この宙を超えて降り注ぎ　星を星を満たす",
+      "rareType": "Normal"
+    },
+    "258547": {
+      "title": "恋は宇宙的！何て宇宙的！",
+      "rareType": "Normal"
+    },
+    "258548": {
+      "title": "ディグラー",
+      "rareType": "Normal"
+    },
+    "258549": {
+      "title": "爆発は好きか！！！！",
+      "rareType": "Bronze"
+    },
+    "258550": {
+      "title": "明日にぶち込む納期と進捗",
+      "rareType": "Normal"
+    },
+    "258551": {
+      "title": "知的創造で社会に貢献",
+      "rareType": "Normal"
+    },
+    "258552": {
+      "title": "先進技術で時代の先取",
+      "rareType": "Normal"
+    },
+    "258553": {
+      "title": "人社一体で目標追求",
+      "rareType": "Normal"
+    },
+    "258554": {
+      "title": "創造は生命",
+      "rareType": "Normal"
+    },
+    "258555": {
+      "title": "愛社精神",
+      "rareType": "Normal"
+    },
+    "258556": {
+      "title": "おもしろmaimai倉庫",
+      "rareType": "Normal"
+    },
+    "258557": {
+      "title": "Kyrie",
+      "rareType": "Gold"
+    },
+    "259001": {
+      "title": "Rating Achiever -銅-",
+      "rareType": "Bronze"
+    },
+    "259002": {
+      "title": "Rating Achiever -銀-",
+      "rareType": "Bronze"
+    },
+    "259003": {
+      "title": "Rating Achiever -金-",
+      "rareType": "Silver"
+    },
+    "259004": {
+      "title": "Rating Achiever -白金-",
+      "rareType": "Silver"
+    },
+    "300011": {
+      "title": "し、仕事が早すぎる",
+      "rareType": "Gold"
+    },
+    "300012": {
+      "title": "インターネットパワー",
+      "rareType": "Gold"
+    },
+    "300013": {
+      "title": "もまいらさんくす",
+      "rareType": "Gold"
+    },
+    "300014": {
+      "title": "つかれたつかれたつかれた！解散！",
+      "rareType": "Gold"
+    },
+    "300015": {
+      "title": "KING of パワー",
+      "rareType": "Gold"
+    },
+    "300016": {
+      "title": "金なら出しますから・・・",
+      "rareType": "Gold"
+    },
+    "300017": {
+      "title": "企業努力配置",
+      "rareType": "Gold"
+    },
+    "300018": {
+      "title": "そろそろ新人ではない",
+      "rareType": "Gold"
+    },
+    "300019": {
+      "title": "この後爆破します",
+      "rareType": "Gold"
+    },
+    "300020": {
+      "title": "マジの超特大",
+      "rareType": "Gold"
+    },
+    "300021": {
+      "title": "つあメン覚醒電鉄　普通",
+      "rareType": "Bronze"
+    },
+    "300022": {
+      "title": "つあメン覚醒電鉄　準急",
+      "rareType": "Bronze"
+    },
+    "300023": {
+      "title": "つあメン覚醒電鉄　快速",
+      "rareType": "Silver"
+    },
+    "300024": {
+      "title": "つあメン覚醒電鉄　急行",
+      "rareType": "Silver"
+    },
+    "300025": {
+      "title": "つあメン覚醒電鉄　特急",
+      "rareType": "Silver"
+    },
+    "300026": {
+      "title": "つあメン覚醒電鉄　エアポート舞特",
+      "rareType": "Gold"
+    },
+    "300027": {
+      "title": "つあメン覚醒電鉄　でらっくまライナー",
+      "rareType": "Gold"
+    },
+    "300028": {
+      "title": "つあメン覚醒電鉄　しゅわわエクスプレス",
+      "rareType": "Gold"
+    },
+    "300029": {
+      "title": "つあメン覚醒電鉄　銀河の鉄道",
+      "rareType": "Gold"
+    },
+    "300030": {
+      "title": "つあメン覚醒電鉄　お祭り特急",
+      "rareType": "Gold"
+    },
+    "300101": {
+      "title": "ラズ（ふぇすてぃばる） 推し",
+      "rareType": "Silver"
+    },
+    "300102": {
+      "title": "シフォン（ふぇすてぃばる） 推し",
+      "rareType": "Silver"
+    },
+    "300103": {
+      "title": "ソルト（ふぇすてぃばる） 推し",
+      "rareType": "Silver"
+    },
+    "300104": {
+      "title": "でらっくま（ふぇすてぃばる） 推し",
+      "rareType": "Silver"
+    },
+    "300105": {
+      "title": "らいむっくま（ふぇすてぃばる） 推し",
+      "rareType": "Silver"
+    },
+    "300106": {
+      "title": "れもんっくま（ふぇすてぃばる） 推し",
+      "rareType": "Silver"
+    },
+    "300199": {
+      "title": "10年後に、またこの星で",
+      "rareType": "Gold"
+    },
+    "300201": {
+      "title": "黒姫 ガチ勢",
+      "rareType": "Silver"
+    },
+    "300202": {
+      "title": "紫黒 すき",
+      "rareType": "Silver"
+    },
+    "300203": {
+      "title": "高麗 すき",
+      "rareType": "Silver"
+    },
+    "300204": {
+      "title": "濡羽 すき",
+      "rareType": "Silver"
+    },
+    "300205": {
+      "title": "イーシュ すき",
+      "rareType": "Silver"
+    },
+    "300299": {
+      "title": "開戦前夜の調停者",
+      "rareType": "Gold"
+    },
+    "300301": {
+      "title": "アカツキ ガチ勢",
+      "rareType": "Silver"
+    },
+    "300302": {
+      "title": "コハク すき",
+      "rareType": "Silver"
+    },
+    "300303": {
+      "title": "暁 推し",
+      "rareType": "Silver"
+    },
+    "300304": {
+      "title": "ノア ガチ勢",
+      "rareType": "Silver"
+    },
+    "300305": {
+      "title": "ソウ すき",
+      "rareType": "Silver"
+    },
+    "300399": {
+      "title": "6人目に刻む蝶",
+      "rareType": "Gold"
+    },
+    "300401": {
+      "title": "ディアン 推し",
+      "rareType": "Silver"
+    },
+    "300402": {
+      "title": "レヌス 推し",
+      "rareType": "Silver"
+    },
+    "300403": {
+      "title": "ルフタ 推し",
+      "rareType": "Silver"
+    },
+    "300404": {
+      "title": "ヴァハ 推し",
+      "rareType": "Silver"
+    },
+    "300405": {
+      "title": "ブリギット 推し",
+      "rareType": "Silver"
+    },
+    "300499": {
+      "title": "女神の大地を行く旅人",
+      "rareType": "Gold"
+    },
+    "300601": {
+      "title": "アウル ガチ勢",
+      "rareType": "Silver"
+    },
+    "300602": {
+      "title": "ヒュド・ルー すき",
+      "rareType": "Silver"
+    },
+    "300603": {
+      "title": "エリー ガチ勢",
+      "rareType": "Silver"
+    },
+    "300604": {
+      "title": "マスティマ すき",
+      "rareType": "Silver"
+    },
+    "300605": {
+      "title": "バイロン(堕天使) 推し",
+      "rareType": "Silver"
+    },
+    "300699": {
+      "title": "堕ちた翼の反逆",
+      "rareType": "Gold"
+    },
+    "305201": {
+      "title": "初音ミク（ヴァンパイア） 推し",
+      "rareType": "Silver"
+    },
+    "305202": {
+      "title": "初音ミク（アニマル） 推し",
+      "rareType": "Silver"
+    },
+    "305203": {
+      "title": "初音ミク（状態異常彼女） 推し",
+      "rareType": "Silver"
+    },
+    "305204": {
+      "title": "初音ミク（U） 推し",
+      "rareType": "Silver"
+    },
+    "305205": {
+      "title": "初音ミク（シンデレラ） 推し",
+      "rareType": "Silver"
+    },
+    "305206": {
+      "title": "初音ミク（ケサランパサラン） 推し",
+      "rareType": "Silver"
+    },
+    "305207": {
+      "title": "初音ミク（ギフト） 推し",
+      "rareType": "Silver"
+    },
+    "305208": {
+      "title": "初音ミク（パラサイト） 推し",
+      "rareType": "Silver"
+    },
+    "305209": {
+      "title": "初音ミク（ジレンマ） 推し",
+      "rareType": "Silver"
+    },
+    "305210": {
+      "title": "DECO*27 推し",
+      "rareType": "Silver"
+    },
+    "305299": {
+      "title": "DECO*27ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "305401": {
+      "title": "博麗 霊夢 ガチ勢",
+      "rareType": "Silver"
+    },
+    "305402": {
+      "title": "霧雨 魔理沙 ガチ勢",
+      "rareType": "Silver"
+    },
+    "305403": {
+      "title": "チルノ すき",
+      "rareType": "Silver"
+    },
+    "305404": {
+      "title": "レミリア・スカーレット ガチ勢",
+      "rareType": "Silver"
+    },
+    "305405": {
+      "title": "フランドール・スカーレット ガチ勢",
+      "rareType": "Silver"
+    },
+    "305499": {
+      "title": "東方Project×オンゲキちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "305501": {
+      "title": "名取さな（パレードコーデ） 推し",
+      "rareType": "Silver"
+    },
+    "305502": {
+      "title": "名取さな（制服さん） 推し",
+      "rareType": "Silver"
+    },
+    "305503": {
+      "title": "名取さな（いつものお洋服） 推し",
+      "rareType": "Silver"
+    },
+    "305504": {
+      "title": "名取さな（さなちゃんねる王） 推し",
+      "rareType": "Silver"
+    },
+    "305505": {
+      "title": "名取さな（ていねいな王様） 推し",
+      "rareType": "Silver"
+    },
+    "305506": {
+      "title": "うさちゃんせんせえ 推し",
+      "rareType": "Silver"
+    },
+    "305507": {
+      "title": "ねこちゃんせんせえ 推し",
+      "rareType": "Silver"
+    },
+    "305508": {
+      "title": "サーナくん 推し",
+      "rareType": "Silver"
+    },
+    "305509": {
+      "title": "アヘエビ 推し",
+      "rareType": "Silver"
+    },
+    "305599": {
+      "title": "さなちゃんねるちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "305701": {
+      "title": "樋口楓 すき",
+      "rareType": "Silver"
+    },
+    "305702": {
+      "title": "樋口楓（AIM） 推し",
+      "rareType": "Silver"
+    },
+    "305703": {
+      "title": "樋口楓（アーティスト衣装） 推し",
+      "rareType": "Silver"
+    },
+    "305704": {
+      "title": "ぷち樋口楓 推し",
+      "rareType": "Silver"
+    },
+    "305705": {
+      "title": "ぷち樋口楓（自転車通学） 推し",
+      "rareType": "Silver"
+    },
+    "305706": {
+      "title": "ぷち樋口楓（アーティスト衣装） 推し",
+      "rareType": "Silver"
+    },
+    "305707": {
+      "title": "ささみちゃん 推し",
+      "rareType": "Silver"
+    },
+    "305799": {
+      "title": "樋口楓ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "305801": {
+      "title": "日高零奈 推し",
+      "rareType": "Silver"
+    },
+    "305802": {
+      "title": "東雲和音 推し",
+      "rareType": "Silver"
+    },
+    "305803": {
+      "title": "茅野ふたば 推し",
+      "rareType": "Silver"
+    },
+    "305804": {
+      "title": "鳳凰火凛 推し",
+      "rareType": "Silver"
+    },
+    "305805": {
+      "title": "瀬戸海月 推し",
+      "rareType": "Silver"
+    },
+    "305806": {
+      "title": "大賀ルキア 推し",
+      "rareType": "Silver"
+    },
+    "305899": {
+      "title": "電音部ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "305901": {
+      "title": "クラウン 推し",
+      "rareType": "Silver"
+    },
+    "305902": {
+      "title": "哲学主 ジェフティ 推し",
+      "rareType": "Silver"
+    },
+    "305903": {
+      "title": "憎悪の始まりたる古竜 推し",
+      "rareType": "Silver"
+    },
+    "305904": {
+      "title": "七海 あおい 推し",
+      "rareType": "Silver"
+    },
+    "305905": {
+      "title": "高砂 瑞穂 推し",
+      "rareType": "Silver"
+    },
+    "305906": {
+      "title": "アストライア 推し",
+      "rareType": "Silver"
+    },
+    "305907": {
+      "title": "メリム 推し",
+      "rareType": "Silver"
+    },
+    "305999": {
+      "title": "CHUNITHMちほー2 箱推し",
+      "rareType": "Gold"
+    },
+    "306001": {
+      "title": "キュートなカノジョ 推し",
+      "rareType": "Silver"
+    },
+    "306002": {
+      "title": "ユウヤ 推し",
+      "rareType": "Silver"
+    },
+    "306003": {
+      "title": "アマノ ダイキ 推し",
+      "rareType": "Silver"
+    },
+    "306004": {
+      "title": "ユウヤ（へべれけ） 推し",
+      "rareType": "Silver"
+    },
+    "306005": {
+      "title": "syudou 推し",
+      "rareType": "Silver"
+    },
+    "306099": {
+      "title": "syudouちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "306101": {
+      "title": "光／Fracture 推し",
+      "rareType": "Silver"
+    },
+    "306102": {
+      "title": "対立／Tempest 推し",
+      "rareType": "Silver"
+    },
+    "306103": {
+      "title": "アリス&テニエル 推し",
+      "rareType": "Silver"
+    },
+    "306104": {
+      "title": "ラグランジュ 推し",
+      "rareType": "Silver"
+    },
+    "306199": {
+      "title": "Arcaeaちほー2 箱推し",
+      "rareType": "Gold"
+    },
+    "308101": {
+      "title": "ジングルベル",
+      "rareType": "Gold"
+    },
+    "308102": {
+      "title": "モザイクロール",
+      "rareType": "Gold"
+    },
+    "308103": {
+      "title": "火炎地獄",
+      "rareType": "Gold"
+    },
+    "308104": {
+      "title": "ケロ⑨destiny",
+      "rareType": "Gold"
+    },
+    "308105": {
+      "title": "M.S.S.Planet",
+      "rareType": "Gold"
+    },
+    "308106": {
+      "title": "響縁",
+      "rareType": "Gold"
+    },
+    "308107": {
+      "title": "Maxi",
+      "rareType": "Gold"
+    },
+    "308108": {
+      "title": "ホシシズク",
+      "rareType": "Gold"
+    },
+    "308109": {
+      "title": "Rainbow Rush Story",
+      "rareType": "Gold"
+    },
+    "308110": {
+      "title": "Tricolor⁂circuS",
+      "rareType": "Gold"
+    },
+    "308111": {
+      "title": "[X]",
+      "rareType": "Gold"
+    },
+    "308112": {
+      "title": "分解収束テイル",
+      "rareType": "Gold"
+    },
+    "308113": {
+      "title": "mystique as iris",
+      "rareType": "Gold"
+    },
+    "308114": {
+      "title": "Rising on the horizon",
+      "rareType": "Gold"
+    },
+    "308115": {
+      "title": "You Mean the World to Me",
+      "rareType": "Gold"
+    },
+    "308116": {
+      "title": "Neon Kingdom",
+      "rareType": "Gold"
+    },
+    "308117": {
+      "title": "#狂った民族２ PRAVARGYAZOOQA",
+      "rareType": "Gold"
+    },
+    "308118": {
+      "title": "VSpook!",
+      "rareType": "Gold"
+    },
+    "308119": {
+      "title": "RIFFRAIN",
+      "rareType": "Gold"
+    },
+    "308120": {
+      "title": "Falling",
+      "rareType": "Gold"
+    },
+    "308121": {
+      "title": "ピリオドサイン",
+      "rareType": "Gold"
+    },
+    "308122": {
+      "title": "群青シグナル",
+      "rareType": "Gold"
+    },
+    "308123": {
+      "title": "Beat Opera op.1",
+      "rareType": "Gold"
+    },
+    "308124": {
+      "title": "星見草",
+      "rareType": "Gold"
+    },
+    "308125": {
+      "title": "\"411Ψ892\"",
+      "rareType": "Gold"
+    },
+    "308126": {
+      "title": "康莊大道",
+      "rareType": "Gold"
+    },
+    "308127": {
+      "title": "蜘蛛の糸",
+      "rareType": "Gold"
+    },
+    "308128": {
+      "title": "Don't Fight The Music",
+      "rareType": "Gold"
+    },
+    "308129": {
+      "title": "Catch Me If You Can",
+      "rareType": "Gold"
+    },
+    "308130": {
+      "title": "MAGNETAR GIRL",
+      "rareType": "Gold"
+    },
+    "308131": {
+      "title": "SUPER AMBULANCE",
+      "rareType": "Gold"
+    },
+    "308132": {
+      "title": "Ghost Dance",
+      "rareType": "Gold"
+    },
+    "308133": {
+      "title": "ピュグマリオンの咒文",
+      "rareType": "Gold"
+    },
+    "308134": {
+      "title": "電光石火",
+      "rareType": "Gold"
+    },
+    "308135": {
+      "title": "Hainuwele",
+      "rareType": "Gold"
+    },
+    "308137": {
+      "title": "アニマル",
+      "rareType": "Gold"
+    },
+    "308138": {
+      "title": "ジレンマ",
+      "rareType": "Gold"
+    },
+    "308139": {
+      "title": "踊",
+      "rareType": "Gold"
+    },
+    "308140": {
+      "title": "残響散歌",
+      "rareType": "Gold"
+    },
+    "308141": {
+      "title": "フォニイ",
+      "rareType": "Gold"
+    },
+    "308142": {
+      "title": "ヴィラン",
+      "rareType": "Gold"
+    },
+    "308143": {
+      "title": "EYE",
+      "rareType": "Gold"
+    },
+    "308144": {
+      "title": "スカーレット警察のゲットーパトロール24時",
+      "rareType": "Gold"
+    },
+    "308145": {
+      "title": "田中",
+      "rareType": "Gold"
+    },
+    "308146": {
+      "title": "Random",
+      "rareType": "Gold"
+    },
+    "308147": {
+      "title": "Luminaria",
+      "rareType": "Gold"
+    },
+    "308151": {
+      "title": "銀のめぐり",
+      "rareType": "Gold"
+    },
+    "308152": {
+      "title": "Destiny Runner",
+      "rareType": "Gold"
+    },
+    "308153": {
+      "title": "アマカミサマ",
+      "rareType": "Gold"
+    },
+    "308154": {
+      "title": "モンダイナイトリッパー！",
+      "rareType": "Gold"
+    },
+    "308155": {
+      "title": "マーシャル・マキシマイザー",
+      "rareType": "Gold"
+    },
+    "308156": {
+      "title": "秋の未確認生物",
+      "rareType": "Gold"
+    },
+    "308158": {
+      "title": "エナドリおいしいソング",
+      "rareType": "Gold"
+    },
+    "308159": {
+      "title": "Baddest",
+      "rareType": "Gold"
+    },
+    "308160": {
+      "title": "ばかみたい【Taxi Driver Edition】",
+      "rareType": "Gold"
+    },
+    "308161": {
+      "title": "れっつ！みらくる☆はーどこあっ！",
+      "rareType": "Gold"
+    },
+    "308162": {
+      "title": "Blank Paper (Prod. TEMPLIME)",
+      "rareType": "Gold"
+    },
+    "308163": {
+      "title": "In my world (Prod. KOTONOHOUSE)",
+      "rareType": "Gold"
+    },
+    "308164": {
+      "title": "アイム・マイヒーロー",
+      "rareType": "Gold"
+    },
+    "308165": {
+      "title": "NightTheater",
+      "rareType": "Gold"
+    },
+    "308166": {
+      "title": "キュートなカノジョ",
+      "rareType": "Gold"
+    },
+    "308167": {
+      "title": "へべれけジャンキー",
+      "rareType": "Gold"
+    },
+    "308168": {
+      "title": "きゅうくらりん",
+      "rareType": "Gold"
+    },
+    "308169": {
+      "title": "回る空うさぎ",
+      "rareType": "Gold"
+    },
+    "308170": {
+      "title": "Lost Desire",
+      "rareType": "Gold"
+    },
+    "308171": {
+      "title": "Aegleseeker",
+      "rareType": "Gold"
+    },
+    "308172": {
+      "title": "最強STRONGER",
+      "rareType": "Gold"
+    },
+    "308173": {
+      "title": "ボッカデラベリタ",
+      "rareType": "Gold"
+    },
+    "308174": {
+      "title": "『んっあっあっ。』",
+      "rareType": "Gold"
+    },
+    "308175": {
+      "title": "独りんぼエンヴィー",
+      "rareType": "Gold"
+    },
+    "308176": {
+      "title": "ロータスイーター",
+      "rareType": "Gold"
+    },
+    "308177": {
+      "title": "Alice's Suitcase",
+      "rareType": "Gold"
+    },
+    "308178": {
+      "title": "ViRTUS",
+      "rareType": "Gold"
+    },
+    "308503": {
+      "title": "踊りだせ　踊りだせ",
+      "rareType": "Normal"
+    },
+    "308504": {
+      "title": "満員御礼",
+      "rareType": "Normal"
+    },
+    "308505": {
+      "title": "ド派手に行くぜ",
+      "rareType": "Silver"
+    },
+    "308506": {
+      "title": "おはようございナース！",
+      "rareType": "Normal"
+    },
+    "308507": {
+      "title": "せんせえ",
+      "rareType": "Normal"
+    },
+    "308508": {
+      "title": "うおおおおおおおおおおおおおおおおおおおおおお",
+      "rareType": "Normal"
+    },
+    "308509": {
+      "title": "モンダイアリトリッパー！",
+      "rareType": "Normal"
+    },
+    "308512": {
+      "title": "でろーんでろーん こんでろーん！",
+      "rareType": "Normal"
+    },
+    "308513": {
+      "title": "すっぴん",
+      "rareType": "Bronze"
+    },
+    "308514": {
+      "title": "にゃーお　うーにゃお　しゃしゃしゃ",
+      "rareType": "Normal"
+    },
+    "308515": {
+      "title": "くらえバンバンバン",
+      "rareType": "Bronze"
+    },
+    "308516": {
+      "title": "きみの“好き”の後遺症",
+      "rareType": "Normal"
+    },
+    "308517": {
+      "title": "いつかまた好きをくれることってある？",
+      "rareType": "Bronze"
+    },
+    "308518": {
+      "title": "ねえきみの隣に　いきたいな",
+      "rareType": "Normal"
+    },
+    "308519": {
+      "title": "きみ以外の誰か好きになれるとか、ない",
+      "rareType": "Bronze"
+    },
+    "308520": {
+      "title": "踊り明かせよ",
+      "rareType": "Normal"
+    },
+    "308521": {
+      "title": "この世で造花より綺麗な花は無いわ",
+      "rareType": "Bronze"
+    },
+    "308522": {
+      "title": "パッパラパッパララッパッパ",
+      "rareType": "Normal"
+    },
+    "308523": {
+      "title": "antipathy world",
+      "rareType": "Normal"
+    },
+    "308524": {
+      "title": "リンド　リンド",
+      "rareType": "Normal"
+    },
+    "308525": {
+      "title": "で？",
+      "rareType": "Normal"
+    },
+    "308526": {
+      "title": "蛇蝎ライフ",
+      "rareType": "Normal"
+    },
+    "308536": {
+      "title": "14听を嗤う蔑奴",
+      "rareType": "Normal"
+    },
+    "308537": {
+      "title": "失敗！（Fail）",
+      "rareType": "Normal"
+    },
+    "308538": {
+      "title": "『おいしい！』",
+      "rareType": "Normal"
+    },
+    "308539": {
+      "title": "それは即ち",
+      "rareType": "Normal"
+    },
+    "308540": {
+      "title": "完全把握しないと気が済まないの",
+      "rareType": "Bronze"
+    },
+    "308541": {
+      "title": "誰だ誰だ悪いのは誰だ？",
+      "rareType": "Normal"
+    },
+    "308542": {
+      "title": "ああ　幸せになっちまうよ",
+      "rareType": "Normal"
+    },
+    "308543": {
+      "title": "まけるな明日に",
+      "rareType": "Normal"
+    },
+    "308544": {
+      "title": "夢じゃないや",
+      "rareType": "Bronze"
+    },
+    "308545": {
+      "title": "あああああああああ",
+      "rareType": "Normal"
+    },
+    "308546": {
+      "title": "おぅっ…",
+      "rareType": "Normal"
+    },
+    "308547": {
+      "title": "「もーーーーーーーーーーーーーーーーーーーーーーーーーーーー！」",
+      "rareType": "Normal"
+    },
+    "308548": {
+      "title": "楽しく踊る気ままな知らぬ子",
+      "rareType": "Normal"
+    },
+    "308549": {
+      "title": "今日も明日もみんなと遊ぼう",
+      "rareType": "Normal"
+    },
+    "308550": {
+      "title": "まだ、ねんねしたい。",
+      "rareType": "Normal"
+    },
+    "308551": {
+      "title": "罪状「スカーレット警察侮辱罪」",
+      "rareType": "Normal"
+    },
+    "308552": {
+      "title": "まどろむ白、現は黒",
+      "rareType": "Normal"
+    },
+    "308553": {
+      "title": "田中、勝った!",
+      "rareType": "Normal"
+    },
+    "308554": {
+      "title": "佐藤",
+      "rareType": "Bronze"
+    },
+    "308555": {
+      "title": "鈴木",
+      "rareType": "Bronze"
+    },
+    "308556": {
+      "title": "高橋",
+      "rareType": "Bronze"
+    },
+    "308557": {
+      "title": "中田",
+      "rareType": "Bronze"
+    },
+    "308558": {
+      "title": "田中変拍子：46回",
+      "rareType": "Normal"
+    },
+    "308559": {
+      "title": "当たり待ち",
+      "rareType": "Normal"
+    },
+    "308560": {
+      "title": "PLAY LIKE YOU NEVER DID BEFORE",
+      "rareType": "Normal"
+    },
+    "308561": {
+      "title": "Dramatical",
+      "rareType": "Silver"
+    },
+    "308562": {
+      "title": "無敵のゾーンへ。",
+      "rareType": "Normal"
+    },
+    "308563": {
+      "title": "速さを求めすぎだろ。",
+      "rareType": "Normal"
+    },
+    "308564": {
+      "title": "空き缶の主張が激しすぎる。",
+      "rareType": "Normal"
+    },
+    "308565": {
+      "title": "ゴリゴリに治安の悪い音ゲー曲",
+      "rareType": "Silver"
+    },
+    "308566": {
+      "title": "ほぼ音ゲー曲じゃねぇか",
+      "rareType": "Normal"
+    },
+    "308567": {
+      "title": "ノリと勢い",
+      "rareType": "Normal"
+    },
+    "308569": {
+      "title": "Dame Da Ne",
+      "rareType": "Normal"
+    },
+    "308570": {
+      "title": "もう普通のオプションはやり飽きたんじゃ～！！",
+      "rareType": "Bronze"
+    },
+    "308571": {
+      "title": "これって洗濯機の部品で作った筐体なんだって！",
+      "rareType": "Normal"
+    },
+    "308572": {
+      "title": "あ、プロジェクトファイル上書きしちゃったかも",
+      "rareType": "Normal"
+    },
+    "308573": {
+      "title": "そろそろおいとま～～",
+      "rareType": "Normal"
+    },
+    "308574": {
+      "title": "私を音で伝えよう",
+      "rareType": "Normal"
+    },
+    "308575": {
+      "title": "自然に笑えるようになったんだ",
+      "rareType": "Normal"
+    },
+    "308576": {
+      "title": "草原を駆けるように自由だ",
+      "rareType": "Silver"
+    },
+    "308577": {
+      "title": "世界はもう既にこの手の中",
+      "rareType": "Normal"
+    },
+    "308578": {
+      "title": "今宵、劇場に映し出される景色とは――――。",
+      "rareType": "Normal"
+    },
+    "308579": {
+      "title": "最高の未来にするんだろう？",
+      "rareType": "Bronze"
+    },
+    "308580": {
+      "title": "哭いて…",
+      "rareType": "Normal"
+    },
+    "308581": {
+      "title": "and in that light, I find deliverance.",
+      "rareType": "Normal"
+    },
+    "308582": {
+      "title": "そうです、私たちが最強です。",
+      "rareType": "Gold"
+    },
+    "308583": {
+      "title": "■◆■◆",
+      "rareType": "Gold"
+    },
+    "308584": {
+      "title": "絶望を知るがいい！",
+      "rareType": "Normal"
+    },
+    "308585": {
+      "title": "魔法かけてさよなら",
+      "rareType": "Normal"
+    },
+    "308586": {
+      "title": "すごい救急車",
+      "rareType": "Normal"
+    },
+    "308588": {
+      "title": "憎しみの二重螺旋",
+      "rareType": "Gold"
+    },
+    "308589": {
+      "title": "いつも通勤に使っている電車なのですが、先程から20分くらい駅に停まりません。",
+      "rareType": "Normal"
+    },
+    "308590": {
+      "title": "四周年相聚",
+      "rareType": "Normal"
+    },
+    "350001": {
+      "title": "【祝】舞萌DX 2024 虹RATING【到達】",
+      "rareType": "Gold"
+    },
+    "350028": {
+      "title": "あなたの実力から逃げるな",
+      "rareType": "Gold"
+    },
+    "350029": {
+      "title": "ガッツポーズしたらできた",
+      "rareType": "Gold"
+    },
+    "350030": {
+      "title": "そういう需要もある",
+      "rareType": "Gold"
+    },
+    "350031": {
+      "title": "中学生辺りが目覚めそう",
+      "rareType": "Gold"
+    },
+    "350032": {
+      "title": "緩急の急しかない",
+      "rareType": "Gold"
+    },
+    "350033": {
+      "title": "これは天才のアサイン",
+      "rareType": "Gold"
+    },
+    "350034": {
+      "title": "信用可能人物",
+      "rareType": "Gold"
+    },
+    "350035": {
+      "title": "「「致命的で草」」",
+      "rareType": "Gold"
+    },
+    "350036": {
+      "title": "オレはいったい何をしてるんだろう",
+      "rareType": "Gold"
+    },
+    "350037": {
+      "title": "289年後に販売されます",
+      "rareType": "Gold"
+    },
+    "350101": {
+      "title": "ラズ（ツムギボシ） 推し",
+      "rareType": "Silver"
+    },
+    "350102": {
+      "title": "シフォン（ツムギボシ） 推し",
+      "rareType": "Silver"
+    },
+    "350103": {
+      "title": "ソルト（ツムギボシ） 推し",
+      "rareType": "Silver"
+    },
+    "350104": {
+      "title": "ダンディ・ダン（ツムギボシ） 推し",
+      "rareType": "Silver"
+    },
+    "350105": {
+      "title": "エリザビー（ツムギボシ） 推し",
+      "rareType": "Silver"
+    },
+    "350199": {
+      "title": "駆けだそう、君と君と君を連れて",
+      "rareType": "Gold"
+    },
+    "350301": {
+      "title": "アカツキしか勝たん",
+      "rareType": "Silver"
+    },
+    "350302": {
+      "title": "ノア（過去） 推し",
+      "rareType": "Silver"
+    },
+    "350303": {
+      "title": "コハク ガチ勢",
+      "rareType": "Silver"
+    },
+    "350304": {
+      "title": "アカツキ（正装） 推し",
+      "rareType": "Silver"
+    },
+    "350399": {
+      "title": "君が願う世界",
+      "rareType": "Gold"
+    },
+    "350401": {
+      "title": "アスク 推し",
+      "rareType": "Silver"
+    },
+    "350402": {
+      "title": "LED 推し",
+      "rareType": "Silver"
+    },
+    "350403": {
+      "title": "エムブラ 推し",
+      "rareType": "Silver"
+    },
+    "350499": {
+      "title": "序章～チビドラゴンと契約のジェム～",
+      "rareType": "Gold"
+    },
+    "350601": {
+      "title": "ルイ（幼少期） 推し",
+      "rareType": "Silver"
+    },
+    "350602": {
+      "title": "SDニック 推し",
+      "rareType": "Silver"
+    },
+    "350603": {
+      "title": "SDブラット 推し",
+      "rareType": "Silver"
+    },
+    "350604": {
+      "title": "SDアウル 推し",
+      "rareType": "Silver"
+    },
+    "350605": {
+      "title": "ニック＆ブラット 推し",
+      "rareType": "Silver"
+    },
+    "350699": {
+      "title": "敏腕情報屋とチーム結成",
+      "rareType": "Gold"
+    },
+    "350701": {
+      "title": "でらっくま（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350702": {
+      "title": "らいむっくま（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350703": {
+      "title": "れもんっくま（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350704": {
+      "title": "ラズ（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350705": {
+      "title": "シフォン（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350706": {
+      "title": "ソルト（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350707": {
+      "title": "乙姫（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350708": {
+      "title": "みるく（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350709": {
+      "title": "しゃま（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350710": {
+      "title": "maimaiちゃん（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350711": {
+      "title": "はっぴー（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350712": {
+      "title": "カメ（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350713": {
+      "title": "タイ（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350714": {
+      "title": "ニャイン（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350715": {
+      "title": "ナカムラさん（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350716": {
+      "title": "ブクロ（10周年） 推し",
+      "rareType": "Silver"
+    },
+    "350717": {
+      "title": "maimai筐体 推し",
+      "rareType": "Silver"
+    },
+    "350718": {
+      "title": "maimai筐体（GreeN） 推し",
+      "rareType": "Silver"
+    },
+    "350719": {
+      "title": "maimai筐体（ORANGE） 推し",
+      "rareType": "Silver"
+    },
+    "350720": {
+      "title": "maimai筐体（PiNK） 推し",
+      "rareType": "Silver"
+    },
+    "350721": {
+      "title": "maimai筐体（MURASAKi） 推し",
+      "rareType": "Silver"
+    },
+    "350722": {
+      "title": "maimai筐体（MiLK） 推し",
+      "rareType": "Silver"
+    },
+    "350723": {
+      "title": "maimai筐体（FiNALE） 推し",
+      "rareType": "Silver"
+    },
+    "350724": {
+      "title": "maimai筐体（でらっくす） 推し",
+      "rareType": "Silver"
+    },
+    "350725": {
+      "title": "maimai筐体（Splash） 推し",
+      "rareType": "Silver"
+    },
+    "350726": {
+      "title": "maimai筐体（UNiVERSE） 推し",
+      "rareType": "Silver"
+    },
+    "350727": {
+      "title": "maimai筐体（FESTiVAL） 推し",
+      "rareType": "Silver"
+    },
+    "350799": {
+      "title": "maimai 10th ANNiVERSARY!!",
+      "rareType": "Gold"
+    },
+    "355101": {
+      "title": "田中ヒメ 推し",
+      "rareType": "Silver"
+    },
+    "355102": {
+      "title": "田中ヒメ（藍の華） 推し",
+      "rareType": "Silver"
+    },
+    "355103": {
+      "title": "田中ヒメ（希織歌） 推し",
+      "rareType": "Silver"
+    },
+    "355104": {
+      "title": "鈴木ヒナ 推し",
+      "rareType": "Silver"
+    },
+    "355105": {
+      "title": "鈴木ヒナ（藍の華） 推し",
+      "rareType": "Silver"
+    },
+    "355106": {
+      "title": "鈴木ヒナ（希織歌） 推し",
+      "rareType": "Silver"
+    },
+    "355199": {
+      "title": "ヒメヒナちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "355201": {
+      "title": "シスター（神っぽいな） 推し",
+      "rareType": "Silver"
+    },
+    "355202": {
+      "title": "魔法少女（魔法少女とチョコレゐト） 推し",
+      "rareType": "Silver"
+    },
+    "355203": {
+      "title": "アイマイナ 推し",
+      "rareType": "Silver"
+    },
+    "355204": {
+      "title": "どうしてちゃん 推し",
+      "rareType": "Silver"
+    },
+    "355205": {
+      "title": "アルティメットセンパイ 推し",
+      "rareType": "Silver"
+    },
+    "355206": {
+      "title": "ピノキオピー 推し",
+      "rareType": "Silver"
+    },
+    "355299": {
+      "title": "ピノキオピーちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "355301": {
+      "title": "リン（ベーシスト） 推し",
+      "rareType": "Silver"
+    },
+    "355302": {
+      "title": "リン（不良少女） 推し",
+      "rareType": "Silver"
+    },
+    "355303": {
+      "title": "ブロウ（パイロット） 推し",
+      "rareType": "Silver"
+    },
+    "355304": {
+      "title": "ブロウ（ゾンビガール） 推し",
+      "rareType": "Silver"
+    },
+    "355305": {
+      "title": "マリヤ（バイオリニスト） 推し",
+      "rareType": "Silver"
+    },
+    "355306": {
+      "title": "マリヤ（小悪魔） 推し",
+      "rareType": "Silver"
+    },
+    "355307": {
+      "title": "リン（ニャ宇宙！） 推し",
+      "rareType": "Silver"
+    },
+    "355308": {
+      "title": "ブロウ（ニャ宇宙！） 推し",
+      "rareType": "Silver"
+    },
+    "355309": {
+      "title": "マリヤ（ニャ宇宙！） 推し",
+      "rareType": "Silver"
+    },
+    "355399": {
+      "title": "Muse Dashちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "355401": {
+      "title": "明坂 芹菜（東方Project：射命丸 文） 推し",
+      "rareType": "Silver"
+    },
+    "355402": {
+      "title": "御形 アリシアナ（東方Project：小野塚 小町） 推し",
+      "rareType": "Silver"
+    },
+    "355403": {
+      "title": "天王洲 なずな（東方Project：風見 幽香） 推し",
+      "rareType": "Silver"
+    },
+    "355404": {
+      "title": "小仏 凪（東方Project：四季映姫・ヤマザナドゥ） 推し",
+      "rareType": "Silver"
+    },
+    "355405": {
+      "title": "箱部 なる（東方Project：チルノ　ウソテイver.） 推し",
+      "rareType": "Silver"
+    },
+    "355406": {
+      "title": "月鈴 那知（東方Project：因幡 てゐ） 推し",
+      "rareType": "Silver"
+    },
+    "355407": {
+      "title": "月鈴 白奈（東方Project：鈴仙・優曇華院・イナバ） 推し",
+      "rareType": "Silver"
+    },
+    "355408": {
+      "title": "明坂 芹菜（東方Project：蓬莱山 輝夜） 推し",
+      "rareType": "Silver"
+    },
+    "355409": {
+      "title": "御形 アリシアナ（東方Project：八意 永琳） 推し",
+      "rareType": "Silver"
+    },
+    "355410": {
+      "title": "天王洲 なずな（東方Project：因幡 てゐ） 推し",
+      "rareType": "Silver"
+    },
+    "355411": {
+      "title": "小仏 凪（東方Project：博麗 霊夢） 推し",
+      "rareType": "Silver"
+    },
+    "355412": {
+      "title": "箱部 なる（東方Project：チルノ） 推し",
+      "rareType": "Silver"
+    },
+    "355413": {
+      "title": "月鈴 那知（東方Project：伊吹 萃香） 推し",
+      "rareType": "Silver"
+    },
+    "355414": {
+      "title": "月鈴 白奈（東方Project：霧雨 魔理沙） 推し",
+      "rareType": "Silver"
+    },
+    "355499": {
+      "title": "東方Project×イロドリミドリちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "355501": {
+      "title": "御伽野ひめ 推し",
+      "rareType": "Silver"
+    },
+    "355502": {
+      "title": "ハイテックニンジャ 推し",
+      "rareType": "Silver"
+    },
+    "355503": {
+      "title": "ぱんしー 推し",
+      "rareType": "Silver"
+    },
+    "355504": {
+      "title": "まめゆ 推し",
+      "rareType": "Silver"
+    },
+    "355505": {
+      "title": "ダッコ & パンセ 推し",
+      "rareType": "Silver"
+    },
+    "355506": {
+      "title": "ナーガ・ネギ 推し",
+      "rareType": "Silver"
+    },
+    "355507": {
+      "title": "ネコらぴす 推し",
+      "rareType": "Silver"
+    },
+    "355508": {
+      "title": "ネコまめゆねこ 推し",
+      "rareType": "Silver"
+    },
+    "355509": {
+      "title": "ネコぽよし 推し",
+      "rareType": "Silver"
+    },
+    "355510": {
+      "title": "ジン・スサノ 推し",
+      "rareType": "Silver"
+    },
+    "355599": {
+      "title": "MEGAREXちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "355601": {
+      "title": "ねこ すき",
+      "rareType": "Silver"
+    },
+    "355602": {
+      "title": "ぐるん 推し",
+      "rareType": "Silver"
+    },
+    "355603": {
+      "title": "ペンギン 推し",
+      "rareType": "Silver"
+    },
+    "355604": {
+      "title": "ウーパールーパー 推し",
+      "rareType": "Silver"
+    },
+    "355605": {
+      "title": "デンゲンくん 推し",
+      "rareType": "Silver"
+    },
+    "355606": {
+      "title": "うさぎくん 推し",
+      "rareType": "Silver"
+    },
+    "355607": {
+      "title": "いぬくん 推し",
+      "rareType": "Silver"
+    },
+    "355608": {
+      "title": "あんはっぴーちゃん 推し",
+      "rareType": "Silver"
+    },
+    "355609": {
+      "title": "野生のでらっくま 推し",
+      "rareType": "Silver"
+    },
+    "355610": {
+      "title": "右肩 推し",
+      "rareType": "Silver"
+    },
+    "355611": {
+      "title": "真ん中 推し",
+      "rareType": "Silver"
+    },
+    "355612": {
+      "title": "左肩 推し",
+      "rareType": "Silver"
+    },
+    "355699": {
+      "title": "からめるちほー2 箱推し",
+      "rareType": "Gold"
+    },
+    "355701": {
+      "title": "可不 推し",
+      "rareType": "Silver"
+    },
+    "355702": {
+      "title": "可不（花となれ） 推し",
+      "rareType": "Silver"
+    },
+    "355703": {
+      "title": "可不（私のドッペルゲンガー） 推し",
+      "rareType": "Silver"
+    },
+    "355799": {
+      "title": "音楽的同位体　可不ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "355801": {
+      "title": "星咲 あかり（STARRED HEART） 推し",
+      "rareType": "Silver"
+    },
+    "355802": {
+      "title": "結城 莉玖（STARRED HEART） 推し",
+      "rareType": "Silver"
+    },
+    "355803": {
+      "title": "珠洲島 有栖（STARRED HEART） 推し",
+      "rareType": "Silver"
+    },
+    "355804": {
+      "title": "九條 楓（STARRED HEART） 推し",
+      "rareType": "Silver"
+    },
+    "355805": {
+      "title": "東雲 つむぎ（STARRED HEART） 推し",
+      "rareType": "Silver"
+    },
+    "355806": {
+      "title": "逢坂 茜（シュータードレス） 推し",
+      "rareType": "Silver"
+    },
+    "355807": {
+      "title": "珠洲島 有栖（シュータードレス） 推し",
+      "rareType": "Silver"
+    },
+    "355808": {
+      "title": "九條 楓（シュータードレス） 推し",
+      "rareType": "Silver"
+    },
+    "355809": {
+      "title": "皇城 セツナ（シュータードレス） 推し",
+      "rareType": "Silver"
+    },
+    "355899": {
+      "title": "オンゲキちほー6 箱推し",
+      "rareType": "Gold"
+    },
+    "358101": {
+      "title": "ナイト・オブ・ナイツ",
+      "rareType": "Gold"
+    },
+    "358102": {
+      "title": "Monochrome Rainbow",
+      "rareType": "Gold"
+    },
+    "358103": {
+      "title": "深海少女",
+      "rareType": "Gold"
+    },
+    "358104": {
+      "title": "Selector",
+      "rareType": "Gold"
+    },
+    "358105": {
+      "title": "トノサマビーム",
+      "rareType": "Gold"
+    },
+    "358106": {
+      "title": "enchanted wanderer",
+      "rareType": "Gold"
+    },
+    "358107": {
+      "title": "Comet Panto Men!",
+      "rareType": "Gold"
+    },
+    "358108": {
+      "title": "ツムギボシ",
+      "rareType": "Gold"
+    },
+    "358109": {
+      "title": "VeRForTe αRtE:VEiN",
+      "rareType": "Gold"
+    },
+    "358110": {
+      "title": "ヱデン",
+      "rareType": "Gold"
+    },
+    "358111": {
+      "title": "にゃーにゃー冒険譚",
+      "rareType": "Gold"
+    },
+    "358112": {
+      "title": "アンバークロニクル",
+      "rareType": "Gold"
+    },
+    "358113": {
+      "title": "リフヴェイン",
+      "rareType": "Gold"
+    },
+    "358114": {
+      "title": "Kairos",
+      "rareType": "Gold"
+    },
+    "358115": {
+      "title": "宵の鳥",
+      "rareType": "Gold"
+    },
+    "358116": {
+      "title": "ここからはじまるプロローグ。 (Kanon Remix)",
+      "rareType": "Gold"
+    },
+    "358117": {
+      "title": "モ°ルモ°ル (MZK Skippin' Remix)",
+      "rareType": "Gold"
+    },
+    "358118": {
+      "title": "VERTeX (rintaro soma deconstructed remix)",
+      "rareType": "Gold"
+    },
+    "358119": {
+      "title": "隠密あんみつDX",
+      "rareType": "Gold"
+    },
+    "358120": {
+      "title": "地球",
+      "rareType": "Gold"
+    },
+    "358121": {
+      "title": "Churros Parlor",
+      "rareType": "Gold"
+    },
+    "358122": {
+      "title": "超熊猫的周遊記（ワンダーパンダートラベラー）",
+      "rareType": "Gold"
+    },
+    "358123": {
+      "title": "Trrricksters!!",
+      "rareType": "Gold"
+    },
+    "358124": {
+      "title": "FLUFFY FLASH",
+      "rareType": "Gold"
+    },
+    "358125": {
+      "title": "STARRED HEART",
+      "rareType": "Gold"
+    },
+    "358126": {
+      "title": "Y.Y.Y.計画!!!!",
+      "rareType": "Gold"
+    },
+    "358127": {
+      "title": "Last Kingdom",
+      "rareType": "Gold"
+    },
+    "358128": {
+      "title": "LAMIA",
+      "rareType": "Gold"
+    },
+    "358129": {
+      "title": "ヒバリ",
+      "rareType": "Gold"
+    },
+    "358130": {
+      "title": "Hello, Hologram",
+      "rareType": "Gold"
+    },
+    "358131": {
+      "title": "不機嫌なスリーカード",
+      "rareType": "Gold"
+    },
+    "358132": {
+      "title": "神っぽいな",
+      "rareType": "Gold"
+    },
+    "358133": {
+      "title": "魔法少女とチョコレゐト",
+      "rareType": "Gold"
+    },
+    "358134": {
+      "title": "阿修羅ちゃん",
+      "rareType": "Gold"
+    },
+    "358135": {
+      "title": "おとせサンダー",
+      "rareType": "Gold"
+    },
+    "358136": {
+      "title": "ロウワー",
+      "rareType": "Gold"
+    },
+    "358137": {
+      "title": "キャットラビング",
+      "rareType": "Gold"
+    },
+    "358138": {
+      "title": "リスペク風神",
+      "rareType": "Gold"
+    },
+    "358139": {
+      "title": "Let you DIVE!",
+      "rareType": "Gold"
+    },
+    "358140": {
+      "title": "Knight Rider",
+      "rareType": "Gold"
+    },
+    "358141": {
+      "title": "INTERNET OVERDOSE",
+      "rareType": "Gold"
+    },
+    "358142": {
+      "title": "魂のルフラン",
+      "rareType": "Gold"
+    },
+    "358143": {
+      "title": "Shooting Shower～DANCE TIME(シンディ)～",
+      "rareType": "Gold"
+    },
+    "358144": {
+      "title": "Lights of Muse",
+      "rareType": "Gold"
+    },
+    "358145": {
+      "title": "tape/stop/night",
+      "rareType": "Gold"
+    },
+    "358146": {
+      "title": "Final Step!",
+      "rareType": "Gold"
+    },
+    "358147": {
+      "title": "The 90's Decision",
+      "rareType": "Gold"
+    },
+    "358148": {
+      "title": "僕の和風本当上手",
+      "rareType": "Gold"
+    },
+    "358149": {
+      "title": "Cthugha",
+      "rareType": "Gold"
+    },
+    "358150": {
+      "title": "はんぶんこ",
+      "rareType": "Gold"
+    },
+    "358151": {
+      "title": "インターネットサバイバー",
+      "rareType": "Gold"
+    },
+    "358152": {
+      "title": "コンティニュー！ feat. 藍月なくる",
+      "rareType": "Gold"
+    },
+    "358153": {
+      "title": "Sunday Night feat Kanata.N",
+      "rareType": "Gold"
+    },
+    "358154": {
+      "title": "PERSONA feat. PANXI",
+      "rareType": "Gold"
+    },
+    "358155": {
+      "title": "Halfway(>∀<)",
+      "rareType": "Gold"
+    },
+    "358156": {
+      "title": "Complex Mind",
+      "rareType": "Gold"
+    },
+    "358157": {
+      "title": "DROPS feat. Such",
+      "rareType": "Gold"
+    },
+    "358158": {
+      "title": "あつすぎの歌",
+      "rareType": "Gold"
+    },
+    "358159": {
+      "title": "ULTRA SYNERGY MATRIX",
+      "rareType": "Gold"
+    },
+    "358160": {
+      "title": "花となれ",
+      "rareType": "Gold"
+    },
+    "358161": {
+      "title": "私のドッペルゲンガー",
+      "rareType": "Gold"
+    },
+    "358162": {
+      "title": "BULK UP (GAME EXCLUSIVE EDIT)",
+      "rareType": "Gold"
+    },
+    "358163": {
+      "title": "Vallista",
+      "rareType": "Gold"
+    },
+    "358164": {
+      "title": "テオ",
+      "rareType": "Gold"
+    },
+    "358165": {
+      "title": "まにまに",
+      "rareType": "Gold"
+    },
+    "358166": {
+      "title": "感情ディシーブ",
+      "rareType": "Gold"
+    },
+    "358167": {
+      "title": "ド屑",
+      "rareType": "Gold"
+    },
+    "358168": {
+      "title": "絶対敵対メチャキライヤー",
+      "rareType": "Gold"
+    },
+    "358169": {
+      "title": "つるぺったん",
+      "rareType": "Gold"
+    },
+    "358170": {
+      "title": "『ウソテイ』 ～一回戦せりなvsしろなvsなずな～",
+      "rareType": "Gold"
+    },
+    "358171": {
+      "title": "Bad Apple!! feat.nomico ～五十嵐 撫子 Ver.～",
+      "rareType": "Gold"
+    },
+    "358172": {
+      "title": "Snow Colored Score",
+      "rareType": "Gold"
+    },
+    "358173": {
+      "title": "MAGENTA POTION",
+      "rareType": "Gold"
+    },
+    "358501": {
+      "title": "神よ、科学よ、イブよ",
+      "rareType": "Normal"
+    },
+    "358502": {
+      "title": "姫雛鳥の天",
+      "rareType": "Bronze"
+    },
+    "358503": {
+      "title": "心ってモノを量って切って　売れば幸せですか？",
+      "rareType": "Silver"
+    },
+    "358504": {
+      "title": "君の《o》の中に居たいんだ",
+      "rareType": "Bronze"
+    },
+    "358505": {
+      "title": "\"希望\"という奇蹟だけ残しました",
+      "rareType": "Bronze"
+    },
+    "358506": {
+      "title": "とんところっととんところっと登録！ﾋﾟﾋﾟｰ！田中と鈴木を登録！してね～～～～～！",
+      "rareType": "Normal"
+    },
+    "358507": {
+      "title": "命をBETしてよ",
+      "rareType": "Normal"
+    },
+    "358508": {
+      "title": "もう誰も止められない",
+      "rareType": "Silver"
+    },
+    "358509": {
+      "title": "ジョジ民",
+      "rareType": "Normal"
+    },
+    "358510": {
+      "title": "奇跡は起こるよ　何度でも",
+      "rareType": "Bronze"
+    },
+    "358511": {
+      "title": "特務機関",
+      "rareType": "Gold"
+    },
+    "358512": {
+      "title": "セカンドインパクト",
+      "rareType": "Gold"
+    },
+    "358513": {
+      "title": "使徒",
+      "rareType": "Normal"
+    },
+    "358514": {
+      "title": "迷わず僕は君の隣にいるから",
+      "rareType": "Bronze"
+    },
+    "358515": {
+      "title": "相反した僕と君",
+      "rareType": "Normal"
+    },
+    "358516": {
+      "title": "童志",
+      "rareType": "Normal"
+    },
+    "358517": {
+      "title": "でたわね",
+      "rareType": "Normal"
+    },
+    "358518": {
+      "title": "仕事なんかやってらんないや",
+      "rareType": "Normal"
+    },
+    "358519": {
+      "title": "あつさのせいだ",
+      "rareType": "Normal"
+    },
+    "358520": {
+      "title": "あつまりすぎ",
+      "rareType": "Normal"
+    },
+    "358521": {
+      "title": "あつ！火炎の歌〜地獄すぎ〜",
+      "rareType": "Normal"
+    },
+    "358522": {
+      "title": "私、失敗しないので",
+      "rareType": "Gold"
+    },
+    "358523": {
+      "title": "ねぇ、ギャーギャー言っちゃって",
+      "rareType": "Normal"
+    },
+    "358524": {
+      "title": "アンダスタン？",
+      "rareType": "Normal"
+    },
+    "358525": {
+      "title": "その根性　叩き直せよ",
+      "rareType": "Normal"
+    },
+    "358526": {
+      "title": "わるあがきのサンダー 本当にうてたらいいのにな",
+      "rareType": "Normal"
+    },
+    "358527": {
+      "title": "#イナズマに打たれました",
+      "rareType": "Normal"
+    },
+    "358528": {
+      "title": "洗濯機っぽいな",
+      "rareType": "Normal"
+    },
+    "358529": {
+      "title": "無邪気に踊っていたかった　人生",
+      "rareType": "Normal"
+    },
+    "358530": {
+      "title": "FCっぽいな",
+      "rareType": "Normal"
+    },
+    "358531": {
+      "title": "「陰険」で　「強欲」で　「滑稽」で　「外道」",
+      "rareType": "Normal"
+    },
+    "358532": {
+      "title": "もう　好きな人だけ守っていたい",
+      "rareType": "Normal"
+    },
+    "358533": {
+      "title": "魔法で最低な人を消そう",
+      "rareType": "Silver"
+    },
+    "358534": {
+      "title": "君と泣く　君と笑う　君と怒る　君と歌う　君と踊る　君と話す",
+      "rareType": "Normal"
+    },
+    "358535": {
+      "title": "ボクのあしあと キミのゆくさき",
+      "rareType": "Normal"
+    },
+    "358536": {
+      "title": "完全淘汰して",
+      "rareType": "Gold"
+    },
+    "358537": {
+      "title": "奏でる全ての心よ花となれ",
+      "rareType": "Bronze"
+    },
+    "358538": {
+      "title": "君と咲いていたい",
+      "rareType": "Bronze"
+    },
+    "358539": {
+      "title": "花になった",
+      "rareType": "Normal"
+    },
+    "358540": {
+      "title": "もう舞えないよ。",
+      "rareType": "Bronze"
+    },
+    "358541": {
+      "title": "二人目のドッペルゲンガー",
+      "rareType": "Normal"
+    },
+    "358542": {
+      "title": "繋いでいてよ　手を　手を！",
+      "rareType": "Bronze"
+    },
+    "358543": {
+      "title": "踊れ",
+      "rareType": "Normal"
+    },
+    "358544": {
+      "title": "希望の先に絶望があることを知った",
+      "rareType": "Normal"
+    },
+    "358545": {
+      "title": "『いつか』を夢見たって現状変わんないさ",
+      "rareType": "Normal"
+    },
+    "358546": {
+      "title": "不幸は蜜の味",
+      "rareType": "Bronze"
+    },
+    "358547": {
+      "title": "君に一切の拒否権ないよ",
+      "rareType": "Normal"
+    },
+    "358548": {
+      "title": "黙って私に従って",
+      "rareType": "Bronze"
+    },
+    "358549": {
+      "title": "お望み通りの末路です！",
+      "rareType": "Normal"
+    },
+    "358550": {
+      "title": "ヤー",
+      "rareType": "Normal"
+    },
+    "358551": {
+      "title": "少しルール破ったぐらいでキレすぎだろ",
+      "rareType": "Normal"
+    },
+    "358552": {
+      "title": "完全完璧メチャウマイナー",
+      "rareType": "Gold"
+    },
+    "358553": {
+      "title": "hadopelagic zone",
+      "rareType": "Normal"
+    },
+    "358554": {
+      "title": "悲しみの海に沈んだ私",
+      "rareType": "Normal"
+    },
+    "358555": {
+      "title": "祝福のマリンスノー",
+      "rareType": "Bronze"
+    },
+    "358556": {
+      "title": "文々ハロー　ZunTube",
+      "rareType": "Bronze"
+    },
+    "358557": {
+      "title": "つるぺたって言うなぁ(T T)",
+      "rareType": "Normal"
+    },
+    "358559": {
+      "title": "わるのりみどり",
+      "rareType": "Normal"
+    },
+    "358560": {
+      "title": "息継ぎする場所が全然無い！",
+      "rareType": "Silver"
+    },
+    "358561": {
+      "title": "陰キャも陽キャも関係ない！",
+      "rareType": "Normal"
+    },
+    "358562": {
+      "title": "こんなにも素敵な洗濯機",
+      "rareType": "Normal"
+    },
+    "358563": {
+      "title": "新参も古参も関係ない",
+      "rareType": "Normal"
+    },
+    "358564": {
+      "title": "このまま、最後まで！",
+      "rareType": "Normal"
+    },
+    "358565": {
+      "title": "WACCA勢",
+      "rareType": "Normal"
+    },
+    "358566": {
+      "title": "Love like savages",
+      "rareType": "Bronze"
+    },
+    "358567": {
+      "title": "LOVE FOREVER",
+      "rareType": "Normal"
+    },
+    "358568": {
+      "title": "わりとどうでもいい",
+      "rareType": "Normal"
+    },
+    "358569": {
+      "title": "ビタ押し",
+      "rareType": "Silver"
+    },
+    "358570": {
+      "title": "ジュワン♪",
+      "rareType": "Silver"
+    },
+    "358571": {
+      "title": "君日本語本当上手",
+      "rareType": "Bronze"
+    },
+    "358572": {
+      "title": "僕の音ゲー本当上手",
+      "rareType": "Silver"
+    },
+    "358573": {
+      "title": "僕たちのSYNC本当上手",
+      "rareType": "Silver"
+    },
+    "358574": {
+      "title": "強くてニューゲーム",
+      "rareType": "Normal"
+    },
+    "358575": {
+      "title": "(>∀<)",
+      "rareType": "Bronze"
+    },
+    "358577": {
+      "title": "Mentalstock",
+      "rareType": "Silver"
+    },
+    "358578": {
+      "title": "超ウルトラハイパーシナジー",
+      "rareType": "Normal"
+    },
+    "358579": {
+      "title": "ULTRA SUGOIYATU",
+      "rareType": "Gold"
+    },
+    "358580": {
+      "title": "良いではないか",
+      "rareType": "Normal"
+    },
+    "358581": {
+      "title": "ここからはじまるエピローグ",
+      "rareType": "Normal"
+    },
+    "358582": {
+      "title": "読み方は「モ°ルモ°ル」でお願いします",
+      "rareType": "Normal"
+    },
+    "358583": {
+      "title": "「e」が小文字なのは、中２病っぽくてカッコいいから!",
+      "rareType": "Normal"
+    },
+    "358584": {
+      "title": "ハマり待ち",
+      "rareType": "Silver"
+    },
+    "358585": {
+      "title": "地球勢",
+      "rareType": "Normal"
+    },
+    "358586": {
+      "title": "地球に行ってきました",
+      "rareType": "Normal"
+    },
+    "358587": {
+      "title": "Trrrrrrrrrick",
+      "rareType": "Normal"
+    },
+    "358588": {
+      "title": "本気で来いよ！",
+      "rareType": "Bronze"
+    },
+    "358589": {
+      "title": "(「・ω・)「がおー",
+      "rareType": "Normal"
+    },
+    "358590": {
+      "title": "刹那を超えて…",
+      "rareType": "Normal"
+    },
+    "358591": {
+      "title": "ヤバイクライヨノナカヲワイワイサセチャウゾケイカク",
+      "rareType": "Bronze"
+    },
+    "358592": {
+      "title": "チバ　シガ　サガ",
+      "rareType": "Normal"
+    },
+    "358593": {
+      "title": "GAME OVER",
+      "rareType": "Normal"
+    },
+    "358594": {
+      "title": "楽しくなってきたな",
+      "rareType": "Normal"
+    },
+    "358595": {
+      "title": "――――　　UNKNOWN　　――――　　UNKNOWN　　――――　　UNKNOWN",
+      "rareType": "Normal"
+    },
+    "358597": {
+      "title": "LET’S PLAY！WHITE WINTER DAYS",
+      "rareType": "Normal"
+    },
+    "400017": {
+      "title": "デスメタルハネムーン",
+      "rareType": "Gold"
+    },
+    "400018": {
+      "title": "概念化しようかなと思って",
+      "rareType": "Gold"
+    },
+    "400019": {
+      "title": "夜残ってたけどどうなったかは謎",
+      "rareType": "Gold"
+    },
+    "400020": {
+      "title": "普通に実体だった",
+      "rareType": "Gold"
+    },
+    "400021": {
+      "title": "Neo old Style",
+      "rareType": "Gold"
+    },
+    "400022": {
+      "title": "オレの仕事道具だよ",
+      "rareType": "Gold"
+    },
+    "400023": {
+      "title": "ちゃんとして…ﾁｬｰﾝ",
+      "rareType": "Gold"
+    },
+    "400024": {
+      "title": "なるべくﾃﾞﾃﾞｰﾝとでっかい印象",
+      "rareType": "Gold"
+    },
+    "400025": {
+      "title": "水曜18時たすけてほしい枠",
+      "rareType": "Gold"
+    },
+    "400026": {
+      "title": "もちにもちに",
+      "rareType": "Gold"
+    },
+    "400101": {
+      "title": "乙姫（ばでぃーず） 推し",
+      "rareType": "Silver"
+    },
+    "400102": {
+      "title": "ラズ（ばでぃーず） 推し",
+      "rareType": "Silver"
+    },
+    "400103": {
+      "title": "SDダンディ・ダン 推し",
+      "rareType": "Silver"
+    },
+    "400104": {
+      "title": "SD亀 推し",
+      "rareType": "Silver"
+    },
+    "400105": {
+      "title": "SD鯛 推し",
+      "rareType": "Silver"
+    },
+    "400106": {
+      "title": "SD光吉 猛修 推し",
+      "rareType": "Silver"
+    },
+    "400107": {
+      "title": "しゃま（Party☆People☆Princess） 推し",
+      "rareType": "Silver"
+    },
+    "400108": {
+      "title": "みるく（Party☆People☆Princess） 推し",
+      "rareType": "Silver"
+    },
+    "400199": {
+      "title": "We are パーリィぴーぽー☆",
+      "rareType": "Gold"
+    },
+    "400201": {
+      "title": "プロトタイプI 推し",
+      "rareType": "Silver"
+    },
+    "400202": {
+      "title": "ケファ すき",
+      "rareType": "Silver"
+    },
+    "400203": {
+      "title": "バルトルメ すき",
+      "rareType": "Silver"
+    },
+    "400204": {
+      "title": "マトフェイ 推し",
+      "rareType": "Silver"
+    },
+    "400205": {
+      "title": "黒姫しか勝たん",
+      "rareType": "Silver"
+    },
+    "400299": {
+      "title": "星の記憶を継ぐ者",
+      "rareType": "Gold"
+    },
+    "400301": {
+      "title": "ノアしか勝たん",
+      "rareType": "Silver"
+    },
+    "400302": {
+      "title": "ソウ ガチ勢",
+      "rareType": "Silver"
+    },
+    "400303": {
+      "title": "トキヤ すき",
+      "rareType": "Silver"
+    },
+    "400304": {
+      "title": "ナノハ すき",
+      "rareType": "Silver"
+    },
+    "400305": {
+      "title": "ユウキ 推し",
+      "rareType": "Silver"
+    },
+    "400399": {
+      "title": "君がたどり着いた世界",
+      "rareType": "Gold"
+    },
+    "400401": {
+      "title": "リズ ガチ勢",
+      "rareType": "Silver"
+    },
+    "400402": {
+      "title": "フルーンシュピラー 推し",
+      "rareType": "Silver"
+    },
+    "400403": {
+      "title": "シュヴァルツローゼ 推し",
+      "rareType": "Silver"
+    },
+    "400404": {
+      "title": "ヘルブラオ 推し",
+      "rareType": "Silver"
+    },
+    "400405": {
+      "title": "アシッド（幼少期） 推し",
+      "rareType": "Silver"
+    },
+    "400499": {
+      "title": "忘却の丘 始まりの記憶",
+      "rareType": "Gold"
+    },
+    "400501": {
+      "title": "フィッツ公 推し",
+      "rareType": "Silver"
+    },
+    "400502": {
+      "title": "マティルダ 推し",
+      "rareType": "Silver"
+    },
+    "400503": {
+      "title": "クリーノス 推し",
+      "rareType": "Silver"
+    },
+    "400504": {
+      "title": "クリーノス（天使） 推し",
+      "rareType": "Silver"
+    },
+    "400505": {
+      "title": "リッツ（悪魔） 推し",
+      "rareType": "Silver"
+    },
+    "400599": {
+      "title": "銀霧街のパレードにようこそ！",
+      "rareType": "Gold"
+    },
+    "405101": {
+      "title": "くらりちゃん 推し",
+      "rareType": "Silver"
+    },
+    "405102": {
+      "title": "いまわさん 推し",
+      "rareType": "Silver"
+    },
+    "405103": {
+      "title": "1000年ちゃん 推し",
+      "rareType": "Silver"
+    },
+    "405104": {
+      "title": "足立レイ 推し",
+      "rareType": "Silver"
+    },
+    "405105": {
+      "title": "いよわ 推し",
+      "rareType": "Silver"
+    },
+    "405199": {
+      "title": "いよわちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "405201": {
+      "title": "リンカ 推し",
+      "rareType": "Silver"
+    },
+    "405202": {
+      "title": "セイネ 推し",
+      "rareType": "Silver"
+    },
+    "405203": {
+      "title": "ユメ 推し",
+      "rareType": "Silver"
+    },
+    "405204": {
+      "title": "ユウ 推し",
+      "rareType": "Silver"
+    },
+    "405205": {
+      "title": "グルーヴコースター筐体 推し",
+      "rareType": "Silver"
+    },
+    "405206": {
+      "title": "HEADPHONE CRAB 推し",
+      "rareType": "Silver"
+    },
+    "405299": {
+      "title": "グルーヴコースターちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "405301": {
+      "title": "茅森月歌 推し",
+      "rareType": "Silver"
+    },
+    "405302": {
+      "title": "和泉ユキ 推し",
+      "rareType": "Silver"
+    },
+    "405303": {
+      "title": "逢川めぐみ 推し",
+      "rareType": "Silver"
+    },
+    "405304": {
+      "title": "東城つかさ 推し",
+      "rareType": "Silver"
+    },
+    "405305": {
+      "title": "朝倉可憐 推し",
+      "rareType": "Silver"
+    },
+    "405306": {
+      "title": "國見タマ 推し",
+      "rareType": "Silver"
+    },
+    "405307": {
+      "title": "蒼井えりか 推し",
+      "rareType": "Silver"
+    },
+    "405308": {
+      "title": "水瀬いちご 推し",
+      "rareType": "Silver"
+    },
+    "405309": {
+      "title": "水瀬すもも 推し",
+      "rareType": "Silver"
+    },
+    "405310": {
+      "title": "樋口聖華 推し",
+      "rareType": "Silver"
+    },
+    "405311": {
+      "title": "柊木梢 推し",
+      "rareType": "Silver"
+    },
+    "405312": {
+      "title": "ビャッコ 推し",
+      "rareType": "Silver"
+    },
+    "405313": {
+      "title": "七瀬七海 推し",
+      "rareType": "Silver"
+    },
+    "405399": {
+      "title": "ヘブンバーンズレッドちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "405401": {
+      "title": "エリザベス 推し",
+      "rareType": "Silver"
+    },
+    "405402": {
+      "title": "リリィ 推し",
+      "rareType": "Silver"
+    },
+    "405403": {
+      "title": "ルーン 推し",
+      "rareType": "Silver"
+    },
+    "405404": {
+      "title": "【裏】ルーン 推し",
+      "rareType": "Silver"
+    },
+    "405405": {
+      "title": "WACCA筐体 推し",
+      "rareType": "Silver"
+    },
+    "405499": {
+      "title": "WACCAちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "405601": {
+      "title": "sasakure.UK 推し",
+      "rareType": "Silver"
+    },
+    "405602": {
+      "title": "テラ（トンデモワンダーズ） 推し",
+      "rareType": "Silver"
+    },
+    "405603": {
+      "title": "カラス（トンデモワンダーズ） 推し",
+      "rareType": "Silver"
+    },
+    "405604": {
+      "title": "初音ミク（＊ハロー、プラネット。） 推し",
+      "rareType": "Silver"
+    },
+    "405699": {
+      "title": "sasakure.UKちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "405701": {
+      "title": "TJ.hangneil 推し",
+      "rareType": "Silver"
+    },
+    "405702": {
+      "title": "男の子（神威） 推し",
+      "rareType": "Silver"
+    },
+    "405703": {
+      "title": "女の子（神威） 推し",
+      "rareType": "Silver"
+    },
+    "405799": {
+      "title": "TJ.hangneilちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "405901": {
+      "title": "宇宙飛行士（Apollo） 推し",
+      "rareType": "Silver"
+    },
+    "406101": {
+      "title": "東北ずん子 推し",
+      "rareType": "Silver"
+    },
+    "406102": {
+      "title": "東北ずん子（チア） 推し",
+      "rareType": "Silver"
+    },
+    "406103": {
+      "title": "東北イタコ 推し",
+      "rareType": "Silver"
+    },
+    "406104": {
+      "title": "東北イタコ（チア） 推し",
+      "rareType": "Silver"
+    },
+    "406105": {
+      "title": "東北きりたん 推し",
+      "rareType": "Silver"
+    },
+    "406106": {
+      "title": "東北きりたん（チア） 推し",
+      "rareType": "Silver"
+    },
+    "406107": {
+      "title": "四国めたん 推し",
+      "rareType": "Silver"
+    },
+    "406108": {
+      "title": "九州そら 推し",
+      "rareType": "Silver"
+    },
+    "406109": {
+      "title": "ずんだもん 推し",
+      "rareType": "Silver"
+    },
+    "406199": {
+      "title": "東北ずん子ちほー 箱推し",
+      "rareType": "Gold"
+    },
+    "406201": {
+      "title": "縁​ 推し",
+      "rareType": "Silver"
+    },
+    "406202": {
+      "title": "冴川 芽依 推し",
+      "rareType": "Silver"
+    },
+    "406203": {
+      "title": "ロト・トゥエルヴ 推し",
+      "rareType": "Silver"
+    },
+    "406204": {
+      "title": "不来方 とあ​ 推し",
+      "rareType": "Silver"
+    },
+    "406205": {
+      "title": "ヴェルゼビュートネメシス​ 推し",
+      "rareType": "Silver"
+    },
+    "406206": {
+      "title": "リヒトシュッツェ​ 推し",
+      "rareType": "Silver"
+    },
+    "406299": {
+      "title": "CHUNITHMちほー3 箱推し",
+      "rareType": "Gold"
+    },
+    "408101": {
+      "title": "＊ハロー、プラネット。",
+      "rareType": "Gold"
+    },
+    "408102": {
+      "title": "ナミダと流星",
+      "rareType": "Gold"
+    },
+    "408103": {
+      "title": "oboro",
+      "rareType": "Gold"
+    },
+    "408104": {
+      "title": "初音ミクの消失",
+      "rareType": "Gold"
+    },
+    "408105": {
+      "title": "色は匂へど散りぬるを",
+      "rareType": "Gold"
+    },
+    "408106": {
+      "title": "The Great Banquet",
+      "rareType": "Gold"
+    },
+    "408107": {
+      "title": "Redemption",
+      "rareType": "Gold"
+    },
+    "408108": {
+      "title": "Ether Second",
+      "rareType": "Gold"
+    },
+    "408109": {
+      "title": "Straight into the lights",
+      "rareType": "Gold"
+    },
+    "408110": {
+      "title": "I’m Here (feat. Merry Kirk-Holmes)",
+      "rareType": "Gold"
+    },
+    "408111": {
+      "title": "PUPA",
+      "rareType": "Gold"
+    },
+    "408112": {
+      "title": "解けないように",
+      "rareType": "Gold"
+    },
+    "408113": {
+      "title": "ノンブレス・オブリージュ",
+      "rareType": "Gold"
+    },
+    "408114": {
+      "title": "NOIZY BOUNCE",
+      "rareType": "Gold"
+    },
+    "408115": {
+      "title": "サンバディ！",
+      "rareType": "Gold"
+    },
+    "408116": {
+      "title": "Horoscope Express",
+      "rareType": "Gold"
+    },
+    "408117": {
+      "title": "Party☆People☆Princess",
+      "rareType": "Gold"
+    },
+    "408118": {
+      "title": "Latent Kingdom",
+      "rareType": "Gold"
+    },
+    "408119": {
+      "title": "Mystic Parade",
+      "rareType": "Gold"
+    },
+    "408120": {
+      "title": "Cry Cry Cry",
+      "rareType": "Gold"
+    },
+    "408121": {
+      "title": "ぽわわん劇場",
+      "rareType": "Gold"
+    },
+    "408122": {
+      "title": "my flow",
+      "rareType": "Gold"
+    },
+    "408123": {
+      "title": "POWER OF UNITY",
+      "rareType": "Gold"
+    },
+    "408124": {
+      "title": "Energizing Flame",
+      "rareType": "Gold"
+    },
+    "408125": {
+      "title": "KHYMΞXΛ",
+      "rareType": "Gold"
+    },
+    "408126": {
+      "title": "フェイクフェイス・フェイルセイフ",
+      "rareType": "Gold"
+    },
+    "408127": {
+      "title": "ふらふらふら、",
+      "rareType": "Gold"
+    },
+    "408128": {
+      "title": "シックスプラン",
+      "rareType": "Gold"
+    },
+    "408129": {
+      "title": "フタタビ",
+      "rareType": "Gold"
+    },
+    "408130": {
+      "title": "SQUAD-Phvntom-",
+      "rareType": "Gold"
+    },
+    "408131": {
+      "title": "GEOMETRIC DANCE",
+      "rareType": "Gold"
+    },
+    "408132": {
+      "title": "Ring",
+      "rareType": "Gold"
+    },
+    "408133": {
+      "title": "インパアフェクシオン・ホワイトガアル",
+      "rareType": "Gold"
+    },
+    "408134": {
+      "title": "WE'RE BACK!!",
+      "rareType": "Gold"
+    },
+    "408135": {
+      "title": "熱異常",
+      "rareType": "Gold"
+    },
+    "408136": {
+      "title": "1000年生きてる",
+      "rareType": "Gold"
+    },
+    "408137": {
+      "title": "IMAWANOKIWA",
+      "rareType": "Gold"
+    },
+    "408138": {
+      "title": "Play merrily NEO",
+      "rareType": "Gold"
+    },
+    "408139": {
+      "title": "OMAKENO Stroke",
+      "rareType": "Gold"
+    },
+    "408141": {
+      "title": "アンダーキッズ",
+      "rareType": "Gold"
+    },
+    "408142": {
+      "title": "さくゆいたいそう",
+      "rareType": "Gold"
+    },
+    "408143": {
+      "title": "バグ",
+      "rareType": "Gold"
+    },
+    "408144": {
+      "title": "星界ちゃんと可不ちゃんのおつかい合騒曲",
+      "rareType": "Gold"
+    },
+    "408145": {
+      "title": "Burn My Soul",
+      "rareType": "Gold"
+    },
+    "408146": {
+      "title": "with U",
+      "rareType": "Gold"
+    },
+    "408147": {
+      "title": "Love Kills U",
+      "rareType": "Gold"
+    },
+    "408148": {
+      "title": "DANGEROOOOUS JUNGLE",
+      "rareType": "Gold"
+    },
+    "408149": {
+      "title": "天使光輪",
+      "rareType": "Gold"
+    },
+    "408150": {
+      "title": "story",
+      "rareType": "Gold"
+    },
+    "408151": {
+      "title": "トンデモワンダーズ",
+      "rareType": "Gold"
+    },
+    "408152": {
+      "title": "神威",
+      "rareType": "Gold"
+    },
+    "408153": {
+      "title": "ozma",
+      "rareType": "Gold"
+    },
+    "408154": {
+      "title": "月面基地",
+      "rareType": "Gold"
+    },
+    "408155": {
+      "title": "ずんだもんの朝食　〜目覚ましずんラップ〜",
+      "rareType": "Gold"
+    },
+    "408156": {
+      "title": "あなたは世界の終わりにずんだを食べるのだ",
+      "rareType": "Gold"
+    },
+    "408157": {
+      "title": "HUMANBORG",
+      "rareType": "Gold"
+    },
+    "408158": {
+      "title": "ULTRA POWER",
+      "rareType": "Gold"
+    },
+    "408159": {
+      "title": "ジェヘナ",
+      "rareType": "Gold"
+    },
+    "408160": {
+      "title": "ツギハギスタッカート",
+      "rareType": "Gold"
+    },
+    "408161": {
+      "title": "HANIPAGANDA",
+      "rareType": "Gold"
+    },
+    "408162": {
+      "title": "Rush-Hour",
+      "rareType": "Gold"
+    },
+    "408163": {
+      "title": "QUEEN",
+      "rareType": "Gold"
+    },
+    "408164": {
+      "title": "天使の翼。",
+      "rareType": "Gold"
+    },
+    "408165": {
+      "title": "さよならプリンセス",
+      "rareType": "Gold"
+    },
+    "408166": {
+      "title": "Apollo",
+      "rareType": "Gold"
+    },
+    "408167": {
+      "title": "raputa",
+      "rareType": "Gold"
+    },
+    "408169": {
+      "title": "アルカンシエル",
+      "rareType": "Gold"
+    },
+    "408173": {
+      "title": "PinqPiq (xovevox Remix)",
+      "rareType": "Gold"
+    },
+    "408179": {
+      "title": "誰でもいい 嘘でもいい",
+      "rareType": "Normal"
+    },
+    "408180": {
+      "title": "「「やっぱそろわんなぁ〜」」",
+      "rareType": "Bronze"
+    },
+    "408181": {
+      "title": "おつさくゆい～",
+      "rareType": "Normal"
+    },
+    "408182": {
+      "title": "こんにちさくさく～",
+      "rareType": "Normal"
+    },
+    "408183": {
+      "title": "こんばんゆいゆい～",
+      "rareType": "Normal"
+    },
+    "408184": {
+      "title": "ん゛ー！",
+      "rareType": "Normal"
+    },
+    "408185": {
+      "title": "狂おしい最愛の家族",
+      "rareType": "Normal"
+    },
+    "408186": {
+      "title": "【初配信】俺ら最強２人組がデビューするぜ",
+      "rareType": "Normal"
+    },
+    "408187": {
+      "title": "あたしの伝説はこれから始まる",
+      "rareType": "Normal"
+    },
+    "408188": {
+      "title": "くるくるぱーーーかーーーーー！！",
+      "rareType": "Normal"
+    },
+    "408189": {
+      "title": "刀削麺を知っているか？",
+      "rareType": "Normal"
+    },
+    "408190": {
+      "title": "ああ、あの、片手に生地、片手に包丁を持って湯の沸いた鍋の前に立ち、生地を細長く鍋の中に削ぎ落としてゆでる奴",
+      "rareType": "Normal"
+    },
+    "408191": {
+      "title": "Burn maimai Soul",
+      "rareType": "Bronze"
+    },
+    "408192": {
+      "title": "見てのとおりSEGAのゲームは人生の役に立つんだ！",
+      "rareType": "Normal"
+    },
+    "408193": {
+      "title": "魅せるプレイだな",
+      "rareType": "Bronze"
+    },
+    "408194": {
+      "title": "間違いなくこれは我々に向けられたセガからの『メッセージ』なんだよ",
+      "rareType": "Normal"
+    },
+    "408195": {
+      "title": "つらい中お前がいて、支えてくれてよかった",
+      "rareType": "Bronze"
+    },
+    "408196": {
+      "title": "イキュラスキュオラ",
+      "rareType": "Normal"
+    },
+    "408197": {
+      "title": "We are human cyborgs",
+      "rareType": "Silver"
+    },
+    "408198": {
+      "title": "Bass Man",
+      "rareType": "Bronze"
+    },
+    "408199": {
+      "title": "Dope! Sick! Awesome! crazy!",
+      "rareType": "Normal"
+    },
+    "408200": {
+      "title": "Chops & Roll",
+      "rareType": "Bronze"
+    },
+    "408201": {
+      "title": "熱中症",
+      "rareType": "Normal"
+    },
+    "408202": {
+      "title": "完全無欠ヒューマン",
+      "rareType": "Silver"
+    },
+    "408203": {
+      "title": "バ　バ　バグさ　バグバグ",
+      "rareType": "Normal"
+    },
+    "408204": {
+      "title": "ーーー深刻なエラーが発生しましたーーー",
+      "rareType": "Bronze"
+    },
+    "408205": {
+      "title": "＜最高速の別れの歌＞",
+      "rareType": "Bronze"
+    },
+    "408206": {
+      "title": "息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる息が詰まる",
+      "rareType": "Normal"
+    },
+    "408207": {
+      "title": "「この世には舞も知らない人が沢山いるんですよ」",
+      "rareType": "Normal"
+    },
+    "408208": {
+      "title": "せかせかせかせかせかさんといてよ",
+      "rareType": "Normal"
+    },
+    "408209": {
+      "title": "正しいのは私",
+      "rareType": "Normal"
+    },
+    "408210": {
+      "title": "ハイになる？廃になる？はい、とは言えな～い！",
+      "rareType": "Normal"
+    },
+    "408211": {
+      "title": "まだまだ一緒しよ？の魂胆です",
+      "rareType": "Normal"
+    },
+    "408212": {
+      "title": "Ω＼ζ°)ﾁｰﾝ",
+      "rareType": "Normal"
+    },
+    "408213": {
+      "title": "オハヨーハヨー",
+      "rareType": "Normal"
+    },
+    "408214": {
+      "title": "TJ.hangneilって誰ですか？",
+      "rareType": "Normal"
+    },
+    "408215": {
+      "title": "-CODENAME：BUDDIES-",
+      "rareType": "Normal"
+    },
+    "408216": {
+      "title": "ずんだもんなのだ",
+      "rareType": "Normal"
+    },
+    "408217": {
+      "title": "あなたは世界の終わりにmaimaiを遊ぶのだ",
+      "rareType": "Normal"
+    },
+    "408218": {
+      "title": "何も聞かないでくれ",
+      "rareType": "Normal"
+    },
+    "408219": {
+      "title": "そろそろ終わりにしよう",
+      "rareType": "Normal"
+    },
+    "408220": {
+      "title": "いっそ　いっそ　いなくなれ",
+      "rareType": "Normal"
+    },
+    "408221": {
+      "title": "マイマイマイ マイマイ マイライフ",
+      "rareType": "Normal"
+    },
+    "408222": {
+      "title": "たまには下も向いた方が良いですよ",
+      "rareType": "Normal"
+    },
+    "408223": {
+      "title": "愛に酔っている",
+      "rareType": "Normal"
+    },
+    "408224": {
+      "title": "可愛くなれたかな",
+      "rareType": "Normal"
+    },
+    "408225": {
+      "title": "ワレワレハ ムテキナノダ",
+      "rareType": "Silver"
+    },
+    "408226": {
+      "title": "ハッハハニハニハニワ！ハニワ！",
+      "rareType": "Normal"
+    },
+    "408227": {
+      "title": "ﾜﾁｮﾜﾁｮ＼ﾁｰﾝ／",
+      "rareType": "Bronze"
+    },
+    "408228": {
+      "title": "NEO陽気大王",
+      "rareType": "Silver"
+    },
+    "408229": {
+      "title": "蛹",
+      "rareType": "Normal"
+    },
+    "408230": {
+      "title": "だから、どうか私を虐めないでください。",
+      "rareType": "Normal"
+    },
+    "408231": {
+      "title": "蝶は人を引き裂く",
+      "rareType": "Silver"
+    },
+    "408232": {
+      "title": "ガリガリさむし、モリモリあつし説",
+      "rareType": "Normal"
+    },
+    "408233": {
+      "title": "もう準備満タンです",
+      "rareType": "Normal"
+    },
+    "408234": {
+      "title": "お前ダメダメか・・・！？",
+      "rareType": "Normal"
+    },
+    "408235": {
+      "title": "一緒に…",
+      "rareType": "Normal"
+    },
+    "408236": {
+      "title": "ANCIENT FIRE!!!",
+      "rareType": "Silver"
+    },
+    "408237": {
+      "title": "爆発しろ！",
+      "rareType": "Normal"
+    },
+    "408238": {
+      "title": "おーまいがー",
+      "rareType": "Normal"
+    },
+    "408239": {
+      "title": "地獄の扉は開かれた。",
+      "rareType": "Normal"
+    },
+    "408240": {
+      "title": "走り続けなければ、その“想い”には辿り着けない。",
+      "rareType": "Normal"
+    },
+    "408241": {
+      "title": "通勤ラッシュ",
+      "rareType": "Normal"
+    },
+    "408243": {
+      "title": "終わらないでよLOVE ＆PEACE",
+      "rareType": "Normal"
+    },
+    "408244": {
+      "title": "俺たちの王国",
+      "rareType": "Normal"
+    },
+    "408245": {
+      "title": "暗い暗い暗い",
+      "rareType": "Normal"
+    },
+    "408246": {
+      "title": "Cry.My.Y.計画!!!!",
+      "rareType": "Normal"
+    },
+    "408247": {
+      "title": "消えない 消せない 決して消させはしない",
+      "rareType": "Normal"
+    },
+    "408248": {
+      "title": "ふらふらふらふらふらふらふらふらふら",
+      "rareType": "Normal"
+    },
+    "408249": {
+      "title": "廻る廻る 六つの不条理なストーリー",
+      "rareType": "Normal"
+    },
+    "408250": {
+      "title": "君はどんな結末を願っていた？",
+      "rareType": "Normal"
+    },
+    "408251": {
+      "title": "Ethereal",
+      "rareType": "Gold"
+    },
+    "408252": {
+      "title": "THANK YOU FOR YOUR TIME !!",
+      "rareType": "Normal"
+    },
+    "408253": {
+      "title": "流星なぞって恋をした",
+      "rareType": "Normal"
+    },
+    "408254": {
+      "title": "我々は山本真央樹ではないし、山本真央樹にはなれない。",
+      "rareType": "Normal"
+    },
+    "408255": {
+      "title": "私は今幸せよ",
+      "rareType": "Normal"
+    },
+    "408256": {
+      "title": "Back-to-BACK-2-BACK!!",
+      "rareType": "Normal"
+    },
+    "408257": {
+      "title": "スマホでもいじってるワケ？",
+      "rareType": "Normal"
+    },
+    "408259": {
+      "title": "That's one small step for a man, one giant leap for mankind.",
+      "rareType": "Gold"
+    },
+    "408260": {
+      "title": "S H T R B",
+      "rareType": "Normal"
+    },
+    "408261": {
+      "title": "E A E K E",
+      "rareType": "Normal"
+    },
+    "408262": {
+      "title": "E W B M A",
+      "rareType": "Normal"
+    },
+    "408263": {
+      "title": "A B I N O",
+      "rareType": "Normal"
+    },
+    "408264": {
+      "title": "◤ M H T O",
+      "rareType": "Normal"
+    },
+    "408265": {
+      "title": "project raputa completed",
+      "rareType": "Gold"
+    },
+    "408266": {
+      "title": "1クレ全部俺がムービーに携わっている楽曲で通せる",
+      "rareType": "Normal"
+    }
+  },
+  "info": {
+    "version": "Ver.CN 1.40",
+    "date": "1970-01-01 00:00:00"
+  }
+}

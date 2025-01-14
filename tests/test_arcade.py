@@ -1,11 +1,12 @@
 import pytest
 from maimai_py.exceptions import TitleServerError
 from maimai_py.maimai import MaimaiClient
-from maimai_py.models import PlayerIdentifier
+from maimai_py.models import ArcadePlayer, PlayerIdentifier
 from maimai_py.providers.arcade import ArcadeProvider
 
 
 @pytest.mark.asyncio()
+@pytest.mark.slow()
 async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
     try:
         # notice that the encrypted user id can only used in maimai.py, it's not applicable for the other use cases.
@@ -15,10 +16,15 @@ async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
         scores = await maimai.scores(my_account, provider=arcade)
         assert scores.rating > 2000
 
-        player = await maimai.players(my_account, provider=arcade)
+        player: ArcadePlayer = await maimai.players(my_account, provider=arcade)
         assert player.rating == scores.rating
+        assert player.icon is not None
 
         regions = await maimai.regions(my_account, provider=arcade)
         assert any(region.region_id == 2 for region in regions)
     except TitleServerError:
         pytest.skip("Connection error, skipping the test.")
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "-x", "--runslow", "-p no:warnings", "-s", __file__])

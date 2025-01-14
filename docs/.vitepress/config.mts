@@ -29,14 +29,22 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Modules',
+        text: 'Concepts',
         items: [
           { text: 'Core Concepts', link: '/modules/concepts' },
+          { text: 'All Models', link: '/modules/models' },
+          { text: 'Cache Strategy', link: '/modules/caches' }
+        ]
+      },
+      {
+        text: 'Modules',
+        items: [
           { text: 'Songs', link: '/modules/songs' },
           { text: 'Players', link: '/modules/players' },
           { text: 'Scores', link: '/modules/scores' },
           { text: 'Plates', link: '/modules/plates' },
           { text: 'Models', link: '/modules/models' },
+          { text: 'Passby Regions', link: '/modules/regions' },
         ]
       },
       {
@@ -86,14 +94,21 @@ export default defineConfig({
             ]
           },
           {
-            text: '功能',
+            text: '概念',
             items: [
               { text: '核心概念', link: '/zh/modules/concepts' },
+              { text: '数据模型', link: '/zh/modules/models' },
+              { text: '缓存策略', link: '/zh/modules/caches' }
+            ]
+          },
+          {
+            text: '功能',
+            items: [
               { text: '曲目', link: '/zh/modules/songs' },
               { text: '玩家', link: '/zh/modules/players' },
               { text: '分数', link: '/zh/modules/scores' },
               { text: '牌子', link: '/zh/modules/plates' },
-              { text: '数据模型', link: '/zh/modules/models' },
+              { text: '途径省份', link: '/zh/modules/regions' },
             ]
           },
           {

@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os
 import threading
-
 from mitmproxy.master import Master
 from mitmproxy.options import Options
 from mitmproxy.addons import default_addons

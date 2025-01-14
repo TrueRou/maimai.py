@@ -1,21 +1,11 @@
 import dataclasses
 from typing import Generator
 from httpx import AsyncClient, Response
-from maimai_py import enums
-from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
+
+from maimai_py.enums import *
+from maimai_py.models import *
+from maimai_py.providers import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
-from maimai_py.models import (
-    CurveObject,
-    DivingFishPlayer,
-    Player,
-    PlayerIdentifier,
-    Score,
-    Song,
-    SongDifficulties,
-    SongDifficulty,
-    SongDifficultyUtage,
-)
-from maimai_py.providers.base import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
 
 class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider):
@@ -54,12 +44,12 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             map=None,
             rights=None,
             aliases=None,
-            version=enums.divingfish_to_version[song["basic_info"]["from"]],
+            version=divingfish_to_version[song["basic_info"]["from"]],
             disabled=False,
             difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
         )
 
-    def _deser_diffs(song: dict) -> Generator[SongDifficulty | SongDifficultyUtage, None, None]:
+    def _deser_diffs(song: dict) -> Generator[SongDifficulty, None, None]:
         song_type = SongType._from_id(song["id"])
         for idx, chart in enumerate(song["charts"]):
             song_diff = SongDifficulty(
@@ -68,7 +58,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
                 level_value=song["ds"][idx],
                 level_index=LevelIndex(idx),
                 note_designer=chart["charter"],
-                version=enums.divingfish_to_version[song["basic_info"]["from"]],
+                version=divingfish_to_version[song["basic_info"]["from"]],
                 tap_num=chart["notes"][0],
                 hold_num=chart["notes"][1],
                 slide_num=chart["notes"][2],

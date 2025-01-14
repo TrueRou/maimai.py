@@ -1,18 +1,12 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
 from httpx import AsyncClient
 from maimai_ffi import arcade
-from maimai_py import caches
-from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType
+
+from maimai_py.enums import *
+from maimai_py.models import *
+from maimai_py.utils import ScoreCoefficient
+from maimai_py.providers import IPlayerProvider, IRegionProvider, IScoreProvider
 from maimai_py.exceptions import InvalidPlayerIdentifierError
-from maimai_py.models import ArcadePlayer, ArcadeResponse, PlayerIdentifier, PlayerRegion, Score
-from maimai_py.providers.base import IPlayerProvider, IRegionProvider, IScoreProvider
-
-from maimai_py.providers.lxns import LXNSProvider
-from maimai_py.utils.coefficient import ScoreCoefficient
-
-if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiSongs
 
 
 class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
@@ -30,7 +24,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
         achievement = float(score["achievement"]) / 10000
         if song := songs.by_id(score["musicId"] % 10000):
-            if diff := song._get_difficulty(song_type, level_index):
+            if diff := song.get_difficulty(song_type, level_index):
                 return Score(
                     id=song.id,
                     song_name=song.title,
@@ -54,9 +48,9 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             name=resp.data["userName"],
             rating=resp.data["playerRating"],
             is_login=resp.data["isLogin"],
-            name_plate=resp.data["nameplateId"],
-            icon=resp.data["iconId"],
-            trophy=resp.data["trophyId"],
+            name_plate=(await default_caches.get_or_fetch("nameplates")).get(resp.data["nameplateId"], None),
+            icon=(await default_caches.get_or_fetch("icons")).get(resp.data["iconId"], None),
+            trophy=(await default_caches.get_or_fetch("trophies")).get(resp.data["trophyId"], None),
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
@@ -64,10 +58,8 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
         resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode())
         ArcadeResponse._throw_error(resp)
-        if not caches.cached_songs:
-            # This breaks the abstraction of the provider, but we have no choice
-            caches.cached_songs = await LXNSProvider().get_songs(client)
-        return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, caches.cached_songs))]
+        msongs: MaimaiSongs = await MaimaiSongs._get_or_fetch()
+        return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, msongs))]
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
