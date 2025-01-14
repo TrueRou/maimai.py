@@ -44,6 +44,7 @@ export default defineConfig({
           { text: 'Scores', link: '/modules/scores' },
           { text: 'Plates', link: '/modules/plates' },
           { text: 'Models', link: '/modules/models' },
+          { text: 'Passby Regions', link: '/modules/regions' },
         ]
       },
       {
@@ -107,6 +108,7 @@ export default defineConfig({
               { text: '玩家', link: '/zh/modules/players' },
               { text: '分数', link: '/zh/modules/scores' },
               { text: '牌子', link: '/zh/modules/plates' },
+              { text: '途径省份', link: '/zh/modules/regions' },
             ]
           },
           {
