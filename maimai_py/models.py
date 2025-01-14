@@ -2,7 +2,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Optional
+from typing import Any
 from httpx import Cookies
 
 from maimai_py.enums import *
@@ -24,22 +24,20 @@ class Song:
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def _get_level_index(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+    def _get_level_indexes(self, exclude_remaster: bool = False) -> list[LevelIndex]:
         """@private"""
         results = [diff.level_index for diff in (self.difficulties.standard + self.difficulties.dx)]
         if exclude_remaster and LevelIndex.ReMASTER in results:
             results.remove(LevelIndex.ReMASTER)
         return results
 
-    def _get_difficulty(self, type: SongType, level_index: LevelIndex | None) -> Optional["SongDifficulty"]:
-        """@private"""
+    def get_difficulty(self, type: SongType, level_index: LevelIndex) -> "SongDifficulty":
         if type == SongType.DX:
             return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
         if type == SongType.STANDARD:
             return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
         if type == SongType.UTAGE:
             return next(iter(self.difficulties.utage), None)
-        return None
 
 
 @dataclass
@@ -48,7 +46,7 @@ class SongDifficulties:
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
 
-    def _get_child(self, song_type: SongType) -> list["SongDifficulty"] | list["SongDifficultyUtage"]:
+    def _get_child(self, song_type: SongType) -> list["SongDifficulty"]:
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
 
 
@@ -254,6 +252,16 @@ class Score:
             return self if (self.fs.value if self.fs else 100) < (other.fs.value if self.fs else 100) else other
         return self  # we consider they are equal
 
+    @property
+    def song(self) -> Song:
+        songs: MaimaiSongs = default_caches._caches["msongs"]
+        assert songs is not None and isinstance(songs, MaimaiSongs)
+        return songs.by_id(self.id)
+
+    @property
+    def difficulty(self) -> SongDifficulty:
+        return self.song.get_difficulty(self.type, self.level_index)
+
 
 @dataclass
 class PlateObject:
@@ -456,7 +464,7 @@ class MaimaiPlates:
         scores: dict[int, list[Score]] = {}
         [scores.setdefault(score.id, []).append(score) for score in self.scores]
         results = {
-            song.id: PlateObject(song=song, levels=song._get_level_index(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs
+            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs
         }
 
         def extract(score: Score) -> None:
@@ -532,7 +540,7 @@ class MaimaiPlates:
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
-        results = {song.id: PlateObject(song=song, levels=song._get_level_index(self.no_remaster), score=[]) for song in self.songs}
+        results = {song.id: PlateObject(song=song, levels=song._get_level_indexes(self.no_remaster), score=[]) for song in self.songs}
         return results.values()
 
     @cached_property
@@ -601,7 +609,7 @@ class MaimaiScores:
         self.rating_b15 = sum(score.dx_rating for score in b15)
         self.rating = self.rating_b35 + self.rating_b15
 
-    @cached_property
+    @property
     def as_distinct(self) -> "MaimaiScores":
         """Get the distinct scores.
 

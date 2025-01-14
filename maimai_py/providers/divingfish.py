@@ -49,7 +49,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
         )
 
-    def _deser_diffs(song: dict) -> Generator[SongDifficulty | SongDifficultyUtage, None, None]:
+    def _deser_diffs(song: dict) -> Generator[SongDifficulty, None, None]:
         song_type = SongType._from_id(song["id"])
         for idx, chart in enumerate(song["charts"]):
             song_diff = SongDifficulty(

@@ -24,7 +24,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
         achievement = float(score["achievement"]) / 10000
         if song := songs.by_id(score["musicId"] % 10000):
-            if diff := song._get_difficulty(song_type, level_index):
+            if diff := song.get_difficulty(song_type, level_index):
                 return Score(
                     id=song.id,
                     song_name=song.title,

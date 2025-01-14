@@ -121,9 +121,8 @@ class MaimaiClient:
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-        from maimai_py.providers import LXNSProvider
-
         async with httpx.AsyncClient(**self._args) as client:
+            await MaimaiSongs._get_or_fetch()  # Cache the songs first, as we need to use it for scores' property.
             b35, b15, all, songs = None, None, None, None
             if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
                 b35, b15 = await provider.get_scores_best(identifier, client)
