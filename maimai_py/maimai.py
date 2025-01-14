@@ -13,8 +13,8 @@ class MaimaiClient:
     """The main client of maimai.py."""
 
     default_caches._caches_provider["songs"] = LXNSProvider()
-    default_caches._caches_provider["aliases"] = YuzuProvider()
-    default_caches._caches_provider["curves"] = DivingFishProvider()
+    default_caches._caches_provider["aliases"] = None  # not to fetch by default.
+    default_caches._caches_provider["curves"] = None  # not to fetch by default.
     default_caches._caches_provider["icons"] = LXNSProvider()
     default_caches._caches_provider["nameplates"] = LXNSProvider()
     default_caches._caches_provider["frames"] = LXNSProvider()
