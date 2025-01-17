@@ -1,6 +1,6 @@
 # LXNSProvider
 
-实现：ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider
+实现：ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider, IItemListProvider
 
 源站：https://maimai.lxns.net/
 
@@ -24,6 +24,10 @@
 ## 关于别名数据源
 
 落雪自身有提供别名数据源 (IAliasProvider)，不过数据可能没有Yuzu全，还是推荐使用Yuzu的。
+
+## 关于收藏品
+
+落雪提供了 `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame` 收藏品数据源，其他缺少的收藏品数据源可以使用 `LocalProvider`。
 
 ## 关于隐私设置
 

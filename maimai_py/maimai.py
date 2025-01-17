@@ -193,6 +193,8 @@ class MaimaiClient:
     ) -> MaimaiPlates:
         """Get the plate achievement of the given player and plate.
 
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`.
+
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
             plate: the name of the plate, e.g. "樱将", "真舞舞".

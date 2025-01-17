@@ -1,6 +1,6 @@
 from .maimai import MaimaiClient
 from .exceptions import MaimaiPyError
-from .models import MaimaiSongs, MaimaiPlates, MaimaiScores
+from .models import MaimaiSongs, MaimaiPlates, MaimaiScores, MaimaiItems
 from .providers import DivingFishProvider, LXNSProvider, YuzuProvider, WechatProvider, ArcadeProvider, LocalProvider
 
 # extended models and enums
@@ -15,6 +15,7 @@ __all__ = [
     "MaimaiScores",
     "MaimaiPlates",
     "MaimaiSongs",
+    "MaimaiItems",
     "models",
     "enums",
     "exceptions",

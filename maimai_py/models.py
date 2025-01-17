@@ -249,34 +249,6 @@ class ArcadePlayer(Player):
     trophy: PlayerFrame | None
 
 
-CachedType = TypeVar("T", bound=CachedModel)
-
-
-class MaimaiItems(Generic[CachedType]):
-    _cached_items: dict[int, CachedType]
-
-    def __init__(self, items: dict[int, CachedType]) -> None:
-        """@private"""
-        self._cached_items = items
-
-    @property
-    def values(self) -> list[CachedType]:
-        """All items as list."""
-        return self._cached_items.values()
-
-    def filter(self, **kwargs) -> list[CachedType]:
-        """Filter items by their attributes.
-
-        Ensure that the attribute is of the item, and the value is of the same type. All conditions are connected by AND.
-
-        Args:
-            kwargs: the attributes to filter the items by.
-        Returns:
-            the list of items that match all the conditions, return an empty list if no item is found.
-        """
-        return [item for item in self.values if all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)]
-
-
 @dataclass
 class Score:
     id: int

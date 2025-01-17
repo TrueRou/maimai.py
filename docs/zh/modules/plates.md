@@ -4,7 +4,7 @@
 
 获取玩家牌子
 
-**支持的数据源**：`DivingFishProvider`、`LXNSProvider`。
+**支持的数据源**：`DivingFishProvider`、`LXNSProvider`、`ArcadeProvider`。
 
 ### 参数
 
