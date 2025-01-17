@@ -63,19 +63,6 @@ if find_spec("fastapi"):
     def dep_arcade_player(credentials: str):
         return PlayerIdentifier(credentials=credentials)
 
-    async def get_items(
-        name: str,
-        filter: dict,
-        page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
-    ):
-        items_dict = await default_caches.get_or_fetch(name)
-        if "id" in filter and filter["id"] is not None:
-            return items_dict.get(filter["id"], None)
-        items = list(items_dict.values())
-        filtered_items = [item for item in items if all(getattr(item, key) == value for key, value in filter.items() if value is not None)]
-        return pagination(page_size, page, filtered_items)
-
     @asgi_app.exception_handler(MaimaiPyError)
     async def exception_handler(request: Request, exc: MaimaiPyError):
         return JSONResponse(
@@ -96,7 +83,7 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=10000),
     ):
-        maimai_songs: MaimaiSongs = MaimaiSongs._get_or_fetch()
+        maimai_songs: MaimaiSongs = await maimai_client.songs()
         if id is not None:
             return [maimai_songs.by_id(id)]
         songs = maimai_songs.filter(title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
@@ -111,7 +98,11 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=10000),
     ):
-        return await get_items("icons", {"id": id, "name": name, "description": description, "genre": genre}, page, page_size)
+        items = await maimai_client.items(PlayerIcon)
+        if id is not None:
+            return [items.by_id(id)]
+        filtered_items = items.filter(name=name, description=description, genre=genre)
+        return pagination(page_size, page, filtered_items)
 
     @router.get("/nameplates", response_model=list[PlayerNamePlate], tags=["base"])
     async def get_nameplates(
@@ -122,7 +113,11 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=10000),
     ):
-        return await get_items("nameplates", {"id": id, "name": name, "description": description, "genre": genre}, page, page_size)
+        items = await maimai_client.items(PlayerNamePlate)
+        if id is not None:
+            return [items.by_id(id)]
+        filtered_items = items.filter(name=name, description=description, genre=genre)
+        return pagination(page_size, page, filtered_items)
 
     @router.get("/frames", response_model=list[PlayerFrame], tags=["base"])
     async def get_frames(
@@ -133,7 +128,11 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=10000),
     ):
-        return await get_items("frames", {"id": id, "name": name, "description": description, "genre": genre}, page, page_size)
+        items = await maimai_client.items(PlayerFrame)
+        if id is not None:
+            return [items.by_id(id)]
+        filtered_items = items.filter(name=name, description=description, genre=genre)
+        return pagination(page_size, page, filtered_items)
 
     @router.get("/trophies", response_model=list[PlayerTrophy], tags=["base"])
     async def get_trophies(
@@ -143,7 +142,11 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=10000),
     ):
-        return await get_items("trophies", {"id": id, "name": name, "color": color}, page, page_size)
+        items = await maimai_client.items(PlayerTrophy)
+        if id is not None:
+            return [items.by_id(id)]
+        filtered_items = items.filter(name=name, color=color)
+        return pagination(page_size, page, filtered_items)
 
     @router.get("/charas", response_model=list[PlayerChara], tags=["base"])
     async def get_charas(
@@ -152,7 +155,11 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=10000),
     ):
-        return await get_items("charas", {"id": id, "name": name}, page, page_size)
+        items = await maimai_client.items(PlayerChara)
+        if id is not None:
+            return [items.by_id(id)]
+        filtered_items = items.filter(name=name)
+        return pagination(page_size, page, filtered_items)
 
     @router.get("/partners", response_model=list[PlayerPartner], tags=["base"])
     async def get_partners(
@@ -161,7 +168,11 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=10000),
     ):
-        return await get_items("partners", {"id": id, "name": name}, page, page_size)
+        items = await maimai_client.items(PlayerIcon)
+        if id is not None:
+            return [items.by_id(id)]
+        filtered_items = items.filter(name=name)
+        return pagination(page_size, page, filtered_items)
 
     @router.get("/lxns/players", response_model=LXNSPlayer, tags=["lxns"])
     async def get_player_lxns(

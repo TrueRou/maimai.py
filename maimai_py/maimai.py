@@ -1,3 +1,4 @@
+from typing import Type
 import httpx
 from httpx import AsyncClient
 
@@ -34,6 +35,7 @@ class MaimaiClient:
 
     async def songs(
         self,
+        flush=False,
         provider: ISongProvider = LXNSProvider(),
         alias_provider: IAliasProvider = YuzuProvider(),
         curve_provider: ICurveProvider = DivingFishProvider(),
@@ -59,7 +61,7 @@ class MaimaiClient:
             default_caches._caches_provider["songs"] = provider
             default_caches._caches_provider["aliases"] = alias_provider
             default_caches._caches_provider["curves"] = curve_provider
-            return await MaimaiSongs._get_or_fetch(flush=True)
+            return await MaimaiSongs._get_or_fetch(flush=flush)
 
     async def players(
         self,
@@ -256,6 +258,10 @@ class MaimaiClient:
         resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode)
         ArcadeResponse._throw_error(resp)
         return PlayerIdentifier(credentials=resp.data.decode())
+
+    async def items(self, item: Type[CachedType], flush=False) -> MaimaiItems[CachedType]:
+        items = await default_caches.get_or_fetch(item._cache_key(), flush=flush)
+        return MaimaiItems[CachedType](items)
 
     async def flush(self) -> None:
         """Flush the caches of the client, this will perform a full re-fetch of all the data.

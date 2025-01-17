@@ -1,8 +1,9 @@
+from abc import abstractmethod
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
-from typing import Any
+from typing import Any, Generic, TypeVar
 from httpx import Cookies
 
 from maimai_py.enums import *
@@ -139,46 +140,71 @@ class ArcadeResponse:
 
 
 @dataclass
-class PlayerTrophy:
+class CachedModel:
+    @abstractmethod
+    def _cache_key() -> str:
+        pass
+
+
+@dataclass
+class PlayerTrophy(CachedModel):
     id: int
     name: str
     color: str
 
+    def _cache_key():
+        return "trophies"
+
 
 @dataclass
-class PlayerIcon:
+class PlayerIcon(CachedModel):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
+    def _cache_key():
+        return "icons"
+
 
 @dataclass
-class PlayerNamePlate:
+class PlayerNamePlate(CachedModel):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
+    def _cache_key():
+        return "nameplates"
+
 
 @dataclass
-class PlayerFrame:
+class PlayerFrame(CachedModel):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
-
-@dataclass
-class PlayerPartner:
-    id: int
-    name: str
+    def _cache_key():
+        return "frames"
 
 
 @dataclass
-class PlayerChara:
+class PlayerPartner(CachedModel):
     id: int
     name: str
+
+    def _cache_key():
+        return "partners"
+
+
+@dataclass
+class PlayerChara(CachedModel):
+    id: int
+    name: str
+
+    def _cache_key():
+        return "charas"
 
 
 @dataclass
@@ -221,6 +247,34 @@ class ArcadePlayer(Player):
     name_plate: PlayerNamePlate | None
     icon: PlayerIcon | None
     trophy: PlayerFrame | None
+
+
+CachedType = TypeVar("T", bound=CachedModel)
+
+
+class MaimaiItems(Generic[CachedType]):
+    _cached_items: dict[int, CachedType]
+
+    def __init__(self, items: dict[int, CachedType]) -> None:
+        """@private"""
+        self._cached_items = items
+
+    @property
+    def values(self) -> list[CachedType]:
+        """All items as list."""
+        return self._cached_items.values()
+
+    def filter(self, **kwargs) -> list[CachedType]:
+        """Filter items by their attributes.
+
+        Ensure that the attribute is of the item, and the value is of the same type. All conditions are connected by AND.
+
+        Args:
+            kwargs: the attributes to filter the items by.
+        Returns:
+            the list of items that match all the conditions, return an empty list if no item is found.
+        """
+        return [item for item in self.values if all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)]
 
 
 @dataclass
@@ -268,6 +322,44 @@ class PlateObject:
     song: Song
     levels: list[LevelIndex]
     score: list[Score] | None
+
+
+CachedType = TypeVar("T", bound=CachedModel)
+
+
+class MaimaiItems(Generic[CachedType]):
+    _cached_items: dict[int, CachedType]
+
+    def __init__(self, items: dict[int, CachedType]) -> None:
+        """@private"""
+        self._cached_items = items
+
+    @property
+    def values(self) -> list[CachedType]:
+        """All items as list."""
+        return self._cached_items.values()
+
+    def by_id(self, id: int) -> CachedType | None:
+        """Get an item by its ID.
+
+        Args:
+            id: the ID of the item.
+        Returns:
+            the item if it exists, otherwise return None.
+        """
+        return self._cached_items.get(id, None)
+
+    def filter(self, **kwargs) -> list[CachedType]:
+        """Filter items by their attributes.
+
+        Ensure that the attribute is of the item, and the value is of the same type. All conditions are connected by AND.
+
+        Args:
+            kwargs: the attributes to filter the items by.
+        Returns:
+            the list of items that match all the conditions, return an empty list if no item is found.
+        """
+        return [item for item in self.values if all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)]
 
 
 class MaimaiSongs:
