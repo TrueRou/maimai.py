@@ -107,7 +107,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
 
     def _deser_curve(chart: dict) -> CurveObject:
         return CurveObject(
-            sample_size=chart["cnt"],
+            sample_size=int(chart["cnt"]),
             fit_level_value=chart["fit_diff"],
             avg_achievements=chart["avg"],
             stdev_achievements=chart["std_dev"],

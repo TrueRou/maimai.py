@@ -394,7 +394,7 @@ class MaimaiSongs:
         Returns:
             the list of songs that match all the conditions, return an empty list if no song is found.
         """
-        return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items())]
+        return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)]
 
 
 class MaimaiPlates:
