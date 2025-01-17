@@ -12,6 +12,9 @@ class LocalProvider(IItemListProvider):
     Most of the data are stored in JSON files in the same directory as this file.
     """
 
+    def __eq__(self, value):
+        return isinstance(value, LocalProvider)
+
     def _read_file(self, file_name: str) -> dict[str, dict]:
         current_folder = Path(__file__).resolve().parent
         path = current_folder / f"{file_name}.json"

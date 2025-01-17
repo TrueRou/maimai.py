@@ -21,6 +21,9 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
     Wahlap Wechat OffiAccount: https://maimai.wahlap.com/maimai-mobile/
     """
 
+    def __eq__(self, value):
+        return isinstance(value, WechatProvider)
+
     def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:
         if song := songs.by_title(score["title"]):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0

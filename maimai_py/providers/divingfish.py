@@ -34,6 +34,9 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         """
         self.developer_token = developer_token
 
+    def __eq__(self, value):
+        return isinstance(value, DivingFishProvider) and value.developer_token == self.developer_token
+
     def _deser_song(song: dict) -> Song:
         return Song(
             id=int(song["id"]) % 10000,

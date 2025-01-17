@@ -33,6 +33,9 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         """
         self.developer_token = developer_token
 
+    def __eq__(self, value):
+        return isinstance(value, LXNSProvider) and value.developer_token == self.developer_token
+
     async def _ensure_friend_code(self, client: AsyncClient, identifier: PlayerIdentifier) -> None:
         if identifier.friend_code is None:
             resp = await client.get(self.base_url + f"api/v0/maimai/player/qq/{identifier.qq}", headers=self.headers)

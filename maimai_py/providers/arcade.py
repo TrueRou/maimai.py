@@ -19,6 +19,9 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     maimai.ffi: https://pypi.org/project/maimai-ffi
     """
 
+    def __eq__(self, value):
+        return isinstance(value, ArcadeProvider)
+
     def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:
         song_type = SongType._from_id(score["musicId"])
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
