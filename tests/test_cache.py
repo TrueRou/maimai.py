@@ -3,23 +3,23 @@ import time
 import pytest
 
 from maimai_py import caches
-from maimai_py.maimai import MaimaiClient, MaimaiSongs
-from maimai_py.providers import LXNSProvider
+from maimai_py.maimai import MaimaiClient
+from maimai_py.models import PlayerChara, PlayerFrame, PlayerIcon, PlayerNamePlate, PlayerPartner, PlayerTrophy
 
 
 @pytest.mark.asyncio()
 @pytest.mark.slow()
-async def test_songs_caching(maimai: MaimaiClient, lxns: LXNSProvider):
+async def test_songs_caching(maimai: MaimaiClient):
     caches.default_caches._caches = {}  # ensure that the cache is empty
 
     # Fetch the songs for the first time
     start_time = time.time()
-    await MaimaiSongs._get_or_fetch()
+    await maimai.songs()
     first_time = time.time() - start_time
 
     # Fetch the songs for the second time
     start_time = time.time()
-    await MaimaiSongs._get_or_fetch()
+    await maimai.songs()
     second_time = time.time() - start_time
 
     await maimai.flush()  # to test whether the flush is working properly
@@ -29,8 +29,8 @@ async def test_songs_caching(maimai: MaimaiClient, lxns: LXNSProvider):
 
 @pytest.mark.asyncio()
 @pytest.mark.slow()
-async def test_items_caching(maimai: MaimaiClient, lxns: LXNSProvider):
-    tasks = [caches.default_caches.get_or_fetch(item) for item in ["icons", "nameplates", "frames", "trophies", "charas", "partners"]]
+async def test_items_caching(maimai: MaimaiClient):
+    tasks = [maimai.items(item) for item in [PlayerIcon, PlayerNamePlate, PlayerFrame, PlayerTrophy, PlayerChara, PlayerPartner]]
     await asyncio.gather(*tasks)
 
 

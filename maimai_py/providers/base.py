@@ -103,7 +103,6 @@ class IItemListProvider:
         """@private"""
         raise NotImplementedError()
 
-    # frames
     @abstractmethod
     async def get_frames(self, client: AsyncClient) -> dict[int, PlayerFrame]:
         """@private"""

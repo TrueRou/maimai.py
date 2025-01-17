@@ -8,14 +8,15 @@ from maimai_py.models import *
 from maimai_py.providers import *
 from maimai_py.caches import default_caches
 from maimai_py.exceptions import WechatTokenExpiredError
+from maimai_py.utils.sentinel import UNSET
 
 
 class MaimaiClient:
     """The main client of maimai.py."""
 
     default_caches._caches_provider["songs"] = LXNSProvider()
-    default_caches._caches_provider["aliases"] = None  # not to fetch by default.
-    default_caches._caches_provider["curves"] = None  # not to fetch by default.
+    default_caches._caches_provider["aliases"] = YuzuProvider()
+    default_caches._caches_provider["curves"] = DivingFishProvider()
     default_caches._caches_provider["icons"] = LXNSProvider()
     default_caches._caches_provider["nameplates"] = LXNSProvider()
     default_caches._caches_provider["frames"] = LXNSProvider()
@@ -36,9 +37,9 @@ class MaimaiClient:
     async def songs(
         self,
         flush=False,
-        provider: ISongProvider = LXNSProvider(),
-        alias_provider: IAliasProvider = YuzuProvider(),
-        curve_provider: ICurveProvider = DivingFishProvider(),
+        provider: ISongProvider = UNSET,
+        alias_provider: IAliasProvider = UNSET,
+        curve_provider: ICurveProvider = UNSET,
     ) -> MaimaiSongs:
         """Fetch all maimai songs from the provider.
 
@@ -49,19 +50,25 @@ class MaimaiClient:
         Available curve providers: `DivingFishProvider`.
 
         Args:
-            provider: the data source to fetch the player from, defaults to `LXNSProvider`.
-            alias_provider: the data source to fetch the song aliases from, defaults to `YuzuProvider`.
-            curve_provider: the data source to fetch the song curves from, defaults to `DivingFishProvider`.
+            flush: whether to flush the cache, defaults to False.
+            provider: override the data source to fetch the player from, defaults to `LXNSProvider`.
+            alias_provider: override the data source to fetch the song aliases from, defaults to `YuzuProvider`.
+            curve_provider: override the data source to fetch the song curves from, defaults to `DivingFishProvider`.
         Returns:
             A wrapper of the song list, for easier access and filtering.
         Raises:
             RequestError: Request failed due to network issues.
         """
-        async with httpx.AsyncClient(**self._args) as client:
+        if provider is not UNSET and default_caches._caches_provider["songs"] != provider:
             default_caches._caches_provider["songs"] = provider
+            flush = True
+        if alias_provider is not UNSET and default_caches._caches_provider["aliases"] != alias_provider:
             default_caches._caches_provider["aliases"] = alias_provider
+            flush = True
+        if curve_provider is not UNSET and default_caches._caches_provider["curves"] != curve_provider:
             default_caches._caches_provider["curves"] = curve_provider
-            return await MaimaiSongs._get_or_fetch(flush=flush)
+            flush = True
+        return await MaimaiSongs._get_or_fetch(flush=flush)
 
     async def players(
         self,
@@ -259,7 +266,22 @@ class MaimaiClient:
         ArcadeResponse._throw_error(resp)
         return PlayerIdentifier(credentials=resp.data.decode())
 
-    async def items(self, item: Type[CachedType], flush=False) -> MaimaiItems[CachedType]:
+    async def items(self, item: Type[CachedType], flush=False, provider: IItemListProvider = UNSET) -> MaimaiItems[CachedType]:
+        """Fetch maimai player items from the cache default provider.
+
+        Available items: `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`.
+
+        Args:
+            item: the item type to fetch, e.g. `PlayerIcon`.
+            flush: whether to flush the cache, defaults to False.
+            provider: override the default item list provider, defaults to `LXNSProvider` and `LocalProvider`.
+        Returns:
+            A wrapper of the item list, for easier access and filtering.
+        Raises:
+            RequestError: Request failed due to network issues.
+        """
+        if provider and provider is not UNSET:
+            default_caches._caches_provider[item._cache_key()] = provider
         items = await default_caches.get_or_fetch(item._cache_key(), flush=flush)
         return MaimaiItems[CachedType](items)
 
