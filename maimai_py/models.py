@@ -9,6 +9,7 @@ from httpx import Cookies
 from maimai_py.enums import *
 from maimai_py.caches import default_caches
 from maimai_py.exceptions import InvalidPlateError, InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
+from maimai_py.utils.sentinel import UNSET
 
 
 @dataclass
@@ -25,9 +26,9 @@ class Song:
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def _get_level_indexes(self, exclude_remaster: bool = False) -> list[LevelIndex]:
+    def _get_level_indexes(self, song_type: SongType, exclude_remaster: bool = False) -> list[LevelIndex]:
         """@private"""
-        results = [diff.level_index for diff in (self.difficulties.standard + self.difficulties.dx)]
+        results = [diff.level_index for diff in self.difficulties._get_children(song_type)]
         if exclude_remaster and LevelIndex.ReMASTER in results:
             results.remove(LevelIndex.ReMASTER)
         return results
@@ -47,7 +48,9 @@ class SongDifficulties:
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
 
-    def _get_child(self, song_type: SongType) -> list["SongDifficulty"]:
+    def _get_children(self, song_type: SongType = UNSET) -> list["SongDifficulty"]:
+        if song_type == UNSET:
+            return self.standard + self.dx + self.utage
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
 
 
@@ -293,7 +296,7 @@ class Score:
 class PlateObject:
     song: Song
     levels: list[LevelIndex]
-    score: list[Score] | None
+    scores: list[Score] | None
 
 
 CachedType = TypeVar("T", bound=CachedModel)
@@ -362,7 +365,7 @@ class MaimaiSongs:
             song_type: SongType = SongType._from_id(int(idx))
             song_id = int(idx) % 10000
             if song := self._song_id_dict.get(song_id):
-                diffs = song.difficulties._get_child(song_type)
+                diffs = song.difficulties._get_children(song_type)
                 if len(diffs) < len(curve_list):
                     # ignore the extra curves, diving fish may return more curves than the song has, which is a bug
                     curve_list = curve_list[: len(diffs)]
@@ -471,6 +474,8 @@ class MaimaiPlates:
     kind: str
     """The kind of the plate, e.g. "将", "神"."""
 
+    _versions: list[int] = []
+
     def __init__(self, scores: list[Score], version_str: str, kind: str, songs: MaimaiSongs) -> None:
         """@private"""
         version_str = plate_aliases.get(version_str, version_str)
@@ -486,26 +491,19 @@ class MaimaiPlates:
 
         self.version = version_str
         self.kind = kind
+        self._versions = versions
         scores_unique = {}
 
-        # There is no plate that requires the player to play both a certain beatmap's DX and SD
         for score in scores:
-            song = songs.by_id(score.id)
-            score_key = f"{score.id} {score.type} {score.level_index}"
-            if song.difficulties.standard != []:
-                if any(song.difficulties.standard[0].version % ver <= 100 for ver in versions):
+            if song := songs.by_id(score.id):
+                score_key = f"{score.id} {score.type} {score.level_index}"
+                if any(song.get_difficulty(score.type, score.level_index).version % ver <= 100 for ver in versions):
                     scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-            if song.difficulties.dx != []:
-                if any(song.difficulties.dx[0].version % ver <= 100 for ver in versions):
-                    scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-        # There is no plate that requires the player to play both a certain beatmap's DX and SD
+
         for song in songs.songs:
-            if song.difficulties.standard != []:
-                if any(song.difficulties.standard[0].version % ver <= 100 for ver in versions):
-                    self.songs.append(song)
-            if song.difficulties.dx != []:
-                if any(song.difficulties.dx[0].version % ver <= 100 for ver in versions):
-                    self.songs.append(song)
+            diffs = song.difficulties._get_children()
+            if any(diff.version % ver <= 100 for diff in diffs for ver in versions):
+                self.songs.append(song)
 
         self.scores = list(scores_unique.values())
 
@@ -518,6 +516,14 @@ class MaimaiPlates:
         return self.version not in ["舞", "霸"]
 
     @cached_property
+    def major_type(self) -> SongType:
+        """The major song type of the plate, usually for identifying the levels.
+
+        Only 舞 and 霸 plates require ReMASTER levels, others don't.
+        """
+        return SongType.DX if any(ver > 20000 for ver in self._versions) else SongType.STANDARD
+
+    @cached_property
     def remained(self) -> list[PlateObject]:
         """Get the remained songs and scores of the player on this plate.
 
@@ -526,15 +532,14 @@ class MaimaiPlates:
         The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
         """
         scores: dict[int, list[Score]] = {}
-        [scores.setdefault(score.id, []).append(score) for score in self.scores]
+        [scores.setdefault(score.id, []).append(score) for score in self.scores if not self.no_remaster or score.level_index != LevelIndex.ReMASTER]
         results = {
-            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.no_remaster), score=scores.get(song.id, [])) for song in self.songs
+            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=scores.get(song.id, []))
+            for song in self.songs
         }
 
         def extract(score: Score) -> None:
-            if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
-                return  # skip ReMASTER scores if the plate is not 舞 or 霸
-            results[score.id].score.remove(score)
+            results[score.id].scores.remove(score)
             if score.level_index in results[score.id].levels:
                 results[score.id].levels.remove(score.level_index)
 
@@ -559,12 +564,12 @@ class MaimaiPlates:
 
         The distinct scores which met the plate requirement will be included in the result, the unfinished scores won't.
         """
-        results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
+        results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
 
         def insert(score: Score) -> None:
             if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
                 return  # skip ReMASTER scores if the plate is not 舞 or 霸
-            results[score.id].score.append(score)
+            results[score.id].scores.append(score)
             results[score.id].levels.append(score.level_index)
 
         if self.kind == "者":
@@ -588,23 +593,25 @@ class MaimaiPlates:
 
         All distinct scores will be included in the result.
         """
-        results = {song.id: PlateObject(song=song, levels=[], score=[]) for song in self.songs}
+        results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
         for score in self.scores:
             if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
                 continue  # skip ReMASTER scores if the plate is not 舞 or 霸
-            results[score.id].score.append(score)
+            results[score.id].scores.append(score)
             results[score.id].levels.append(score.level_index)
         return [plate for plate in results.values() if plate.levels != []]
 
     @cached_property
     def all(self) -> list[PlateObject]:
-        """Get all songs and scores on this plate, usually used for statistics of the plate.
+        """Get all songs on this plate, usually used for statistics of the plate.
 
         All songs will be included in the result, with all levels, whether they met or not.
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
-        results = {song.id: PlateObject(song=song, levels=song._get_level_indexes(self.no_remaster), score=[]) for song in self.songs}
+        results = {
+            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=[]) for song in self.songs
+        }
         return results.values()
 
     @cached_property

@@ -33,6 +33,34 @@ class PlayerBests:
     scores_b15: list[Score]
 
 
+@dataclass
+class PlateStats:
+    remained_num: int
+    cleared_num: int
+    played_num: int
+    all_num: int
+
+
+@dataclass
+class SongSimple:
+    id: int
+    title: str
+    artist: str
+
+
+@dataclass
+class PlateObjectSimple:
+    song: SongSimple
+    levels: list[LevelIndex]
+    scores: list[Score] | None
+
+
+@dataclass
+class PlateSimple:
+    stats: PlateStats
+    data: list[PlateObjectSimple]
+
+
 if find_spec("fastapi"):
     from fastapi import APIRouter, FastAPI, Query, Request, Header, Depends
     from fastapi.responses import JSONResponse
@@ -277,7 +305,7 @@ if find_spec("fastapi"):
             scores_b15=scores.scores_b15,
         )
 
-    @router.get("/lxns/plates", response_model=list[PlateObject], tags=["lxns"])
+    @router.get("/lxns/plates", response_model=PlateSimple, tags=["lxns"])
     async def get_plate_lxns(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -285,7 +313,11 @@ if find_spec("fastapi"):
         provider: LXNSProvider = Depends(dep_lxns),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        return getattr(plates, attr)
+        data: list[PlateObject] = getattr(plates, attr)
+        return PlateSimple(
+            stats=PlateStats(remained_num=plates.remained_num, cleared_num=plates.cleared_num, played_num=plates.played_num, all_num=plates.all_num),
+            data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
+        )
 
     @router.get("/divingfish/plates", response_model=list[PlateObject], tags=["divingfish"])
     async def get_plate_diving(
@@ -295,7 +327,11 @@ if find_spec("fastapi"):
         provider: DivingFishProvider = Depends(dep_diving),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        return getattr(plates, attr)
+        data: list[PlateObject] = getattr(plates, attr)
+        return PlateSimple(
+            stats=PlateStats(remained_num=plates.remained_num, cleared_num=plates.cleared_num, played_num=plates.played_num, all_num=plates.all_num),
+            data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
+        )
 
     @router.get("/arcade/plates", response_model=list[PlateObject], tags=["arcade"])
     async def get_plate_arcade(
@@ -305,7 +341,11 @@ if find_spec("fastapi"):
         provider: ArcadeProvider = Depends(dep_arcade),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        return getattr(plates, attr)
+        data: list[PlateObject] = getattr(plates, attr)
+        return PlateSimple(
+            stats=PlateStats(remained_num=plates.remained_num, cleared_num=plates.cleared_num, played_num=plates.played_num, all_num=plates.all_num),
+            data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
+        )
 
     @router.get("/arcade/regions", response_model=PlayerRegion, tags=["arcade"])
     async def get_region(

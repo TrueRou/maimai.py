@@ -178,7 +178,7 @@
 |----------|-----------------------|------------|
 | `song`   | `Song`                | 歌曲         |
 | `levels` | `list[LevelIndex]`    | 难度索引列表 |
-| `score`  | `list[Score] \| None` | 成绩列表     |
+| `scores` | `list[Score] \| None` | 成绩列表     |
 
 ## PlayerRegion
 
