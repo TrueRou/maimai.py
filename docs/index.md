@@ -21,7 +21,7 @@ hero:
 
 features:
   - title: Unify Schemas
-    details: Provides data models and interfaces based on MaimaiJP standard, implementing lots of data sources.
+    details: Provides data models and interfaces based on MaimaiJP standard. Language is no barrier, we also provide a client based on the RESTful, allowing you to use any language.
   - title: Query Information
     details: Querying songs, player information, scores, ratings, name plates from data sources.
   - title: Upload Prober

@@ -33,6 +33,8 @@ pip install -U maimai-py
 
 更多内容请查看文档: https://maimai.turou.fun/zh/.
 
+如果您不想使用 Python 进行开发, 也可以下载 maimai.py 客户端, 通过 RESTful API 进行调用.
+
 ## 快速开始
 
 ```python
@@ -65,3 +67,13 @@ asyncio.run(quick_start())
 maimai.py 默认采用全异步, 且暂时没有提供同步方法和接口的计划.
 
 如果您不希望采用异步, 可以使用 `asyncio.run` 包裹方法, 将异步方法同步调用.
+
+## 客户端
+
+maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP请求来调用 maimai.py 的特性.
+
+客户端使用 Nuitka 编译, 请在 [Releases](https://github.com/TrueRou/maimai.py/releases) 页面下载.
+
+我们的客户端支持 Windows, MacOS, Linux, 请根据您的系统下载对应的版本.
+
+客户端API文档请查看: https://openapi.maimai.turou.fun/.

@@ -18,15 +18,31 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate Static Files
-        run: mkdir api-docs && pip install httpx pdoc beautifulsoup4 cryptography maimai-ffi && pdoc maimai_py --docformat google -o ./api-docs
+      - name: Prepare for Poetry environment
+        run: pip install poetry && poetry install
+
+      - name: Generate PDocs
+        run: mkdir pdocs && poetry run python -m pdoc maimai_py --docformat google -o ./pdocs
+
+      - name: Generate Swagger Docs
+        run: mkdir sdocs && poetry run openapi && cp openapi.json sdocs/openapi.json && cp docs/swagger.html sdocs/index.html
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "api-docs/"
+          SOURCE: "pdocs/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.REMOTE_TARGET }}/api.maimai.turou.fun
+
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "sdocs/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}/openapi.maimai.turou.fun

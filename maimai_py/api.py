@@ -64,6 +64,7 @@ class PlateSimple:
 if find_spec("fastapi"):
     from fastapi import APIRouter, FastAPI, Query, Request, Header, Depends
     from fastapi.responses import JSONResponse
+    from fastapi.openapi.utils import get_openapi
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -319,7 +320,7 @@ if find_spec("fastapi"):
             data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
         )
 
-    @router.get("/divingfish/plates", response_model=list[PlateObject], tags=["divingfish"])
+    @router.get("/divingfish/plates", response_model=PlateSimple, tags=["divingfish"])
     async def get_plate_diving(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -333,7 +334,7 @@ if find_spec("fastapi"):
             data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
         )
 
-    @router.get("/arcade/plates", response_model=list[PlateObject], tags=["arcade"])
+    @router.get("/arcade/plates", response_model=PlateSimple, tags=["arcade"])
     async def get_plate_arcade(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -361,8 +362,30 @@ if find_spec("fastapi"):
 
     asgi_app.include_router(router)
 
+    def openapi():
+        specs = get_openapi(
+            title=asgi_app.title if asgi_app.title else None,
+            version=asgi_app.version if asgi_app.version else None,
+            openapi_version=asgi_app.openapi_version if asgi_app.openapi_version else None,
+            description=asgi_app.description if asgi_app.description else None,
+            routes=asgi_app.routes if asgi_app.routes else None,
+        )
+        with open(f"openapi.json", "w") as f:
+            json.dump(specs, f)
+
 
 if find_spec("uvicorn") and __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("maimai_py.api:asgi_app", host="127.0.0.1", port=8000)
+    uvicorn.run(asgi_app, host="127.0.0.1", port=8000)
+
+
+if find_spec("maimai_ffi") and find_spec("nuitka"):
+    import json
+    import cryptography
+    import cryptography.fernet
+    import cryptography.hazmat.primitives.ciphers
+    import cryptography.hazmat.backends
+    import maimai_ffi
+    import maimai_ffi.model
+    import maimai_ffi.request

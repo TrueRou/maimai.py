@@ -25,7 +25,8 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'Get Started', link: '/get-started' },
-          { text: 'Try Examples', link: '/examples' }
+          { text: 'Try Examples', link: '/examples' },
+          { text: 'Use Client', link: '/client' }
         ]
       },
       {
@@ -91,7 +92,8 @@ export default defineConfig({
             text: '介绍',
             items: [
               { text: '开始', link: '/zh/get-started' },
-              { text: '例子', link: '/zh/examples' }
+              { text: '例子', link: '/zh/examples' },
+              { text: '客户端', link: '/zh/client' }
             ]
           },
           {

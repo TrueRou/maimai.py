@@ -33,6 +33,8 @@ pip install -U maimai-py
 
 For more, read the docs: https://maimai.turou.fun/.
 
+If you don't want to use Python for development, you can also download the maimai.py client and call it via RESTful API.
+
 ## Quickstart
 
 ```python
@@ -65,3 +67,13 @@ asyncio.run(quick_start())
 maimai.py is fully asynchronous by default, and there are no plans to provide synchronous methods.
 
 If you don't want to be asynchronous, you can use the `asyncio.run` wrapper to call asynchronous methods synchronously.
+
+## Client
+
+maimai.py provides a RESTful API client, which you can call maimai.py features via HTTP requests from any language.
+
+The client is compiled using Nuitka, please download it from the [Releases](https://github.com/TrueRou/maimai.py/releases) page.
+
+Our client supports Windows, MacOS, and Linux, please download the corresponding version according to your system.
+
+For the client API documentation, please see: https://openapi.maimai.turou.fun/.

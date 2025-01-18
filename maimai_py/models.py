@@ -465,9 +465,9 @@ class MaimaiSongs:
 
 
 class MaimaiPlates:
-    scores: list[Score] = []
+    scores: list[Score]
     """The scores that match the plate version and kind."""
-    songs: list[Song] = []
+    songs: list[Song]
     """The songs that match the plate version and kind."""
     version: str
     """The version of the plate, e.g. "真", "舞"."""
@@ -478,31 +478,34 @@ class MaimaiPlates:
 
     def __init__(self, scores: list[Score], version_str: str, kind: str, songs: MaimaiSongs) -> None:
         """@private"""
-        version_str = plate_aliases.get(version_str, version_str)
-        kind = plate_aliases.get(kind, kind)
-        if version_str == "真":
+        self.scores = []
+        self.songs = []
+        self.version = plate_aliases.get(version_str, version_str)
+        self.kind = plate_aliases.get(kind, kind)
+        if self.version == "真":
             versions = [plate_to_version["初"], plate_to_version["真"]]
-        if version_str in ["霸", "舞"]:
+        if self.version in ["霸", "舞"]:
             versions = [ver for ver in plate_to_version.values() if ver < 20000]
-        if plate_to_version.get(version_str):
-            versions = [plate_to_version[version_str]]
-        if not versions or kind not in ["将", "者", "极", "舞舞", "神"]:
-            raise InvalidPlateError(f"Invalid plate: {version_str}{kind}")
-
-        self.version = version_str
-        self.kind = kind
+        if plate_to_version.get(self.version):
+            versions = [plate_to_version[self.version]]
+        if not versions or self.kind not in ["将", "者", "极", "舞舞", "神"]:
+            raise InvalidPlateError(f"Invalid plate: {self.version}{self.kind}")
+        versions.append([ver for ver in plate_to_version.values() if ver > versions[-1]][0])
         self._versions = versions
-        scores_unique = {}
 
+        scores_unique = {}
         for score in scores:
             if song := songs.by_id(score.id):
                 score_key = f"{score.id} {score.type} {score.level_index}"
-                if any(song.get_difficulty(score.type, score.level_index).version % ver <= 100 for ver in versions):
+                score_version = song.get_difficulty(score.type, score.level_index).version
+                if score.level_index == LevelIndex.ReMASTER and self.no_remaster:
+                    continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
+                if any(score_version >= o and score_version < versions[i + 1] for i, o in enumerate(versions[:-1])):
                     scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
 
         for song in songs.songs:
             diffs = song.difficulties._get_children()
-            if any(diff.version % ver <= 100 for diff in diffs for ver in versions):
+            if any(diff.version >= o and diff.version < versions[i + 1] for i, o in enumerate(versions[:-1]) for diff in diffs):
                 self.songs.append(song)
 
         self.scores = list(scores_unique.values())
@@ -513,6 +516,7 @@ class MaimaiPlates:
 
         Only 舞 and 霸 plates require ReMASTER levels, others don't.
         """
+
         return self.version not in ["舞", "霸"]
 
     @cached_property
@@ -531,10 +535,10 @@ class MaimaiPlates:
 
         The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
         """
-        scores: dict[int, list[Score]] = {}
-        [scores.setdefault(score.id, []).append(score) for score in self.scores if not self.no_remaster or score.level_index != LevelIndex.ReMASTER]
+        scores_dict: dict[int, list[Score]] = {}
+        [scores_dict.setdefault(score.id, []).append(score) for score in self.scores]
         results = {
-            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=scores.get(song.id, []))
+            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=scores_dict.get(song.id, []))
             for song in self.songs
         }
 
@@ -567,8 +571,6 @@ class MaimaiPlates:
         results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
 
         def insert(score: Score) -> None:
-            if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
-                return  # skip ReMASTER scores if the plate is not 舞 or 霸
             results[score.id].scores.append(score)
             results[score.id].levels.append(score.level_index)
 
@@ -595,8 +597,6 @@ class MaimaiPlates:
         """
         results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
         for score in self.scores:
-            if self.no_remaster and score.level_index == LevelIndex.ReMASTER:
-                continue  # skip ReMASTER scores if the plate is not 舞 or 霸
             results[score.id].scores.append(score)
             results[score.id].levels.append(score.level_index)
         return [plate for plate in results.values() if plate.levels != []]
