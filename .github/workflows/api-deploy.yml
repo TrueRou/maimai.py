@@ -72,4 +72,4 @@ jobs:
           overwrite: true
           file: build/api.exe
           asset_name: maimai.py-windows-amd64.exe
-          release_name: Release $(git rev-parse --short "$GITHUB_SHA")
+          release_name: maimai.py client
