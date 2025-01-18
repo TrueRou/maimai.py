@@ -60,8 +60,7 @@ jobs:
           overwrite: true
           file: build/api.bin
           asset_name: maimai.py-linux-amd64
-          release_name: Release $(git rev-parse --short "$GITHUB_SHA")
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          release_name: maimai.py client
 
       - name: Release for Windows
         if: runner.os == 'Windows'
