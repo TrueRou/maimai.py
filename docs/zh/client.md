@@ -1,10 +1,10 @@
 # 客户端
 
-maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP请求来调用 maimai.py 的特性.
+maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP请求来调用 maimai.py 的特性。
 
-客户端使用 Nuitka 编译, 请在 [Releases](https://github.com/TrueRou/maimai.py/releases) 页面下载.
+客户端使用 Nuitka 编译，请在 [Releases](https://github.com/TrueRou/maimai.py/releases) 页面下载。
 
-我们的客户端支持 Windows, MacOS, Linux, 请根据您的系统下载对应的版本.
+我们的客户端支持 Windows 和 Linux，请根据您的系统下载对应的版本。
 
 ## 使用方式
 
@@ -15,9 +15,9 @@ maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP
 
 ## 关于文档
 
-FastAPI 提供了自动生成的文档, 您可以通过访问 `http://127.0.0.1:8000/docs` 来查看文档和测试功能.
+FastAPI 提供了自动生成的文档，您可以通过访问 `http://127.0.0.1:8000/docs` 来查看文档和测试功能。
 
-另外，我们也提供了可以在线预览的API文档，您可以通过 [这里](https://openapi.maimai.turou.fun/) 查看.
+另外，我们也提供了可以在线预览的API文档，您可以通过 [这里](https://openapi.maimai.turou.fun/) 查看。
 
 ## 调用示例
 
@@ -156,7 +156,7 @@ func main() {
 
 ## FastAPI集成
 
-如果您希望在自己的 FastAPI 项目中集成 maimai.py, 您可以通过以下方式来导入 maimai.py 的所有路由。
+如果您希望在自己的 FastAPI 项目中集成 maimai.py，您可以通过以下方式来导入 maimai.py 的所有路由。
 
 ```python
 from fastapi import FastAPI

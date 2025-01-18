@@ -4,7 +4,7 @@ maimai.py provides a RESTful API client that you can call using any language via
 
 The client is compiled using Nuitka. Please download it from the [Releases](https://github.com/TrueRou/maimai.py/releases) page.
 
-Our client supports Windows, MacOS, and Linux. Please download the appropriate version for your system.
+Our client supports Windows and Linux. Please download the appropriate version for your system.
 
 ## Usage
 

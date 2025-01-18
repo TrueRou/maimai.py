@@ -17,7 +17,7 @@
 
 支持从数据源查询歌曲、谱面、玩家信息、分数、Rating、姓名框、牌子进度.
 
-另外, 支持联动微信 OpenID 获取玩家分数, 解析分数HTML, 并上传至数据源
+另外, 支持联动微信 OpenID 获取玩家分数, 解析分数HTML, 并上传至数据源.
 
 ## 使用方式
 
@@ -33,7 +33,7 @@ pip install -U maimai-py
 
 更多内容请查看文档: https://maimai.turou.fun/zh/.
 
-如果您不想使用 Python 进行开发, 也可以下载 maimai.py 客户端, 通过 RESTful API 进行调用.
+另外, 您也可以[下载 maimai.py 客户端](https://github.com/TrueRou/maimai.py/releases), 使用任何编程语言进行开发.
 
 ## 快速开始
 
@@ -74,6 +74,6 @@ maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP
 
 客户端使用 Nuitka 编译, 请在 [Releases](https://github.com/TrueRou/maimai.py/releases) 页面下载.
 
-我们的客户端支持 Windows, MacOS, Linux, 请根据您的系统下载对应的版本.
+我们的客户端支持 Windows, Linux, 请根据您的系统下载对应的版本.
 
 客户端API文档请查看: https://openapi.maimai.turou.fun/.
