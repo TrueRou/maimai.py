@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maimai-py"
-version = "0.6.0"
+version = "0.7.0"
 description = "The definitive python wrapper for MaimaiCN."
 authors = ["Usagi no Niku <chenbohan911@163.com>"]
 license = "MIT"
@@ -14,6 +14,8 @@ beautifulsoup4 = "^4.12.3"
 cryptography = ">=38.0"
 maimai-ffi = "^0.3.1"
 
+[tool.poetry.scripts]
+openapi = "maimai_py.api:openapi"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
@@ -21,6 +23,7 @@ pytest-asyncio = "^0.23.0"
 fastapi = "^0.115.6"
 pdoc = "^15.0.1"
 uvicorn = "^0.34.0"
+nuitka = "^2.5.9"
 
 [build-system]
 requires = ["poetry-core"]

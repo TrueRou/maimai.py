@@ -9,6 +9,7 @@ maimai.py 是一个用于舞萌相关开发的工具库，封装了常用函数�
 - **使用简单**: 例如 `maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)`
 - **文档详细**: 提供了用户友好的说明文档，也提供了完备的API文档，代码注释规范。
 - **高技术力**: 支持联动微信 OpenID 获取玩家分数, 解析分数HTML, 并上传至数据源。
+- **语言无界**：我们提供了基于RESTful范式的API接口，您可以使用任何语言来调用。
 - **机台支持✨**: 支持通过玩家二维码从机台获取玩家成绩，玩家ID全程加密，强大且安全
 
 可以在这里访问我们的API文档: https://api.maimai.turou.fun/.
