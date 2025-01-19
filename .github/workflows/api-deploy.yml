@@ -39,6 +39,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: maimai_py/api.py
+          include-data-dir: maimai_py/providers/local=maimai_py/providers/local
           mode: app
 
       - name: Upload Artifacts

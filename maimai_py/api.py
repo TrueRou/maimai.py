@@ -110,11 +110,11 @@ if find_spec("fastapi"):
         map: str | None = None,
         version: int | None = None,
         page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
+        page_size: int = Query(100, ge=1, le=1000),
     ):
         maimai_songs: MaimaiSongs = await maimai_client.songs()
         if id is not None:
-            return [maimai_songs.by_id(id)]
+            return [item] if (item := maimai_songs.by_id(id)) else []
         songs = maimai_songs.filter(title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
         return pagination(page_size, page, songs)
 
@@ -125,11 +125,11 @@ if find_spec("fastapi"):
         description: str | None = None,
         genre: str | None = None,
         page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
+        page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerIcon)
         if id is not None:
-            return [items.by_id(id)]
+            return [item] if (item := items.by_id(id)) else []
         filtered_items = items.filter(name=name, description=description, genre=genre)
         return pagination(page_size, page, filtered_items)
 
@@ -140,11 +140,11 @@ if find_spec("fastapi"):
         description: str | None = None,
         genre: str | None = None,
         page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
+        page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerNamePlate)
         if id is not None:
-            return [items.by_id(id)]
+            return [item] if (item := items.by_id(id)) else []
         filtered_items = items.filter(name=name, description=description, genre=genre)
         return pagination(page_size, page, filtered_items)
 
@@ -155,11 +155,11 @@ if find_spec("fastapi"):
         description: str | None = None,
         genre: str | None = None,
         page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
+        page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerFrame)
         if id is not None:
-            return [items.by_id(id)]
+            return [item] if (item := items.by_id(id)) else []
         filtered_items = items.filter(name=name, description=description, genre=genre)
         return pagination(page_size, page, filtered_items)
 
@@ -169,11 +169,11 @@ if find_spec("fastapi"):
         name: str | None = None,
         color: str | None = None,
         page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
+        page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerTrophy)
         if id is not None:
-            return [items.by_id(id)]
+            return [item] if (item := items.by_id(id)) else []
         filtered_items = items.filter(name=name, color=color)
         return pagination(page_size, page, filtered_items)
 
@@ -182,11 +182,11 @@ if find_spec("fastapi"):
         id: int | None = None,
         name: str | None = None,
         page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
+        page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerChara)
         if id is not None:
-            return [items.by_id(id)]
+            return [item] if (item := items.by_id(id)) else []
         filtered_items = items.filter(name=name)
         return pagination(page_size, page, filtered_items)
 
@@ -195,11 +195,11 @@ if find_spec("fastapi"):
         id: int | None = None,
         name: str | None = None,
         page: int = Query(1, ge=1),
-        page_size: int = Query(100, ge=1, le=10000),
+        page_size: int = Query(100, ge=1, le=1000),
     ):
-        items = await maimai_client.items(PlayerIcon)
+        items = await maimai_client.items(PlayerPartner)
         if id is not None:
-            return [items.by_id(id)]
+            return [item] if (item := items.by_id(id)) else []
         filtered_items = items.filter(name=name)
         return pagination(page_size, page, filtered_items)
 
