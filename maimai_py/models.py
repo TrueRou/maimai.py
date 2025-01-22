@@ -691,7 +691,9 @@ class MaimaiScores:
         If ScoreKind is BEST, this won't make any difference, because the scores are already the best ones.
         """
         distinct_scores = MaimaiScores._get_distinct_scores(self.scores)
-        return MaimaiScores(b35=self.scores_b35, b15=self.scores_b15, all=distinct_scores)
+        songs: MaimaiSongs = default_caches._caches["msongs"]
+        assert songs is not None and isinstance(songs, MaimaiSongs)
+        return MaimaiScores(b35=self.scores_b35, b15=self.scores_b15, all=distinct_scores, songs=songs)
 
     def by_song(self, song_id: int, song_type: SongType = None, level_index: LevelIndex = None) -> list[Score]:
         """Get scores of the song on that type and level_index.
