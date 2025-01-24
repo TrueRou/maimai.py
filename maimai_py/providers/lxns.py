@@ -38,10 +38,11 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
 
     async def _ensure_friend_code(self, client: AsyncClient, identifier: PlayerIdentifier) -> None:
         if identifier.friend_code is None:
-            resp = await client.get(self.base_url + f"api/v0/maimai/player/qq/{identifier.qq}", headers=self.headers)
-            if not resp.json()["success"]:
-                raise InvalidPlayerIdentifierError(resp.json()["message"])
-            identifier.friend_code = resp.json()["data"]["friend_code"]
+            if identifier.qq is not None:
+                resp = await client.get(self.base_url + f"api/v0/maimai/player/qq/{identifier.qq}", headers=self.headers)
+                if not resp.json()["success"]:
+                    raise InvalidPlayerIdentifierError(resp.json()["message"])
+                identifier.friend_code = resp.json()["data"]["friend_code"]
 
     def _deser_note(diff: dict, key: str) -> int:
         if "notes" in diff:
@@ -195,8 +196,13 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
         await self._ensure_friend_code(client, identifier)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
+        use_headers = self.headers
+        if identifier.credentials:
+            # If the player has a personal token, use it to update the scores
+            use_headers["X-User-Token"] = identifier.credentials
+            entrypoint = f"api/v0/user/maimai/player/scores"
         scores_dict = {"scores": [LXNSProvider._ser_score(score) for score in scores]}
-        resp = await client.post(self.base_url + entrypoint, headers=self.headers, json=scores_dict)
+        resp = await client.post(self.base_url + entrypoint, headers=use_headers, json=scores_dict)
         if not resp.json()["success"] and resp.json()["code"] == 400:
             raise ValueError(resp.json()["message"])
         self._check_response_player(resp)

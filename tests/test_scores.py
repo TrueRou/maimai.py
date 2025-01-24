@@ -25,10 +25,19 @@ async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingf
 
 
 @pytest.mark.asyncio()
+@pytest.mark.slow()
+async def test_scores_updating_lxns_personal(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
+    from tests import secrets
+
+    scores = await maimai.scores(PlayerIdentifier(username="turou"), kind=ScoreKind.ALL, provider=divingfish)
+    await maimai.updates(PlayerIdentifier(credentials=secrets.lxns_personal_token), scores.scores, provider=lxns)
+
+
+@pytest.mark.asyncio()
 async def test_scores_updating(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
     scores = await maimai.scores(PlayerIdentifier(username="turou"), kind=ScoreKind.ALL, provider=divingfish)
     await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
 
 
 if __name__ == "__main__":
-    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])
+    pytest.main(["-q", "-x", "--runslow", "-p no:warnings", "-s", __file__])
