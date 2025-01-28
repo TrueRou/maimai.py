@@ -275,10 +275,10 @@ class Score:
             return self if self.achievements > other.achievements else other
         if self.rate and other.rate and self.rate != other.rate:  # smaller value is better
             return self if self.rate.value < other.rate.value else other
-        if (self.fc.value if self.fc else 100) != (other.fc.value if self.fc else 100):  # smaller value is better
-            return self if (self.fc.value if self.fc else 100) < (other.fc.value if self.fc else 100) else other
-        if (self.fs.value if self.fs else 100) != (other.fs.value if self.fs else 100):  # smaller value is better
-            return self if (self.fs.value if self.fs else 100) < (other.fs.value if self.fs else 100) else other
+        if (self.fc.value if self.fc else 100) != (other.fc.value if other.fc else 100):  # smaller value is better
+            return self if (self.fc.value if self.fc else 100) < (other.fc.value if other.fc else 100) else other
+        if (self.fs.value if self.fs else 100) != (other.fs.value if other.fs else 100):  # smaller value is better
+            return self if (self.fs.value if self.fs else 100) < (other.fs.value if other.fs else 100) else other
         return self  # we consider they are equal
 
     @property
