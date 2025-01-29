@@ -3,6 +3,8 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
+import sys
+import time
 from typing import Any, Callable, Generic, TypeVar
 from httpx import Cookies
 
@@ -343,7 +345,8 @@ class MaimaiSongs:
     _cached_curves: dict[str, list[CurveObject | None]]
 
     _song_id_dict: dict[int, Song]  # song_id: song
-    _alias_entry_dict: dict[str, int]  # alias_entry: song_id
+    _alias_entry_dict: dict[str, Song]  # alias_entry: song
+    _keywords_dict: dict[str, Song]  # keywords: song
 
     def __init__(self, songs: list[Song], aliases: list[SongAlias] | None, curves: dict[str, list[CurveObject | None]]) -> None:
         """@private"""
@@ -352,15 +355,17 @@ class MaimaiSongs:
         self._cached_curves = curves
         self._song_id_dict = {}
         self._alias_entry_dict = {}
+        self._keywords_dict = {}
         self._flush()
 
     def _flush(self) -> None:
         self._song_id_dict = {song.id: song for song in self._cached_songs}
+        self._keywords_dict = {}
         for alias in self._cached_aliases or []:
             if song := self._song_id_dict.get(alias.song_id):
                 song.aliases = alias.aliases
-            for alias_entry in alias.aliases:
-                self._alias_entry_dict[alias_entry] = alias.song_id
+                for alias_entry in alias.aliases:
+                    self._alias_entry_dict[alias_entry] = song
         for idx, curve_list in (self._cached_curves or {}).items():
             song_type: SongType = SongType._from_id(int(idx))
             song_id = int(idx) % 10000
@@ -370,6 +375,9 @@ class MaimaiSongs:
                     # ignore the extra curves, diving fish may return more curves than the song has, which is a bug
                     curve_list = curve_list[: len(diffs)]
                 [diffs[i].__setattr__("curve", curve) for i, curve in enumerate(curve_list)]
+        for song in self._cached_songs:
+            keywords = song.title.lower() + song.artist.lower() + "".join(song.aliases)
+            self._keywords_dict[keywords] = song
 
     @staticmethod
     async def _get_or_fetch(flush=False) -> "MaimaiSongs":
@@ -416,8 +424,7 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
-        song_id = self._alias_entry_dict.get(alias, 0)
-        return self.by_id(song_id)
+        return self._alias_entry_dict.get(alias, None)
 
     def by_artist(self, artist: str) -> list[Song]:
         """Get songs by their artist, case-sensitive.
@@ -462,6 +469,16 @@ class MaimaiSongs:
 
         versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
         return list(filter(versions_func, self.songs))
+
+    def by_keywords(self, keywords: str) -> list[Song]:
+        """Get songs by their keywords, keywords are matched with song title, artist and aliases.
+
+        Args:
+            keywords: the keywords to match the songs.
+        Returns:
+            the list of songs that match the keywords, return an empty list if no song is found.
+        """
+        return [v for k, v in self._keywords_dict.items() if keywords.lower() in k]
 
     def filter(self, **kwargs) -> list[Song]:
         """Filter songs by their attributes.

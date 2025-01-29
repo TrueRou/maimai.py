@@ -91,7 +91,6 @@ def by_bpm(self, minimum: int, maximum: int) -> list[Song]:
         匹配BPM范围的歌曲列表，如果没有找到则返回空列表。
     """
 
-```python
 def by_versions(self, versions: Version) -> list[Song]:
     """通过版本获取歌曲，版本是模糊匹配的大版本更新，例如，`24000` 会匹配舞萌2024的所有曲目。
 
@@ -101,9 +100,14 @@ def by_versions(self, versions: Version) -> list[Song]:
         匹配版本的歌曲列表，如果没有找到则返回空列表。
     """
 
-    versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
-    return list(filter(versions_func, self.songs))
-```
+def by_keywords(self, keywords: str) -> list[Song]:
+    """通过关键词获取歌曲，关键词会匹配歌曲标题、艺术家和别名。
+
+    参数:
+        keywords: 用于匹配歌曲的关键词。
+    返回:
+        匹配关键词的歌曲列表，如果没有找到则返回空列表。
+    """
 
 def filter(self, **kwargs) -> list[Song]:
     """根据属性筛选歌曲。
