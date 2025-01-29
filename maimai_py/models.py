@@ -3,7 +3,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Generic, TypeVar
+from typing import Any, Callable, Generic, TypeVar
 from httpx import Cookies
 
 from maimai_py.enums import *
@@ -451,6 +451,18 @@ class MaimaiSongs:
         """
         return [song for song in self.songs if minimum <= song.bpm <= maximum]
 
+    def by_versions(self, versions: Version) -> list[Song]:
+        """Get songs by their versions, versions are fuzzy matched version of major maimai version.
+
+        Args:
+            versions: the versions of the songs.
+        Returns:
+            the list of songs that match the versions, return an empty list if no song is found.
+        """
+
+        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
+        return list(filter(versions_func, self.songs))
+
     def filter(self, **kwargs) -> list[Song]:
         """Filter songs by their attributes.
 
@@ -461,6 +473,9 @@ class MaimaiSongs:
         Returns:
             the list of songs that match all the conditions, return an empty list if no song is found.
         """
+        if "id" in kwargs and kwargs["id"] is not None:
+            # if id is provided, ignore other attributes, as id is unique
+            return [item] if (item := self.by_id(kwargs["id"])) else []
         return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)]
 
 
@@ -474,7 +489,7 @@ class MaimaiPlates:
     kind: str
     """The kind of the plate, e.g. "将", "神"."""
 
-    _versions: list[int] = []
+    _versions: list[Version] = []
 
     def __init__(self, scores: list[Score], version_str: str, kind: str, songs: MaimaiSongs) -> None:
         """@private"""
@@ -485,12 +500,12 @@ class MaimaiPlates:
         if self.version == "真":
             versions = [plate_to_version["初"], plate_to_version["真"]]
         if self.version in ["霸", "舞"]:
-            versions = [ver for ver in plate_to_version.values() if ver < 20000]
+            versions = [ver for ver in plate_to_version.values() if ver.value < 20000]
         if plate_to_version.get(self.version):
             versions = [plate_to_version[self.version]]
         if not versions or self.kind not in ["将", "者", "极", "舞舞", "神"]:
             raise InvalidPlateError(f"Invalid plate: {self.version}{self.kind}")
-        versions.append([ver for ver in plate_to_version.values() if ver > versions[-1]][0])
+        versions.append([ver for ver in plate_to_version.values() if ver.value > versions[-1].value][0])
         self._versions = versions
 
         scores_unique = {}
@@ -500,12 +515,12 @@ class MaimaiPlates:
                 score_version = song.get_difficulty(score.type, score.level_index).version
                 if score.level_index == LevelIndex.ReMASTER and self.no_remaster:
                     continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
-                if any(score_version >= o and score_version < versions[i + 1] for i, o in enumerate(versions[:-1])):
+                if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
                     scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
 
         for song in songs.songs:
             diffs = song.difficulties._get_children()
-            if any(diff.version >= o and diff.version < versions[i + 1] for i, o in enumerate(versions[:-1]) for diff in diffs):
+            if any(diff.version >= o.value and diff.version < versions[i + 1].value for i, o in enumerate(versions[:-1]) for diff in diffs):
                 self.songs.append(song)
 
         self.scores = list(scores_unique.values())
@@ -525,7 +540,7 @@ class MaimaiPlates:
 
         Only 舞 and 霸 plates require ReMASTER levels, others don't.
         """
-        return SongType.DX if any(ver > 20000 for ver in self._versions) else SongType.STANDARD
+        return SongType.DX if any(ver.value > 20000 for ver in self._versions) else SongType.STANDARD
 
     @cached_property
     def remained(self) -> list[PlateObject]:
@@ -669,7 +684,7 @@ class MaimaiScores:
             scores_old: list[Score] = []
             for score in distinct_scores:
                 if song := songs.by_id(score.id):
-                    (scores_new if song.version >= current_version else scores_old).append(score)
+                    (scores_new if song.version >= current_version.value else scores_old).append(score)
             scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
             scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
             b35 = scores_old[:35]

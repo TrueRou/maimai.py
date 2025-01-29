@@ -1,66 +1,97 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
-"""
-Prebuilt Dicts
-"""
 
-plate_to_version: dict[str, int] = {
-    "初": 10000,  # maimai
-    "真": 11000,  # maimai PLUS
-    "超": 12000,  # GreeN
-    "檄": 13000,  # GreeN PLUS
-    "橙": 14000,  # ORANGE
-    "晓": 15000,  # ORANGE PLUS
-    "桃": 16000,  # PiNK
-    "樱": 17000,  # PiNK PLUS
-    "紫": 18000,  # MURASAKi
-    "堇": 18500,  # MURASAKi PLUS
-    "白": 19000,  # MiLK
-    "雪": 19500,  # MiLK PLUS
-    "辉": 19900,  # FiNALE
-    "熊": 20000,  # 舞萌DX
-    "华": 20000,  # 舞萌DX
-    "爽": 21000,  # 舞萌DX 2021
-    "煌": 21000,  # 舞萌DX 2021
-    "星": 22000,  # 舞萌DX 2022
-    "宙": 22000,  # 舞萌DX 2022
-    "祭": 23000,  # 舞萌DX 2023
-    "祝": 23000,  # 舞萌DX 2023
-    "双": 24000,  # 舞萌DX 2024
-    "宴": 24000,  # 舞萌DX 2024
-    "未": 30000,  # 舞萌DX 2077
+class Version(IntEnum):
+    MAIMAI = 10000
+    MAIMAI_PLUS = 11000
+    MAIMAI_GREEN = 12000
+    MAIMAI_GREEN_PLUS = 13000
+    MAIMAI_ORANGE = 14000
+    MAIMAI_ORANGE_PLUS = 15000
+    MAIMAI_PINK = 16000
+    MAIMAI_PINK_PLUS = 17000
+    MAIMAI_MURASAKI = 18000
+    MAIMAI_MURASAKI_PLUS = 18500
+    MAIMAI_MILK = 19000
+    MAIMAI_MILK_PLUS = 19500
+    MAIMAI_FINALE = 19900
+    MAIMAI_DX = 20000
+    MAIMAI_DX_PLUS = 20000
+    # 舞萌DX 2021
+    MAIMAI_DX_SPLASH = 21000
+    MAIMAI_DX_SPLASH_PLUS = 21000
+    # 舞萌DX 2022
+    MAIMAI_DX_UNIVERSE = 22000
+    MAIMAI_DX_UNIVERSE_PLUS = 22000
+    # 舞萌DX 2023
+    MAIMAI_DX_FESTIVAL = 23000
+    MAIMAI_DX_FESTIVAL_PLUS = 23000
+    # 舞萌DX 2024
+    MAIMAI_DX_BUDDIES = 24000
+    MAIMAI_DX_BUDDIES_PLUS = 24000
+    # 舞萌DX 2077
+    MAIMAI_DX_FUTURE = 30000
+
+
+all_versions = list(Version.__members__.values())
+"""@private"""
+
+current_version = all_versions[-2]
+"""@private"""
+
+plate_to_version: dict[str, Version] = {
+    "初": Version.MAIMAI,
+    "真": Version.MAIMAI_PLUS,
+    "超": Version.MAIMAI_GREEN,
+    "檄": Version.MAIMAI_GREEN_PLUS,
+    "橙": Version.MAIMAI_ORANGE,
+    "晓": Version.MAIMAI_ORANGE_PLUS,
+    "桃": Version.MAIMAI_PINK,
+    "樱": Version.MAIMAI_PINK_PLUS,
+    "紫": Version.MAIMAI_MURASAKI,
+    "堇": Version.MAIMAI_MURASAKI_PLUS,
+    "白": Version.MAIMAI_MILK,
+    "雪": Version.MAIMAI_MILK_PLUS,
+    "辉": Version.MAIMAI_FINALE,
+    "熊": Version.MAIMAI_DX,
+    "华": Version.MAIMAI_DX,
+    "爽": Version.MAIMAI_DX_SPLASH,
+    "煌": Version.MAIMAI_DX_SPLASH,
+    "星": Version.MAIMAI_DX_UNIVERSE,
+    "宙": Version.MAIMAI_DX_UNIVERSE,
+    "祭": Version.MAIMAI_DX_FESTIVAL,
+    "祝": Version.MAIMAI_DX_FESTIVAL,
+    "双": Version.MAIMAI_DX_BUDDIES,
+    "宴": Version.MAIMAI_DX_BUDDIES,
+    "未": Version.MAIMAI_DX_FUTURE,
 }
 """@private"""
 
-current_version = list(plate_to_version.values())[-1]
-"""@private
 
-We consider the latest version to be the highest version in the plate_to_version dict.
-"""
-
-divingfish_to_version = {
-    "maimai": 10000,
-    "maimai PLUS": 11000,
-    "maimai GreeN": 12000,
-    "maimai GreeN PLUS": 13000,
-    "maimai ORANGE": 14000,
-    "maimai ORANGE PLUS": 15000,
-    "maimai PiNK": 16000,
-    "maimai PiNK PLUS": 17000,
-    "maimai MURASAKi": 18000,
-    "maimai MURASAKi PLUS": 18500,
-    "maimai MiLK": 19000,
-    "MiLK PLUS": 19500,
-    "maimai FiNALE": 19900,
-    "maimai でらっくす": 20000,
-    "maimai でらっくす PLUS": 20000,
-    "maimai でらっくす Splash": 21000,
-    "maimai でらっくす Splash PLUS": 21000,
-    "maimai でらっくす UNiVERSE": 22000,
-    "maimai でらっくす UNiVERSE PLUS": 22000,
-    "maimai でらっくす FESTiVAL": 23000,
-    "maimai でらっくす FESTiVAL PLUS": 23000,
-    "maimai でらっくす BUDDiES": 24000,
+divingfish_to_version: dict[str, Version] = {
+    "maimai": Version.MAIMAI,
+    "maimai PLUS": Version.MAIMAI_PLUS,
+    "maimai GreeN": Version.MAIMAI_GREEN,
+    "maimai GreeN PLUS": Version.MAIMAI_GREEN_PLUS,
+    "maimai ORANGE": Version.MAIMAI_ORANGE,
+    "maimai ORANGE PLUS": Version.MAIMAI_ORANGE_PLUS,
+    "maimai PiNK": Version.MAIMAI_PINK,
+    "maimai PiNK PLUS": Version.MAIMAI_PINK_PLUS,
+    "maimai MURASAKi": Version.MAIMAI_MURASAKI,
+    "maimai MURASAKi PLUS": Version.MAIMAI_MURASAKI_PLUS,
+    "maimai MiLK": Version.MAIMAI_MILK,
+    "MiLK PLUS": Version.MAIMAI_MILK_PLUS,
+    "maimai FiNALE": Version.MAIMAI_FINALE,
+    "maimai でらっくす": Version.MAIMAI_DX,
+    "maimai でらっくす PLUS": Version.MAIMAI_DX_PLUS,
+    "maimai でらっくす Splash": Version.MAIMAI_DX_SPLASH,
+    "maimai でらっくす Splash PLUS": Version.MAIMAI_DX_SPLASH_PLUS,
+    "maimai でらっくす UNiVERSE": Version.MAIMAI_DX_UNIVERSE,
+    "maimai でらっくす UNiVERSE PLUS": Version.MAIMAI_DX_UNIVERSE_PLUS,
+    "maimai でらっくす FESTiVAL": Version.MAIMAI_DX_FESTIVAL,
+    "maimai でらっくす FESTiVAL PLUS": Version.MAIMAI_DX_FESTIVAL_PLUS,
+    "maimai でらっくす BUDDiES": Version.MAIMAI_DX_BUDDIES,
+    "maimai でらっくす BUDDiES PLUS": Version.MAIMAI_DX_BUDDIES_PLUS,
 }
 """@private"""
 

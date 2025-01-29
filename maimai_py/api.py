@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from importlib.util import find_spec
-from typing import Annotated, Literal
+from typing import Annotated, Callable, Iterable, Literal
 
 from maimai_py.models import *
 from maimai_py.enums import ScoreKind
@@ -109,13 +109,22 @@ if find_spec("fastapi"):
         bpm: int | None = None,
         map: str | None = None,
         version: int | None = None,
+        keyword: str | None = None,
+        type: SongType | None = None,
+        level: str | None = None,
+        versions: Version | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
+        type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []
+        level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
+        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
+        post_conditions = [cond for cond, flag in zip([type_func, level_func, versions_func], [type, level, versions]) if flag]
+        post_filter = lambda song: all([cond(song) for cond in post_conditions])
+
         maimai_songs: MaimaiSongs = await maimai_client.songs()
-        if id is not None:
-            return [item] if (item := maimai_songs.by_id(id)) else []
-        songs = maimai_songs.filter(title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
+        songs = maimai_songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
+        songs = list(filter(post_filter, songs))
         return pagination(page_size, page, songs)
 
     @router.get(

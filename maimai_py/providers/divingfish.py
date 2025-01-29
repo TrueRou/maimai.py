@@ -47,7 +47,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             map=None,
             rights=None,
             aliases=None,
-            version=divingfish_to_version[song["basic_info"]["from"]],
+            version=divingfish_to_version[song["basic_info"]["from"]].value,
             disabled=False,
             difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
         )
@@ -61,7 +61,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
                 level_value=song["ds"][idx],
                 level_index=LevelIndex(idx),
                 note_designer=chart["charter"],
-                version=divingfish_to_version[song["basic_info"]["from"]],
+                version=divingfish_to_version[song["basic_info"]["from"]].value,
                 tap_num=chart["notes"][0],
                 hold_num=chart["notes"][1],
                 slide_num=chart["notes"][2],
