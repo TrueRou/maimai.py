@@ -17,20 +17,11 @@ class Version(IntEnum):
     MAIMAI_FINALE = 19900
     MAIMAI_DX = 20000
     MAIMAI_DX_PLUS = 20000
-    # 舞萌DX 2021
-    MAIMAI_DX_SPLASH = 21000
-    MAIMAI_DX_SPLASH_PLUS = 21000
-    # 舞萌DX 2022
-    MAIMAI_DX_UNIVERSE = 22000
-    MAIMAI_DX_UNIVERSE_PLUS = 22000
-    # 舞萌DX 2023
-    MAIMAI_DX_FESTIVAL = 23000
-    MAIMAI_DX_FESTIVAL_PLUS = 23000
-    # 舞萌DX 2024
-    MAIMAI_DX_BUDDIES = 24000
-    MAIMAI_DX_BUDDIES_PLUS = 24000
-    # 舞萌DX 2077
-    MAIMAI_DX_FUTURE = 30000
+    MAIMAI_DX_SPLASH = 21000  # 舞萌DX 2021
+    MAIMAI_DX_UNIVERSE = 22000  # 舞萌DX 2022
+    MAIMAI_DX_FESTIVAL = 23000  # 舞萌DX 2023
+    MAIMAI_DX_BUDDIES = 24000  # 舞萌DX 2024
+    MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
 
 
 all_versions = list(Version.__members__.values())
@@ -85,13 +76,13 @@ divingfish_to_version: dict[str, Version] = {
     "maimai でらっくす": Version.MAIMAI_DX,
     "maimai でらっくす PLUS": Version.MAIMAI_DX_PLUS,
     "maimai でらっくす Splash": Version.MAIMAI_DX_SPLASH,
-    "maimai でらっくす Splash PLUS": Version.MAIMAI_DX_SPLASH_PLUS,
+    "maimai でらっくす Splash PLUS": Version.MAIMAI_DX_SPLASH,
     "maimai でらっくす UNiVERSE": Version.MAIMAI_DX_UNIVERSE,
-    "maimai でらっくす UNiVERSE PLUS": Version.MAIMAI_DX_UNIVERSE_PLUS,
+    "maimai でらっくす UNiVERSE PLUS": Version.MAIMAI_DX_UNIVERSE,
     "maimai でらっくす FESTiVAL": Version.MAIMAI_DX_FESTIVAL,
-    "maimai でらっくす FESTiVAL PLUS": Version.MAIMAI_DX_FESTIVAL_PLUS,
+    "maimai でらっくす FESTiVAL PLUS": Version.MAIMAI_DX_FESTIVAL,
     "maimai でらっくす BUDDiES": Version.MAIMAI_DX_BUDDIES,
-    "maimai でらっくす BUDDiES PLUS": Version.MAIMAI_DX_BUDDIES_PLUS,
+    "maimai でらっくす BUDDiES PLUS": Version.MAIMAI_DX_BUDDIES,
 }
 """@private"""
 
