@@ -122,7 +122,9 @@ if find_spec("fastapi"):
         type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []
         level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
         versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
-        keywords_func: Callable[[Song], bool] = lambda song: keywords.lower() in song.title.lower() + song.artist.lower() + "".join(song.aliases)
+        keywords_func: Callable[[Song], bool] = lambda song: keywords.lower() in song.title.lower() + song.artist.lower() + "".join(
+            alias.lower() for alias in (song.aliases or [])
+        )
         post_conditions = [
             cond for cond, flag in zip([type_func, level_func, versions_func, keywords_func], [type, level, versions, keywords]) if flag
         ]

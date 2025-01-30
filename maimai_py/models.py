@@ -374,7 +374,7 @@ class MaimaiSongs:
                     curve_list = curve_list[: len(diffs)]
                 [diffs[i].__setattr__("curve", curve) for i, curve in enumerate(curve_list)]
         for song in self._cached_songs:
-            keywords = song.title.lower() + song.artist.lower() + "".join(song.aliases)
+            keywords = song.title.lower() + song.artist.lower() + "".join(alias.lower() for alias in (song.aliases or []))
             self._keywords_dict[keywords] = song
 
     @staticmethod
