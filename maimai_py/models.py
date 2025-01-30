@@ -3,8 +3,6 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
-import sys
-import time
 from typing import Any, Callable, Generic, TypeVar
 from httpx import Cookies
 
@@ -693,7 +691,7 @@ class MaimaiScores:
         return list(scores_unique.values())
 
     def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None, songs: MaimaiSongs = None):
-        self.scores = all or b35 + b15 if b35 and b15 else []
+        self.scores = all or (b35 + b15 if b35 and b15 else None) or []
         # if b35 and b15 are not provided, try to calculate them from all scores
         if (not b35 or not b15) and all:
             distinct_scores = MaimaiScores._get_distinct_scores(all)  # scores have to be distinct to calculate the bests

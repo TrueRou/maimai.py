@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from importlib.util import find_spec
-from typing import Annotated, Callable, Iterable, Literal
+from typing import Annotated, Callable, Literal
 
 from maimai_py.models import *
 from maimai_py.enums import ScoreKind
