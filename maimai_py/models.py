@@ -412,6 +412,8 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
+        if title == "Link(CoF)":
+            return self.by_id(383)
         return next((song for song in self.songs if song.title == title), None)
 
     def by_alias(self, alias: str) -> Song | None:

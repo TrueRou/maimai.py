@@ -40,7 +40,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     def _deser_song(song: dict) -> Song:
         return Song(
             id=int(song["id"]) % 10000,
-            title=song["basic_info"]["title"],
+            title=song["basic_info"]["title"] if int(song["id"]) != 383 else "Link",
             artist=song["basic_info"]["artist"],
             genre=song["basic_info"]["genre"],
             bpm=song["basic_info"]["bpm"],
@@ -81,7 +81,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     def _deser_score(score: dict) -> Score:
         return Score(
             id=score["song_id"] % 10000,
-            song_name=score["title"],
+            song_name=score["title"] if score["song_id"] != 383 else "Link(CoF)",
             level=score["level"],
             level_index=LevelIndex(score["level_index"]),
             achievements=score["achievements"],
@@ -96,7 +96,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     def _ser_score(score: Score) -> dict:
         return {
             "song_id": score.type._to_id(score.id),
-            "title": score.song_name,
+            "title": score.song_name if score.id != 383 else "Link(CoF)",
             "level": score.level,
             "level_index": score.level_index.value,
             "achievements": score.achievements,
