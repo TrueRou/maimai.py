@@ -12,6 +12,7 @@ router = None
 asgi_app = None
 local_lxns_token = None
 local_divingfish_token = None
+local_arcade_proxy = None
 maimai_client = MaimaiClient()
 
 
@@ -77,7 +78,7 @@ if find_spec("fastapi"):
         return DivingFishProvider(token_divingfish or local_divingfish_token)
 
     def dep_arcade():
-        return ArcadeProvider()
+        return ArcadeProvider(http_proxy=local_arcade_proxy)
 
     def dep_lxns_player(qq: str | None = None, friend_code: int | None = None):
         return PlayerIdentifier(qq=qq, friend_code=friend_code)
@@ -455,7 +456,7 @@ if find_spec("fastapi"):
 
     @router.get("/arcade/qrcode", tags=["arcade"], description="Get encrypted player credentials from QR code")
     async def parse_qrcode(qrcode: str):
-        identifier = await maimai_client.qrcode(qrcode)
+        identifier = await maimai_client.qrcode(qrcode, http_proxy=local_arcade_proxy)
         return {"credentials": identifier.credentials}
 
     @asgi_app.get("/", include_in_schema=False)

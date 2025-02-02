@@ -22,6 +22,16 @@ We encrypt the player's userId with AES encryption, and decrypt it when calling 
 
 For more security suggestions, please contact us, we are committed to keeping player data safe and dedicated to maintaining the security of the maimai arcade servers.
 
+# About proxy
+
+Due to the network environment, some users may need to use a proxy to access the maimai arcade server. We provide a http_proxy parameter in the constructor to support the use of a proxy.
+
+```python
+from maimai import ArcadeProvider
+
+provider = ArcadeProvider(http_proxy="http://127.0.0.1:7890")
+```
+
 ## Disclaimer
 
 Risk Notice:

@@ -22,6 +22,16 @@ PyPi: https://pypi.org/project/maimai-ffi
 
 有更多安全性建议可以联系我们，我们致力于保证玩家数据的安全，致力于维护舞萌机台服务器的安全。
 
+# 关于代理
+
+由于网络环境的原因，一些用户可能需要使用代理来访问舞萌机台服务器。我们在构造函数中提供了一个 http_proxy 参数来支持代理的使用。
+
+```python
+from maimai import ArcadeProvider
+
+provider = ArcadeProvider(http_proxy="http://127.0.0.1:7890")
+```
+
 ## 免责声明
 
 风险告知：

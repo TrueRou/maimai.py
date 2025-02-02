@@ -251,20 +251,21 @@ class MaimaiClient:
             resp_next = await client.get(resp.next_request.url, headers=headers)
             return PlayerIdentifier(credentials=resp_next.cookies)
 
-    async def qrcode(self, qrcode: str) -> PlayerIdentifier:
+    async def qrcode(self, qrcode: str, http_proxy: str | None = None) -> PlayerIdentifier:
         """Get the player identifier from the Wahlap QR code.
 
         Player identifier is the encrypted userId, can't be used in any other cases outside the maimai.py.
 
         Args:
             qrcode: the QR code of the player, should begin with SGWCMAID.
+            http_proxy: the http proxy to use for the request, defaults to None.
         Returns:
             The player identifier of the player.
         Raises:
             AimeServerError: Maimai Aime server error, may be invalid QR code or QR code has expired.
             TitleServerError: Maimai title server related errors, possibly network problems.
         """
-        resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode)
+        resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode, http_proxy=http_proxy)
         ArcadeResponse._throw_error(resp)
         return PlayerIdentifier(credentials=resp.data.decode())
 

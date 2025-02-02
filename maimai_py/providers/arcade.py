@@ -19,6 +19,11 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     maimai.ffi: https://pypi.org/project/maimai-ffi
     """
 
+    _http_proxy: str | None = None
+
+    def __init__(self, http_proxy: str = None):
+        self._http_proxy = http_proxy
+
     def __eq__(self, value):
         return isinstance(value, ArcadeProvider)
 
@@ -45,7 +50,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient):
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-        resp: ArcadeResponse = await arcade.get_user_preview(identifier.credentials.encode())
+        resp: ArcadeResponse = await arcade.get_user_preview(identifier.credentials.encode(), http_proxy=self._http_proxy)
         ArcadeResponse._throw_error(resp)
         return ArcadePlayer(
             name=resp.data["userName"],
@@ -59,7 +64,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-        resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode())
+        resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
         ArcadeResponse._throw_error(resp)
         msongs: MaimaiSongs = await MaimaiSongs._get_or_fetch()
         return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, msongs))]
@@ -71,7 +76,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-        resp: ArcadeResponse = await arcade.get_user_region(identifier.credentials.encode())
+        resp: ArcadeResponse = await arcade.get_user_region(identifier.credentials.encode(), http_proxy=self._http_proxy)
         ArcadeResponse._throw_error(resp)
         return [
             PlayerRegion(
