@@ -447,7 +447,7 @@ if find_spec("fastapi"):
             data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
         )
 
-    @router.get("/arcade/regions", response_model=PlayerRegion, tags=["arcade"], description="Get player regions from Arcade")
+    @router.get("/arcade/regions", response_model=list[PlayerRegion], tags=["arcade"], description="Get player regions from Arcade")
     async def get_region(
         player: PlayerIdentifier = Depends(dep_arcade_player),
         provider: ArcadeProvider = Depends(dep_arcade),

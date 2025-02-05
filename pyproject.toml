@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maimai-py"
-version = "0.8.3"
+version = "0.8.5"
 description = "The definitive python wrapper for MaimaiCN."
 authors = ["Usagi no Niku <chenbohan911@163.com>"]
 license = "MIT"
@@ -12,7 +12,7 @@ python = "^3.9"
 httpx = "^0.28.0"
 beautifulsoup4 = "^4.12.3"
 cryptography = ">=38.0"
-maimai-ffi = "^0.3.3"
+maimai-ffi = "^0.4.1"
 pysocks = "^1.7.1"
 
 [tool.poetry.scripts]
