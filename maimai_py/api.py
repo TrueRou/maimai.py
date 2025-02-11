@@ -80,11 +80,11 @@ if find_spec("fastapi"):
     def dep_arcade():
         return ArcadeProvider(http_proxy=local_arcade_proxy)
 
-    def dep_lxns_player(qq: str | None = None, friend_code: int | None = None):
+    def dep_lxns_player(friend_code: int | None = None, qq: str | None = None):
         return PlayerIdentifier(qq=qq, friend_code=friend_code)
 
-    def dep_diving_player(qq: str | None = None, username: str | None = None, credentials: str | None = None):
-        return PlayerIdentifier(qq=qq, username=username, credentials=credentials)
+    def dep_diving_player(username: str | None = None, qq: str | None = None):
+        return PlayerIdentifier(qq=qq, username=username)
 
     def dep_arcade_player(credentials: str):
         return PlayerIdentifier(credentials=credentials)
@@ -339,14 +339,15 @@ if find_spec("fastapi"):
     @router.post(
         "/divingfish/scores",
         tags=["divingfish"],
-        description="Update player scores to Diving Fish",
+        description="Update player scores to Diving Fish, should provide the user's username and password, or import token as credentials.",
     )
     async def update_scores_diving(
         scores: list[Score],
-        player: PlayerIdentifier = Depends(dep_diving_player),
-        provider: DivingFishProvider = Depends(dep_diving),
+        username: str | None = None,
+        credentials: str | None = None,
     ):
-        scores = await maimai_client.updates(player, scores, provider=provider)
+        player = PlayerIdentifier(username=username, credentials=credentials)
+        scores = await maimai_client.updates(player, scores, provider=DivingFishProvider())
 
     @router.get(
         "/lxns/bests",
