@@ -269,16 +269,22 @@ class Score:
     def _compare(self, other: "Score") -> "Score":
         if other is None:
             return self
-        if self.dx_score and other.dx_score:  # larger value is better
-            return self if self.dx_score > other.dx_score else other
-        if self.achievements and other.achievements and self.achievements != other.achievements:  # larger value is better
-            return self if self.achievements > other.achievements else other
-        if self.rate and other.rate and self.rate != other.rate:  # smaller value is better
-            return self if self.rate.value < other.rate.value else other
-        if (self.fc.value if self.fc else 100) != (other.fc.value if other.fc else 100):  # smaller value is better
-            return self if (self.fc.value if self.fc else 100) < (other.fc.value if other.fc else 100) else other
-        if (self.fs.value if self.fs else 100) != (other.fs.value if other.fs else 100):  # smaller value is better
-            return self if (self.fs.value if self.fs else 100) < (other.fs.value if other.fs else 100) else other
+        if self.dx_score != other.dx_score:  # larger value is better
+            return self if (self.dx_score or 0) > (other.dx_score or 0) else other
+        if self.achievements != other.achievements:  # larger value is better
+            return self if (self.achievements or 0) > (other.achievements or 0) else other
+        if self.rate != other.rate:  # smaller value is better
+            self_rate = self.rate.value if self.rate is not None else 100
+            other_rate = other.rate.value if other.rate is not None else 100
+            return self if self_rate < other_rate else other
+        if self.fc != other.fc:  # smaller value is better
+            self_fc = self.fc.value if self.fc is not None else 100
+            other_fc = other.fc.value if other.fc is not None else 100
+            return self if self_fc < other_fc else other
+        if self.fs != other.fs:  # bigger value is better
+            self_fs = self.fs.value if self.fs is not None else -1
+            other_fs = other.fs.value if other.fs is not None else -1
+            return self if self_fs > other_fs else other
         return self  # we consider they are equal
 
     @property
