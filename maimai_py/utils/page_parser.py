@@ -4,8 +4,10 @@
 import re
 from bs4 import BeautifulSoup
 
+link_dx_score = [372, 522, 942, 924]
 
-def get_data_from_div(div, link_searched):
+
+def get_data_from_div(div):
     form = div.find(name="form")
 
     if not re.search(r"diff_(.*).png", form.contents[1].attrs["src"]):
@@ -34,15 +36,16 @@ def get_data_from_div(div, link_searched):
         matched = re.search(r"music_icon_(.+?)\.png", src)
         return matched.group(1) if matched and matched.group(1) != "back" else ""
 
-    title = form.contents[7].string
-    if title == "Link":
-        link_searched = True
-        title = "Link(CoF)"
     if len(form.contents) == 23:
+        title = form.contents[7].string
+        level_index = get_level_index(form.contents[1].attrs["src"])
+        full_dx_score = int(form.contents[11].contents[1].string.strip().split("/")[1].replace(" ", "").replace(",", ""))
+        if title == "Link" and full_dx_score != link_dx_score[level_index]:
+            title = "Link(CoF)"
         data = {
             "title": title,
             "level": form.contents[5].string,
-            "level_index": get_level_index(form.contents[1].attrs["src"]),
+            "level_index": level_index,
             "type": type_,
             "achievements": float(form.contents[9].string[:-1]),
             "dxScore": int(form.contents[11].contents[1].string.strip().split("/")[0].replace(" ", "").replace(",", "")),
@@ -51,16 +54,10 @@ def get_data_from_div(div, link_searched):
             "fs": get_music_icon(form.contents[13].attrs["src"]),
             "ds": 0,
         }
-        return data, link_searched
-    return None, link_searched
+        return data
+    return None
 
 
 def wmdx_html2json(html: str) -> dict:
     soup = BeautifulSoup(html, "html.parser")
-    link_searched = False
-    j = []
-    for div in soup.find_all(class_="w_450 m_15 p_r f_0"):
-        v, link_searched = get_data_from_div(div, link_searched)
-        if v is not None:
-            j.append(v)
-    return j
+    return [v for div in soup.find_all(class_="w_450 m_15 p_r f_0") if (v := get_data_from_div(div))]

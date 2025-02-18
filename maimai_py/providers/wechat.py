@@ -33,7 +33,7 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
                 rating = ScoreCoefficient(score["achievements"]).ra(diff.level_value)
                 return Score(
                     id=song.id,
-                    song_name=score["title"],
+                    song_name=song.title,
                     level=score["level"],
                     level_index=level_index,
                     achievements=score["achievements"],
