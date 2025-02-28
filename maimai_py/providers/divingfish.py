@@ -65,8 +65,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
                 tap_num=chart["notes"][0],
                 hold_num=chart["notes"][1],
                 slide_num=chart["notes"][2],
-                touch_num=chart["notes"][3],
-                break_num=chart["notes"][4] if len(chart["notes"]) > 4 else 0,
+                touch_num=chart["notes"][3] if song_type == SongType.DX else 0,
+                break_num=chart["notes"][4] if song_type == SongType.DX else chart["notes"][3],
                 curve=None,
             )
             if song_type == SongType.UTAGE:
