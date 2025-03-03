@@ -17,7 +17,7 @@ class Song:
     id: int
     title: str
     artist: str
-    genre: str
+    genre: Genre
     bpm: int
     map: str | None
     version: int
@@ -442,7 +442,7 @@ class MaimaiSongs:
         """
         return [song for song in self.songs if song.artist == artist]
 
-    def by_genre(self, genre: str) -> list[Song]:
+    def by_genre(self, genre: Genre) -> list[Song]:
         """Get songs by their genre, case-sensitive.
 
         Args:

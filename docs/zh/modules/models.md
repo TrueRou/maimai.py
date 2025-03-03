@@ -7,7 +7,7 @@
 | `id`           | `int`               | 曲目 ID          |
 | `title`        | `str`               | 曲名             |
 | `artist`       | `str`               | 艺术家           |
-| `genre`        | `str`               | 流派             |
+| `genre`        | `Genre`             | 流派             |
 | `bpm`          | `int`               | 曲目 BPM         |
 | `map`          | `str \| None`       | 曲目所属区域     |
 | `version`      | `int`               | 曲目首次出现版本 |

@@ -42,7 +42,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             id=int(song["id"]) % 10000,
             title=song["basic_info"]["title"] if int(song["id"]) != 383 else "Link",
             artist=song["basic_info"]["artist"],
-            genre=song["basic_info"]["genre"],
+            genre=name_to_genre[song["basic_info"]["genre"]],
             bpm=song["basic_info"]["bpm"],
             map=None,
             rights=None,

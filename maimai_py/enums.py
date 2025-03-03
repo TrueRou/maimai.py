@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, StrEnum
 
 
 class Version(IntEnum):
@@ -22,6 +22,16 @@ class Version(IntEnum):
     MAIMAI_DX_FESTIVAL = 23000  # 舞萌DX 2023
     MAIMAI_DX_BUDDIES = 24000  # 舞萌DX 2024
     MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
+
+
+class Genre(StrEnum):
+    POPSアニメ = "POPSアニメ"
+    niconicoボーカロイド = "niconicoボーカロイド"
+    東方Project = "東方Project"
+    ゲームバラエティ = "ゲームバラエティ"
+    maimai = "maimai"
+    オンゲキCHUNITHM = "オンゲキCHUNITHM"
+    宴会場 = "宴会場"
 
 
 all_versions = list(Version.__members__.values())
@@ -83,6 +93,23 @@ divingfish_to_version: dict[str, Version] = {
     "maimai でらっくす FESTiVAL PLUS": Version.MAIMAI_DX_FESTIVAL,
     "maimai でらっくす BUDDiES": Version.MAIMAI_DX_BUDDIES,
     "maimai でらっくす BUDDiES PLUS": Version.MAIMAI_DX_BUDDIES,
+}
+"""@private"""
+
+name_to_genre: dict[str, Genre] = {
+    "POPSアニメ": Genre.POPSアニメ,
+    "流行&动漫": Genre.POPSアニメ,
+    "niconicoボーカロイド": Genre.niconicoボーカロイド,
+    "niconico & VOCALOID": Genre.niconicoボーカロイド,
+    "東方Project": Genre.東方Project,
+    "东方Project": Genre.東方Project,
+    "ゲームバラエティ": Genre.ゲームバラエティ,
+    "其他游戏": Genre.ゲームバラエティ,
+    "maimai": Genre.maimai,
+    "舞萌": Genre.maimai,
+    "オンゲキCHUNITHM": Genre.オンゲキCHUNITHM,
+    "音击&中二节奏": Genre.オンゲキCHUNITHM,
+    "宴会場": Genre.宴会場,
 }
 """@private"""
 

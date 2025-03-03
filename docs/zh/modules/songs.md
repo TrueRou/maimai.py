@@ -72,7 +72,7 @@ def by_artist(self, artist: str) -> list[Song]:
         匹配艺术家的歌曲列表，如果没有找到则返回空列表。
     """
 
-def by_genre(self, genre: str) -> list[Song]:
+def by_genre(self, genre: Genre) -> list[Song]:
     """通过流派获取歌曲，区分大小写。
 
     参数:

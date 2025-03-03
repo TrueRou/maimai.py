@@ -106,7 +106,7 @@ if find_spec("fastapi"):
         id: int | None = None,
         title: str | None = None,
         artist: str | None = None,
-        genre: str | None = None,
+        genre: Genre | None = None,
         bpm: int | None = None,
         map: str | None = None,
         version: int | None = None,

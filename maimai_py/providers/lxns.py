@@ -64,7 +64,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             id=song["id"],
             title=song["title"],
             artist=song["artist"],
-            genre=song["genre"],
+            genre=name_to_genre[song["genre"]],
             bpm=song["bpm"],
             aliases=song["aliases"] if "aliases" in song else None,
             map=song["map"] if "map" in song else None,
