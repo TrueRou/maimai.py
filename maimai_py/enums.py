@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum, StrEnum
+from enum import Enum, IntEnum
 
 
 class Version(IntEnum):
@@ -24,7 +24,7 @@ class Version(IntEnum):
     MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
 
 
-class Genre(StrEnum):
+class Genre(Enum):
     POPSアニメ = "POPSアニメ"
     niconicoボーカロイド = "niconicoボーカロイド"
     東方Project = "東方Project"
