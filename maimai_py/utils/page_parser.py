@@ -4,7 +4,7 @@
 import re
 from bs4 import BeautifulSoup
 
-link_dx_score = [372, 522, 942, 924]
+link_dx_score = [372, 522, 942, 924, 1425]
 
 
 def get_data_from_div(div):
