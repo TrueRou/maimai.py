@@ -365,6 +365,7 @@ class MaimaiSongs:
     def _flush(self) -> None:
         self._song_id_dict = {song.id: song for song in self._cached_songs}
         self._keywords_dict = {}
+        default_caches._caches["lxns_detailed_songs"] = {}
         for alias in self._cached_aliases or []:
             if song := self._song_id_dict.get(alias.song_id):
                 song.aliases = alias.aliases
