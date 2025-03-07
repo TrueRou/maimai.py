@@ -35,6 +35,8 @@ async def test_lxns_detailed_song(lxns: LXNSProvider):
         assert song.difficulties.dx[3].note_designer == "はっぴー"
         song_cache = await lxns.get_song(1231, client)
         assert song_cache is song
+        song1: Song = await lxns.get_song(363, client)
+        assert len(song1.difficulties.utage) != 0
 
 
 if __name__ == "__main__":

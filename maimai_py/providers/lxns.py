@@ -152,7 +152,12 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         difficulties = song.difficulties
         difficulties.standard.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("standard", []))
         difficulties.dx.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("dx", []))
-        difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty) for difficulty in resp_json["difficulties"].get("utage", []))
+        if (await MaimaiSongs._get_or_fetch()).by_id(id).difficulties.utage:
+            # Fetch utage difficulties separately, if the song has utage difficulties
+            resp1 = await client.get(self.base_url + f"api/v0/maimai/song/{id + 100000}")
+            resp1.raise_for_status()
+            resp_json1 = resp1.json()
+            difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty) for difficulty in resp_json1["difficulties"].get("utage", []))
         default_caches._caches["lxns_detailed_songs"][str(id)] = song
         return song
 
