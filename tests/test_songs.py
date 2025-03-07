@@ -1,6 +1,8 @@
+import httpx
 import pytest
 
 from maimai_py.maimai import MaimaiClient
+from maimai_py.models import Song
 from maimai_py.providers import LXNSProvider
 from maimai_py.providers.divingfish import DivingFishProvider
 
@@ -24,5 +26,16 @@ async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfi
     assert any(song.id == 1568 for song in song5)
 
 
+@pytest.mark.asyncio()
+@pytest.mark.slow()
+async def test_lxns_detailed_song(lxns: LXNSProvider):
+    async with httpx.AsyncClient() as client:
+        song: Song = await lxns.get_song(1231, client)
+        assert song.title == "生命不詳"
+        assert song.difficulties.dx[3].note_designer == "はっぴー"
+        song_cache = await lxns.get_song(1231, client)
+        assert song_cache is song
+
+
 if __name__ == "__main__":
-    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])
+    pytest.main(["-q", "-x", "--runslow", "-p no:warnings", "-s", __file__])

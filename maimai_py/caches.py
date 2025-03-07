@@ -15,7 +15,7 @@ class MaimaiCaches:
         if isinstance(new_val, dict):
             value_dict: dict = self._caches.setdefault(key, {})
             value_dict.update(new_val)
-        if isinstance(new_val, list):
+        elif isinstance(new_val, list):
             value_list: list = self._caches.setdefault(key, [])
             value_list[:] = new_val
         return new_val
@@ -35,7 +35,7 @@ class MaimaiCaches:
         tasks = [self.get_or_fetch(key, flush=True) for key in managed_keys]
         await asyncio.gather(*tasks)
         unmanaged_keys = set(self._caches.keys()) - set(self._available_keys)
-        [getattr(self._caches[key], "_flush") for key in unmanaged_keys]
+        [getattr(self._caches[key], "_flush") for key in unmanaged_keys if hasattr(self._caches[key], "_flush")]
 
 
 default_caches = MaimaiCaches()
