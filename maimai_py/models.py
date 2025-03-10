@@ -259,8 +259,8 @@ class Score:
     level: str
     level_index: LevelIndex
     achievements: float | None
-    fc: FCType
-    fs: FSType
+    fc: FCType | None
+    fs: FSType | None
     dx_score: int | None
     dx_rating: float | None
     rate: RateType

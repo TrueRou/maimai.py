@@ -1,3 +1,4 @@
+import typer
 from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
@@ -481,7 +482,13 @@ if find_spec("fastapi"):
 if find_spec("uvicorn") and __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(asgi_app, host="127.0.0.1", port=8000)
+    def main(
+        host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
+        port: Annotated[int, typer.Option(help="The port number to bind to.")] = 8000,
+    ):
+        uvicorn.run(asgi_app, host=host, port=port)
+
+    typer.run(main)
 
 
 if find_spec("maimai_ffi") and find_spec("nuitka"):

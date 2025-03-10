@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maimai-py"
-version = "0.8.13"
+version = "0.8.14"
 description = "The definitive python wrapper for MaimaiCN."
 authors = ["Usagi no Niku <chenbohan911@163.com>"]
 license = "MIT"
@@ -25,6 +25,7 @@ fastapi = "^0.115.6"
 pdoc = "^15.0.1"
 uvicorn = "^0.34.0"
 nuitka = "^2.5.9"
+typer = "^0.15.2"
 
 [build-system]
 requires = ["poetry-core"]

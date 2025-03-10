@@ -33,6 +33,8 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
         achievement = float(score["achievement"]) / 10000
         if song := songs.by_id(score["musicId"] % 10000):
             if diff := song.get_difficulty(song_type, level_index):
+                fs_type = FSType(score["syncStatus"]) if 0 < score["syncStatus"] < 5 else None
+                fs_type = FSType.SYNC if score["syncStatus"] == 5 else fs_type
                 return Score(
                     id=song.id,
                     song_name=song.title,
@@ -40,7 +42,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
                     level_index=diff.level_index,
                     achievements=achievement,
                     fc=FCType(4 - score["comboStatus"]) if score["comboStatus"] != 0 else None,
-                    fs=FSType(score["syncStatus"]) if score["syncStatus"] not in [0, 5] else FSType.SYNC if score["comboStatus"] == 5 else None,
+                    fs=fs_type,
                     dx_score=score["deluxscoreMax"],
                     dx_rating=ScoreCoefficient(achievement).ra(diff.level_value),
                     rate=RateType._from_achievement(achievement),
