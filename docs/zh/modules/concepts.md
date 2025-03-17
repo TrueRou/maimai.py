@@ -69,6 +69,12 @@ player_diving = await maimai.players(PlayerIdentifier(username="turou"), provide
 - 上传分数到水鱼时使用Import-Token：`PlayerIdentitifer(credentials="Import-Token")`。
 - 使用机台作为数据源时，`credentials` 就是玩家加密后的userId，您可以保存并复用。
 
+## 曲目ID
+
+在本查分器中，同一首曲目的标准、DX 谱面、宴会谱面的 曲目ID 一致，不存在大于 10000 的 曲目ID（如有，均会对 10000 / 100000 取余处理）。
+
+例如，Oshama Scramble! 的标准、DX、宴会谱面的 曲目ID 均为 363。
+
 ## 下一步
 
 至此，您已经了解了 maimai.py 的全部核心概念。

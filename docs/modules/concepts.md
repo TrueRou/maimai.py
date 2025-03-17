@@ -67,6 +67,12 @@ The `PlayerIdentifier` is a generic concept, you need to pass in the appropriate
 - Use Import-Token when uploading scores to divingfish: `PlayerIdentitifer(credentials=“Import-Token”)`.
 - When using arcade as a provider, `credentials` is the player's encrypted userId.
 
+## Song ID
+
+In our system, the same song's SD, DX, and UTAGE charts share the same Song ID. There are no Song IDs greater than 10000 (if any exist, they will be processed with modulo 10000 OR 100000).
+
+For example, the Song ID for Oshama Scramble!'s Standard, DX, and UTAGE charts is 363.
+
 ## Next
 
 At this point, you have learned all the core concepts of maimai.py.

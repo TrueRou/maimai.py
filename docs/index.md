@@ -21,12 +21,12 @@ hero:
 
 features:
   - title: Unify Schemas
-    details: Provides data models and interfaces based on MaimaiJP standard. Language is no barrier, we also provide a client based on the RESTful, allowing you to use any language.
+    details: Provides data models and interfaces based on MaimaiJP standard. Language is no barrier, we also provide a RESTful client, allowing you to use any programming language.
   - title: Query Information
     details: Querying songs, player information, scores, ratings, name plates from data sources.
   - title: Upload Prober
-    details: Uploading player scores to the prober, currently supporting Diving-Fish and LXNS.
+    details: Uploading player scores to the Diving-Fish or LXNS prober, and fetching scores from any prober.
   - title: Extended Querying
-    details: Especially, we support fetching scores from Wahlap, currently supporting via QRCode and WeChat.
+    details: Especially, we support fetching scores from arcade, via QRCode or WeChat OffiAccount.
 ---
 

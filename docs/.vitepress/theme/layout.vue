@@ -20,7 +20,7 @@ const { Layout } = DefaultTheme
                         <div class="shine star-yellow-right"></div>
                     </div>
                 </div>
-                <div class="decoration-container">
+                <div class="decoration-container" style="transform: translateY(var(--vp-nav-height));">
                     <div class="auroras">
                         <div class="aurora aurora-front"></div>
                         <div class="aurora aurora-back"></div>
