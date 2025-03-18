@@ -1,4 +1,3 @@
-import typer
 from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
@@ -251,6 +250,26 @@ if find_spec("fastapi"):
         return pagination(page_size, page, filtered_items)
 
     @router.get(
+        "/areas",
+        response_model=list[Area],
+        tags=["base"],
+        description="Get areas",
+    )
+    async def get_areas(
+        lang: Literal["ja", "zh"] = "ja",
+        id: int | None = None,
+        name: str | None = None,
+        page: int = Query(1, ge=1),
+        page_size: int = Query(100, ge=1, le=1000),
+    ):
+        areas = await maimai_client.areas(lang)
+        if id is not None:
+            return [area] if (area := areas.by_id(id)) else []
+        if name is not None:
+            return [area] if (area := areas.by_name(name)) else []
+        return pagination(page_size, page, list(areas.values))
+
+    @router.get(
         "/lxns/players",
         response_model=LXNSPlayer,
         tags=["lxns"],
@@ -481,6 +500,7 @@ if find_spec("fastapi"):
 
 if find_spec("uvicorn") and __name__ == "__main__":
     import uvicorn
+    import typer
 
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",

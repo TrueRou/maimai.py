@@ -253,6 +253,37 @@ class ArcadePlayer(Player):
 
 
 @dataclass
+class AreaCharacter:
+    name: str
+    illustrator: str
+    description1: str
+    description2: str
+    team: str
+    props: dict[str, str]
+
+
+@dataclass
+class AreaSong:
+    id: int
+    title: str
+    artist: str
+    description: str
+    illustrator: str | None
+    movie: str | None
+
+
+@dataclass
+class Area:
+    id: str
+    name: str
+    comment: str
+    description: str
+    video_id: str
+    characters: list[AreaCharacter]
+    songs: list[AreaSong]
+
+
+@dataclass
 class Score:
     id: int
     song_name: str
@@ -764,3 +795,40 @@ class MaimaiScores:
             the list of scores that match all the conditions, return an empty list if no score is found.
         """
         return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items())]
+
+
+class MaimaiAreas:
+    lang: str
+    """The language of the areas."""
+
+    _area_id_dict: dict[str, Area]  # area_id: area
+
+    def __init__(self, lang: str, areas: dict[str, Area]) -> None:
+        """@private"""
+        self.lang = lang
+        self._area_id_dict = areas
+
+    @property
+    def values(self) -> list[Area]:
+        """All areas as list."""
+        return self._area_id_dict.values()
+
+    def by_id(self, id: str) -> Area | None:
+        """Get an area by its ID.
+
+        Args:
+            id: the ID of the area.
+        Returns:
+            the area if it exists, otherwise return None.
+        """
+        return self._area_id_dict.get(id, None)
+
+    def by_name(self, name: str) -> Area | None:
+        """Get an area by its name, language-sensitive.
+
+        Args:
+            name: the name of the area.
+        Returns:
+            the area if it exists, otherwise return None.
+        """
+        return next((area for area in self.values if area.name == name), None)

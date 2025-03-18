@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Literal, Type
 import httpx
 from httpx import AsyncClient
 
@@ -281,12 +281,29 @@ class MaimaiClient:
         Returns:
             A wrapper of the item list, for easier access and filtering.
         Raises:
+            FileNotFoundError: The item file is not found.
             RequestError: Request failed due to network issues.
         """
         if provider and provider is not UNSET:
             default_caches._caches_provider[item._cache_key()] = provider
         items = await default_caches.get_or_fetch(item._cache_key(), flush=flush)
         return MaimaiItems[CachedType](items)
+
+    async def areas(self, lang: Literal["ja", "zh"] = "ja", provider: IAreaProvider = LocalProvider()) -> MaimaiAreas:
+        """Fetch maimai areas from the provider.
+
+        Available providers: `LocalProvider`.
+
+        Args:
+            lang: the language of the area to fetch, available languages: `ja`, `zh`.
+            provider: override the default area provider, defaults to `ArcadeProvider`.
+        Returns:
+            A wrapper of the area list, for easier access and filtering.
+        Raises:
+            FileNotFoundError: The area file is not found.
+        """
+
+        return MaimaiAreas(lang, await provider.get_areas(lang, None))
 
     async def flush(self) -> None:
         """Flush the caches of the client, this will perform a full re-fetch of all the data.

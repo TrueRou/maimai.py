@@ -188,3 +188,37 @@
 | `region_name` | `str`      | 地区名称       |
 | `play_count`  | `int`      | 游玩次数       |
 | `created_at`  | `datetime` | 第一次游玩时间 |
+
+## AreaCharacter
+
+| 字段           | 类型             | 说明             |
+|----------------|------------------|----------------|
+| `name`         | `str`            | 角色名称         |
+| `illustrator`  | `str`            | 插画师           |
+| `description1` | `str`            | 角色衬线字体描述 |
+| `description2` | `str`            | 角色详细描述     |
+| `team`         | `str`            | 角色队伍         |
+| `props`        | `dict[str, str]` | 角色属性         |
+
+## AreaSong
+
+| 字段          | 类型          | 说明     |
+|---------------|---------------|--------|
+| `id`          | `int`         | 曲目ID   |
+| `title`       | `str`         | 曲名     |
+| `artist`      | `str`         | 艺术家   |
+| `description` | `str`         | 曲目描述 |
+| `illustrator` | `str \| None` | 插画师   |
+| `movie`       | `str \| None` | 视频来源 |
+
+## Area
+
+| 字段          | 类型                  | 说明              |
+|---------------|-----------------------|-----------------|
+| `id`          | `str`                 | 区域ID            |
+| `name`        | `str`                 | 区域名称          |
+| `comment`     | `str`                 | 区域评论          |
+| `description` | `str`                 | 区域描述          |
+| `video_id`    | `str`                 | 区域Youtube视频ID |
+| `characters`  | `list[AreaCharacter]` | 角色列表          |
+| `songs`       | `list[AreaSong]`      | 曲目列表          |

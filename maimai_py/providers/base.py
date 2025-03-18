@@ -122,3 +122,15 @@ class IItemListProvider:
     async def get_trophies(self, client: AsyncClient) -> dict[int, PlayerTrophy]:
         """@private"""
         raise NotImplementedError()
+
+
+class IAreaProvider:
+    """The provider that fetches area data from a specific source.
+
+    Available providers: `LocalProvider`
+    """
+
+    @abstractmethod
+    async def get_areas(self, lang: str, client: AsyncClient) -> list[Area]:
+        """@private"""
+        raise NotImplementedError()
