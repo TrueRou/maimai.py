@@ -42,7 +42,7 @@ class LocalProvider(IItemListProvider, IAreaProvider):
         return {int(k): PlayerTrophy(id=int(k), name=v["title"], color=v["rareType"]) for k, v in self._read_file("trophies")["data"].items()}
 
     async def get_areas(self, lang: str, client: AsyncClient) -> dict[str, Area]:
-        songs = await MaimaiSongs._get_or_fetch()
+        songs = await MaimaiSongs._get_or_fetch(client)
         return {
             item["id"]: Area(
                 id=item["id"],

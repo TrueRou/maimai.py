@@ -32,7 +32,7 @@ class MaimaiClient:
         Args:
             timeout: the timeout of the requests, defaults to 20.0.
         """
-        self._args = {"timeout": timeout, **kwargs}
+        self._client = httpx.AsyncClient(timeout=timeout, **kwargs)
 
     async def songs(
         self,
@@ -57,7 +57,7 @@ class MaimaiClient:
         Returns:
             A wrapper of the song list, for easier access and filtering.
         Raises:
-            RequestError: Request failed due to network issues.
+            httpx.HTTPError: Request failed due to network issues.
         """
         if provider is not UNSET and default_caches._caches_provider["songs"] != provider:
             default_caches._caches_provider["songs"] = provider
@@ -68,7 +68,7 @@ class MaimaiClient:
         if curve_provider is not UNSET and default_caches._caches_provider["curves"] != curve_provider:
             default_caches._caches_provider["curves"] = curve_provider
             flush = True
-        return await MaimaiSongs._get_or_fetch(flush=flush)
+        return await MaimaiSongs._get_or_fetch(self._client, flush=flush)
 
     async def players(
         self,
@@ -88,13 +88,12 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            RequestError: Request failed due to network issues.
+            httpx.HTTPError: Request failed due to network issues.
         Raises:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
-        async with httpx.AsyncClient(**self._args) as client:
-            return await provider.get_player(identifier, client)
+        return await provider.get_player(identifier, self._client)
 
     async def scores(
         self,
@@ -122,7 +121,7 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            RequestError: Request failed due to network issues.
+            httpx.HTTPError: Request failed due to network issues.
         Raises:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
@@ -130,16 +129,15 @@ class MaimaiClient:
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-        async with httpx.AsyncClient(**self._args) as client:
-            await MaimaiSongs._get_or_fetch()  # Cache the songs first, as we need to use it for scores' property.
-            b35, b15, all, songs = None, None, None, None
-            if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
-                b35, b15 = await provider.get_scores_best(identifier, client)
-            # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
-            if kind == ScoreKind.ALL or (b35 == None and b15 == None):
-                songs = await MaimaiSongs._get_or_fetch()
-                all = await provider.get_scores_all(identifier, client)
-            return MaimaiScores(b35, b15, all, songs)
+        await MaimaiSongs._get_or_fetch(self._client)  # Cache the songs first, as we need to use it for scores' property.
+        b35, b15, all, songs = None, None, None, None
+        if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
+            b35, b15 = await provider.get_scores_best(identifier, self._client)
+        # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
+        if kind == ScoreKind.ALL or (b35 == None and b15 == None):
+            songs = await MaimaiSongs._get_or_fetch(self._client)
+            all = await provider.get_scores_all(identifier, self._client)
+        return MaimaiScores(b35, b15, all, songs)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
@@ -153,8 +151,7 @@ class MaimaiClient:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
-        async with httpx.AsyncClient(**self._args) as client:
-            return await provider.get_regions(identifier, client)
+        return await provider.get_regions(identifier, self._client)
 
     async def updates(
         self,
@@ -180,10 +177,9 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found, or the import token / password is invalid.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            RequestError: Request failed due to network issues.
+            httpx.HTTPError: Request failed due to network issues.
         """
-        async with httpx.AsyncClient(**self._args) as client:
-            await provider.update_scores(identifier, scores, client)
+        await provider.update_scores(identifier, scores, self._client)
 
     async def plates(
         self,
@@ -206,12 +202,11 @@ class MaimaiClient:
             InvalidPlateError: Provided version or plate is invalid.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            RequestError: Request failed due to network issues.
+            httpx.HTTPError: Request failed due to network issues.
         """
-        async with httpx.AsyncClient(**self._args) as client:
-            songs = await MaimaiSongs._get_or_fetch()
-            scores = await provider.get_scores_all(identifier, client)
-            return MaimaiPlates(scores, plate[0], plate[1:], songs)
+        songs = await MaimaiSongs._get_or_fetch(self._client)
+        scores = await provider.get_scores_all(identifier, self._client)
+        return MaimaiPlates(scores, plate[0], plate[1:], songs)
 
     async def wechat(self, r=None, t=None, code=None, state=None) -> PlayerIdentifier | str:
         """Get the player identifier from the Wahlap Wechat OffiAccount.
@@ -233,23 +228,22 @@ class MaimaiClient:
             The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
         Raises:
             WechatTokenExpiredError: Wechat token is expired, please re-authorize.
-            RequestError: Request failed due to network issues.
+            httpx.HTTPError: Request failed due to network issues.
         """
-        async with httpx.AsyncClient() as client:
-            if not all([r, t, code, state]):
-                resp = await client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
-                return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
-            params = {"r": r, "t": t, "code": code, "state": state}
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
-                "Host": "tgk-wcaime.wahlap.com",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-            }
-            resp = await client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers, timeout=5)
-            if resp.status_code != 302:
-                raise WechatTokenExpiredError("Wechat token is expired")
-            resp_next = await client.get(resp.next_request.url, headers=headers)
-            return PlayerIdentifier(credentials=resp_next.cookies)
+        if not all([r, t, code, state]):
+            resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
+            return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
+        params = {"r": r, "t": t, "code": code, "state": state}
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+            "Host": "tgk-wcaime.wahlap.com",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        }
+        resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers, timeout=5)
+        if resp.status_code != 302:
+            raise WechatTokenExpiredError("Wechat token is expired")
+        resp_next = await self._client.get(resp.next_request.url, headers=headers)
+        return PlayerIdentifier(credentials=resp_next.cookies)
 
     async def qrcode(self, qrcode: str, http_proxy: str | None = None) -> PlayerIdentifier:
         """Get the player identifier from the Wahlap QR code.
@@ -282,11 +276,11 @@ class MaimaiClient:
             A wrapper of the item list, for easier access and filtering.
         Raises:
             FileNotFoundError: The item file is not found.
-            RequestError: Request failed due to network issues.
+            httpx.HTTPError: Request failed due to network issues.
         """
         if provider and provider is not UNSET:
             default_caches._caches_provider[item._cache_key()] = provider
-        items = await default_caches.get_or_fetch(item._cache_key(), flush=flush)
+        items = await default_caches.get_or_fetch(item._cache_key(), self._client, flush=flush)
         return MaimaiItems[CachedType](items)
 
     async def areas(self, lang: Literal["ja", "zh"] = "ja", provider: IAreaProvider = LocalProvider()) -> MaimaiAreas:
@@ -303,11 +297,11 @@ class MaimaiClient:
             FileNotFoundError: The area file is not found.
         """
 
-        return MaimaiAreas(lang, await provider.get_areas(lang, None))
+        return MaimaiAreas(lang, await provider.get_areas(lang, self._client))
 
     async def flush(self) -> None:
         """Flush the caches of the client, this will perform a full re-fetch of all the data.
 
         Notice that only items ("songs", "aliases", "curves", "icons", "plates", "frames", "trophy", "chara", "partner") will be cached, this will only affect those items.
         """
-        await default_caches.flush()
+        await default_caches.flush(self._client)

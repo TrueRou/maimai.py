@@ -128,7 +128,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             "type": score.type.name.lower(),
         }
 
-    def _check_response_player(self, resp: Response) -> None:
+    def _check_response_player(self, resp: Response) -> dict:
+        resp.raise_for_status()
         resp_json = resp.json()
         if not resp_json["success"]:
             if resp_json["code"] in [400, 404]:
@@ -152,7 +153,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         difficulties = song.difficulties
         difficulties.standard.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("standard", []))
         difficulties.dx.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("dx", []))
-        if (await MaimaiSongs._get_or_fetch()).by_id(id).difficulties.utage:
+        if (await MaimaiSongs._get_or_fetch(client)).by_id(id).difficulties.utage:
             # Fetch utage difficulties separately, if the song has utage difficulties
             resp1 = await client.get(self.base_url + f"api/v0/maimai/song/{id + 100000}")
             resp1.raise_for_status()
@@ -178,42 +179,41 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
 
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
         resp = await client.get(self.base_url + f"api/v0/maimai/player/{identifier._as_lxns()}", headers=self.headers)
-        self._check_response_player(resp)
-        resp_json = resp.json()["data"]
+        resp_data = self._check_response_player(resp)["data"]
         return LXNSPlayer(
-            name=resp_json["name"],
-            rating=resp_json["rating"],
-            friend_code=resp_json["friend_code"],
-            trophy=PlayerTrophy(id=resp_json["trophy"]["id"], name=resp_json["trophy"]["name"], color=resp_json["trophy"]["color"]),
-            course_rank=resp_json["course_rank"],
-            class_rank=resp_json["class_rank"],
-            star=resp_json["star"],
+            name=resp_data["name"],
+            rating=resp_data["rating"],
+            friend_code=resp_data["friend_code"],
+            trophy=PlayerTrophy(id=resp_data["trophy"]["id"], name=resp_data["trophy"]["name"], color=resp_data["trophy"]["color"]),
+            course_rank=resp_data["course_rank"],
+            class_rank=resp_data["class_rank"],
+            star=resp_data["star"],
             icon=(
-                PlayerIcon(id=resp_json["icon"]["id"], name=resp_json["icon"]["name"], genre=resp_json["icon"]["genre"])
-                if "icon" in resp_json
+                PlayerIcon(id=resp_data["icon"]["id"], name=resp_data["icon"]["name"], genre=resp_data["icon"]["genre"])
+                if "icon" in resp_data
                 else None
             ),
-            name_plate=PlayerNamePlate(id=resp_json["name_plate"]["id"], name=resp_json["name_plate"]["name"]) if "name_plate" in resp_json else None,
-            frame=PlayerFrame(id=resp_json["frame"]["id"], name=resp_json["frame"]["name"]) if "frame" in resp_json else None,
-            upload_time=resp_json["upload_time"],
+            name_plate=PlayerNamePlate(id=resp_data["name_plate"]["id"], name=resp_data["name_plate"]["name"]) if "name_plate" in resp_data else None,
+            frame=PlayerFrame(id=resp_data["frame"]["id"], name=resp_data["frame"]["name"]) if "frame" in resp_data else None,
+            upload_time=resp_data["upload_time"],
         )
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
         await self._ensure_friend_code(client, identifier)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/bests"
         resp = await client.get(self.base_url + entrypoint, headers=self.headers)
-        self._check_response_player(resp)
+        resp_data = self._check_response_player(resp)["data"]
         return (
-            [s for score in resp.json()["data"]["standard"] if (s := LXNSProvider._deser_score(score))],
-            [s for score in resp.json()["data"]["dx"] if (s := LXNSProvider._deser_score(score))],
+            [s for score in resp_data["standard"] if (s := LXNSProvider._deser_score(score))],
+            [s for score in resp_data["dx"] if (s := LXNSProvider._deser_score(score))],
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         await self._ensure_friend_code(client, identifier)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
         resp = await client.get(self.base_url + entrypoint, headers=self.headers)
-        self._check_response_player(resp)
-        return [s for score in resp.json()["data"] if (s := LXNSProvider._deser_score(score))]
+        resp_data = self._check_response_player(resp)["data"]
+        return [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
         await self._ensure_friend_code(client, identifier)
@@ -225,9 +225,10 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             entrypoint = f"api/v0/user/maimai/player/scores"
         scores_dict = {"scores": [LXNSProvider._ser_score(score) for score in scores]}
         resp = await client.post(self.base_url + entrypoint, headers=use_headers, json=scores_dict)
-        if not resp.json()["success"] and resp.json()["code"] == 400:
-            raise ValueError(resp.json()["message"])
-        self._check_response_player(resp)
+        resp.raise_for_status()
+        resp_json = resp.json()
+        if not resp_json["success"] and resp_json["code"] == 400:
+            raise ValueError(resp_json["message"])
 
     async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
         resp = await client.get(self.base_url + "api/v0/maimai/alias/list")

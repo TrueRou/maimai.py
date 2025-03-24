@@ -58,9 +58,9 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             name=resp.data["userName"],
             rating=resp.data["playerRating"],
             is_login=resp.data["isLogin"],
-            name_plate=(await default_caches.get_or_fetch("nameplates")).get(resp.data["nameplateId"], None),
-            icon=(await default_caches.get_or_fetch("icons")).get(resp.data["iconId"], None),
-            trophy=(await default_caches.get_or_fetch("trophies")).get(resp.data["trophyId"], None),
+            name_plate=(await default_caches.get_or_fetch("nameplates", client)).get(resp.data["nameplateId"], None),
+            icon=(await default_caches.get_or_fetch("icons", client)).get(resp.data["iconId"], None),
+            trophy=(await default_caches.get_or_fetch("trophies", client)).get(resp.data["trophyId"], None),
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
@@ -68,7 +68,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
         resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
         ArcadeResponse._throw_error(resp)
-        msongs: MaimaiSongs = await MaimaiSongs._get_or_fetch()
+        msongs: MaimaiSongs = await MaimaiSongs._get_or_fetch(client)
         return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, msongs))]
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:

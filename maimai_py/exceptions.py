@@ -43,9 +43,9 @@ class ArcadeError(MaimaiPyError):
     """Base exception class for all exceptions raised by maimai arcade."""
 
 
-class AimeServerError(MaimaiPyError):
+class AimeServerError(ArcadeError):
     """Base exception class for all exceptions raised by maimai aime server."""
 
 
-class TitleServerError(MaimaiPyError):
+class TitleServerError(ArcadeError):
     """Base exception class for all exceptions raised by maimai title server."""

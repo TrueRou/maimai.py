@@ -63,6 +63,6 @@ class WechatProvider(IPlayerProvider, IScoreProvider):
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         if not identifier.credentials:
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
-        msongs = await MaimaiSongs._get_or_fetch()
+        msongs = await MaimaiSongs._get_or_fetch(client)
         scores = await self._crawl_scores(client, identifier.credentials, msongs)
         return scores

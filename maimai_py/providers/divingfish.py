@@ -119,7 +119,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             fc_sample_size={v: chart["dist"][4 - i] for i, v in enumerate(FCType)},
         )
 
-    def _check_response_player(self, resp: Response) -> None:
+    def _check_response_player(self, resp: Response) -> dict:
+        resp.raise_for_status()
         resp_json = resp.json()
         if "msg" in resp_json and resp_json["msg"] in ["请先联系水鱼申请开发者token", "开发者token有误", "开发者token被禁用"]:
             raise InvalidDeveloperTokenError(resp_json["msg"])
@@ -129,6 +130,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             raise InvalidPlayerIdentifierError(resp_json["message"])
         elif resp.status_code == 403:
             raise PrivacyLimitationError(resp_json["message"])
+        return resp_json
 
     async def get_songs(self, client: AsyncClient) -> list[Song]:
         resp = await client.get(self.base_url + "music_data")
@@ -146,8 +148,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
 
     async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
         resp = await client.post(self.base_url + "query/player", json=identifier._as_diving_fish())
-        self._check_response_player(resp)
-        resp_json = resp.json()
+        resp_json = self._check_response_player(resp)
         return DivingFishPlayer(
             name=resp_json["username"],
             rating=resp_json["rating"],
@@ -160,8 +161,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         req_json = identifier._as_diving_fish()
         req_json["b50"] = True
         resp = await client.post(self.base_url + "query/player", json=req_json)
-        self._check_response_player(resp)
-        resp_json = resp.json()
+        resp_json = self._check_response_player(resp)
         return (
             [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"]],
             [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["dx"]],
@@ -169,8 +169,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
         resp = await client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
-        self._check_response_player(resp)
-        resp_json = resp.json()
+        resp_json = self._check_response_player(resp)
         return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:

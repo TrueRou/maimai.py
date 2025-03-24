@@ -20,19 +20,18 @@ class MaimaiCaches:
             value_list[:] = new_val
         return new_val
 
-    async def get_or_fetch(self, key: str, flush=False) -> CacheItems:
+    async def get_or_fetch(self, key: str, client: httpx.AsyncClient, flush=False) -> CacheItems:
         item = self._caches.get(key, None)
         need_flush = not item or flush
         if key in self._available_keys and need_flush:
-            async with httpx.AsyncClient() as client:
-                provider = self._caches_provider[key]
-                item = await getattr(provider, f"get_{key}")(client) if provider else None
-                self.update(key, item)
+            provider = self._caches_provider[key]
+            item = await getattr(provider, f"get_{key}")(client) if provider else None
+            self.update(key, item)
         return item
 
-    async def flush(self) -> None:
+    async def flush(self, client: httpx.AsyncClient) -> None:
         managed_keys = set(self._caches.keys()) & set(self._available_keys)
-        tasks = [self.get_or_fetch(key, flush=True) for key in managed_keys]
+        tasks = [self.get_or_fetch(key, client, flush=True) for key in managed_keys]
         await asyncio.gather(*tasks)
         unmanaged_keys = set(self._caches.keys()) - set(self._available_keys)
         [getattr(self._caches[key], "_flush") for key in unmanaged_keys if hasattr(self._caches[key], "_flush")]

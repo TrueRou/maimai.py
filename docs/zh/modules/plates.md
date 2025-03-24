@@ -26,7 +26,7 @@
 | `InvalidPlateError`            | 提供的牌子名称无效                    |
 | `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效            |
 | `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据      |
-| `RequestError`                 | 由于网络问题导致请求失败              |
+| `httpx.HTTPError`              | 由于网络问题导致请求失败              |
 
 ## MaimaiPlates 对象
 

@@ -24,7 +24,7 @@
 | `InvalidPlayerIdentifierError` | 数据源不支持该玩家标识，或者玩家未找到 |
 | `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效            |
 | `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据      |
-| `RequestError`                 | 由于网络问题导致请求失败              |
+| `httpx.HTTPError`              | 由于网络问题导致请求失败              |
 
 只有使用 `ArcadeProvider` 才可能触发的异常:
 
@@ -62,7 +62,7 @@
 | 异常名称                  | 描述                       |
 |---------------------------|--------------------------|
 | `WechatTokenExpiredError` | 微信Token已过期，请重新授权 |
-| `RequestError`            | 由于网络问题导致请求失败   |
+| `httpx.HTTPError`         | 由于网络问题导致请求失败   |
 
 ## maimai.qrcode() 方法
 

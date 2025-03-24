@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
 from typing import Any, Callable, Generic, TypeVar
-from httpx import Cookies
+from httpx import AsyncClient, Cookies
 
 from maimai_py.enums import *
 from maimai_py.caches import default_caches
@@ -416,12 +416,12 @@ class MaimaiSongs:
             self._keywords_dict[keywords] = song
 
     @staticmethod
-    async def _get_or_fetch(flush=False) -> "MaimaiSongs":
+    async def _get_or_fetch(client: AsyncClient, flush=False) -> "MaimaiSongs":
         if "msongs" not in default_caches._caches or flush:
             tasks = [
-                default_caches.get_or_fetch("songs", flush=flush),
-                default_caches.get_or_fetch("aliases", flush=flush),
-                default_caches.get_or_fetch("curves", flush=flush),
+                default_caches.get_or_fetch("songs", client, flush=flush),
+                default_caches.get_or_fetch("aliases", client, flush=flush),
+                default_caches.get_or_fetch("curves", client, flush=flush),
             ]
             songs, aliases, curves = await asyncio.gather(*tasks)
             default_caches._caches["msongs"] = MaimaiSongs(songs, aliases, curves)
