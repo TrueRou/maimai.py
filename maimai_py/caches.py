@@ -1,17 +1,14 @@
 import httpx
 import asyncio
-
-
-CacheItems = list | dict | object
-Provider = object
+from typing import Any
 
 
 class MaimaiCaches:
-    _caches: dict[str, CacheItems] = {}
-    _caches_provider: dict[str, Provider] = {}
+    _caches: dict[str, Any] = {}
+    _caches_provider: dict[str, object] = {}
     _available_keys = ["songs", "aliases", "curves", "icons", "nameplates", "frames", "trophies", "charas", "partners"]
 
-    def update(self, key: str, new_val: CacheItems) -> CacheItems:
+    def update(self, key: str, new_val: Any) -> Any:
         if isinstance(new_val, dict):
             value_dict: dict = self._caches.setdefault(key, {})
             value_dict.update(new_val)
@@ -20,7 +17,7 @@ class MaimaiCaches:
             value_list[:] = new_val
         return new_val
 
-    async def get_or_fetch(self, key: str, client: httpx.AsyncClient, flush=False) -> CacheItems:
+    async def get_or_fetch(self, key: str, client: httpx.AsyncClient, flush=False) -> Any:
         item = self._caches.get(key, None)
         need_flush = not item or flush
         if key in self._available_keys and need_flush:

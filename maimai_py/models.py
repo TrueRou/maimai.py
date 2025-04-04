@@ -1,15 +1,15 @@
-from abc import abstractmethod
 import asyncio
+from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic, Iterator, Sequence, TypeVar
 from httpx import AsyncClient, Cookies
 
 from maimai_py.enums import *
 from maimai_py.caches import default_caches
 from maimai_py.exceptions import InvalidPlateError, InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
-from maimai_py.utils.sentinel import UNSET
+from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
 
 
 @dataclass
@@ -33,7 +33,7 @@ class Song:
             results.remove(LevelIndex.ReMASTER)
         return results
 
-    def get_difficulty(self, type: SongType, level_index: LevelIndex) -> "SongDifficulty":
+    def get_difficulty(self, type: SongType, level_index: LevelIndex | None) -> "SongDifficulty | None":
         if type == SongType.DX:
             return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
         if type == SongType.STANDARD:
@@ -48,7 +48,7 @@ class SongDifficulties:
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
 
-    def _get_children(self, song_type: SongType = UNSET) -> list["SongDifficulty"]:
+    def _get_children(self, song_type: SongType | _UnsetSentinel = UNSET) -> Sequence["SongDifficulty"]:
         if song_type == UNSET:
             return self.standard + self.dx + self.utage
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
@@ -107,21 +107,25 @@ class PlayerIdentifier:
         if self.qq is None and self.username is None and self.friend_code is None and self.credentials is None:
             raise InvalidPlayerIdentifierError("At least one of the following must be provided: qq, username, friend_code, credentials")
 
-    def _as_diving_fish(self):
+    def _as_diving_fish(self) -> dict[str, Any]:
         if self.qq:
             return {"qq": str(self.qq)}
         elif self.username:
             return {"username": self.username}
         elif self.friend_code:
             raise InvalidPlayerIdentifierError("Friend code is not applicable for Diving Fish")
+        else:
+            raise InvalidPlayerIdentifierError("No valid identifier provided")
 
-    def _as_lxns(self):
+    def _as_lxns(self) -> str:
         if self.friend_code:
             return str(self.friend_code)
         elif self.qq:
             return f"qq/{str(self.qq)}"
         elif self.username:
             raise InvalidPlayerIdentifierError("Username is not applicable for LXNS")
+        else:
+            raise InvalidPlayerIdentifierError("No valid identifier provided")
 
 
 @dataclass
@@ -132,7 +136,8 @@ class ArcadeResponse:
     errmsg: str | None = None
     data: dict[str, Any] | bytes | list[Any] | None = None
 
-    def _throw_error(resp: "ArcadeResponse"):
+    @staticmethod
+    def _raise_for_error(resp: "ArcadeResponse") -> None:
         if resp.errno and resp.errno != 0:
             if resp.errno > 1000:
                 raise ArcadeError(resp.errmsg)
@@ -144,9 +149,9 @@ class ArcadeResponse:
 
 @dataclass
 class CachedModel:
-    @abstractmethod
+    @staticmethod
     def _cache_key() -> str:
-        pass
+        raise NotImplementedError
 
 
 @dataclass
@@ -155,6 +160,7 @@ class PlayerTrophy(CachedModel):
     name: str
     color: str
 
+    @staticmethod
     def _cache_key():
         return "trophies"
 
@@ -166,6 +172,7 @@ class PlayerIcon(CachedModel):
     description: str | None = None
     genre: str | None = None
 
+    @staticmethod
     def _cache_key():
         return "icons"
 
@@ -177,6 +184,7 @@ class PlayerNamePlate(CachedModel):
     description: str | None = None
     genre: str | None = None
 
+    @staticmethod
     def _cache_key():
         return "nameplates"
 
@@ -188,6 +196,7 @@ class PlayerFrame(CachedModel):
     description: str | None = None
     genre: str | None = None
 
+    @staticmethod
     def _cache_key():
         return "frames"
 
@@ -197,6 +206,7 @@ class PlayerPartner(CachedModel):
     id: int
     name: str
 
+    @staticmethod
     def _cache_key():
         return "partners"
 
@@ -206,6 +216,7 @@ class PlayerChara(CachedModel):
     id: int
     name: str
 
+    @staticmethod
     def _cache_key():
         return "charas"
 
@@ -297,7 +308,7 @@ class Score:
     rate: RateType
     type: SongType
 
-    def _compare(self, other: "Score") -> "Score":
+    def _compare(self, other: "Score | None") -> "Score":
         if other is None:
             return self
         if self.dx_score != other.dx_score:  # larger value is better
@@ -319,24 +330,25 @@ class Score:
         return self  # we consider they are equal
 
     @property
-    def song(self) -> Song:
+    def song(self) -> Song | None:
         songs: MaimaiSongs = default_caches._caches["msongs"]
         assert songs is not None and isinstance(songs, MaimaiSongs)
         return songs.by_id(self.id)
 
     @property
-    def difficulty(self) -> SongDifficulty:
-        return self.song.get_difficulty(self.type, self.level_index)
+    def difficulty(self) -> SongDifficulty | None:
+        if self.song:
+            return self.song.get_difficulty(self.type, self.level_index)
 
 
 @dataclass
 class PlateObject:
     song: Song
     levels: list[LevelIndex]
-    scores: list[Score] | None
+    scores: list[Score]
 
 
-CachedType = TypeVar("T", bound=CachedModel)
+CachedType = TypeVar("CachedType", bound=CachedModel)
 
 
 class MaimaiItems(Generic[CachedType]):
@@ -347,9 +359,9 @@ class MaimaiItems(Generic[CachedType]):
         self._cached_items = items
 
     @property
-    def values(self) -> list[CachedType]:
+    def values(self) -> Iterator[CachedType]:
         """All items as list."""
-        return self._cached_items.values()
+        return iter(self._cached_items.values())
 
     def by_id(self, id: int) -> CachedType | None:
         """Get an item by its ID.
@@ -383,11 +395,11 @@ class MaimaiSongs:
     _alias_entry_dict: dict[str, Song]  # alias_entry: song
     _keywords_dict: dict[str, Song]  # keywords: song
 
-    def __init__(self, songs: list[Song], aliases: list[SongAlias] | None, curves: dict[str, list[CurveObject | None]]) -> None:
+    def __init__(self, songs: list[Song], aliases: list[SongAlias] | None, curves: dict[str, list[CurveObject | None]] | None) -> None:
         """@private"""
         self._cached_songs = songs
-        self._cached_aliases = aliases
-        self._cached_curves = curves
+        self._cached_aliases = aliases or []
+        self._cached_curves = curves or {}
         self._song_id_dict = {}
         self._alias_entry_dict = {}
         self._keywords_dict = {}
@@ -428,9 +440,9 @@ class MaimaiSongs:
         return default_caches._caches["msongs"]
 
     @property
-    def songs(self) -> list[Song]:
+    def songs(self) -> Iterator[Song]:
         """All songs as list."""
-        return self._song_id_dict.values()
+        return iter(self._song_id_dict.values())
 
     def by_id(self, id: int) -> Song | None:
         """Get a song by its ID.
@@ -552,6 +564,7 @@ class MaimaiPlates:
         self.songs = []
         self.version = plate_aliases.get(version_str, version_str)
         self.kind = plate_aliases.get(kind, kind)
+        versions = []  # in case of invalid plate, we will raise an error
         if self.version == "真":
             versions = [plate_to_version["初"], plate_to_version["真"]]
         if self.version in ["霸", "舞"]:
@@ -567,11 +580,12 @@ class MaimaiPlates:
         for score in scores:
             if song := songs.by_id(score.id):
                 score_key = f"{score.id} {score.type} {score.level_index}"
-                score_version = song.get_difficulty(score.type, score.level_index).version
-                if score.level_index == LevelIndex.ReMASTER and self.no_remaster:
-                    continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
-                if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
-                    scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
+                if difficulty := song.get_difficulty(score.type, score.level_index):
+                    score_version = difficulty.version
+                    if score.level_index == LevelIndex.ReMASTER and self.no_remaster:
+                        continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
+                    if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
+                        scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
 
         for song in songs.songs:
             diffs = song.difficulties._get_children()
@@ -672,17 +686,15 @@ class MaimaiPlates:
         return [plate for plate in results.values() if plate.levels != []]
 
     @cached_property
-    def all(self) -> list[PlateObject]:
+    def all(self) -> Iterator[PlateObject]:
         """Get all songs on this plate, usually used for statistics of the plate.
 
         All songs will be included in the result, with all levels, whether they met or not.
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
-        results = {
-            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=[]) for song in self.songs
-        }
-        return results.values()
+
+        return iter(PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=[]) for song in self.songs)
 
     @cached_property
     def played_num(self) -> int:
@@ -730,7 +742,9 @@ class MaimaiScores:
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
         return list(scores_unique.values())
 
-    def __init__(self, b35: list[Score] = None, b15: list[Score] = None, all: list[Score] = None, songs: MaimaiSongs = None):
+    def __init__(
+        self, b35: list[Score] | None = None, b15: list[Score] | None = None, all: list[Score] | None = None, songs: MaimaiSongs | None = None
+    ):
         self.scores = all or (b35 + b15 if b35 and b15 else None) or []
         # if b35 and b15 are not provided, try to calculate them from all scores
         if (not b35 or not b15) and all:
@@ -738,16 +752,16 @@ class MaimaiScores:
             scores_new: list[Score] = []
             scores_old: list[Score] = []
             for score in distinct_scores:
-                if song := songs.by_id(score.id):
+                if songs and (song := songs.by_id(score.id)):
                     (scores_new if song.version >= current_version.value else scores_old).append(score)
             scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
             scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
             b35 = scores_old[:35]
             b15 = scores_new[:15]
-        self.scores_b35 = b35
-        self.scores_b15 = b15
-        self.rating_b35 = sum(score.dx_rating for score in b35)
-        self.rating_b15 = sum(score.dx_rating for score in b15)
+        self.scores_b35 = b35 or []
+        self.scores_b15 = b15 or []
+        self.rating_b35 = int(sum((score.dx_rating or 0) for score in b35) if b35 else 0)
+        self.rating_b15 = int(sum((score.dx_rating or 0) for score in b15) if b15 else 0)
         self.rating = self.rating_b35 + self.rating_b15
 
     @property
@@ -765,7 +779,9 @@ class MaimaiScores:
         assert songs is not None and isinstance(songs, MaimaiSongs)
         return MaimaiScores(b35=self.scores_b35, b15=self.scores_b15, all=distinct_scores, songs=songs)
 
-    def by_song(self, song_id: int, song_type: SongType = None, level_index: LevelIndex = None) -> list[Score]:
+    def by_song(
+        self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
+    ) -> Iterator[Score]:
         """Get scores of the song on that type and level_index.
 
         If song_type or level_index is not provided, all scores of the song will be returned.
@@ -777,12 +793,14 @@ class MaimaiScores:
         Returns:
             the list of scores of the song, return an empty list if no score is found.
         """
-        scores = [score for score in self.scores if score.id == song_id]
-        if song_type:
-            scores = [score for score in scores if score.type == song_type]
-        if level_index:
-            scores = [score for score in scores if score.level_index == level_index]
-        return scores
+        for score in self.scores:
+            if score.id != song_id:
+                continue
+            if song_type is not UNSET and score.type != song_type:
+                continue
+            if level_index is not UNSET and score.level_index != level_index:
+                continue
+            yield score
 
     def filter(self, **kwargs) -> list[Score]:
         """Filter scores by their attributes.
@@ -809,9 +827,9 @@ class MaimaiAreas:
         self._area_id_dict = areas
 
     @property
-    def values(self) -> list[Area]:
+    def values(self) -> Iterator[Area]:
         """All areas as list."""
-        return self._area_id_dict.values()
+        return iter(self._area_id_dict.values())
 
     def by_id(self, id: str) -> Area | None:
         """Get an area by its ID.

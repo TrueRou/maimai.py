@@ -2,6 +2,7 @@
 # Reference: https://github.com/Diving-Fish/maimaidx-prober
 
 import re
+from typing import Iterator
 from bs4 import BeautifulSoup
 
 link_dx_score = [372, 522, 942, 924, 1425]
@@ -12,13 +13,13 @@ def get_data_from_div(div):
 
     if not re.search(r"diff_(.*).png", form.contents[1].attrs["src"]):
         matched = re.search(r"music_(.*).png", form.contents[1].attrs["src"])
-        type_ = "SD" if matched.group(1) == "standard" else "DX"
+        type_ = "SD" if matched and matched.group(1) == "standard" else "DX"
     elif "id" in form.parent.parent.attrs:
         type_ = "SD" if form.parent.parent.attrs["id"][:3] == "sta" else "DX"
     else:
         src = form.parent.find_next_sibling().attrs["src"]
         matched = re.search(r"_(.*).png", src)
-        type_ = "SD" if matched.group(1) == "standard" else "DX"
+        type_ = "SD" if matched and matched.group(1) == "standard" else "DX"
 
     def get_level_index(src: str):
         if src.find("remaster") != -1:
@@ -31,6 +32,8 @@ def get_data_from_div(div):
             return 1
         elif src.find("basic") != -1:
             return 0
+        else:
+            return -1
 
     def get_music_icon(src: str):
         matched = re.search(r"music_icon_(.+?)\.png", src)
@@ -58,6 +61,6 @@ def get_data_from_div(div):
     return None
 
 
-def wmdx_html2json(html: str) -> dict:
+def wmdx_html2json(html: str) -> Iterator[dict]:
     soup = BeautifulSoup(html, "html.parser")
-    return [v for div in soup.find_all(class_="w_450 m_15 p_r f_0") if (v := get_data_from_div(div))]
+    return iter(v for div in soup.find_all(class_="w_450 m_15 p_r f_0") if (v := get_data_from_div(div)))

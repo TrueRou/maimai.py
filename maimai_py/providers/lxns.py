@@ -44,6 +44,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                     raise InvalidPlayerIdentifierError(resp.json()["message"])
                 identifier.friend_code = resp.json()["data"]["friend_code"]
 
+    @staticmethod
     def _deser_note(diff: dict, key: str) -> int:
         if "notes" in diff:
             if "is_buddy" in diff and diff["is_buddy"]:
@@ -51,7 +52,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             return diff["notes"][key]
         return 0
 
-    def _deser_item(item: dict, cls: type) -> object:
+    @staticmethod
+    def _deser_item(item: dict, cls: type) -> Any:
         return cls(
             id=item["id"],
             name=item["name"],
@@ -59,6 +61,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             genre=item["genre"] if "genre" in item else None,
         )
 
+    @staticmethod
     def _deser_song(song: dict) -> Song:
         return Song(
             id=song["id"],
@@ -74,6 +77,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
         )
 
+    @staticmethod
     def _deser_diff(difficulty: dict) -> SongDifficulty:
         return SongDifficulty(
             type=SongType[difficulty["type"].upper()],
@@ -90,7 +94,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             curve=None,
         )
 
-    def _deser_diff_utage(difficulty: dict) -> list[SongDifficultyUtage]:
+    @staticmethod
+    def _deser_diff_utage(difficulty: dict) -> SongDifficultyUtage:
         return SongDifficultyUtage(
             **dataclasses.asdict(LXNSProvider._deser_diff(difficulty)),
             kanji=difficulty["kanji"],
@@ -98,6 +103,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             is_buddy=difficulty["is_buddy"],
         )
 
+    @staticmethod
     def _deser_score(score: dict) -> Score:
         return Score(
             id=score["id"],
@@ -113,6 +119,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             type=SongType[score["type"].upper()],
         )
 
+    @staticmethod
     def _ser_score(score: Score) -> dict:
         return {
             "id": score.id,
@@ -153,7 +160,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         difficulties = song.difficulties
         difficulties.standard.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("standard", []))
         difficulties.dx.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("dx", []))
-        if (await MaimaiSongs._get_or_fetch(client)).by_id(id).difficulties.utage:
+        maimai_songs = await MaimaiSongs._get_or_fetch(client)
+        if (new_song := maimai_songs.by_id(id)) and new_song.difficulties.utage:
             # Fetch utage difficulties separately, if the song has utage difficulties
             resp1 = await client.get(self.base_url + f"api/v0/maimai/song/{id + 100000}")
             resp1.raise_for_status()
@@ -177,7 +185,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty) for difficulty in song["difficulties"].get("utage", []))
         return list(unique_songs.values())
 
-    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
+    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> LXNSPlayer:
         resp = await client.get(self.base_url + f"api/v0/maimai/player/{identifier._as_lxns()}", headers=self.headers)
         resp_data = self._check_response_player(resp)["data"]
         return LXNSPlayer(
@@ -219,7 +227,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         await self._ensure_friend_code(client, identifier)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
         use_headers = self.headers
-        if identifier.credentials:
+        if identifier.credentials and isinstance(identifier.credentials, str):
             # If the player has a personal token, use it to update the scores
             use_headers["X-User-Token"] = identifier.credentials
             entrypoint = f"api/v0/user/maimai/player/scores"

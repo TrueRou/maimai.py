@@ -8,7 +8,7 @@ from maimai_py.models import *
 from maimai_py.providers import *
 from maimai_py.caches import default_caches
 from maimai_py.exceptions import WechatTokenExpiredError
-from maimai_py.utils.sentinel import UNSET
+from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
 
 
 class MaimaiClient:
@@ -37,9 +37,9 @@ class MaimaiClient:
     async def songs(
         self,
         flush=False,
-        provider: ISongProvider = UNSET,
-        alias_provider: IAliasProvider = UNSET,
-        curve_provider: ICurveProvider = UNSET,
+        provider: ISongProvider | _UnsetSentinel = UNSET,
+        alias_provider: IAliasProvider | _UnsetSentinel = UNSET,
+        curve_provider: ICurveProvider | _UnsetSentinel = UNSET,
     ) -> MaimaiSongs:
         """Fetch all maimai songs from the provider.
 
@@ -74,16 +74,18 @@ class MaimaiClient:
         self,
         identifier: PlayerIdentifier,
         provider: IPlayerProvider = LXNSProvider(),
-    ) -> DivingFishPlayer | LXNSPlayer | ArcadePlayer:
+    ) -> Player:
         """Fetch player data from the provider.
 
         Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`.
+
+        Possible returns: `DivingFishPlayer`, `LXNSPlayer`, `ArcadePlayer`.
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(username="turou")`.
             provider: the data source to fetch the player from, defaults to `LXNSProvider`.
         Returns:
-            The player object of the player, with all the data fetched.
+            The player object of the player, with all the data fetched. Depending on the provider, it may contain different objects that derived from `Player`.
         Raises:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
@@ -240,10 +242,11 @@ class MaimaiClient:
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
         }
         resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers, timeout=5)
-        if resp.status_code != 302:
+        if resp.status_code == 302 and resp.next_request:
+            resp_next = await self._client.get(resp.next_request.url, headers=headers)
+            return PlayerIdentifier(credentials=resp_next.cookies)
+        else:
             raise WechatTokenExpiredError("Wechat token is expired")
-        resp_next = await self._client.get(resp.next_request.url, headers=headers)
-        return PlayerIdentifier(credentials=resp_next.cookies)
 
     async def qrcode(self, qrcode: str, http_proxy: str | None = None) -> PlayerIdentifier:
         """Get the player identifier from the Wahlap QR code.
@@ -260,10 +263,13 @@ class MaimaiClient:
             TitleServerError: Maimai title server related errors, possibly network problems.
         """
         resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode, http_proxy=http_proxy)
-        ArcadeResponse._throw_error(resp)
-        return PlayerIdentifier(credentials=resp.data.decode())
+        ArcadeResponse._raise_for_error(resp)
+        if resp.data and isinstance(resp.data, bytes):
+            return PlayerIdentifier(credentials=resp.data.decode())
+        else:
+            raise ArcadeError("Invalid QR code or QR code has expired")
 
-    async def items(self, item: Type[CachedType], flush=False, provider: IItemListProvider = UNSET) -> MaimaiItems[CachedType]:
+    async def items(self, item: Type[CachedType], flush=False, provider: IItemListProvider | _UnsetSentinel = UNSET) -> MaimaiItems[CachedType]:
         """Fetch maimai player items from the cache default provider.
 
         Available items: `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`.

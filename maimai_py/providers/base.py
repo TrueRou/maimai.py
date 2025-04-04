@@ -47,7 +47,7 @@ class IScoreProvider:
     """
 
     @abstractmethod
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score] | None, list[Score] | None]:
         """@private"""
         # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
         return None, None
@@ -131,6 +131,6 @@ class IAreaProvider:
     """
 
     @abstractmethod
-    async def get_areas(self, lang: str, client: AsyncClient) -> list[Area]:
+    async def get_areas(self, lang: str, client: AsyncClient) -> dict[str, Area]:
         """@private"""
         raise NotImplementedError()

@@ -37,6 +37,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     def __eq__(self, value):
         return isinstance(value, DivingFishProvider) and value.developer_token == self.developer_token
 
+    @staticmethod
     def _deser_song(song: dict) -> Song:
         return Song(
             id=int(song["id"]) % 10000,
@@ -52,6 +53,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             difficulties=SongDifficulties(standard=[], dx=[], utage=[]),
         )
 
+    @staticmethod
     def _deser_diffs(song: dict) -> Generator[SongDifficulty, None, None]:
         song_type = SongType._from_id(song["id"])
         for idx, chart in enumerate(song["charts"]):
@@ -78,6 +80,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
                 )
             yield song_diff
 
+    @staticmethod
     def _deser_score(score: dict) -> Score:
         return Score(
             id=score["song_id"] % 10000,
@@ -93,6 +96,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             type=SongType._from_id(score["song_id"]),
         )
 
+    @staticmethod
     def _ser_score(score: Score) -> dict:
         return {
             "song_id": score.type._to_id(score.id),
@@ -108,6 +112,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             "type": score.type._to_abbr(),
         }
 
+    @staticmethod
     def _deser_curve(chart: dict) -> CurveObject:
         return CurveObject(
             sample_size=int(chart["cnt"]),
@@ -146,7 +151,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             difficulties.extend(DivingFishProvider._deser_diffs(song))
         return list(unique_songs.values())
 
-    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
+    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> DivingFishPlayer:
         resp = await client.post(self.base_url + "query/player", json=identifier._as_diving_fish())
         resp_json = self._check_response_player(resp)
         return DivingFishPlayer(
@@ -179,7 +184,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             resp1 = await client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
             self._check_response_player(resp1)
             cookies = resp1.cookies
-        elif not identifier.username and identifier.credentials:
+        elif not identifier.username and identifier.credentials and isinstance(identifier.credentials, str):
             headers = {"Import-Token": identifier.credentials}
         else:
             raise InvalidPlayerIdentifierError("Either username and password or import token is required to deliver scores")

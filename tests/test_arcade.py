@@ -16,7 +16,7 @@ async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
         scores = await maimai.scores(my_account, provider=arcade)
         assert scores.rating > 2000
 
-        player: ArcadePlayer = await maimai.players(my_account, provider=arcade)
+        player: ArcadePlayer = await maimai.players(my_account, provider=arcade)  # type: ignore
         assert player.rating == scores.rating
         assert player.icon is not None
 

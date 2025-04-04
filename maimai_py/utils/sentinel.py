@@ -1,6 +1,6 @@
 from typing import Any, TypeVar
 
-_T = TypeVar("T")
+_T = TypeVar("_T")
 
 
 class _UnsetSentinel:

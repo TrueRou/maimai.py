@@ -168,6 +168,7 @@ class RateType(Enum):
     C = 12
     D = 13
 
+    @staticmethod
     def _from_achievement(achievement: float) -> "RateType":
         if achievement >= 100.5:
             return RateType.SSSP
@@ -203,11 +204,13 @@ class SongType(Enum):
     DX = "dx"
     UTAGE = "utage"
 
+    @staticmethod
     def _from_id(id: int | str) -> "SongType":
         id = int(id)
         return SongType.UTAGE if id > 100000 else SongType.DX if id > 10000 else SongType.STANDARD
 
     def _to_id(self, id: int | str) -> int:
+        id = int(id)
         return id if self == SongType.STANDARD else id + 10000 if self == SongType.DX else id + 100000
 
     def _to_abbr(self) -> str:

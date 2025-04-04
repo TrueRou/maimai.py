@@ -21,12 +21,13 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
 
     _http_proxy: str | None = None
 
-    def __init__(self, http_proxy: str = None):
+    def __init__(self, http_proxy: str | None = None):
         self._http_proxy = http_proxy
 
     def __eq__(self, value):
         return isinstance(value, ArcadeProvider)
 
+    @staticmethod
     def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:
         song_type = SongType._from_id(score["musicId"])
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
@@ -49,43 +50,48 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
                     type=song_type,
                 )
 
-    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient):
-        if not identifier.credentials:
-            raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-        resp: ArcadeResponse = await arcade.get_user_preview(identifier.credentials.encode(), http_proxy=self._http_proxy)
-        ArcadeResponse._throw_error(resp)
-        return ArcadePlayer(
-            name=resp.data["userName"],
-            rating=resp.data["playerRating"],
-            is_login=resp.data["isLogin"],
-            name_plate=(await default_caches.get_or_fetch("nameplates", client)).get(resp.data["nameplateId"], None),
-            icon=(await default_caches.get_or_fetch("icons", client)).get(resp.data["iconId"], None),
-            trophy=(await default_caches.get_or_fetch("trophies", client)).get(resp.data["trophyId"], None),
-        )
+    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> ArcadePlayer:
+        if identifier.credentials and isinstance(identifier.credentials, str):
+            resp: ArcadeResponse = await arcade.get_user_preview(identifier.credentials.encode(), http_proxy=self._http_proxy)
+            ArcadeResponse._raise_for_error(resp)
+            if resp.data and isinstance(resp.data, dict):
+                return ArcadePlayer(
+                    name=resp.data["userName"],
+                    rating=resp.data["playerRating"],
+                    is_login=resp.data["isLogin"],
+                    name_plate=(await default_caches.get_or_fetch("nameplates", client)).get(resp.data["nameplateId"], None),
+                    icon=(await default_caches.get_or_fetch("icons", client)).get(resp.data["iconId"], None),
+                    trophy=(await default_caches.get_or_fetch("trophies", client)).get(resp.data["trophyId"], None),
+                )
+            raise ArcadeError("Invalid response from the server.")
+        raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
-        if not identifier.credentials:
-            raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-        resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
-        ArcadeResponse._throw_error(resp)
-        msongs: MaimaiSongs = await MaimaiSongs._get_or_fetch(client)
-        return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, msongs))]
+        if identifier.credentials and isinstance(identifier.credentials, str):
+            resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
+            ArcadeResponse._raise_for_error(resp)
+            msongs: MaimaiSongs = await MaimaiSongs._get_or_fetch(client)
+            if resp.data and isinstance(resp.data, list):
+                return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, msongs))]
+            raise ArcadeError("Invalid response from the server.")
+        raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score] | None, list[Score] | None]:
         # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
         return None, None
 
     async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
-        if not identifier.credentials:
-            raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-        resp: ArcadeResponse = await arcade.get_user_region(identifier.credentials.encode(), http_proxy=self._http_proxy)
-        ArcadeResponse._throw_error(resp)
-        return [
-            PlayerRegion(
-                region_id=region["regionId"],
-                region_name=region["regionName"],
-                play_count=region["playCount"],
-                created_at=datetime.strptime(region["created"], "%Y-%m-%d %H:%M:%S"),
-            )
-            for region in resp.data["userRegionList"]
-        ]
+        if identifier.credentials and isinstance(identifier.credentials, str):
+            resp: ArcadeResponse = await arcade.get_user_region(identifier.credentials.encode(), http_proxy=self._http_proxy)
+            ArcadeResponse._raise_for_error(resp)
+            if resp.data and isinstance(resp.data, dict):
+                return [
+                    PlayerRegion(
+                        region_id=region["regionId"],
+                        region_name=region["regionName"],
+                        play_count=region["playCount"],
+                        created_at=datetime.strptime(region["created"], "%Y-%m-%d %H:%M:%S"),
+                    )
+                    for region in resp.data["userRegionList"]
+                ]
+        raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
