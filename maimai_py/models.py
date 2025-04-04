@@ -752,8 +752,8 @@ class MaimaiScores:
             scores_new: list[Score] = []
             scores_old: list[Score] = []
             for score in distinct_scores:
-                if songs and (song := songs.by_id(score.id)):
-                    (scores_new if song.version >= current_version.value else scores_old).append(score)
+                if songs and (diff := score.difficulty):
+                    (scores_new if diff.version >= current_version.value else scores_old).append(score)
             scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
             scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
             b35 = scores_old[:35]
