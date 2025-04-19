@@ -26,6 +26,16 @@ def pagination(page_size, page, data):
     return data[start:end]
 
 
+def xstr(s: str | None) -> str:
+    return "" if s is None else str(s).lower()
+
+
+def get_filters(functions: dict[Any, Callable[..., bool]]):
+    union = [flag for cond, flag in functions.items() if cond is not None]
+    filter = lambda obj: all([flag(obj) for flag in union])
+    return filter
+
+
 @dataclass
 class PlayerBests:
     rating: int
@@ -145,14 +155,17 @@ if find_spec("fastapi"):
         name: str | None = None,
         description: str | None = None,
         genre: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerIcon)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, description=description, genre=genre)
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerIcon], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/nameplates",
@@ -165,25 +178,17 @@ if find_spec("fastapi"):
         name: str | None = None,
         description: str | None = None,
         genre: str | None = None,
-        fuzzy: bool = False,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerNamePlate)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        if fuzzy and (name or description or genre):
-            filtered_items = items.values
-            if name:
-                filtered_items = [item for item in filtered_items if name.lower() in item.name.lower()]
-            if description:
-                filtered_items = [item for item in filtered_items if description.lower() in item.description.lower()]
-            if genre:
-                filtered_items = [item for item in filtered_items if genre.lower() in item.genre.lower()]
-        else:
-            filtered_items = items.filter(name=name, description=description, genre=genre)
-        
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerNamePlate], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/frames",
@@ -196,25 +201,17 @@ if find_spec("fastapi"):
         name: str | None = None,
         description: str | None = None,
         genre: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
-        fuzzy: bool = False,
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerFrame)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        if fuzzy and (name or description or genre):
-            filtered_items = items.values
-            if name:
-                filtered_items = [item for item in filtered_items if name.lower() in item.name.lower()]
-            if description:
-                filtered_items = [item for item in filtered_items if description.lower() in item.description.lower()]
-            if genre:
-                filtered_items = [item for item in filtered_items if genre.lower() in item.genre.lower()]
-        else:
-            filtered_items = items.filter(name=name, description=description, genre=genre)
-        
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerFrame], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/trophies",
@@ -226,21 +223,17 @@ if find_spec("fastapi"):
         id: int | None = None,
         name: str | None = None,
         color: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
-        fuzzy: bool = False,
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerTrophy)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        if fuzzy and (name ):
-            filtered_items = items.values
-            if name:
-                filtered_items = [item for item in filtered_items if name.lower() in item.name.lower()]
-        else:
-            filtered_items = items.filter(name=name)
-        
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerTrophy], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, color=color)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/charas",
@@ -251,14 +244,15 @@ if find_spec("fastapi"):
     async def get_charas(
         id: int | None = None,
         name: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerChara)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name)
-        return pagination(page_size, page, filtered_items)
+        results = items.filter(name=name or keywords)
+        return pagination(page_size, page, results)
 
     @router.get(
         "/partners",
@@ -269,14 +263,15 @@ if find_spec("fastapi"):
     async def get_partners(
         id: int | None = None,
         name: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerPartner)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name)
-        return pagination(page_size, page, filtered_items)
+        results = items.filter(name=name or keywords)
+        return pagination(page_size, page, results)
 
     @router.get(
         "/areas",
