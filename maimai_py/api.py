@@ -26,6 +26,20 @@ def pagination(page_size, page, data):
     return data[start:end]
 
 
+def xstr(s: str | None) -> str:
+    return "" if s is None else str(s).lower()
+
+
+def istr(i: list | None) -> str:
+    return "" if i is None else "".join(i).lower()
+
+
+def get_filters(functions: dict[Any, Callable[..., bool]]):
+    union = [flag for cond, flag in functions.items() if cond is not None]
+    filter = lambda obj: all([flag(obj) for flag in union])
+    return filter
+
+
 @dataclass
 class PlayerBests:
     rating: int
@@ -110,29 +124,21 @@ if find_spec("fastapi"):
         bpm: int | None = None,
         map: str | None = None,
         version: int | None = None,
-        keywords: str | None = None,
         type: SongType | None = None,
         level: str | None = None,
         versions: Version | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
-        maimai_songs: MaimaiSongs = await maimai_client.songs()
-        songs = maimai_songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
-
-        type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []
+        songs: MaimaiSongs = await maimai_client.songs()
+        type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []  # type: ignore
         level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
-        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
-        keywords_func: Callable[[Song], bool] = lambda song: keywords.lower() in song.title.lower() + song.artist.lower() + "".join(
-            alias.lower() for alias in (song.aliases or [])
-        )
-        post_conditions = [
-            cond for cond, flag in zip([type_func, level_func, versions_func, keywords_func], [type, level, versions, keywords]) if flag
-        ]
-        post_filter = lambda song: all([cond(song) for cond in post_conditions])
-
-        songs = list(filter(post_filter, songs))
-        return pagination(page_size, page, songs)
+        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
+        keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
+        filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
+        results = list(filter(filters, songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/icons",
@@ -145,14 +151,17 @@ if find_spec("fastapi"):
         name: str | None = None,
         description: str | None = None,
         genre: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerIcon)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, description=description, genre=genre)
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerIcon], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/nameplates",
@@ -165,14 +174,17 @@ if find_spec("fastapi"):
         name: str | None = None,
         description: str | None = None,
         genre: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerNamePlate)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, description=description, genre=genre)
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerNamePlate], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/frames",
@@ -185,14 +197,17 @@ if find_spec("fastapi"):
         name: str | None = None,
         description: str | None = None,
         genre: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerFrame)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, description=description, genre=genre)
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerFrame], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/trophies",
@@ -204,14 +219,17 @@ if find_spec("fastapi"):
         id: int | None = None,
         name: str | None = None,
         color: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerTrophy)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, color=color)
-        return pagination(page_size, page, filtered_items)
+        keyword_func: Callable[[PlayerTrophy], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
+        filters = get_filters({keywords: keyword_func})
+        results = list(filter(filters, items.filter(name=name, color=color)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/charas",
@@ -222,14 +240,15 @@ if find_spec("fastapi"):
     async def get_charas(
         id: int | None = None,
         name: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerChara)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name)
-        return pagination(page_size, page, filtered_items)
+        results = items.filter(name=name or keywords)
+        return pagination(page_size, page, results)
 
     @router.get(
         "/partners",
@@ -240,14 +259,15 @@ if find_spec("fastapi"):
     async def get_partners(
         id: int | None = None,
         name: str | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerPartner)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name)
-        return pagination(page_size, page, filtered_items)
+        results = items.filter(name=name or keywords)
+        return pagination(page_size, page, results)
 
     @router.get(
         "/areas",
