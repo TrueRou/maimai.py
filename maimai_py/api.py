@@ -94,10 +94,10 @@ if find_spec("fastapi"):
     def dep_arcade():
         return ArcadeProvider(http_proxy=local_arcade_proxy)
 
-    def dep_lxns_player(friend_code: int | None = None, qq: str | None = None):
+    def dep_lxns_player(friend_code: int | None = None, qq: int | None = None):
         return PlayerIdentifier(qq=qq, friend_code=friend_code)
 
-    def dep_diving_player(username: str | None = None, qq: str | None = None):
+    def dep_diving_player(username: str | None = None, qq: int | None = None):
         return PlayerIdentifier(qq=qq, username=username)
 
     def dep_arcade_player(credentials: str):
@@ -277,7 +277,7 @@ if find_spec("fastapi"):
     )
     async def get_areas(
         lang: Literal["ja", "zh"] = "ja",
-        id: int | None = None,
+        id: str | None = None,
         name: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
@@ -374,7 +374,7 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_lxns_player),
         provider: LXNSProvider = Depends(dep_lxns),
     ):
-        scores = await maimai_client.updates(player, scores, provider=provider)
+        await maimai_client.updates(player, scores, provider=provider)
 
     @router.post(
         "/divingfish/scores",
@@ -387,7 +387,7 @@ if find_spec("fastapi"):
         credentials: str | None = None,
     ):
         player = PlayerIdentifier(username=username, credentials=credentials)
-        scores = await maimai_client.updates(player, scores, provider=DivingFishProvider())
+        await maimai_client.updates(player, scores, provider=DivingFishProvider())
 
     @router.get(
         "/lxns/bests",
@@ -507,15 +507,16 @@ if find_spec("fastapi"):
     asgi_app.include_router(router)
 
     def openapi():
-        specs = get_openapi(
-            title=asgi_app.title if asgi_app.title else None,
-            version=asgi_app.version if asgi_app.version else None,
-            openapi_version=asgi_app.openapi_version if asgi_app.openapi_version else None,
-            description=asgi_app.description if asgi_app.description else None,
-            routes=asgi_app.routes if asgi_app.routes else None,
-        )
-        with open(f"openapi.json", "w") as f:
-            json.dump(specs, f)
+        if asgi_app is not None:
+            specs = get_openapi(
+                title=asgi_app.title,
+                version=asgi_app.version,
+                openapi_version=asgi_app.openapi_version,
+                description=asgi_app.description,
+                routes=asgi_app.routes,
+            )
+            with open(f"openapi.json", "w") as f:
+                json.dump(specs, f)
 
 
 if find_spec("uvicorn") and __name__ == "__main__":
@@ -526,7 +527,8 @@ if find_spec("uvicorn") and __name__ == "__main__":
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
         port: Annotated[int, typer.Option(help="The port number to bind to.")] = 8000,
     ):
-        uvicorn.run(asgi_app, host=host, port=port)
+        if asgi_app is not None:
+            uvicorn.run(asgi_app, host=host, port=port)
 
     typer.run(main)
 

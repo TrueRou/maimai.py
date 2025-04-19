@@ -9,12 +9,12 @@ from maimai_py.providers.lxns import LXNSProvider
 
 @pytest.mark.asyncio()
 async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
-    my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
+    my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), kind=ScoreKind.ALL, provider=lxns)
     assert my_scores.rating_b35 > 10000
     score = next(my_scores.by_song(1231, level_index=LevelIndex.MASTER))
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
 
-    my_scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
+    my_scores = await maimai.scores(PlayerIdentifier(username="turou"), kind=ScoreKind.ALL, provider=divingfish)
     assert my_scores.rating > 15000
     score = next(my_scores.by_song(1231, level_index=LevelIndex.MASTER))
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
