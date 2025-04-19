@@ -30,6 +30,10 @@ def xstr(s: str | None) -> str:
     return "" if s is None else str(s).lower()
 
 
+def istr(i: list | None) -> str:
+    return "" if i is None else "".join(i).lower()
+
+
 def get_filters(functions: dict[Any, Callable[..., bool]]):
     union = [flag for cond, flag in functions.items() if cond is not None]
     filter = lambda obj: all([flag(obj) for flag in union])
@@ -120,29 +124,21 @@ if find_spec("fastapi"):
         bpm: int | None = None,
         map: str | None = None,
         version: int | None = None,
-        keywords: str | None = None,
         type: SongType | None = None,
         level: str | None = None,
         versions: Version | None = None,
+        keywords: str | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
-        maimai_songs: MaimaiSongs = await maimai_client.songs()
-        songs = maimai_songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
-
-        type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []
+        songs: MaimaiSongs = await maimai_client.songs()
+        type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []  # type: ignore
         level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
-        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
-        keywords_func: Callable[[Song], bool] = lambda song: keywords.lower() in song.title.lower() + song.artist.lower() + "".join(
-            alias.lower() for alias in (song.aliases or [])
-        )
-        post_conditions = [
-            cond for cond, flag in zip([type_func, level_func, versions_func, keywords_func], [type, level, versions, keywords]) if flag
-        ]
-        post_filter = lambda song: all([cond(song) for cond in post_conditions])
-
-        songs = list(filter(post_filter, songs))
-        return pagination(page_size, page, songs)
+        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
+        keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
+        filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
+        results = list(filter(filters, songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)))
+        return pagination(page_size, page, results)
 
     @router.get(
         "/icons",
