@@ -165,13 +165,24 @@ if find_spec("fastapi"):
         name: str | None = None,
         description: str | None = None,
         genre: str | None = None,
+        fuzzy: bool = False,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerNamePlate)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, description=description, genre=genre)
+        if fuzzy and (name or description or genre):
+            filtered_items = items.values
+            if name:
+                filtered_items = [item for item in filtered_items if name.lower() in item.name.lower()]
+            if description:
+                filtered_items = [item for item in filtered_items if description.lower() in item.description.lower()]
+            if genre:
+                filtered_items = [item for item in filtered_items if genre.lower() in item.genre.lower()]
+        else:
+            filtered_items = items.filter(name=name, description=description, genre=genre)
+        
         return pagination(page_size, page, filtered_items)
 
     @router.get(
@@ -186,12 +197,23 @@ if find_spec("fastapi"):
         description: str | None = None,
         genre: str | None = None,
         page: int = Query(1, ge=1),
+        fuzzy: bool = False,
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerFrame)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, description=description, genre=genre)
+        if fuzzy and (name or description or genre):
+            filtered_items = items.values
+            if name:
+                filtered_items = [item for item in filtered_items if name.lower() in item.name.lower()]
+            if description:
+                filtered_items = [item for item in filtered_items if description.lower() in item.description.lower()]
+            if genre:
+                filtered_items = [item for item in filtered_items if genre.lower() in item.genre.lower()]
+        else:
+            filtered_items = items.filter(name=name, description=description, genre=genre)
+        
         return pagination(page_size, page, filtered_items)
 
     @router.get(
@@ -205,12 +227,19 @@ if find_spec("fastapi"):
         name: str | None = None,
         color: str | None = None,
         page: int = Query(1, ge=1),
+        fuzzy: bool = False,
         page_size: int = Query(100, ge=1, le=1000),
     ):
         items = await maimai_client.items(PlayerTrophy)
         if id is not None:
             return [item] if (item := items.by_id(id)) else []
-        filtered_items = items.filter(name=name, color=color)
+        if fuzzy and (name ):
+            filtered_items = items.values
+            if name:
+                filtered_items = [item for item in filtered_items if name.lower() in item.name.lower()]
+        else:
+            filtered_items = items.filter(name=name)
+        
         return pagination(page_size, page, filtered_items)
 
     @router.get(
