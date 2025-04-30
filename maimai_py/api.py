@@ -40,7 +40,7 @@ def get_filters(functions: dict[Any, Callable[..., bool]]):
     return filter
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerBests:
     rating: int
     rating_b35: int
@@ -49,7 +49,7 @@ class PlayerBests:
     scores_b15: list[Score]
 
 
-@dataclass
+@dataclass(slots=True)
 class PlateStats:
     remained_num: int
     cleared_num: int
@@ -57,21 +57,21 @@ class PlateStats:
     all_num: int
 
 
-@dataclass
+@dataclass(slots=True)
 class SongSimple:
     id: int
     title: str
     artist: str
 
 
-@dataclass
+@dataclass(slots=True)
 class PlateObjectSimple:
     song: SongSimple
     levels: list[LevelIndex]
     scores: list[Score] | None
 
 
-@dataclass
+@dataclass(slots=True)
 class PlateSimple:
     stats: PlateStats
     data: list[PlateObjectSimple]

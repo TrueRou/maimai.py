@@ -1,5 +1,4 @@
 import asyncio
-from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
@@ -12,7 +11,7 @@ from maimai_py.exceptions import InvalidPlateError, InvalidPlayerIdentifierError
 from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
 
 
-@dataclass
+@dataclass(slots=True)
 class Song:
     id: int
     title: str
@@ -42,7 +41,7 @@ class Song:
             return next(iter(self.difficulties.utage), None)
 
 
-@dataclass
+@dataclass(slots=True)
 class SongDifficulties:
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
@@ -54,7 +53,7 @@ class SongDifficulties:
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
 
 
-@dataclass
+@dataclass(slots=True)
 class CurveObject:
     sample_size: int
     fit_level_value: float
@@ -65,7 +64,7 @@ class CurveObject:
     fc_sample_size: dict[FCType, int]
 
 
-@dataclass
+@dataclass(slots=True)
 class SongDifficulty:
     type: SongType
     level: str
@@ -81,14 +80,14 @@ class SongDifficulty:
     curve: CurveObject | None
 
 
-@dataclass
+@dataclass(slots=True)
 class SongDifficultyUtage(SongDifficulty):
     kanji: str
     description: str
     is_buddy: bool
 
 
-@dataclass
+@dataclass(slots=True)
 class SongAlias:
     """@private"""
 
@@ -96,7 +95,7 @@ class SongAlias:
     aliases: list[str]
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerIdentifier:
     qq: int | None = None
     username: str | None = None
@@ -128,7 +127,7 @@ class PlayerIdentifier:
             raise InvalidPlayerIdentifierError("No valid identifier provided")
 
 
-@dataclass
+@dataclass(slots=True)
 class ArcadeResponse:
     """@private"""
 
@@ -147,14 +146,14 @@ class ArcadeResponse:
                 raise AimeServerError(resp.errmsg)
 
 
-@dataclass
+@dataclass(slots=True)
 class CachedModel:
     @staticmethod
     def _cache_key() -> str:
         raise NotImplementedError
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerTrophy(CachedModel):
     id: int
     name: str
@@ -165,7 +164,7 @@ class PlayerTrophy(CachedModel):
         return "trophies"
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerIcon(CachedModel):
     id: int
     name: str
@@ -177,7 +176,7 @@ class PlayerIcon(CachedModel):
         return "icons"
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerNamePlate(CachedModel):
     id: int
     name: str
@@ -189,7 +188,7 @@ class PlayerNamePlate(CachedModel):
         return "nameplates"
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerFrame(CachedModel):
     id: int
     name: str
@@ -201,7 +200,7 @@ class PlayerFrame(CachedModel):
         return "frames"
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerPartner(CachedModel):
     id: int
     name: str
@@ -211,7 +210,7 @@ class PlayerPartner(CachedModel):
         return "partners"
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerChara(CachedModel):
     id: int
     name: str
@@ -221,7 +220,7 @@ class PlayerChara(CachedModel):
         return "charas"
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerRegion:
     region_id: int
     region_name: str
@@ -229,20 +228,20 @@ class PlayerRegion:
     created_at: datetime
 
 
-@dataclass
+@dataclass(slots=True)
 class Player:
     name: str
     rating: int
 
 
-@dataclass
+@dataclass(slots=True)
 class DivingFishPlayer(Player):
     nickname: str
     plate: str
     additional_rating: int
 
 
-@dataclass
+@dataclass(slots=True)
 class LXNSPlayer(Player):
     friend_code: int
     trophy: PlayerTrophy
@@ -255,7 +254,7 @@ class LXNSPlayer(Player):
     upload_time: str
 
 
-@dataclass
+@dataclass(slots=True)
 class ArcadePlayer(Player):
     is_login: bool
     name_plate: PlayerNamePlate | None
@@ -263,7 +262,7 @@ class ArcadePlayer(Player):
     trophy: PlayerFrame | None
 
 
-@dataclass
+@dataclass(slots=True)
 class AreaCharacter:
     name: str
     illustrator: str
@@ -273,7 +272,7 @@ class AreaCharacter:
     props: dict[str, str]
 
 
-@dataclass
+@dataclass(slots=True)
 class AreaSong:
     id: int
     title: str
@@ -283,7 +282,7 @@ class AreaSong:
     movie: str | None
 
 
-@dataclass
+@dataclass(slots=True)
 class Area:
     id: str
     name: str
@@ -294,7 +293,7 @@ class Area:
     songs: list[AreaSong]
 
 
-@dataclass
+@dataclass(slots=True)
 class Score:
     id: int
     song_name: str
@@ -341,7 +340,7 @@ class Score:
             return self.song.get_difficulty(self.type, self.level_index)
 
 
-@dataclass
+@dataclass(slots=True)
 class PlateObject:
     song: Song
     levels: list[LevelIndex]
