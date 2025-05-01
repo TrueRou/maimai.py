@@ -33,8 +33,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         """
         self.developer_token = developer_token
 
-    def __eq__(self, value):
-        return isinstance(value, LXNSProvider) and value.developer_token == self.developer_token
+    def __hash__(self) -> int:
+        return hash(f"lxns-{self.developer_token or 0}")
 
     async def _ensure_friend_code(self, client: AsyncClient, identifier: PlayerIdentifier) -> None:
         if identifier.friend_code is None:
@@ -146,29 +146,6 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             elif resp_json["code"] in [401]:
                 raise InvalidDeveloperTokenError(resp_json["message"])
         return resp_json
-
-    async def get_song(self, id: int, client: AsyncClient) -> Song:
-        # Fetch single detailed song from LXNS with cache support, due to get_songs not providing detailed notes data
-        if "lxns_detailed_songs" not in default_caches._caches:
-            default_caches._caches["lxns_detailed_songs"] = {}
-        if str(id) in default_caches._caches["lxns_detailed_songs"]:
-            return default_caches._caches["lxns_detailed_songs"][str(id)]
-        resp = await client.get(self.base_url + f"api/v0/maimai/song/{id}")
-        resp.raise_for_status()
-        resp_json = resp.json()
-        song: Song = LXNSProvider._deser_song(resp_json)
-        difficulties = song.difficulties
-        difficulties.standard.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("standard", []))
-        difficulties.dx.extend(LXNSProvider._deser_diff(difficulty) for difficulty in resp_json["difficulties"].get("dx", []))
-        maimai_songs = await MaimaiSongs._get_or_fetch(client)
-        if (new_song := maimai_songs.by_id(id)) and new_song.difficulties.utage:
-            # Fetch utage difficulties separately, if the song has utage difficulties
-            resp1 = await client.get(self.base_url + f"api/v0/maimai/song/{id + 100000}")
-            resp1.raise_for_status()
-            resp_json1 = resp1.json()
-            difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty) for difficulty in resp_json1["difficulties"].get("utage", []))
-        default_caches._caches["lxns_detailed_songs"][str(id)] = song
-        return song
 
     async def get_songs(self, client: AsyncClient) -> list[Song]:
         resp = await client.get(self.base_url + "api/v0/maimai/song/list")

@@ -70,7 +70,7 @@ class ICurveProvider:
     """
 
     @abstractmethod
-    async def get_curves(self, client: AsyncClient) -> dict[str, list[CurveObject | None]]:
+    async def get_curves(self, client: AsyncClient) -> dict[tuple[int, SongType], list[CurveObject | None]]:
         """@private"""
         raise NotImplementedError()
 

@@ -24,8 +24,8 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     def __init__(self, http_proxy: str | None = None):
         self._http_proxy = http_proxy
 
-    def __eq__(self, value):
-        return isinstance(value, ArcadeProvider)
+    def __hash__(self) -> int:
+        return hash(f"arcade-{self._http_proxy or 0}")
 
     @staticmethod
     def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:

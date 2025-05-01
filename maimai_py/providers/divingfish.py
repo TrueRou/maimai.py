@@ -34,8 +34,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         """
         self.developer_token = developer_token
 
-    def __eq__(self, value):
-        return isinstance(value, DivingFishProvider) and value.developer_token == self.developer_token
+    def __hash__(self) -> int:
+        return hash(f"divingfish-{self.developer_token or 0}")
 
     @staticmethod
     def _deser_song(song: dict) -> Song:
@@ -192,7 +192,10 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         resp2 = await client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
         self._check_response_player(resp2)
 
-    async def get_curves(self, client: AsyncClient) -> dict[str, list[CurveObject | None]]:
+    async def get_curves(self, client: AsyncClient) -> dict[tuple[int, SongType], list[CurveObject | None]]:
         resp = await client.get(self.base_url + "chart_stats")
         resp.raise_for_status()
-        return {idx: ([DivingFishProvider._deser_curve(chart) for chart in charts if chart != {}]) for idx, charts in (resp.json())["charts"].items()}
+        return {
+            (int(idx) % 10000, SongType._from_id(int(idx))): ([DivingFishProvider._deser_curve(chart) for chart in charts if chart != {}])
+            for idx, charts in (resp.json())["charts"].items()
+        }

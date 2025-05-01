@@ -21,8 +21,8 @@ class WechatProvider(IScoreProvider):
     Wahlap Wechat OffiAccount: https://maimai.wahlap.com/maimai-mobile/
     """
 
-    def __eq__(self, value):
-        return isinstance(value, WechatProvider)
+    def __hash__(self) -> int:
+        return hash(f"wechat-0")
 
     @staticmethod
     def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:

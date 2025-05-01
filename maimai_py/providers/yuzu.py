@@ -15,8 +15,8 @@ class YuzuProvider(IAliasProvider):
     base_url = "https://api.yuzuchan.moe/"
     """The base URL for the Yuzu API."""
 
-    def __eq__(self, value):
-        return isinstance(value, YuzuProvider)
+    def __hash__(self) -> int:
+        return hash(f"yuzu")
 
     async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
         resp = await client.get(self.base_url + "maimaidx/maimaidxalias")
