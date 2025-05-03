@@ -3,7 +3,6 @@ from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
 
 from maimai_py.models import *
-from maimai_py.enums import ScoreKind
 from maimai_py.exceptions import MaimaiPyError
 from maimai_py import MaimaiClient, MaimaiSongs, LXNSProvider, DivingFishProvider, ArcadeProvider
 

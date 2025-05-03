@@ -1,11 +1,14 @@
 import dataclasses
-from typing import Generator
+from typing import TYPE_CHECKING, Generator
 from httpx import AsyncClient, Response
 
 from maimai_py.enums import *
 from maimai_py.models import *
 from maimai_py.providers import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
+
+if TYPE_CHECKING:
+    from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
 class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider):
@@ -84,7 +87,6 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     def _deser_score(score: dict) -> Score:
         return Score(
             id=score["song_id"] % 10000,
-            song_name=score["title"] if score["song_id"] != 383 else "Link(CoF)",
             level=score["level"],
             level_index=LevelIndex(score["level_index"]),
             achievements=score["achievements"],
@@ -97,20 +99,23 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         )
 
     @staticmethod
-    def _ser_score(score: Score) -> dict:
-        return {
-            "song_id": score.type._to_id(score.id),
-            "title": score.song_name if score.id != 383 else "Link(CoF)",
-            "level": score.level,
-            "level_index": score.level_index.value,
-            "achievements": score.achievements,
-            "fc": score.fc.name.lower() if score.fc else None,
-            "fs": score.fs.name.lower() if score.fs else None,
-            "dxScore": score.dx_score,
-            "ra": score.dx_rating,
-            "rate": score.rate.name.lower(),
-            "type": score.type._to_abbr(),
-        }
+    async def _ser_score(score: Score, songs: "MaimaiSongs") -> dict | None:
+        song_title = song.title if (song := await songs.by_id(score.id)) else None
+        song_title = "Link(CoF)" if score.id == 383 else song_title
+        if song_title is not None:
+            return {
+                "song_id": score.type._to_id(score.id),
+                "title": song_title,
+                "level": score.level,
+                "level_index": score.level_index.value,
+                "achievements": score.achievements,
+                "fc": score.fc.name.lower() if score.fc else None,
+                "fs": score.fs.name.lower() if score.fs else None,
+                "dxScore": score.dx_score,
+                "ra": score.dx_rating,
+                "rate": score.rate.name.lower(),
+                "type": score.type._to_abbr(),
+            }
 
     @staticmethod
     def _deser_curve(chart: dict) -> CurveObject:
@@ -137,8 +142,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             raise PrivacyLimitationError(resp_json["message"])
         return resp_json
 
-    async def get_songs(self, client: AsyncClient) -> list[Song]:
-        resp = await client.get(self.base_url + "music_data")
+    async def get_songs(self, client: "MaimaiClient") -> list[Song]:
+        resp = await client._client.get(self.base_url + "music_data")
         resp.raise_for_status()
         resp_json = resp.json()
         unique_songs: dict[int, Song] = {}
@@ -151,8 +156,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             difficulties.extend(DivingFishProvider._deser_diffs(song))
         return list(unique_songs.values())
 
-    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> DivingFishPlayer:
-        resp = await client.post(self.base_url + "query/player", json=identifier._as_diving_fish())
+    async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> DivingFishPlayer:
+        resp = await client._client.post(self.base_url + "query/player", json=identifier._as_diving_fish())
         resp_json = self._check_response_player(resp)
         return DivingFishPlayer(
             name=resp_json["username"],
@@ -162,38 +167,39 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             additional_rating=resp_json["additional_rating"],
         )
 
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score], list[Score]]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score], list[Score]]:
         req_json = identifier._as_diving_fish()
         req_json["b50"] = True
-        resp = await client.post(self.base_url + "query/player", json=req_json)
+        resp = await client._client.post(self.base_url + "query/player", json=req_json)
         resp_json = self._check_response_player(resp)
         return (
             [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"]],
             [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["dx"]],
         )
 
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
-        resp = await client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        resp = await client._client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
         resp_json = self._check_response_player(resp)
         return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]
 
-    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
+    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         headers, cookies = None, None
+        maimai_songs = await client.songs()
         if identifier.username and identifier.credentials:
             login_json = {"username": identifier.username, "password": identifier.credentials}
-            resp1 = await client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
+            resp1 = await client._client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
             self._check_response_player(resp1)
             cookies = resp1.cookies
         elif not identifier.username and identifier.credentials and isinstance(identifier.credentials, str):
             headers = {"Import-Token": identifier.credentials}
         else:
             raise InvalidPlayerIdentifierError("Either username and password or import token is required to deliver scores")
-        scores_json = [DivingFishProvider._ser_score(score) for score in scores]
-        resp2 = await client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
+        scores_json = [json for score in scores if (json := await DivingFishProvider._ser_score(score, maimai_songs))]
+        resp2 = await client._client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
         self._check_response_player(resp2)
 
-    async def get_curves(self, client: AsyncClient) -> dict[tuple[int, SongType], list[CurveObject | None]]:
-        resp = await client.get(self.base_url + "chart_stats")
+    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject | None]]:
+        resp = await client._client.get(self.base_url + "chart_stats")
         resp.raise_for_status()
         return {
             (int(idx) % 10000, SongType._from_id(int(idx))): ([DivingFishProvider._deser_curve(chart) for chart in charts if chart != {}])

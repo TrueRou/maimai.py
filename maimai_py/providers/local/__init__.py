@@ -1,9 +1,12 @@
 import json
 from pathlib import Path
-from httpx import AsyncClient
+from typing import TYPE_CHECKING
 
 from maimai_py.models import *
 from maimai_py.providers import IItemListProvider, IAreaProvider
+
+if TYPE_CHECKING:
+    from maimai_py.maimai import MaimaiClient
 
 
 class LocalProvider(IItemListProvider, IAreaProvider):
@@ -12,8 +15,8 @@ class LocalProvider(IItemListProvider, IAreaProvider):
     Most of the data are stored in JSON files in the same directory as this file.
     """
 
-    def __eq__(self, value):
-        return isinstance(value, LocalProvider)
+    def __hash__(self) -> int:
+        return hash(f"local-0")
 
     def _read_file(self, file_name: str) -> Any:
         current_folder = Path(__file__).resolve().parent
@@ -37,26 +40,26 @@ class LocalProvider(IItemListProvider, IAreaProvider):
         else:
             raise ValueError(f"File {file_name} is not a list.")
 
-    async def get_icons(self, client: AsyncClient) -> dict[int, PlayerIcon]:
+    async def get_icons(self, client: "MaimaiClient") -> dict[int, PlayerIcon]:
         return {int(k): PlayerIcon(id=int(k), name=v) for k, v in self._read_file_dict("icons").items()}
 
-    async def get_nameplates(self, client: AsyncClient) -> dict[int, PlayerNamePlate]:
+    async def get_nameplates(self, client: "MaimaiClient") -> dict[int, PlayerNamePlate]:
         return {int(k): PlayerNamePlate(id=int(k), name=v) for k, v in self._read_file_dict("nameplates").items()}
 
-    async def get_frames(self, client: AsyncClient) -> dict[int, PlayerFrame]:
+    async def get_frames(self, client: "MaimaiClient") -> dict[int, PlayerFrame]:
         return {int(k): PlayerFrame(id=int(k), name=v) for k, v in self._read_file_dict("frames").items()}
 
-    async def get_partners(self, client: AsyncClient) -> dict[int, PlayerPartner]:
+    async def get_partners(self, client: "MaimaiClient") -> dict[int, PlayerPartner]:
         return {int(k): PlayerPartner(id=int(k), name=v) for k, v in self._read_file_dict("partners").items()}
 
-    async def get_charas(self, client: AsyncClient) -> dict[int, PlayerChara]:
+    async def get_charas(self, client: "MaimaiClient") -> dict[int, PlayerChara]:
         return {int(k): PlayerChara(id=int(k), name=v) for k, v in self._read_file_dict("charas").items()}
 
-    async def get_trophies(self, client: AsyncClient) -> dict[int, PlayerTrophy]:
+    async def get_trophies(self, client: "MaimaiClient") -> dict[int, PlayerTrophy]:
         return {int(k): PlayerTrophy(id=int(k), name=v["title"], color=v["rareType"]) for k, v in self._read_file_dict("trophies").items()}
 
-    async def get_areas(self, lang: str, client: AsyncClient) -> dict[str, Area]:
-        songs = await MaimaiSongs._get_or_fetch(client)
+    async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:
+        maimai_songs = await client.songs()
         return {
             item["id"]: Area(
                 id=item["id"],
@@ -77,7 +80,7 @@ class LocalProvider(IItemListProvider, IAreaProvider):
                 ],
                 songs=[
                     AreaSong(
-                        id=s.id if (s := songs.by_title(song["title"])) else -1,
+                        id=s.id if (s := await maimai_songs.by_title(song["title"])) else None,
                         title=song["title"],
                         artist=song["artist"],
                         description=song["description"],

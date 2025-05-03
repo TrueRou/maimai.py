@@ -15,28 +15,26 @@ PlayerItemType = TypeVar("PlayerItemType", bound=PlayerItem)
 
 
 class MaimaiItems(Generic[PlayerItemType]):
-    _client: AsyncClient
-    _cache: BaseCache
+    _client: "MaimaiClient"
     _namespace: str
 
-    def __init__(self, client: AsyncClient, cache: BaseCache, namespace: str) -> None:
+    def __init__(self, client: "MaimaiClient", namespace: str) -> None:
         """@private"""
         self._client = client
-        self._cache = cache
         self._namespace = namespace
 
     async def configure(self, provider: IItemListProvider) -> "MaimaiItems":
-        if hash(provider) != await self._cache.get("provider", "", namespace=self._namespace):
+        if hash(provider) != await self._client._cache.get("provider", "", namespace=self._namespace):
             val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
-            await self._cache.multi_set(val.items(), namespace=self._namespace)
+            await self._client._cache.multi_set(val.items(), namespace=self._namespace)
         return self
 
-    async def iter_items(self) -> AsyncGenerator[PlayerItemType]:
+    async def iter_items(self) -> AsyncGenerator[PlayerItemType, None]:
         """All items as list."""
-        item_ids: list[int] | None = await self._cache.get("item_ids", namespace=self._namespace)
+        item_ids: list[int] | None = await self._client._cache.get("item_ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         for item_id in item_ids:
-            if item := await self._cache.get(item_id, namespace=self._namespace):
+            if item := await self._client._cache.get(item_id, namespace=self._namespace):
                 yield item
 
     async def by_id(self, id: int) -> PlayerItemType | None:
@@ -47,7 +45,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         Returns:
             the item if it exists, otherwise return None.
         """
-        return await self._cache.get(id, namespace=self._namespace)
+        return await self._client._cache.get(id, namespace=self._namespace)
 
     async def filter(self, **kwargs) -> list[PlayerItemType]:
         """Filter items by their attributes.
@@ -66,23 +64,22 @@ class MaimaiItems(Generic[PlayerItemType]):
 
 
 class MaimaiSongs:
-    _client: AsyncClient
-    _cache: BaseCache
+    _client: "MaimaiClient"
 
-    def __init__(self, client: AsyncClient, cache: BaseCache) -> None:
+    def __init__(self, client: "MaimaiClient") -> None:
         """@private"""
         self._client = client
-        self._cache = cache
 
     async def configure(self, provider: ISongProvider, alias_provider: IAliasProvider | None, curve_provider: ICurveProvider | None) -> "MaimaiSongs":
         current_provider_hash = hash(hash(provider) + hash(alias_provider) + hash(curve_provider))
-        previous_provider_hash = await self._cache.get("provider", "", namespace="songs")
+        previous_provider_hash = await self._client._cache.get("provider", "", namespace="songs")
         if current_provider_hash != previous_provider_hash:
             songs = await provider.get_songs(self._client)
             aliases = await alias_provider.get_aliases(self._client) if alias_provider else []
             curves = await curve_provider.get_curves(self._client) if curve_provider else {}
-            await self._cache.set("ids", [song.id for song in songs], namespace="songs")
-            await self._cache.multi_set(iter((entry, alias.song_id) for alias in aliases for entry in alias.aliases), namespace="aliases")
+            await self._client._cache.set("ids", [song.id for song in songs], namespace="songs")
+            await self._client._cache.multi_set(iter((song.title, song.id) for song in songs), namespace="tracks")
+            await self._client._cache.multi_set(iter((entry, alias.song_id) for alias in aliases for entry in alias.aliases), namespace="aliases")
             aliases_dict = {alias.song_id: alias.aliases for alias in aliases}
             curves_dict = {song_id: curve for song_id, curve in curves.items()}
 
@@ -100,16 +97,16 @@ class MaimaiSongs:
                         diffs = song.difficulties._get_children(SongType.UTAGE)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs)]
 
-            await self._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs")
-            await self._cache.set("provider", current_provider_hash, ttl=60 * 60 * 24, namespace="songs")
+            await self._client._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs")
+            await self._client._cache.set("provider", current_provider_hash, ttl=60 * 60 * 24, namespace="songs")
         return self
 
-    async def iter_songs(self) -> AsyncGenerator[Song]:
+    async def iter_songs(self) -> AsyncGenerator[Song, None]:
         """All songs as async generator."""
-        song_ids: list[int] | None = await self._cache.get("ids", namespace="songs")
+        song_ids: list[int] | None = await self._client._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         for song_id in song_ids:
-            if song := await self._cache.get(song_id, namespace="songs"):
+            if song := await self._client._cache.get(song_id, namespace="songs"):
                 yield song
 
     async def by_id(self, id: int) -> Song | None:
@@ -120,7 +117,7 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
-        return await self._cache.get(id, namespace="songs")
+        return await self._client._cache.get(id, namespace="songs")
 
     async def by_title(self, title: str) -> Song | None:
         """Get a song by its title.
@@ -130,9 +127,9 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
-        if title == "Link(CoF)":
-            return await self.by_id(383)
-        return await anext((song async for song in self.iter_songs() if song.title == title), None)
+        song_id = await self._client._cache.get(title, namespace="tracks")
+        song_id = 383 if title == "Link(CoF)" else song_id
+        return await self._client._cache.get(song_id, namespace="songs") if song_id else None
 
     async def by_alias(self, alias: str) -> Song | None:
         """Get song by one possible alias.
@@ -142,8 +139,8 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
-        if song_id := await self._cache.get(alias, namespace="aliases"):
-            if song := await self._cache.get(song_id, namespace="songs"):
+        if song_id := await self._client._cache.get(alias, namespace="aliases"):
+            if song := await self._client._cache.get(song_id, namespace="songs"):
                 return song
 
     async def by_artist(self, artist: str) -> list[Song]:
@@ -221,8 +218,7 @@ class MaimaiSongs:
 
 
 class MaimaiPlates:
-    _client: AsyncClient
-    _cache: BaseCache
+    _client: "MaimaiClient"
 
     _kind: str  # The kind of the plate, e.g. "将", "神".
     _version: str  # The version of the plate, e.g. "真", "舞".
@@ -230,13 +226,12 @@ class MaimaiPlates:
     _matched_songs: list[int] = []
     _matched_scores: list[PlateScore] = []
 
-    def __init__(self, client: AsyncClient, cache: BaseCache) -> None:
+    def __init__(self, client: "MaimaiClient") -> None:
         """@private"""
         self._client = client
-        self._cache = cache
 
     async def configure(self, plate: str, scores: list[Score]) -> "MaimaiPlates":
-        maimai_songs: MaimaiSongs = MaimaiSongs(self._client, self._cache)
+        maimai_songs: MaimaiSongs = MaimaiSongs(self._client)
         self._version = plate_aliases.get(plate[0], plate[0])
         self._kind = plate_aliases.get(plate[1:], plate[1:])
 
@@ -297,7 +292,7 @@ class MaimaiPlates:
         results = {
             song_id: PlateObject(song=song, scores=scores_dict.get(song_id, []))
             for song_id in self._matched_songs
-            if (song := PlateSong._from_song(await self._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster))
+            if (song := PlateSong._from_song(await self._client._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster))
         }
 
         def extract(score: PlateScore) -> None:
@@ -328,7 +323,7 @@ class MaimaiPlates:
         results = {
             song_id: PlateObject(song=song, scores=[])
             for song_id in self._matched_songs
-            if (song := PlateSong._from_song_no_levels(await self._cache.get(f"song_{song_id}")))
+            if (song := PlateSong._from_song_no_levels(await self._client._cache.get(f"song_{song_id}")))
         }
 
         def insert(score: PlateScore) -> None:
@@ -358,14 +353,14 @@ class MaimaiPlates:
         results = {
             song_id: PlateObject(song=song, scores=[])
             for song_id in self._matched_songs
-            if (song := PlateSong._from_song_no_levels(await self._cache.get(f"song_{song_id}")))
+            if (song := PlateSong._from_song_no_levels(await self._client._cache.get(f"song_{song_id}")))
         }
         for score in self._matched_scores:
             results[score.id].scores.append(score)
             results[score.id].song.levels.append(score.level_index)
         return [plate for plate in results.values() if plate.song.levels != []]
 
-    async def get_all(self) -> AsyncGenerator[PlateObject]:
+    async def get_all(self) -> AsyncGenerator[PlateObject, None]:
         """Get all songs on this plate, usually used for statistics of the plate.
 
         All songs will be included in the result, with all levels, whether they met or not.
@@ -374,12 +369,12 @@ class MaimaiPlates:
         """
 
         for song_id in self._matched_songs:
-            if song := PlateSong._from_song(await self._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster):
+            if song := PlateSong._from_song(await self._client._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster):
                 yield PlateObject(song=song, scores=[])
 
 
 class MaimaiScores:
-    _client: AsyncClient
+    _client: "MaimaiClient"
     _cache: BaseCache
 
     scores: list[Score]
@@ -395,17 +390,16 @@ class MaimaiScores:
     rating_b15: int
     """The b15 rating of the player."""
 
-    def __init__(self, client: AsyncClient, cache: BaseCache):
+    def __init__(self, client: "MaimaiClient"):
         self._client = client
-        self._cache = cache
 
     async def configure(self, scores: list[Score]) -> "MaimaiScores":
         self.scores = scores
         scores_new: list[Score] = []
         scores_old: list[Score] = []
-        maimai_songs: MaimaiSongs = MaimaiSongs(self._client, self._cache)
+        maimai_songs: MaimaiSongs = MaimaiSongs(self._client)
 
-        scores_unique = {}
+        scores_unique: dict[str, Score] = {}
         for score in self.scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
@@ -435,7 +429,7 @@ class MaimaiScores:
         for score in self.scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-        new_scores = MaimaiScores(self._client, self._cache)
+        new_scores = MaimaiScores(self._client)
         return await new_scores.configure(list(scores_unique.values()))
 
     def by_song(
@@ -475,22 +469,30 @@ class MaimaiScores:
 
 
 class MaimaiAreas:
-    lang: str
-    """The language of the areas."""
+    _client: "MaimaiClient"
+    _lang: str
 
-    _area_id_dict: dict[str, Area]  # area_id: area
-
-    def __init__(self, lang: str, areas: dict[str, Area]) -> None:
+    def __init__(self, client: "MaimaiClient") -> None:
         """@private"""
-        self.lang = lang
-        self._area_id_dict = areas
+        self._client = client
 
-    @property
-    def values(self) -> Iterator[Area]:
+    async def configure(self, lang: str, provider: IAreaProvider) -> "MaimaiAreas":
+        if hash(provider) != await self._client._cache.get("provider", "", namespace="areas"):
+            areas = await provider.get_areas(lang, self._client)
+            await self._client._cache.set("ids", [area.id for area in areas.values()], namespace="areas")
+            await self._client._cache.multi_set(iter((k, v) for k, v in areas.items()), namespace="areas")
+            await self._client._cache.set("provider", hash(provider), ttl=60 * 60 * 24, namespace="areas")
+        return self
+
+    async def iter_areas(self) -> AsyncGenerator[Area, None]:
         """All areas as list."""
-        return iter(self._area_id_dict.values())
+        area_ids: list[int] | None = await self._client._cache.get("ids", namespace="areas")
+        assert area_ids is not None, "Areas not found in cache, please call configure() first."
+        for area_id in area_ids:
+            if area := await self._client._cache.get(area_id, namespace="areas"):
+                yield area
 
-    def by_id(self, id: str) -> Area | None:
+    async def by_id(self, id: str) -> Area | None:
         """Get an area by its ID.
 
         Args:
@@ -498,9 +500,9 @@ class MaimaiAreas:
         Returns:
             the area if it exists, otherwise return None.
         """
-        return self._area_id_dict.get(id, None)
+        return await self._client._cache.get(id, namespace="areas")
 
-    def by_name(self, name: str) -> Area | None:
+    async def by_name(self, name: str) -> Area | None:
         """Get an area by its name, language-sensitive.
 
         Args:
@@ -508,7 +510,7 @@ class MaimaiAreas:
         Returns:
             the area if it exists, otherwise return None.
         """
-        return next((area for area in self.values if area.name == name), None)
+        return await anext((area async for area in self.iter_areas() if area.name == name), None)
 
 
 class MaimaiClient:
@@ -550,7 +552,7 @@ class MaimaiClient:
         Raises:
             httpx.HTTPError: Request failed due to network issues.
         """
-        songs = MaimaiSongs(self._client, self._cache)
+        songs = MaimaiSongs(self)
         if isinstance(provider, _UnsetSentinel):
             provider = LXNSProvider()
         if isinstance(alias_provider, _UnsetSentinel):
@@ -584,7 +586,7 @@ class MaimaiClient:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
-        return await provider.get_player(identifier, self._client)
+        return await provider.get_player(identifier, self)
 
     async def scores(
         self,
@@ -603,7 +605,6 @@ class MaimaiClient:
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
-            kind: the kind of scores list to fetch, defaults to `ScoreKind.BEST`.
             provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
         Returns:
             The scores object of the player, with all the data fetched.
@@ -616,16 +617,15 @@ class MaimaiClient:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
-        # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
-        # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
+        # LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
         b35, b15, all = None, None, None
 
         if isinstance(provider, LXNSProvider):
-            b35, b15 = await provider.get_scores_best(identifier, self._client)
-        all = await provider.get_scores_all(identifier, self._client)
+            b35, b15 = await provider.get_scores_best(identifier, self)
+        all = await provider.get_scores_all(identifier, self)
 
-        maimai_scores = MaimaiScores(self._client, self._cache)
+        maimai_scores = MaimaiScores(self)
         return await maimai_scores.configure([*all, *(b35 or []), *(b15 or [])])
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
@@ -640,7 +640,7 @@ class MaimaiClient:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
-        return await provider.get_regions(identifier, self._client)
+        return await provider.get_regions(identifier, self)
 
     async def updates(
         self,
@@ -668,7 +668,7 @@ class MaimaiClient:
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             httpx.HTTPError: Request failed due to network issues.
         """
-        await provider.update_scores(identifier, scores, self._client)
+        await provider.update_scores(identifier, scores, self)
 
     async def plates(
         self,
@@ -694,8 +694,8 @@ class MaimaiClient:
             httpx.HTTPError: Request failed due to network issues.
         """
         # songs = await MaimaiSongs._get_or_fetch(self._client)
-        scores = await provider.get_scores_all(identifier, self._client)
-        maimai_plates = MaimaiPlates(self._client, self._cache)
+        scores = await provider.get_scores_all(identifier, self)
+        maimai_plates = MaimaiPlates(self)
         return await maimai_plates.configure(plate, scores)
 
     async def wechat(self, r=None, t=None, code=None, state=None) -> PlayerIdentifier | str:
@@ -773,7 +773,7 @@ class MaimaiClient:
         """
         if isinstance(provider, _UnsetSentinel):
             provider = LXNSProvider() if item in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
-        maimai_items = MaimaiItems[PlayerItemType](self._client, self._cache, item.namespace())
+        maimai_items = MaimaiItems[PlayerItemType](self, item.namespace())
         return await maimai_items.configure(provider)
 
     async def areas(self, lang: Literal["ja", "zh"] = "ja", provider: IAreaProvider = LocalProvider()) -> MaimaiAreas:
@@ -790,7 +790,8 @@ class MaimaiClient:
             FileNotFoundError: The area file is not found.
         """
 
-        return MaimaiAreas(lang, await provider.get_areas(lang, self._client))
+        maimai_areas = MaimaiAreas(self)
+        return await maimai_areas.configure(lang, provider)
 
     async def flush(self) -> None:
         """Flush the caches of the client, this will perform a full re-fetch of all the data.

@@ -235,22 +235,22 @@ class DivingFishPlayer(Player):
 @dataclass(slots=True)
 class LXNSPlayer(Player):
     friend_code: int
-    trophy: PlayerTrophy
     course_rank: int
     class_rank: int
     star: int
-    icon: PlayerIcon | None
-    name_plate: PlayerNamePlate | None
     frame: PlayerFrame | None
+    icon: PlayerIcon | None
+    trophy: PlayerTrophy | None
+    name_plate: PlayerNamePlate | None
     upload_time: str
 
 
 @dataclass(slots=True)
 class ArcadePlayer(Player):
     is_login: bool
-    name_plate: PlayerNamePlate | None
     icon: PlayerIcon | None
-    trophy: PlayerFrame | None
+    trophy: PlayerTrophy | None
+    name_plate: PlayerNamePlate | None
 
 
 @dataclass(slots=True)
@@ -265,7 +265,7 @@ class AreaCharacter:
 
 @dataclass(slots=True)
 class AreaSong:
-    id: int
+    id: int | None
     title: str
     artist: str
     description: str
@@ -287,7 +287,6 @@ class Area:
 @dataclass(slots=True)
 class Score:
     id: int
-    song_name: str
     level: str
     level_index: LevelIndex
     achievements: float | None
