@@ -26,12 +26,13 @@ class MaimaiItems(Generic[PlayerItemType]):
     async def configure(self, provider: IItemListProvider) -> "MaimaiItems":
         if hash(provider) != await self._client._cache.get("provider", "", namespace=self._namespace):
             val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
+            await self._client._cache.set("ids", [key for key in val.keys()], namespace=self._namespace)
             await self._client._cache.multi_set(val.items(), namespace=self._namespace)
         return self
 
     async def iter_items(self) -> AsyncGenerator[PlayerItemType, None]:
         """All items as list."""
-        item_ids: list[int] | None = await self._client._cache.get("item_ids", namespace=self._namespace)
+        item_ids: list[int] | None = await self._client._cache.get("ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         for item_id in item_ids:
             if item := await self._client._cache.get(item_id, namespace=self._namespace):
