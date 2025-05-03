@@ -219,6 +219,7 @@ class MaimaiSongs:
 
 class MaimaiPlates:
     _client: "MaimaiClient"
+    _maimai_songs: MaimaiSongs
 
     _kind: str  # The kind of the plate, e.g. "将", "神".
     _version: str  # The version of the plate, e.g. "真", "舞".
@@ -231,7 +232,7 @@ class MaimaiPlates:
         self._client = client
 
     async def configure(self, plate: str, scores: list[Score]) -> "MaimaiPlates":
-        maimai_songs: MaimaiSongs = MaimaiSongs(self._client)
+        self._maimai_songs = await self._client.songs()
         self._version = plate_aliases.get(plate[0], plate[0])
         self._kind = plate_aliases.get(plate[1:], plate[1:])
 
@@ -247,7 +248,7 @@ class MaimaiPlates:
         versions.append([ver for ver in plate_to_version.values() if ver.value > versions[-1].value][0])
         self._versions = versions
 
-        async for song in maimai_songs.iter_songs():
+        async for song in self._maimai_songs.iter_songs():
             diffs = song.difficulties._get_children()
             if any(diff.version >= o.value and diff.version < versions[i + 1].value for i, o in enumerate(versions[:-1]) for diff in diffs):
                 self._matched_songs.append(song.id)
@@ -292,7 +293,7 @@ class MaimaiPlates:
         results = {
             song_id: PlateObject(song=song, scores=scores_dict.get(song_id, []))
             for song_id in self._matched_songs
-            if (song := PlateSong._from_song(await self._client._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster))
+            if (song := PlateSong._from_song(await self._maimai_songs.by_id(song_id), self.major_type, self.no_remaster))
         }
 
         def extract(score: PlateScore) -> None:
@@ -323,7 +324,7 @@ class MaimaiPlates:
         results = {
             song_id: PlateObject(song=song, scores=[])
             for song_id in self._matched_songs
-            if (song := PlateSong._from_song_no_levels(await self._client._cache.get(f"song_{song_id}")))
+            if (song := PlateSong._from_song_no_levels(await self._maimai_songs.by_id(song_id)))
         }
 
         def insert(score: PlateScore) -> None:
@@ -353,7 +354,7 @@ class MaimaiPlates:
         results = {
             song_id: PlateObject(song=song, scores=[])
             for song_id in self._matched_songs
-            if (song := PlateSong._from_song_no_levels(await self._client._cache.get(f"song_{song_id}")))
+            if (song := PlateSong._from_song_no_levels(await self._maimai_songs.by_id(song_id)))
         }
         for score in self._matched_scores:
             results[score.id].scores.append(score)
@@ -367,15 +368,32 @@ class MaimaiPlates:
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
-
         for song_id in self._matched_songs:
-            if song := PlateSong._from_song(await self._client._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster):
+            if song := PlateSong._from_song(await self._maimai_songs.by_id(song_id), self.major_type, self.no_remaster):
                 yield PlateObject(song=song, scores=[])
+
+    async def count_played(self) -> int:
+        """Get the number of played levels on this plate."""
+        return len([level for plate in await self.get_played() for level in plate.song.levels])
+
+    async def count_cleared(self) -> int:
+        """Get the number of cleared levels on this plate."""
+        return len([level for plate in await self.get_cleared() for level in plate.song.levels])
+
+    async def count_remained(self) -> int:
+        """Get the number of remained levels on this plate."""
+        return len([level for plate in await self.get_remained() for level in plate.song.levels])
+
+    async def count_all(self) -> int:
+        """Get the number of all levels on this plate.
+
+        This is the total number of levels on the plate, should equal to `cleared_num + remained_num`.
+        """
+        return len([level async for plate in self.get_all() for level in plate.song.levels])
 
 
 class MaimaiScores:
     _client: "MaimaiClient"
-    _cache: BaseCache
 
     scores: list[Score]
     """All scores of the player."""
@@ -397,7 +415,7 @@ class MaimaiScores:
         self.scores = scores
         scores_new: list[Score] = []
         scores_old: list[Score] = []
-        maimai_songs: MaimaiSongs = MaimaiSongs(self._client)
+        maimai_songs = await self._client.songs()
 
         scores_unique: dict[str, Score] = {}
         for score in self.scores:
@@ -409,8 +427,8 @@ class MaimaiScores:
                 if score_diff := score_song.get_difficulty(score.type, score.level_index):
                     (scores_new if score_diff.version >= current_version.value else scores_old).append(score)
 
-        scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
-        scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
+        scores_old.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
+        scores_new.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
         self.scores_b35 = scores_old[:35]
         self.scores_b15 = scores_new[:15]
         self.rating_b35 = int(sum((score.dx_rating or 0) for score in self.scores_b35))
@@ -619,14 +637,14 @@ class MaimaiClient:
         """
         # LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-        b35, b15, all = None, None, None
+        b35, b15, all = [], [], []
 
         if isinstance(provider, LXNSProvider):
             b35, b15 = await provider.get_scores_best(identifier, self)
         all = await provider.get_scores_all(identifier, self)
 
         maimai_scores = MaimaiScores(self)
-        return await maimai_scores.configure([*all, *(b35 or []), *(b15 or [])])
+        return await maimai_scores.configure(all + b35 + b15)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
