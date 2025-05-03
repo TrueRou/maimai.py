@@ -418,7 +418,7 @@ if find_spec("fastapi"):
             scores_b15=scores.scores_b15,
         )
 
-    @router.get("/lxns/plates", response_model=PlateObject, tags=["lxns"], description="Get player plates from LXNS")
+    @router.get("/lxns/plates", response_model=list[PlateObject], tags=["lxns"], description="Get player plates from LXNS")
     async def get_plate_lxns(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -426,9 +426,9 @@ if find_spec("fastapi"):
         provider: LXNSProvider = Depends(dep_lxns),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        return await getattr(plates, f"get_{attr}")
+        return await getattr(plates, f"get_{attr}")()
 
-    @router.get("/divingfish/plates", response_model=PlateObject, tags=["divingfish"], description="Get player plates from Diving Fish")
+    @router.get("/divingfish/plates", response_model=list[PlateObject], tags=["divingfish"], description="Get player plates from Diving Fish")
     async def get_plate_diving(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -436,9 +436,9 @@ if find_spec("fastapi"):
         provider: DivingFishProvider = Depends(dep_diving),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        return await getattr(plates, f"get_{attr}")
+        return await getattr(plates, f"get_{attr}")()
 
-    @router.get("/arcade/plates", response_model=PlateObject, tags=["arcade"], description="Get player plates from Arcade")
+    @router.get("/arcade/plates", response_model=list[PlateObject], tags=["arcade"], description="Get player plates from Arcade")
     async def get_plate_arcade(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -446,7 +446,7 @@ if find_spec("fastapi"):
         provider: ArcadeProvider = Depends(dep_arcade),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        return await getattr(plates, f"get_{attr}")
+        return await getattr(plates, f"get_{attr}")()
 
     @router.get("/arcade/regions", response_model=list[PlayerRegion], tags=["arcade"], description="Get player regions from Arcade")
     async def get_region(

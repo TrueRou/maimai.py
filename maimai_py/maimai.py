@@ -256,12 +256,15 @@ class MaimaiPlates:
 
         scores_joined = {}
         for full_score in scores:
-            if full_score.id in self._matched_songs:
-                if full_score.level_index == LevelIndex.ReMASTER and self.no_remaster:
-                    continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
-                score = PlateScore._from_score(full_score)
+            if song := await self._maimai_songs.by_id(full_score.id):
                 score_key = f"{full_score.id} {full_score.type} {full_score.level_index}"
-                scores_joined[score_key] = score._join(scores_joined.get(score_key, None))
+                if diff := song.get_difficulty(full_score.type, full_score.level_index):
+                    score = PlateScore._from_score(full_score)
+                    if score.level_index == LevelIndex.ReMASTER and self.no_remaster:
+                        continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
+                    if any(diff.version >= o.value and diff.version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
+                        scores_joined[score_key] = score._join(scores_joined.get(score_key, None))
+
         self._matched_scores = list(scores_joined.values())
         return self
 
