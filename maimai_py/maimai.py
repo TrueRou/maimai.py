@@ -1,5 +1,6 @@
 import httpx
-from typing import AsyncGenerator, Literal, Type
+from functools import cached_property
+from typing import AsyncGenerator, Callable, Generic, Iterator, Literal, Type, TypeVar
 from httpx import AsyncClient
 from aiocache import SimpleMemoryCache, BaseCache
 
@@ -7,26 +8,38 @@ from maimai_ffi import arcade
 from maimai_py.enums import *
 from maimai_py.models import *
 from maimai_py.providers import *
-from maimai_py.caches import default_caches
-from maimai_py.exceptions import WechatTokenExpiredError
+from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
 from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
 
-CachedType = TypeVar("CachedType", bound=CachedModel)
+PlayerItemType = TypeVar("PlayerItemType", bound=PlayerItem)
 
 
-class MaimaiItems(Generic[CachedType]):
-    _cached_items: dict[int, CachedType]
+class MaimaiItems(Generic[PlayerItemType]):
+    _client: AsyncClient
+    _cache: BaseCache
+    _namespace: str
 
-    def __init__(self, items: dict[int, CachedType]) -> None:
+    def __init__(self, client: AsyncClient, cache: BaseCache, namespace: str) -> None:
         """@private"""
-        self._cached_items = items
+        self._client = client
+        self._cache = cache
+        self._namespace = namespace
 
-    @property
-    def values(self) -> Iterator[CachedType]:
+    async def configure(self, provider: IItemListProvider) -> "MaimaiItems":
+        if hash(provider) != await self._cache.get("provider", "", namespace=self._namespace):
+            val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
+            await self._cache.multi_set(val.items(), namespace=self._namespace)
+        return self
+
+    async def iter_items(self) -> AsyncGenerator[PlayerItemType]:
         """All items as list."""
-        return iter(self._cached_items.values())
+        item_ids: list[int] | None = await self._cache.get("item_ids", namespace=self._namespace)
+        assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
+        for item_id in item_ids:
+            if item := await self._cache.get(item_id, namespace=self._namespace):
+                yield item
 
-    def by_id(self, id: int) -> CachedType | None:
+    async def by_id(self, id: int) -> PlayerItemType | None:
         """Get an item by its ID.
 
         Args:
@@ -34,9 +47,9 @@ class MaimaiItems(Generic[CachedType]):
         Returns:
             the item if it exists, otherwise return None.
         """
-        return self._cached_items.get(id, None)
+        return await self._cache.get(id, namespace=self._namespace)
 
-    def filter(self, **kwargs) -> list[CachedType]:
+    async def filter(self, **kwargs) -> list[PlayerItemType]:
         """Filter items by their attributes.
 
         Ensure that the attribute is of the item, and the value is of the same type. All conditions are connected by AND.
@@ -46,7 +59,10 @@ class MaimaiItems(Generic[CachedType]):
         Returns:
             the list of items that match all the conditions, return an empty list if no item is found.
         """
-        return [item for item in self.values if all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)]
+        filter_func: Callable[[PlayerItemType], bool] = lambda item: all(
+            getattr(item, key) == value for key, value in kwargs.items() if value is not None
+        )
+        return [item async for item in self.iter_items() if filter_func(item)]
 
 
 class MaimaiSongs:
@@ -60,13 +76,13 @@ class MaimaiSongs:
 
     async def configure(self, provider: ISongProvider, alias_provider: IAliasProvider | None, curve_provider: ICurveProvider | None) -> "MaimaiSongs":
         current_provider_hash = hash(hash(provider) + hash(alias_provider) + hash(curve_provider))
-        previous_provider_hash = await self._cache.get("provider_songs", "")
+        previous_provider_hash = await self._cache.get("provider", "", namespace="songs")
         if current_provider_hash != previous_provider_hash:
             songs = await provider.get_songs(self._client)
             aliases = await alias_provider.get_aliases(self._client) if alias_provider else []
             curves = await curve_provider.get_curves(self._client) if curve_provider else {}
-            await self._cache.set("song_ids", [song.id for song in songs])
-            await self._cache.multi_set(iter((f"alias_{entry}", alias.song_id) for alias in aliases for entry in alias.aliases))
+            await self._cache.set("ids", [song.id for song in songs], namespace="songs")
+            await self._cache.multi_set(iter((entry, alias.song_id) for alias in aliases for entry in alias.aliases), namespace="aliases")
             aliases_dict = {alias.song_id: alias.aliases for alias in aliases}
             curves_dict = {song_id: curve for song_id, curve in curves.items()}
 
@@ -84,16 +100,16 @@ class MaimaiSongs:
                         diffs = song.difficulties._get_children(SongType.UTAGE)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs)]
 
-            await self._cache.multi_set(iter((f"song_{song.id}", song) for song in songs))
-            await self._cache.set("provider_songs", current_provider_hash, ttl=60 * 60 * 24)
+            await self._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs")
+            await self._cache.set("provider", current_provider_hash, ttl=60 * 60 * 24, namespace="songs")
         return self
 
     async def iter_songs(self) -> AsyncGenerator[Song]:
         """All songs as async generator."""
-        song_ids: list[int] | None = await self._cache.get("song_ids")
+        song_ids: list[int] | None = await self._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         for song_id in song_ids:
-            if song := await self._cache.get(f"song_{song_id}"):
+            if song := await self._cache.get(song_id, namespace="songs"):
                 yield song
 
     async def by_id(self, id: int) -> Song | None:
@@ -104,7 +120,7 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
-        return await self._cache.get(f"song_{id}")
+        return await self._cache.get(id, namespace="songs")
 
     async def by_title(self, title: str) -> Song | None:
         """Get a song by its title.
@@ -126,8 +142,8 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
-        if song_id := await self._cache.get(f"alias_{alias}"):
-            if song := await self._cache.get(f"song_{song_id}"):
+        if song_id := await self._cache.get(alias, namespace="aliases"):
+            if song := await self._cache.get(song_id, namespace="songs"):
                 return song
 
     async def by_artist(self, artist: str) -> list[Song]:
@@ -205,52 +221,52 @@ class MaimaiSongs:
 
 
 class MaimaiPlates:
-    scores: list[Score]
-    """The scores that match the plate version and kind."""
-    songs: list[Song]
-    """The songs that match the plate version and kind."""
-    version: str
-    """The version of the plate, e.g. "真", "舞"."""
-    kind: str
-    """The kind of the plate, e.g. "将", "神"."""
+    _client: AsyncClient
+    _cache: BaseCache
 
-    _versions: list[Version] = []
+    _kind: str  # The kind of the plate, e.g. "将", "神".
+    _version: str  # The version of the plate, e.g. "真", "舞".
+    _versions: list[Version] = []  # The matched versions list of the plate.
+    _matched_songs: list[int] = []
+    _matched_scores: list[PlateScore] = []
 
-    def __init__(self, scores: list[Score], version_str: str, kind: str, songs: MaimaiSongs) -> None:
+    def __init__(self, client: AsyncClient, cache: BaseCache) -> None:
         """@private"""
-        self.scores = []
-        self.songs = []
-        self.version = plate_aliases.get(version_str, version_str)
-        self.kind = plate_aliases.get(kind, kind)
+        self._client = client
+        self._cache = cache
+
+    async def configure(self, plate: str, scores: list[Score]) -> "MaimaiPlates":
+        maimai_songs: MaimaiSongs = MaimaiSongs(self._client, self._cache)
+        self._version = plate_aliases.get(plate[0], plate[0])
+        self._kind = plate_aliases.get(plate[1:], plate[1:])
+
         versions = []  # in case of invalid plate, we will raise an error
-        if self.version == "真":
+        if self._version == "真":
             versions = [plate_to_version["初"], plate_to_version["真"]]
-        if self.version in ["霸", "舞"]:
+        if self._version in ["霸", "舞"]:
             versions = [ver for ver in plate_to_version.values() if ver.value < 20000]
-        if plate_to_version.get(self.version):
-            versions = [plate_to_version[self.version]]
-        if not versions or self.kind not in ["将", "者", "极", "舞舞", "神"]:
-            raise InvalidPlateError(f"Invalid plate: {self.version}{self.kind}")
+        if plate_to_version.get(self._version):
+            versions = [plate_to_version[self._version]]
+        if not versions or self._kind not in ["将", "者", "极", "舞舞", "神"]:
+            raise InvalidPlateError(f"Invalid plate: {self._version}{self._kind}")
         versions.append([ver for ver in plate_to_version.values() if ver.value > versions[-1].value][0])
         self._versions = versions
 
-        scores_unique = {}
-        for score in scores:
-            if song := songs.by_id(score.id):
-                score_key = f"{score.id} {score.type} {score.level_index}"
-                if difficulty := song.get_difficulty(score.type, score.level_index):
-                    score_version = difficulty.version
-                    if score.level_index == LevelIndex.ReMASTER and self.no_remaster:
-                        continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
-                    if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
-                        scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-
-        for song in songs.songs:
+        async for song in maimai_songs.iter_songs():
             diffs = song.difficulties._get_children()
             if any(diff.version >= o.value and diff.version < versions[i + 1].value for i, o in enumerate(versions[:-1]) for diff in diffs):
-                self.songs.append(song)
+                self._matched_songs.append(song.id)
 
-        self.scores = list(scores_unique.values())
+        scores_joined = {}
+        for full_score in scores:
+            if full_score.id in self._matched_songs:
+                if full_score.level_index == LevelIndex.ReMASTER and self.no_remaster:
+                    continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
+                score = PlateScore._from_score(full_score)
+                score_key = f"{full_score.id} {full_score.type} {full_score.level_index}"
+                scores_joined[score_key] = score._join(scores_joined.get(score_key, None))
+        self._matched_scores = list(scores_joined.values())
+        return self
 
     @cached_property
     def no_remaster(self) -> bool:
@@ -259,7 +275,7 @@ class MaimaiPlates:
         Only 舞 and 霸 plates require ReMASTER levels, others don't.
         """
 
-        return self.version not in ["舞", "霸"]
+        return self._version not in ["舞", "霸"]
 
     @cached_property
     def major_type(self) -> SongType:
@@ -269,82 +285,87 @@ class MaimaiPlates:
         """
         return SongType.DX if any(ver.value > 20000 for ver in self._versions) else SongType.STANDARD
 
-    @cached_property
-    def remained(self) -> list[PlateObject]:
+    async def get_remained(self) -> list[PlateObject]:
         """Get the remained songs and scores of the player on this plate.
 
         If player has ramained levels on one song, the song and ramained `level_index` will be included in the result, otherwise it won't.
 
         The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
         """
-        scores_dict: dict[int, list[Score]] = {}
-        [scores_dict.setdefault(score.id, []).append(score) for score in self.scores]
+        scores_dict: dict[int, list[PlateScore]] = {}
+        [scores_dict.setdefault(score.id, []).append(score) for score in self._matched_scores]
         results = {
-            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=scores_dict.get(song.id, []))
-            for song in self.songs
+            song_id: PlateObject(song=song, scores=scores_dict.get(song_id, []))
+            for song_id in self._matched_songs
+            if (song := PlateSong._from_song(await self._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster))
         }
 
-        def extract(score: Score) -> None:
+        def extract(score: PlateScore) -> None:
             results[score.id].scores.remove(score)
-            if score.level_index in results[score.id].levels:
-                results[score.id].levels.remove(score.level_index)
+            if score.level_index in results[score.id].song.levels:
+                results[score.id].song.levels.remove(score.level_index)
 
-        if self.kind == "者":
-            [extract(score) for score in self.scores if score.rate.value <= RateType.A.value]
-        elif self.kind == "将":
-            [extract(score) for score in self.scores if score.rate.value <= RateType.SSS.value]
-        elif self.kind == "极":
-            [extract(score) for score in self.scores if score.fc and score.fc.value <= FCType.FC.value]
-        elif self.kind == "舞舞":
-            [extract(score) for score in self.scores if score.fs and score.fs.value <= FSType.FSD.value]
-        elif self.kind == "神":
-            [extract(score) for score in self.scores if score.fc and score.fc.value <= FCType.AP.value]
+        if self._kind == "者":
+            [extract(score) for score in self._matched_scores if score.rate.value <= RateType.A.value]
+        elif self._kind == "将":
+            [extract(score) for score in self._matched_scores if score.rate.value <= RateType.SSS.value]
+        elif self._kind == "极":
+            [extract(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.FC.value]
+        elif self._kind == "舞舞":
+            [extract(score) for score in self._matched_scores if score.fs and score.fs.value <= FSType.FSD.value]
+        elif self._kind == "神":
+            [extract(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.AP.value]
 
-        return [plate for plate in results.values() if plate.levels != []]
+        return [plate for plate in results.values() if plate.song.levels != []]
 
-    @cached_property
-    def cleared(self) -> list[PlateObject]:
+    async def get_cleared(self) -> list[PlateObject]:
         """Get the cleared songs and scores of the player on this plate.
 
         If player has levels (one or more) that met the requirement on the song, the song and cleared `level_index` will be included in the result, otherwise it won't.
 
         The distinct scores which met the plate requirement will be included in the result, the unfinished scores won't.
         """
-        results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
+        results = {
+            song_id: PlateObject(song=song, scores=[])
+            for song_id in self._matched_songs
+            if (song := PlateSong._from_song_no_levels(await self._cache.get(f"song_{song_id}")))
+        }
 
-        def insert(score: Score) -> None:
+        def insert(score: PlateScore) -> None:
             results[score.id].scores.append(score)
-            results[score.id].levels.append(score.level_index)
+            results[score.id].song.levels.append(score.level_index)
 
-        if self.kind == "者":
-            [insert(score) for score in self.scores if score.rate.value <= RateType.A.value]
-        elif self.kind == "将":
-            [insert(score) for score in self.scores if score.rate.value <= RateType.SSS.value]
-        elif self.kind == "极":
-            [insert(score) for score in self.scores if score.fc and score.fc.value <= FCType.FC.value]
-        elif self.kind == "舞舞":
-            [insert(score) for score in self.scores if score.fs and score.fs.value <= FSType.FSD.value]
-        elif self.kind == "神":
-            [insert(score) for score in self.scores if score.fc and score.fc.value <= FCType.AP.value]
+        if self._kind == "者":
+            [insert(score) for score in self._matched_scores if score.rate.value <= RateType.A.value]
+        elif self._kind == "将":
+            [insert(score) for score in self._matched_scores if score.rate.value <= RateType.SSS.value]
+        elif self._kind == "极":
+            [insert(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.FC.value]
+        elif self._kind == "舞舞":
+            [insert(score) for score in self._matched_scores if score.fs and score.fs.value <= FSType.FSD.value]
+        elif self._kind == "神":
+            [insert(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.AP.value]
 
-        return [plate for plate in results.values() if plate.levels != []]
+        return [plate for plate in results.values() if plate.song.levels != []]
 
-    @cached_property
-    def played(self) -> list[PlateObject]:
+    async def get_played(self) -> list[PlateObject]:
         """Get the played songs and scores of the player on this plate.
 
         If player has ever played levels on the song, whether they met or not, the song and played `level_index` will be included in the result.
 
         All distinct scores will be included in the result.
         """
-        results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
-        for score in self.scores:
+        results = {
+            song_id: PlateObject(song=song, scores=[])
+            for song_id in self._matched_songs
+            if (song := PlateSong._from_song_no_levels(await self._cache.get(f"song_{song_id}")))
+        }
+        for score in self._matched_scores:
             results[score.id].scores.append(score)
-            results[score.id].levels.append(score.level_index)
-        return [plate for plate in results.values() if plate.levels != []]
+            results[score.id].song.levels.append(score.level_index)
+        return [plate for plate in results.values() if plate.song.levels != []]
 
-    @cached_property
-    def all(self) -> Iterator[PlateObject]:
+    async def get_all(self) -> AsyncGenerator[PlateObject]:
         """Get all songs on this plate, usually used for statistics of the plate.
 
         All songs will be included in the result, with all levels, whether they met or not.
@@ -352,30 +373,9 @@ class MaimaiPlates:
         No scores will be included in the result, use played, cleared, remained to get the scores.
         """
 
-        return iter(PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=[]) for song in self.songs)
-
-    @cached_property
-    def played_num(self) -> int:
-        """Get the number of played levels on this plate."""
-        return len([level for plate in self.played for level in plate.levels])
-
-    @cached_property
-    def cleared_num(self) -> int:
-        """Get the number of cleared levels on this plate."""
-        return len([level for plate in self.cleared for level in plate.levels])
-
-    @cached_property
-    def remained_num(self) -> int:
-        """Get the number of remained levels on this plate."""
-        return len([level for plate in self.remained for level in plate.levels])
-
-    @cached_property
-    def all_num(self) -> int:
-        """Get the number of all levels on this plate.
-
-        This is the total number of levels on the plate, should equal to `cleared_num + remained_num`.
-        """
-        return len([level for plate in self.all for level in plate.levels])
+        for song_id in self._matched_songs:
+            if song := PlateSong._from_song(await self._cache.get(f"song_{song_id}"), self.major_type, self.no_remaster):
+                yield PlateObject(song=song, scores=[])
 
 
 class MaimaiScores:
@@ -395,20 +395,26 @@ class MaimaiScores:
     rating_b15: int
     """The b15 rating of the player."""
 
-    def __init__(self, client: AsyncClient, cache: BaseCache, scores: list[Score]):
+    def __init__(self, client: AsyncClient, cache: BaseCache):
         self._client = client
         self._cache = cache
-        self.scores = scores
 
-    async def configure(self):
-        # scores have to be distinct to calculate the bests
-        maimai_songs: MaimaiSongs = MaimaiSongs(self._client, self._cache)
+    async def configure(self, scores: list[Score]) -> "MaimaiScores":
+        self.scores = scores
         scores_new: list[Score] = []
         scores_old: list[Score] = []
-        for score in self.as_distinct.scores:
+        maimai_songs: MaimaiSongs = MaimaiSongs(self._client, self._cache)
+
+        scores_unique = {}
+        for score in self.scores:
+            score_key = f"{score.id} {score.type} {score.level_index}"
+            scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
+
+        for score in scores_unique.values():
             if score_song := await maimai_songs.by_id(score.id):
                 if score_diff := score_song.get_difficulty(score.type, score.level_index):
                     (scores_new if score_diff.version >= current_version.value else scores_old).append(score)
+
         scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
         scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
         self.scores_b35 = scores_old[:35]
@@ -416,9 +422,9 @@ class MaimaiScores:
         self.rating_b35 = int(sum((score.dx_rating or 0) for score in self.scores_b35))
         self.rating_b15 = int(sum((score.dx_rating or 0) for score in self.scores_b15))
         self.rating = self.rating_b35 + self.rating_b15
+        return self
 
-    @property
-    def as_distinct(self) -> "MaimaiScores":
+    async def get_distinct(self) -> "MaimaiScores":
         """Get the distinct scores.
 
         Normally, player has more than one score for the same song and level, this method will return a new `MaimaiScores` object with the highest scores for each song and level.
@@ -429,7 +435,8 @@ class MaimaiScores:
         for score in self.scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-        return MaimaiScores(self._client, self._cache, list(scores_unique.values()))
+        new_scores = MaimaiScores(self._client, self._cache)
+        return await new_scores.configure(list(scores_unique.values()))
 
     def by_song(
         self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
@@ -507,16 +514,6 @@ class MaimaiAreas:
 class MaimaiClient:
     """The main client of maimai.py."""
 
-    default_caches._caches_provider["songs"] = LXNSProvider()
-    default_caches._caches_provider["aliases"] = YuzuProvider()
-    default_caches._caches_provider["curves"] = DivingFishProvider()
-    default_caches._caches_provider["icons"] = LXNSProvider()
-    default_caches._caches_provider["nameplates"] = LXNSProvider()
-    default_caches._caches_provider["frames"] = LXNSProvider()
-    default_caches._caches_provider["trophies"] = LocalProvider()
-    default_caches._caches_provider["charas"] = LocalProvider()
-    default_caches._caches_provider["partners"] = LocalProvider()
-
     _client: AsyncClient
     _cache: BaseCache
 
@@ -592,7 +589,6 @@ class MaimaiClient:
     async def scores(
         self,
         identifier: PlayerIdentifier,
-        kind: ScoreKind = ScoreKind.BEST,
         provider: IScoreProvider = LXNSProvider(),
     ) -> MaimaiScores:
         """Fetch player's scores from the provider.
@@ -623,15 +619,14 @@ class MaimaiClient:
         # MaimaiScores should always cache b35 and b15 scores, in ScoreKind.ALL cases, we can calc the b50 scores from all scores.
         # But there is one exception, LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
         # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-        # await MaimaiSongs._get_or_fetch(self._client)  # Cache the songs first, as we need to use it for scores' property.
-        b35, b15, all, songs = None, None, None, None
-        if kind == ScoreKind.BEST or isinstance(provider, LXNSProvider):
+        b35, b15, all = None, None, None
+
+        if isinstance(provider, LXNSProvider):
             b35, b15 = await provider.get_scores_best(identifier, self._client)
-        # For some cases, the provider doesn't support fetching b35 and b15 scores, we should fetch all scores instead.
-        if kind == ScoreKind.ALL or (b35 == None and b15 == None):
-            # songs = await MaimaiSongs._get_or_fetch(self._client)
-            all = await provider.get_scores_all(identifier, self._client)
-        return MaimaiScores(b35, b15, all, songs)
+        all = await provider.get_scores_all(identifier, self._client)
+
+        maimai_scores = MaimaiScores(self._client, self._cache)
+        return await maimai_scores.configure([*all, *(b35 or []), *(b15 or [])])
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
@@ -700,7 +695,8 @@ class MaimaiClient:
         """
         # songs = await MaimaiSongs._get_or_fetch(self._client)
         scores = await provider.get_scores_all(identifier, self._client)
-        return MaimaiPlates(scores, plate[0], plate[1:], None)
+        maimai_plates = MaimaiPlates(self._client, self._cache)
+        return await maimai_plates.configure(plate, scores)
 
     async def wechat(self, r=None, t=None, code=None, state=None) -> PlayerIdentifier | str:
         """Get the player identifier from the Wahlap Wechat OffiAccount.
@@ -761,14 +757,13 @@ class MaimaiClient:
         else:
             raise ArcadeError("Invalid QR code or QR code has expired")
 
-    async def items(self, item: Type[CachedType], flush=False, provider: IItemListProvider | _UnsetSentinel = UNSET) -> MaimaiItems[CachedType]:
+    async def items(self, item: Type[PlayerItemType], provider: IItemListProvider | _UnsetSentinel = UNSET) -> MaimaiItems[PlayerItemType]:
         """Fetch maimai player items from the cache default provider.
 
         Available items: `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`.
 
         Args:
             item: the item type to fetch, e.g. `PlayerIcon`.
-            flush: whether to flush the cache, defaults to False.
             provider: override the default item list provider, defaults to `LXNSProvider` and `LocalProvider`.
         Returns:
             A wrapper of the item list, for easier access and filtering.
@@ -776,10 +771,10 @@ class MaimaiClient:
             FileNotFoundError: The item file is not found.
             httpx.HTTPError: Request failed due to network issues.
         """
-        if provider and provider is not UNSET:
-            default_caches._caches_provider[item._cache_key()] = provider
-        items = await default_caches.get_or_fetch(item._cache_key(), self._client, flush=flush)
-        return MaimaiItems[CachedType](items)
+        if isinstance(provider, _UnsetSentinel):
+            provider = LXNSProvider() if item in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
+        maimai_items = MaimaiItems[PlayerItemType](self._client, self._cache, item.namespace())
+        return await maimai_items.configure(provider)
 
     async def areas(self, lang: Literal["ja", "zh"] = "ja", provider: IAreaProvider = LocalProvider()) -> MaimaiAreas:
         """Fetch maimai areas from the provider.
@@ -802,4 +797,4 @@ class MaimaiClient:
 
         Notice that only items ("songs", "aliases", "curves", "icons", "plates", "frames", "trophy", "chara", "partner") will be cached, this will only affect those items.
         """
-        await default_caches.flush(self._client)
+        await self._cache.clear()

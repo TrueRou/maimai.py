@@ -1,18 +1,12 @@
-import asyncio
 from dataclasses import dataclass
 from datetime import datetime
-from functools import cached_property
-from typing import Any, Callable, Generic, Iterator, Sequence, TypeVar
-from httpx import AsyncClient, Cookies
+from typing import Any, Sequence
+from httpx import Cookies
 from dogpile.cache.region import CacheRegion
-from dogpile.cache.api import NoValue
 
 from maimai_py.enums import *
-from maimai_py.caches import default_caches
-from maimai_py.exceptions import InvalidPlateError, InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
+from maimai_py.exceptions import InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
 from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
-
-default_cache: CacheRegion | None = None
 
 
 @dataclass(slots=True)
@@ -28,13 +22,6 @@ class Song:
     aliases: list[str] | None
     disabled: bool
     difficulties: "SongDifficulties"
-
-    def _get_level_indexes(self, song_type: SongType, exclude_remaster: bool = False) -> list[LevelIndex]:
-        """@private"""
-        results = [diff.level_index for diff in self.difficulties._get_children(song_type)]
-        if exclude_remaster and LevelIndex.ReMASTER in results:
-            results.remove(LevelIndex.ReMASTER)
-        return results
 
     def get_difficulty(self, type: SongType, level_index: LevelIndex | None) -> "SongDifficulty | None":
         if type == SongType.DX:
@@ -151,76 +138,76 @@ class ArcadeResponse:
 
 
 @dataclass(slots=True)
-class CachedModel:
+class PlayerItem:
     @staticmethod
-    def _cache_key() -> str:
+    def namespace() -> str:
         raise NotImplementedError
 
 
 @dataclass(slots=True)
-class PlayerTrophy(CachedModel):
+class PlayerTrophy(PlayerItem):
     id: int
     name: str
     color: str
 
     @staticmethod
-    def _cache_key():
+    def namespace():
         return "trophies"
 
 
 @dataclass(slots=True)
-class PlayerIcon(CachedModel):
+class PlayerIcon(PlayerItem):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
     @staticmethod
-    def _cache_key():
+    def namespace():
         return "icons"
 
 
 @dataclass(slots=True)
-class PlayerNamePlate(CachedModel):
+class PlayerNamePlate(PlayerItem):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
     @staticmethod
-    def _cache_key():
+    def namespace():
         return "nameplates"
 
 
 @dataclass(slots=True)
-class PlayerFrame(CachedModel):
+class PlayerFrame(PlayerItem):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
     @staticmethod
-    def _cache_key():
+    def namespace():
         return "frames"
 
 
 @dataclass(slots=True)
-class PlayerPartner(CachedModel):
+class PlayerPartner(PlayerItem):
     id: int
     name: str
 
     @staticmethod
-    def _cache_key():
+    def namespace():
         return "partners"
 
 
 @dataclass(slots=True)
-class PlayerChara(CachedModel):
+class PlayerChara(PlayerItem):
     id: int
     name: str
 
     @staticmethod
-    def _cache_key():
+    def namespace():
         return "charas"
 
 
@@ -332,20 +319,72 @@ class Score:
             return self if self_fs > other_fs else other
         return self  # we consider they are equal
 
-    # @property
-    # def song(self) -> Song | None:
-    #     songs: MaimaiSongs = default_caches._caches["msongs"]
-    #     assert songs is not None and isinstance(songs, MaimaiSongs)
-    #     return songs.by_id(self.id)
 
-    # @property
-    # def difficulty(self) -> SongDifficulty | None:
-    #     if self.song:
-    #         return self.song.get_difficulty(self.type, self.level_index)
+@dataclass(slots=True)
+class PlateScore:
+    id: int
+    level_index: LevelIndex
+    achievements: float | None
+    fc: FCType | None
+    fs: FSType | None
+    rate: RateType
+    type: SongType
+
+    @staticmethod
+    def _from_score(score: Score) -> "PlateScore":
+        return PlateScore(
+            id=score.id,
+            level_index=score.level_index,
+            achievements=score.achievements,
+            fc=score.fc,
+            fs=score.fs,
+            rate=score.rate,
+            type=score.type,
+        )
+
+    def _join(self, other: "PlateScore | None"):
+        if other is None:
+            return self
+        if self.level_index != other.level_index or self.type != other.type:
+            raise ValueError("Cannot join scores with different level indexes or types")
+        self.achievements = max(self.achievements or 0, other.achievements or 0)
+        if self.fc != other.fc:
+            self_fc = self.fc.value if self.fc is not None else 100
+            other_fc = other.fc.value if other.fc is not None else 100
+            selected_value = min(self_fc, other_fc)
+            self.fc = FCType(selected_value) if selected_value != 100 else None
+        if self.fs != other.fs:
+            self_fs = self.fs.value if self.fs is not None else -1
+            other_fs = other.fs.value if other.fs is not None else -1
+            selected_value = max(self_fs, other_fs)
+            self.fs = FSType(selected_value) if selected_value != -1 else None
+        if self.rate != other.rate:
+            selected_value = min(self.rate.value, other.rate.value)
+            self.rate = RateType(selected_value)
+
+
+@dataclass(slots=True)
+class PlateSong:
+    id: int
+    title: str
+    artist: str
+    levels: list[LevelIndex]
+
+    @staticmethod
+    def _from_song(song: Song | None, song_type: SongType, exclude_remaster: bool = False) -> "PlateSong | None":
+        if song:
+            levels = [diff.level_index for diff in song.difficulties._get_children(song_type)]
+            if exclude_remaster and LevelIndex.ReMASTER in levels:
+                levels.remove(LevelIndex.ReMASTER)
+            return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=levels)
+
+    @staticmethod
+    def _from_song_no_levels(song: Song | None) -> "PlateSong | None":
+        if song:
+            return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=[])
 
 
 @dataclass(slots=True)
 class PlateObject:
-    song: Song
-    levels: list[LevelIndex]
-    scores: list[Score]
+    song: PlateSong
+    scores: list[PlateScore]
