@@ -1,25 +1,25 @@
-# Client
+# 客户端
 
-maimai.py provides a RESTful API client that you can call using any language via HTTP requests.
+maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP请求来调用 maimai.py 的特性。
 
-The client is compiled using Nuitka. Please download it from the [Releases](https://github.com/TrueRou/maimai.py/releases) page.
+客户端使用 Nuitka 编译，请在 [Releases](https://github.com/TrueRou/maimai.py/releases) 页面下载。
 
-Our client supports Windows and Linux. Please download the appropriate version for your system.
+我们的客户端支持 Windows 和 Linux，请根据您的系统下载对应的版本。
 
-## Usage
+## 使用方式
 
-1. Download the appropriate client version.
-2. Execute the client's binary file.
-3. Wait for the client to initialize until you see `Uvicorn running on http://127.0.0.1:8000`.
-4. Use any language to call maimai.py features via HTTP requests.
+1. 下载对应的客户端版本
+2. 执行客户端的二进制文件
+3. 等待客户端初始化，直至出现 `Uvicorn running on http://127.0.0.1:8000` 字样
+4. 使用任何语言通过HTTP请求来调用 maimai.py 的特性
 
-## Documentation
+## 关于文档
 
-FastAPI provides auto-generated documentation. You can view the documentation and test features by visiting `http://127.0.0.1:8000/docs`.
+FastAPI 提供了自动生成的文档，您可以通过访问 `http://127.0.0.1:8000/docs` 来查看文档和测试功能。
 
-Additionally, we provide an online preview of the API documentation, which you can view [here](https://openapi.maimai.turou.fun/).
+另外，我们也提供了可以在线预览的API文档，您可以通过 [这里](https://openapi.maimai.turou.fun/) 查看。
 
-## Example Codes
+## 调用示例
 
 ### Java
 
@@ -34,7 +34,7 @@ public class ApiClient {
     private static final String BASE_URL = "http://127.0.0.1:8000";
 
     public static void main(String[] args) {
-        // Example: Get song list
+        // 示例：获取歌曲列表
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/songs"))
@@ -68,7 +68,7 @@ public class ApiClient
 
     public static async Task Main(string[] args)
     {
-        // Example: Get song list
+        // 示例：获取歌曲列表
         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
         HttpResponseMessage response = await client.GetAsync(baseUrl + "/songs");
@@ -81,11 +81,10 @@ public class ApiClient
 ```
 
 ### JavaScript
-
 ```javascript
 const baseUrl = 'http://127.0.0.1:8000';
 
-// Example: Get song list
+// 示例：获取歌曲列表
 async function fetchSongs() {
     const response = await fetch(`${baseUrl}/songs`, {
         method: 'GET',
@@ -108,7 +107,6 @@ fetchSongs().catch(error => {
 ```
 
 ### Go
-
 ```go
 package main
 
@@ -122,7 +120,7 @@ import (
 const baseUrl = "http://127.0.0.1:8000"
 
 func main() {
-    // Example: Get song list
+    // 示例：获取歌曲列表
     url := baseUrl + "/songs"
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
@@ -156,9 +154,9 @@ func main() {
 }
 ```
 
-## FastAPI Integration
+## FastAPI集成
 
-If you are using FastAPI, you can integrate maimai.py into your FastAPI application.
+如果您希望在自己的 FastAPI 项目中集成 maimai.py，您可以通过以下方式来导入 maimai.py 的所有路由。
 
 ```python
 from fastapi import FastAPI
@@ -168,7 +166,7 @@ app = FastAPI()
 app.include_router(maimai_router, prefix="/maimai")
 ```
 
-You can also run the built-in FastAPI server using the following command:
+您也可以使用 Uvicorn 来直接运行 maimai.py 内置的 FastAPI 服务。
 
 ```bash
 uvicorn maimai_py.api:app --port 1234 --host 0.0.0.0

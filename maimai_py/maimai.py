@@ -454,7 +454,7 @@ class MaimaiScores:
         new_scores = MaimaiScores(self._client)
         return await new_scores.configure(list(scores_unique.values()))
 
-    def by_song(
+    async def by_song(
         self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
     ) -> Iterator[Score]:
         """Get scores of the song on that type and level_index.
@@ -466,18 +466,15 @@ class MaimaiScores:
             song_type: the type of the song to get the scores by, defaults to None.
             level_index: the level index of the song to get the scores by, defaults to None.
         Returns:
-            the list of scores of the song, return an empty list if no score is found.
+            an iterator of scores of the song, return an empty iterator if no score is found.
         """
-        for score in self.scores:
-            if score.id != song_id:
-                continue
-            if song_type is not UNSET and score.type != song_type:
-                continue
-            if level_index is not UNSET and score.level_index != level_index:
-                continue
-            yield score
+        return (
+            score
+            for score in self.scores
+            if score.id == song_id and (song_type is UNSET or score.type == song_type) and (level_index is UNSET or score.level_index == level_index)
+        )
 
-    def filter(self, **kwargs) -> list[Score]:
+    async def filter(self, **kwargs) -> list[Score]:
         """Filter scores by their attributes.
 
         Make sure the attribute is of the score, and the value is of the same type. All conditions are connected by AND.

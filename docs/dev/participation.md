@@ -1,5 +1,5 @@
-# Participation
+# 参与开发
 
-maimai.py is a semi-open source project, and welcomes you to participate.
+maimai.py 是一个半开源项目，欢迎提出Issues和Pull Requests。
 
-Our GitHub repository: https://github.com/TrueRou/maimai.py
+我们的 GitHub 仓库: https://github.com/TrueRou/maimai.py

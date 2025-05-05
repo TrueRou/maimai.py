@@ -1,31 +1,29 @@
-# Getting Started
+# 开始
 
-maimai.py is a library for MaimaiCN-related development, wrapping commonly used functions and models for developers.
+maimai.py 是一个用于舞萌相关开发的工具库，封装了常用函数和模型，便于开发者调用。
 
-The key features are:
+我们的关键功能与特性:
 
-- **Universal**: Provides data models based on MaimaiJP standards, breaking the barrier of terms confusion between different data sources.
-- **Functional**: Various functions covering crawling, querying, uploading, etc. Support for songs, player information, scores, ratings, name plates, etc.
-- **Easy**: e.g. `maimai.scores(PlayerIdentifier(username=“turou”), provider=divingfish)` can get all scores of turou in divingfish.
-- **Documentated**: Provides user-friendly documentation, also provides a complete API documentation. Most of hints can be instantly accessed directly in the IDE.
-- **Advanced**: Support fetching player scores with WeChat OpenID, parse scores HTML, and upload to data source.
-- **Arcade✨**: Allows to get players' scores from the arcade via players' QR codes. In the progress, userId are powerful encrypted to keep safe.
+- **模型通用**: 提供了基于MaimaiJP标准的数据模型，打破不同数据源之间术语混乱的屏障。
+- **功能全面**: 覆盖了爬取、查询、上传等多个功能。支持曲目、玩家、分数、牌子等数据。
+- **使用简单**: 例如 `maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)`
+- **高技术力**: 支持联动微信 OpenID 获取玩家分数, 解析分数HTML, 并上传至数据源。
+- **语言无界**：我们提供了基于RESTful范式的API接口，您可以使用任何语言来调用。
+- **机台支持✨**: 支持通过玩家二维码从机台获取玩家成绩，玩家ID全程加密，强大且安全
 
-You can checkout our api docs at https://api.maimai.turou.fun/.
-
-## Installation
+## 使用方式
 
 ```bash
 pip install maimai-py
 ```
 
-To upgrade:
+升级方式:
 
 ```bash
 pip install -U maimai-py
 ```
 
-## Example
+## 示例
 
 ```python
 import asyncio
@@ -34,26 +32,20 @@ from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, Pla
 
 async def quick_start():
     maimai = MaimaiClient()
-    divingfish = DivingFishProvider(developer_token="")
+    divingfish = DivingFishProvider(developer_token="your_token_here")
 
-    # fetch all songs and their metadata
+    # 获取所有歌曲及其元数据
     songs: MaimaiSongs = await maimai.songs()
-    # fetch divingfish user turou's scores (b50 scores by default)
+    # 获取水鱼查分器用户 turou 的分数
     scores: MaimaiScores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
-    # fetch divingfish user turou's 舞将 plate information
+    # 获取水鱼查分器用户 turou 的舞将牌子信息
     plates: MaimaiPlates = await maimai.plates(PlayerIdentifier(username="turou"), "舞将", provider=divingfish)
 
-    song = songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
+    song = await songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
 
-    print(f"Song 1231: {song.artist} - {song.title}")
-    print(f"TuRou's rating: {scores.rating}, b15 top rating: {scores.scores_b15[0].dx_rating}")
-    print(f"TuRou's 舞将: {plates.cleared_num}/{plates.all_num} cleared")
+    print(f"歌曲 1231 是: {song.artist} - {song.title}")
+    print(f"TuRou 的 Rating 为: {scores.rating}, b15 中最高 Rating 为: {scores.scores_b15[0].dx_rating}")
+    print(f"TuRou 的 舞将 完成度: {await plates.count_cleared()}/{await plates.count_all()}")
 
 asyncio.run(quick_start())
 ```
-
-## Async
-
-maimai.py is fully asynchronous by default, and there are no plans to provide synchronous methods.
-
-If you don't want to be asynchronous, you can use the `asyncio.run` wrapper to call asynchronous methods synchronously.

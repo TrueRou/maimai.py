@@ -1,30 +1,30 @@
 # ArcadeProvider
 
-Get the player userId from the maimai arcade via the player QR code, and then get the score information.
+从舞萌机台的接口通过玩家二维码获取玩家userId，进而获取分数信息
 
-Implementation: IPlayerProvider, IScoreProvider
+实现：IPlayerProvider, IScoreProvider
 
-Source: WahlapAimeServer, WahlapTitleServer
+源站：WahlapAimeServer、WahlapTitleServer
 
 PyPi: https://pypi.org/project/maimai-ffi
 
-## About open source
+## 关于开源
 
-This part of `maimai.py` is not open source, we only distribute the compiled binary package on PyPi.
+这部分的 `maimai.py` 是不开源的，我们仅在PyPi上分发编译后的二进制包。
 
-If you are using a device or architecture that is not supported, please contact us or open Issues on Github and we will try to resolve your issue as soon as possible.
+如果你使用的设备或者架构不受支持，请联系我们或者在Github上开Issues，我们将尽快解决您的问题。
 
-## About security
+## 关于安全性
 
-It's not safe to make userId available to developers, and we want the userId to be used internally only.
+将userId贸然提供给开发者进行保存是不安全的，我们希望 maimai.py 解析出的userId仅能在内部使用。
 
-We encrypt the player's userId with AES encryption, and decrypt it when calling the method, to keep the player's userId as secure as possible.
+我们对玩家的userId进行了AES加密，在调用方法时进行解密，尽可能保证了玩家userId的安全。
 
-For more security suggestions, please contact us, we are committed to keeping player data safe and dedicated to maintaining the security of the maimai arcade servers.
+有更多安全性建议可以联系我们，我们致力于保证玩家数据的安全，致力于维护舞萌机台服务器的安全。
 
-# About proxy
+# 关于代理
 
-Due to the network environment, some users may need to use a proxy to access the maimai arcade server. We provide a http_proxy parameter in the constructor to support the use of a proxy.
+由于网络环境的原因，一些用户可能需要使用代理来访问舞萌机台服务器。我们在构造函数中提供了一个 http_proxy 参数来支持代理的使用。
 
 ```python
 from maimai import ArcadeProvider
@@ -32,11 +32,11 @@ from maimai import ArcadeProvider
 provider = ArcadeProvider(http_proxy="http://127.0.0.1:7890")
 ```
 
-## Disclaimer
+## 免责声明
 
-Risk Notice:
-This service needs to be connected to Wahlap AIME and title servers, and the default communication protocols and related obfuscation principles are derived from the Github open source repository, the developer has not used to analyze any game files. The Service may contain unknown logic errors, which may lead to potential risks such as data loss, system crash, etc. It is up to the user to decide whether to download and use the Service.
+风险告知：
+本服务需要连接至华立科技AIME和标题服务器，且默认的通讯协议及相关混淆原理均来源于Github开源仓库，开发者未使用软件逆向等数据和工具对任何游戏文件进行分析。本服务可能存在未知的逻辑错误，可能会导致潜在的风险如数据丢失、系统崩溃等，由用户自行决定是否下载、使用本服务。
 
-The service itself does not provide any intrusion, modification, capture other applications memory and network data, only the integration of major open-source projects to provide services for the user to choose, to facilitate the use of security analysts, to reduce the user's repetitive labor as well as management costs. Users can only use this service for formal learning and research or legally authorized application analysis, testing and other behavior, if the user in the process of using the software service against the above principles of loss to a third party, all the responsibility borne by the user.
+本服务本身不提供任何侵入、修改、抓取其他应用内存及网络数据的功能，仅整合了各大开源项目提供的服务供用户自行选择，方便安全分析人员使用，减少用户的重复性劳动以及管理成本。用户只可使用本服务进行正规的学习研究或是经过合法授权的应用分析、测试等行为，若用户在使用该软件服务的过程中违背以上原则对第三方造成损失，一切责任由该用户自行承担。
 
-Any organization or individual due to download and use of this service for any accident, negligence, contract damage, defamation, copyright or intellectual property infringement and its resulting losses (including but not limited to direct, indirect, incidental or consequential damages, etc.), the developer does not assume any legal responsibility. You may use the Service for commercial purposes, but only to extend the functionality or develop products through the features, interfaces or related services provided by the Service. You agree not to use the Service and its related services or interfaces for any purpose that violates local laws and regulations, or to engage in conduct that is detrimental to the interests of others.
+任何单位或个人因下载使用本服务而产生的任何意外、疏忽、合约毁坏、诽谤、版权或知识产权侵犯及其造成的损失 (包括但不限于直接、间接、附带或衍生的损失等)，开发者不承担任何法律责任。您可以将本服务用于商业用途，但仅限于通过本服务提供的功能、接口或相关服务进行衍生功能扩展或产品开发。您同意，不得将本服务及其相关服务或接口用于任何违反当地法律法规，或从事损害他人利益的行为。

@@ -1,65 +1,65 @@
-# Caching Strategy
+# 缓存策略
 
-## Caching Strategy
+## 缓存策略
 
-In the current version of maimai.py, there are a total of 9 types of data that are cached, as shown in the table below.
+在当前版本的 maimai.py 中，共有 9 类数据会被缓存，如下表所示。
 
-| Parameter Name | Caching Scenario                                             | Default Cache Data Source |
-|----------------|--------------------------------------------------------------|---------------------------|
-| `songs`        | Fetching songs or depends on songs when fetching scores      | `LXNSProvider`            |
-| `aliases`      | Fetching songs or depends on songs when fetching scores      | `YuzuProvider`            |
-| `curves`       | Fetching songs or depends on songs when fetching scores      | `DivingFishProvider`      |
-| `icons`        | Fetching icons or depends on songs when fetching scores      | `LXNSProvider`            |
-| `nameplates`   | Fetching nameplates or depends on songs when fetching scores | `LXNSProvider`            |
-| `frames`       | Fetching frames or depends on songs when fetching scores     | `LXNSProvider`            |
-| `trophies`     | Fetching trophies or depends on songs when fetching scores   | `LocalProvider`           |
-| `charas`       | Fetching characters or depends on songs when fetching scores | `LocalProvider`           |
-| `partners`     | Fetching partners or depends on songs when fetching scores   | `LocalProvider`           |
+| 参数名       | 说明     | 缓存场景                                 | 默认缓存数据源       |
+|--------------|--------|--------------------------------------|----------------------|
+| `songs`      | 曲目     | 获取曲目列表或获取分数时依赖曲目信息     | `LXNSProvider`       |
+| `aliases`    | 曲目别名 | 获取曲目列表或获取分数时依赖曲目信息     | `YuzuProvider`       |
+| `curves`     | 曲目拟合 | 获取曲目列表或获取分数时依赖曲目信息     | `DivingFishProvider` |
+| `icons`      | 头像     | 获取头像列表或获取分数时依赖头像         | `LXNSProvider`       |
+| `nameplates` | 姓名框   | 获取姓名框列表或获取分数时依赖姓名框     | `LXNSProvider`       |
+| `frames`     | 背景     | 获取背景列表或获取分数时依赖背景         | `LXNSProvider`       |
+| `trophies`   | 称号     | 获取称号列表或获取分数时依赖称号         | `LocalProvider`      |
+| `charas`     | 旅行伙伴 | 获取旅行伙伴列表或获取分数时依赖旅行伙伴 | `LocalProvider`      |
+| `partners`   | 搭档     | 获取搭档列表或获取分数时依赖搭档         | `LocalProvider`      |
 
-When encountering a caching scenario, it will first check if the cache exists. If it does, it will return the cached data directly; otherwise, it will request data from the data source and cache it.
+当遇到缓存场景时，会先检查缓存是否存在，如果存在则直接返回缓存数据，否则会向数据源请求数据并缓存。
 
-It should be noted that when overriding the default data source, the cache will be REFRESHED using the data source you specified, replacing the default data source.
+需要注意的是，当对默认数据源进行覆写时，会使用您主动指定的数据源刷新缓存，同时替换默认数据源。
 
-Therefore, you can manually specify the data source and cache the data in advance by actively calling methods, for example:
+因此，您可以通过主动调用方法来手动指定数据源，并且提前将数据进行缓存，例如：
 
 ```python
-# First time fetching scores, passively caching song information, using the default cache data source (LXNSProvider, YuzuProvider, DivingFishProvider)
+# 第一次获取分数，被动缓存曲目信息，选用默认缓存数据源(LXNSProvider, YuzuProvider, DivingFishProvider)
 my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
-# Fetch scores again, since the song information is already cached, it will not request the song information again
+# 再获取一次分数，因为曲目信息已经被缓存，所以不会再次请求曲目信息
 my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
-# Manually fetch song information, since the Provider is overwritten, it will actively refresh the cache, using the data source (DivingFishProvider, YuzuProvider, DivingFishProvider)
+# 手动获取曲目信息，因为覆写了Provider，将进行主动缓存刷新，选用数据源(DivingFishProvider, YuzuProvider, DivingFishProvider)
 songs = await maimai.songs(provider=DivingFishProvider())
-# Fetch scores again, since the song information is already cached, it will not request the song information again
+# 再获取一次分数，因为曲目信息已经被缓存，所以不会再次请求曲目信息
 my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
-# Of course, you can also force refresh the cache by providing the flush parameter
-# Since the default data source has been overwritten, it will use the data source (DivingFishProvider, YuzuProvider, DivingFishProvider)
+# 当然，你也可以通过提供 flush 参数来强制刷新缓存
+# 因为默认数据源已经被覆写，将选用数据源(DivingFishProvider, YuzuProvider, DivingFishProvider)
 songs = await maimai.songs(flush=True)
 ```
 
-## Cache Refresh
+## 缓存刷新
 
-maimai.py does not automatically refresh the cache. The first method of refreshing has been mentioned above, which is to force refresh the cache by specifying the flush parameter.
+maimai.py 不会自动刷新缓存，第一种刷新的方法上文已经提到，即通过指定 flush 参数来强制刷新缓存。
 
 ```python
 songs = await maimai.songs()
-await asyncio.sleep(86400) # Simulate one day later
+await asyncio.sleep(86400) # 模拟一天后
 songs = await maimai.songs(flush=True)
 ```
 
-For multiple types of data, calling methods one by one is cumbersome, so maimai.py provides the `flush` method to refresh all cached data.
+对于多种类型的数据，逐一调用方法是很麻烦的，因此 maimai.py 提供了 `flush` 方法来刷新所有缓存数据。
 
 ```python
 songs = await maimai.songs()
 nameplates = await maimai.items(PlayerNameplates)()
-await asyncio.sleep(86400) # Simulate one day later
-await maimai.flush() # Refresh all cached data
+await asyncio.sleep(86400) # 模拟一天后
+await maimai.flush() # 刷新所有缓存数据
 ```
 
-## Performance Recommendations
+## 性能建议
 
-You do not need to frequently refresh the cache. Generally, it is sufficient to refresh the cache at a fixed time each day.
+您没有必要频繁刷新缓存，通常来说，只需要在每天的固定时间刷新一下缓存即可。
 
-If you are developing a web application, we recommend using maimai.py in a way similar to the following:
+如果您正在开发Web应用，我们建议您用类似下面的方式来使用 maimai.py：
 
 ```python
 from fastapi import FastAPI
@@ -72,13 +72,13 @@ maimai = MaimaiClient()
 @app.on_event("startup")
 async def startup_event():
     maimai_songs = await maimai.songs()
-    my_scheduler = asyncio.create_task(daily_flush()) # Call flush at a fixed time each day
+    my_scheduler = asyncio.create_task(daily_flush()) # 在每天固定时间调用 flush
 
 @app.get("/songs/list", response_model=list[Song])
 async def get_songs():
-    return await maimai.songs() # This will fetch data from the cache, avoiding additional requests
+    return await maimai.songs() # 这里会从缓存中获取数据，不会造成额外的请求
 ```
 
 ::: info
-For more information on web applications, please refer to our built-in web implementation [api.py](https://github.com/TrueRou/maimai.py/blob/main/maimai_py/api.py)
+关于 Web 应用的更多信息，请参考我们的内置 Web 实现 [api.py](https://github.com/TrueRou/maimai.py/blob/main/maimai_py/api.py)
 :::

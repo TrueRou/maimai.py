@@ -1,12 +1,12 @@
-# Core Concepts
+# 核心概念
 
-In maimai.py, we have defined how functions and methods are called in a more common way.
+在 maimai.py 中，我们使用了一种较为规范的方式定义了方法和接口的调用方式。
 
-Similar to the `RESTful` specification, if you understand our specification, you can develop in an intuitive way without having to read too much documentation and APIs.
+与 `RESTful` 规范类似，如果您能理解我们的规范，便可以直接使用符合直觉的方式进行开发，而不必过多阅读文档和API。
 
-## Asynchronous
+## 异步
 
-In maimai.py, all methods and interfaces need to be called **asynchronously** through `MaimaiClient`, as shown below.
+在 maimai.py 中，所有方法和接口都需要通过 `MaimaiClient` 进行**异步**的调用，类似下面的形式。
 
 ```python
 from maimai_py.maimai import MaimaiClient, MaimaiSongs
@@ -15,33 +15,33 @@ client: MaimaiClient = MaimaiClient()
 songs: MaimaiSongs = await client.songs()
 ```
 
-For IO-intensive applications, asynchronous calls can provide significant development advantages by avoiding blocking without affecting readability. **maimai.py only supports asynchronous calls**.
+针对密集IO类应用，异步可以提供较大的开发优势，在不影响可读性的情况下避免阻塞，**maimai.py仅支持异步**。
 
-We do not currently have plans to provide synchronous calls. If you encounter any difficulties, please contact us, and we will do our best to assist you.
+我们尚未有提供同步调度的开发计划，如果您有使用上的困难，请联系我们，我们将尽可能为您提供帮助。
 
 ::: tip
-You can share a `MaimaiClient` instance throughout the application or create a new instance for each request.
+您可以在整个应用程序中共用 `MaimaiClient` 实例，也可以在每次请求中创建新的实例。
 :::
 
-## Encapsulate
+## 封装对象
 
-The previously mentioned `MaimaiSongs` is an encapsulated object. Compared to directly returning `list[Song]`, encapsulated objects provide some convenient methods.
+上文提到过的 `MaimaiSongs` 是一个封装对象，与直接返回 `list[Song]` 相比，封装对象为您提供了一些方便的方法。
 
-For example, you can directly call methods like `songs.by_title()` for filtering. If needed, you can access the original list through `songs.songs`.
+例如，您可以直接调用 `songs.by_title()` 等方法直接进行筛选，如果需要，您也可以通过 `songs.songs` 访问原始列表。
 
-We have encapsulated most data (`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`), and readers can explore the predefined methods.
+我们针对大多数数据都进行了封装（`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`），读者可以自行查看预置的方法。
 
-Due to the flexibility of encapsulated objects, we have designed a caching mechanism based on them to avoid multiple requests for chart information and other data. For details on the caching mechanism and cache refresh, please refer to the [Caching Strategy](./caches.md) section.
+由于封装对象的灵活性，我们设计了基于封装对象的缓存机制，从而避免多次请求谱面信息等数据。关于缓存机制与缓存刷新等内容，请查阅 [缓存策略](./caches.md) 章节。
 
-## Data Provider
+## 数据源
 
-In maimai.py, we introduced the concept of data provider, which enables a common way of fetching or uploading data from multiple sources.
+在 maimai.py 中，我们引入了数据源的概念，进而支持了以通用的方式从多个位置获取或者上传数据。
 
 ::: info
-As of now, we have supported data providers such as divingfish, LXNS, WeChat OffiAccount, and Maimai Arcade, which support submitting data to divingfish and LXNS.
+截止目前，我们已经支持水鱼、落雪、微信服务号、舞萌机台等数据源，支持向水鱼和落雪提交数据。
 :::
 
-You can use the `provider` parameter when calling a method to indicate where to get the data from, for example:
+您可以在调用方法时用 `provider` 参数，来指示从何处获取数据，例如：
 
 ```python
 from maimai_py.maimai import MaimaiClient
@@ -50,33 +50,35 @@ client = MaimaiClient()
 lxns = LXNSProvider(developer_token="your_lxns_developer_token")
 divingfish = DivingFishProvider()
 
+# 使用落雪作为数据源
 player_lxns = await maimai.players(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
-player_diving = await maimai.players(PlayerIdentifier(username=“turou”), provider=divingfish)
+# 使用水鱼作为数据源
+player_diving = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish)
 ```
 
-We recommend that you use a global variable to store the instance of the provider so that you only need to provide the `developer_token` once.
+我们推荐您使用全局变量来储存数据源实例，这样只需要提供一次 `developer_token` 就可以了。
 
-## Player Identifier
+## 玩家标识
 
-When fetching or uploading player information, it is often necessary to identify the player. We use an instance of ``PlayerIdentifier`` as the identifier.
+在获取或上传玩家信息时，往往需要标识玩家的身份，我们使用 `PlayerIdentifier` 实例来作为标识符。
 
-The `PlayerIdentifier` is a generic concept, you need to pass in the appropriate value depending on the use case, for example:
+`PlayerIdentifier` 是一个通用的概念，您需要根据使用场景传入合适的值，例如：
 
-- LXNS doesn't have the concept of `username`, so passing in `username` will throw an exception when using LXNS as a provider.
-- To upload scores to divingfish with username and password: `PlayerIdentitifer(username=“Username”, credentials=“Password”)`.
-- Use Import-Token when uploading scores to divingfish: `PlayerIdentitifer(credentials=“Import-Token”)`.
-- When using arcade as a provider, `credentials` is the player's encrypted userId.
+- 落雪没有 `username` 这个概念，所以在使用落雪作为数据源时，传入 `username` 会抛出异常。
+- 上传分数到水鱼时使用用户名和密码：`PlayerIdentitifer(username="Username", credentials="Password")`。
+- 上传分数到水鱼时使用Import-Token：`PlayerIdentitifer(credentials="Import-Token")`。
+- 使用机台作为数据源时，`credentials` 就是玩家加密后的userId，您可以保存并复用。
 
-## Song ID
+## 曲目ID
 
-In our system, the same song's SD, DX, and UTAGE charts share the same Song ID. There are no Song IDs greater than 10000 (if any exist, they will be processed with modulo 10000 OR 100000).
+在本查分器中，同一首曲目的标准、DX 谱面、宴会谱面的 曲目ID 一致，不存在大于 10000 的 曲目ID（如有，均会对 10000 / 100000 取余处理）。
 
-For example, the Song ID for Oshama Scramble!'s Standard, DX, and UTAGE charts is 363.
+例如，Oshama Scramble! 的标准、DX、宴会谱面的 曲目ID 均为 363。
 
-## Next
+## 下一步
 
-At this point, you have learned all the core concepts of maimai.py.
+至此，您已经了解了 maimai.py 的全部核心概念。
 
-- You are now capable of developing a maimai-related project based on maimai.py and are ready to start the journey.
-- If you want to learn more about our features in detail, you can continue reading the documentation.
-- For experienced developers, you can also [read the API documentation](https://api.maimai.turou.fun/maimai_py).
+- 您已经具备了基于 maimai.py 开发舞萌相关项目的能力，可以开始旅程了。
+- 如果想要更进一步详细了解我们的功能，可以继续阅读文档。
+- 对于有经验的开发者，也可以直接[阅读API文档](https://api.maimai.turou.fun/maimai_py)。
