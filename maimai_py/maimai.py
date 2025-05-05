@@ -532,6 +532,7 @@ class MaimaiAreas:
         self._client = client
 
     async def _configure(self, lang: str, provider: IAreaProvider) -> "MaimaiAreas":
+        self._lang = lang
         if hash(provider) != await self._client._cache.get("provider", "", namespace=f"areas_{lang}"):
             areas = await provider.get_areas(lang, self._client)
             await self._client._cache.set("ids", [area.id for area in areas.values()], namespace=f"areas_{lang}")
