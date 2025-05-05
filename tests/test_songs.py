@@ -1,8 +1,6 @@
-import time
 import pytest
 
 from maimai_py.maimai import MaimaiClient
-from maimai_py.models import Song
 from maimai_py.providers import LXNSProvider
 from maimai_py.providers.divingfish import DivingFishProvider
 
