@@ -1,6 +1,6 @@
 # DivingFishProvider
 
-实现：ISongProvider, IPlayerProvider, IScoreProvider
+实现：ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider
 
 源站：https://www.diving-fish.com/maimaidx/prober/
 
@@ -11,10 +11,6 @@
 ## 关于开发者Token
 
 申请开发者Token：登录 - 编辑个人资料 - 点击 “这里” 按钮 - 申请新Token
-
-水鱼的开发者Token仅在以下场景是必须提供的：
-
-- 获取玩家的所有成绩 (ScoreKind.ALL)
 
 ## 关于相对难度曲线数据源
 

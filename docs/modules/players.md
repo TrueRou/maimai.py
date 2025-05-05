@@ -15,7 +15,9 @@
 
 ### 返回值
 
-`DivingFishPlayer` 或 `LXNSPlayer` 或 `ArcadePlayer` 对象
+`Player` 对象
+
+可强转为 `DivingFishPlayer` 或 `LXNSPlayer` 或 `ArcadePlayer` 对象
 
 ### 异常
 
@@ -87,3 +89,9 @@
 |--------------------|-------------------------------------------------|
 | `AimeServerError`  | 舞萌Aime服务器错误，可能是无效二维码或二维码已过期 |
 | `TitleServerError` | 舞萌标题服务器的相关错误，可能是网络问题           |
+
+## API 文档
+
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.players
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.wechat
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.qrcode

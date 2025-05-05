@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Sequence
 from httpx import Cookies
-from dogpile.cache.region import CacheRegion
 
 from maimai_py.enums import *
 from maimai_py.exceptions import InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
@@ -140,7 +139,7 @@ class ArcadeResponse:
 @dataclass(slots=True)
 class PlayerItem:
     @staticmethod
-    def namespace() -> str:
+    def _namespace() -> str:
         raise NotImplementedError
 
 
@@ -151,7 +150,7 @@ class PlayerTrophy(PlayerItem):
     color: str
 
     @staticmethod
-    def namespace():
+    def _namespace():
         return "trophies"
 
 
@@ -163,7 +162,7 @@ class PlayerIcon(PlayerItem):
     genre: str | None = None
 
     @staticmethod
-    def namespace():
+    def _namespace():
         return "icons"
 
 
@@ -175,7 +174,7 @@ class PlayerNamePlate(PlayerItem):
     genre: str | None = None
 
     @staticmethod
-    def namespace():
+    def _namespace():
         return "nameplates"
 
 
@@ -187,7 +186,7 @@ class PlayerFrame(PlayerItem):
     genre: str | None = None
 
     @staticmethod
-    def namespace():
+    def _namespace():
         return "frames"
 
 
@@ -197,7 +196,7 @@ class PlayerPartner(PlayerItem):
     name: str
 
     @staticmethod
-    def namespace():
+    def _namespace():
         return "partners"
 
 
@@ -207,7 +206,7 @@ class PlayerChara(PlayerItem):
     name: str
 
     @staticmethod
-    def namespace():
+    def _namespace():
         return "charas"
 
 

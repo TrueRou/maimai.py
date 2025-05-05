@@ -31,33 +31,20 @@ my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), p
 songs = await maimai.songs(provider=DivingFishProvider())
 # 再获取一次分数，因为曲目信息已经被缓存，所以不会再次请求曲目信息
 my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
-# 当然，你也可以通过提供 flush 参数来强制刷新缓存
-# 因为默认数据源已经被覆写，将选用数据源(DivingFishProvider, YuzuProvider, DivingFishProvider)
-songs = await maimai.songs(flush=True)
+# 再获取一次曲目信息，因为曲目信息已经被缓存，所以不会再次请求曲目信息
+songs = await maimai.songs()
 ```
 
 ## 缓存刷新
 
-maimai.py 不会自动刷新缓存，第一种刷新的方法上文已经提到，即通过指定 flush 参数来强制刷新缓存。
+maimai.py 的缓存遵循生存周期，默认的生存周期为24小时，您可以通过 `MaimaiClient` 的 `cache_ttl` 参数来设置缓存的生存周期。
 
-```python
-songs = await maimai.songs()
-await asyncio.sleep(86400) # 模拟一天后
-songs = await maimai.songs(flush=True)
-```
+如果您需要手动刷新缓存，可以通过获取 `MaimaiClient` 的 `_cache` 属性来获取缓存对象，并调用 `clear` 方法来清除缓存。
 
-对于多种类型的数据，逐一调用方法是很麻烦的，因此 maimai.py 提供了 `flush` 方法来刷新所有缓存数据。
+然而，我们不推荐您主动调用 `clear` 方法，如果您在开发Web应用，这可能会导致没有关闭的连接无法找到缓存资源。
 
-```python
-songs = await maimai.songs()
-nameplates = await maimai.items(PlayerNameplates)()
-await asyncio.sleep(86400) # 模拟一天后
-await maimai.flush() # 刷新所有缓存数据
-```
 
 ## 性能建议
-
-您没有必要频繁刷新缓存，通常来说，只需要在每天的固定时间刷新一下缓存即可。
 
 如果您正在开发Web应用，我们建议您用类似下面的方式来使用 maimai.py：
 
@@ -69,15 +56,12 @@ from maimai import MaimaiClient, DivingFishProvider
 app = FastAPI()
 maimai = MaimaiClient()
 
-@app.on_event("startup")
-async def startup_event():
-    maimai_songs = await maimai.songs()
-    my_scheduler = asyncio.create_task(daily_flush()) # 在每天固定时间调用 flush
-
 @app.get("/songs/list", response_model=list[Song])
 async def get_songs():
-    return await maimai.songs() # 这里会从缓存中获取数据，不会造成额外的请求
+    return await maimai.songs() # 这里会从缓存中按需加载数据，不会造成额外的请求和性能损失
 ```
+
+创建 `MaimaiSongs` 不会引入额外的性能损失，因为所有的曲目信息都已经被缓存，并且只有在需要的时候才会被加载。
 
 ::: info
 关于 Web 应用的更多信息，请参考我们的内置 Web 实现 [api.py](https://github.com/TrueRou/maimai.py/blob/main/maimai_py/api.py)

@@ -69,8 +69,6 @@
 | `rate_sample_size`   | `dict[RateType, int]` | 不同 `RateType` 样本数量 |
 | `fc_sample_size`     | `dict[FCType, int]`   | 不同 `FCType` 样本数量   |
 
-
-
 ## PlayerIdentifier
 
 | 字段          | 类型                     | 说明     |
@@ -134,13 +132,13 @@
 | 额外字段      | 类型                      | 说明                    |
 |---------------|---------------------------|-----------------------|
 | `friend_code` | `int`                     | 玩家好友码              |
-| `trophy`      | `PlayerTrophy`            | 玩家称号                |
 | `course_rank` | `int`                     | 段位 ID                 |
 | `class_rank`  | `int`                     | 阶级 ID                 |
 | `star`        | `int`                     | 搭档觉醒数              |
-| `icon`        | `PlayerIcon \| None`      | 头像                    |
-| `name_plate`  | `PlayerNamePlate \| None` | 姓名框                  |
 | `frame`       | `PlayerFrame \| None`     | 背景                    |
+| `icon`        | `PlayerIcon \| None`      | 头像                    |
+| `trophy`      | `PlayerTrophy`            | 玩家称号                |
+| `name_plate`  | `PlayerNamePlate \| None` | 姓名框                  |
 | `upload_time` | `str`                     | 玩家被同步时的 UTC 时间 |
 
 ## ArcadePlayer
@@ -159,7 +157,6 @@
 | 字段           | 类型             | 说明              |
 |----------------|------------------|-------------------|
 | `id`           | `int`            | 曲目ID            |
-| `song_name`    | `str`            | 曲名              |
 | `level`        | `str`            | 难度标级，如 `14+` |
 | `level_index`  | `LevelIndex`     | 难度索引          |
 | `achievements` | `float \| None`  | 达成率            |
@@ -172,13 +169,33 @@
 | `song`         | `Song`           | 对应曲目对象      |
 | `difficulty`   | `SongDifficulty` | 对应难度对象      |
 
+## PlateSong
+
+| 字段     | 类型               | 说明             |
+|----------|--------------------|----------------|
+| `id`     | `int`              | 曲目ID           |
+| `title`  | `str`              | 曲名             |
+| `artist` | `str`              | 艺术家           |
+| `levels` | `list[LevelIndex]` | 关联难度索引列表 |
+
+## PlateScore
+
+| 字段           | 类型             | 说明            |
+|----------------|------------------|---------------|
+| `id`           | `int`            | 曲目ID          |
+| `level_index`  | `LevelIndex`     | 难度索引        |
+| `achievements` | `float \| None`  | 达成率          |
+| `fc`           | `FCType \| None` | FULL COMBO 类型 |
+| `fs`           | `FSType \| None` | FULL SYNC 类型  |
+| `rate`         | `RateType`       | 评级类型        |
+| `type`         | `SongType`       | 谱面类型        |
+
 ## PlateObject
 
-| 字段     | 类型                  | 说明         |
-|----------|-----------------------|------------|
-| `song`   | `Song`                | 歌曲         |
-| `levels` | `list[LevelIndex]`    | 难度索引列表 |
-| `scores` | `list[Score] \| None` | 成绩列表     |
+| 字段     | 类型               | 说明     |
+|----------|--------------------|--------|
+| `song`   | `PlateSong`        | 歌曲     |
+| `scores` | `list[PlateScore]` | 成绩列表 |
 
 ## PlayerRegion
 
@@ -222,3 +239,7 @@
 | `video_id`    | `str`                 | 区域Youtube视频ID |
 | `characters`  | `list[AreaCharacter]` | 角色列表          |
 | `songs`       | `list[AreaSong]`      | 曲目列表          |
+
+## API 文档
+
+- https://api.maimai.turou.fun/maimai_py/models

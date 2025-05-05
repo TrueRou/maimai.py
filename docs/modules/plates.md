@@ -30,17 +30,6 @@
 
 ## MaimaiPlates 对象
 
-### 属性
-
-| 字段      | 类型          | 说明                         |
-|-----------|---------------|----------------------------|
-| `scores`  | `list[Score]` | 与当前牌子名称相关的所有成绩 |
-| `songs`   | `list[Song]`  | 与当前牌子名称相关的所有歌曲 |
-| `version` | `str`         | 牌子的版本，例如 "真", "舞"   |
-| `kind`    | `str`         | 牌子的种类，例如 "将", "神"   |
-
-### 方法
-
 ```python
 @cached_property
 def no_remaster(self) -> bool:
@@ -49,58 +38,80 @@ def no_remaster(self) -> bool:
     只有 舞 和 霸 牌子需要游玩 ReMASTER 难度。
     """
 
-@cached_property
-def remained(self) -> list[PlateObject]:
+async def get_remained(self) -> list[PlateObject]:
     """获取玩家在该牌子上剩余的歌曲和成绩。
 
     如果玩家在某歌曲上还有剩余的难度未完成，那么这首歌曲和剩余难度的 `level_index` 将被包含在结果中。
 
     如果玩家有成绩，未达成要求的成绩将被包含在结果中，已经达到要求的成绩则不会包含进来。
+
+    返回值:
+        包含歌曲和成绩的 `PlateObject` 列表。
     """
 
-@cached_property
-def cleared(self) -> list[PlateObject]:
+async def get_cleared(self) -> list[PlateObject]:
     """获取玩家在该牌子上已达成的歌曲和成绩。
 
     如果玩家在某歌曲上有一个或多个难度满足要求，那么这首歌曲和已完成难度的 `level_index` 将被包含在结果中，否则不会。
 
     如果玩家有成绩，已经达到要求的成绩将被包含在结果中，未达到要求的成绩则不会包含进来。
+
+    返回值:
+        包含歌曲和成绩的 `PlateObject` 列表。
     """
 
-@cached_property
-def played(self) -> list[PlateObject]:
+async def get_played(self) -> list[PlateObject]:
     """获取玩家在该牌子上游玩过的歌曲和成绩。
 
     如果玩家曾经玩过一首歌曲的任何难度，无论是否满足要求，那么这首歌曲和玩过的 `level_index` 将被包含在结果中。
 
     所有的成绩都将被包含在结果中。
+
+    返回值:
+        包含歌曲和成绩的 `PlateObject` 列表。
     """
 
-@cached_property
-def all(self) -> list[PlateObject]:
+async def get_all(self) -> list[PlateObject]:
     """获取该牌子上的所有歌曲，通常用于查询牌子信息。
 
     所有相关的歌曲都将被包含在结果中，包含所有难度。
 
     结果中不会包含成绩，请使用 `played`, `cleared`, `remained` 属性来获取玩家成绩。
+
+    返回值:
+        包含歌曲和成绩的 `PlateObject` 列表。
     """
 
-@cached_property
-def played_num(self) -> int:
-    """获取该牌子上已玩难度的数量。"""
+async def count_played(self) -> int:
+    """获取该牌子上已玩难度的数量。
 
-@cached_property
-def cleared_num(self) -> int:
-    """获取该牌子上已达成难度的数量。"""
+    返回值:
+        已玩难度的数量。
+    """
 
-@cached_property
-def remained_num(self) -> int:
-    """获取该牌子上剩余难度的数量。"""
+async def count_cleared(self) -> int:
+    """获取该牌子上已达成难度的数量。
+    
+    返回值:
+        已达成难度的数量。
+    """
 
-@cached_property
-def all_num(self) -> int:
+async def count_remained(self) -> int:
+    """获取该牌子上剩余难度的数量。
+    
+    返回值:
+        剩余难度的数量。
+    """
+
+async def count_all(self) -> int:
     """获取该牌子上所有难度的数量。
-
-    这个牌子上所有难度的总数，应该等于 `cleared_num + remained_num`。
+    
+    返回值:
+        所有难度的数量。
     """
 ```
+
+## API 文档
+
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.plates
+- https://api.maimai.turou.fun/maimai_py/maimai#MaimaiPlates

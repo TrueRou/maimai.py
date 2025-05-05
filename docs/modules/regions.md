@@ -23,3 +23,7 @@
 |--------------------|-----------------------------------------|
 | `TitleServerError` | 舞萌标题服务器的相关错误，可能是网络问题   |
 | `ArcadeError`      | 舞萌 Response 非法，或者提供的玩家标识有误 |
+
+## API 文档
+
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.regions

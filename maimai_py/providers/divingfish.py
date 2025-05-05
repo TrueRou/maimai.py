@@ -1,6 +1,6 @@
 import dataclasses
+from httpx import Response
 from typing import TYPE_CHECKING, Generator
-from httpx import AsyncClient, Response
 
 from maimai_py.enums import *
 from maimai_py.models import *

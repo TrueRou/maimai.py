@@ -23,8 +23,7 @@ async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfi
     assert song4 is not None
     assert song4.title == song1.title
 
-    song5 = await songs.by_keywords("超天酱")
-    assert any(song.id == 1568 for song in song5)
+    assert any([song.id == 1568 async for song in songs.by_keywords("超天酱")])
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@
 
 从数据源获取玩家的成绩。
 
-对于 `WechatProvider` 和 `ArcadeProvider`，玩家标识必须具有 `credentials` 属性。具体做法可以阅读对应数据源的文档。
+对于 `WechatProvider` 和 `ArcadeProvider`，玩家标识必须具有 `credentials` 属性。具体可以阅读对应数据源的文档。
 
 **支持的数据源**：`DivingFishProvider`、`WechatProvider`、`ArcadeProvider`、`LXNSProvider`
 
@@ -13,7 +13,6 @@
 | 参数名     | 类型               | 说明                                                          |
 |------------|--------------------|-------------------------------------------------------------|
 | identifier | `PlayerIdentifier` | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
-| kind       | `ScoreKind`        | 分数列表类型，默认为 `ScoreKind.BEST`                          |
 | provider   | `IScoreProvider`   | 数据源，默认为 `LXNSProvider`                                  |
 
 ### 返回值
@@ -65,42 +64,57 @@
 
 ## MaimaiScores 对象
 
-### 属性
-
-| 字段          | 类型           | 说明                                                               |
-|---------------|----------------|------------------------------------------------------------------|
-| `scores`      | `list[Score]`  | 玩家所有成绩，当 `ScoreKind.ALL` 时返回所有成绩，否则仅返回 B50 成绩 |
-| `scores_b35`  | `list[Score]`  | 玩家 B35 成绩                                                      |
-| `scores_b15`  | `list[Score]`  | 玩家 B15 成绩                                                      |
-| `rating`      | `int`          | 玩家 总 Rating                                                     |
-| `rating_b35`  | `int`          | 玩家 B35 Rating                                                    |
-| `rating_b15`  | `int`          | 玩家 B15 Rating                                                    |
-| `as_distinct` | `MaimaiScores` | 对成绩进行去重，只保留最佳的那一个成绩。                             |
-
-### 方法
+| 字段         | 类型          | 说明                                                               |
+|--------------|---------------|------------------------------------------------------------------|
+| `scores`     | `list[Score]` | 玩家所有成绩，当 `ScoreKind.ALL` 时返回所有成绩，否则仅返回 B50 成绩 |
+| `scores_b35` | `list[Score]` | 玩家 B35 成绩                                                      |
+| `scores_b15` | `list[Score]` | 玩家 B15 成绩                                                      |
+| `rating`     | `int`         | 玩家 总 Rating                                                     |
+| `rating_b35` | `int`         | 玩家 B35 Rating                                                    |
+| `rating_b15` | `int`         | 玩家 B15 Rating                                                    |
 
 ```python
-def by_song(self, song_id: int, song_type: SongType = None, level_index: LevelIndex = None) -> list[Score]:
-    """获取指定歌曲在某歌曲类型和难度下面所有的成绩。
+async def get_distinct(self) -> "MaimaiScores":
+    """获取去重后的分数。
 
-    如果未提供 `song_type` 或 `level_index`，则将返回该歌曲的所有分数。
+    通常情况下，玩家在同一首歌曲和难度上会有多个分数记录，此方法会返回一个新的 `MaimaiScores` 对象，
+    其中包含每首歌曲和难度的最高分数。
 
-    参数:
-        song_id: 要获取成绩的歌曲ID。
-        song_type: 筛选的谱面类型, 默认为 None.
-        level_index: 筛选的难度, 默认为 None.
-    返回:
-        歌曲的成绩列表，如果没有找到成绩则返回空列表。
+    此方法不会修改原始分数对象，而是返回一个新对象。
+
+    返回值:
+        包含去重分数的新 `MaimaiScores` 对象。
     """
 
-def filter(self, **kwargs) -> list[Score]:
-    """根据属性筛选成绩。
+def by_song(
+    self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
+) -> Iterator[Score]:
+    """获取指定歌曲、类型和难度的分数。
 
-    请确保属性存在，并且类型匹配。所有条件通过 AND 连接。
+    如果未提供 song_type 或 level_index，将返回该歌曲的所有分数。
 
     参数:
-        kwargs: 用于筛选成绩的属性。
-    返回:
-        符合所有条件的成绩列表，如果没有找到成绩则返回空列表。
+        song_id: 要获取分数的歌曲 ID。
+        song_type: 要获取分数的歌曲类型，默认为 None。
+        level_index: 要获取分数的难度索引，默认为 None。
+    返回值:
+        歌曲分数的迭代器，如果没有找到分数则返回空迭代器。
+    """
+
+def filter(self, **kwargs) -> Iterator[Score]:
+    """根据属性过滤分数。
+
+    确保属性是分数对象的属性，且值的类型与属性类型一致。所有条件通过 AND 连接。
+
+    参数:
+        kwargs: 用于过滤分数的属性。
+    返回值:
+        符合所有条件的分数迭代器，如果没有找到匹配的分数则不会产生任何项。
     """
 ```
+
+## API 文档
+
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.scores
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.updates
+- https://api.maimai.turou.fun/maimai_py/maimai#MaimaiScores

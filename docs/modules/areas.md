@@ -25,30 +25,33 @@
 
 ## MaimaiAreas 对象
 
-### 属性
-
-| 字段     | 类型         | 说明     |
-|----------|--------------|--------|
-| `values` | `list[Area]` | 区域列表 |
-
-### 方法
-
 ```python
-def by_id(self, id: str) -> Area | None:
+async def iter_areas(self) -> AsyncGenerator[Area, None]:
+    """所有区域的异步生成器。
+
+    此方法将遍历缓存中的所有区域，并逐个生成每个区域。除非您确实需要遍历所有区域，否则应该使用 `by_id` 或 `by_name` 代替。
+    """
+
+async def by_id(self, id: str) -> Area | None:
     """通过ID获取区域。
 
     参数:
         id: 区域的ID。
-    返回:
-        如果存在则返回对应区域，否则返回 None。
+    返回值:
+        如果区域存在则返回该区域，否则返回None。
     """
 
-def by_name(self, name: str) -> Area | None:
-    """通过名称获取区域。
+async def by_name(self, name: str) -> Area | None:
+    """通过名称获取区域，区分语言。
 
     参数:
         name: 区域的名称。
-    返回:
-        如果存在则返回对应区域，否则返回 None。
+    返回值:
+        如果区域存在则返回该区域，否则返回None。
     """
 ```
+
+## API 文档
+
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.areas
+- https://api.maimai.turou.fun/maimai_py/maimai#MaimaiAreas

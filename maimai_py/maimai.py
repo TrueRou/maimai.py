@@ -1,6 +1,6 @@
 import httpx
 from functools import cached_property
-from typing import AsyncGenerator, Callable, Generic, Iterator, Literal, Type, TypeVar
+from typing import AsyncGenerator, Generic, Iterator, Literal, Type, TypeVar
 from httpx import AsyncClient
 from aiocache import SimpleMemoryCache, BaseCache
 
@@ -23,15 +23,22 @@ class MaimaiItems(Generic[PlayerItemType]):
         self._client = client
         self._namespace = namespace
 
-    async def configure(self, provider: IItemListProvider) -> "MaimaiItems":
+    async def _configure(self, provider: IItemListProvider) -> "MaimaiItems":
         if hash(provider) != await self._client._cache.get("provider", "", namespace=self._namespace):
             val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
             await self._client._cache.set("ids", [key for key in val.keys()], namespace=self._namespace)
             await self._client._cache.multi_set(val.items(), namespace=self._namespace)
+            await self._client._cache.set("provider", hash(provider), ttl=self._client._cache_ttl, namespace=self._namespace)
         return self
 
     async def iter_items(self) -> AsyncGenerator[PlayerItemType, None]:
-        """All items as list."""
+        """All items as async generator.
+
+        This method will iterate all items in the cache, and yield each item one by one. Unless you really need to iterate all items, you should use `by_id` or `filter` instead.
+
+        Returns:
+            An async generator yielding all items in the cache, return an empty list if no item is found.
+        """
         item_ids: list[int] | None = await self._client._cache.get("ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         for item_id in item_ids:
@@ -48,7 +55,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         """
         return await self._client._cache.get(id, namespace=self._namespace)
 
-    async def filter(self, **kwargs) -> list[PlayerItemType]:
+    async def filter(self, **kwargs) -> AsyncGenerator[PlayerItemType, None]:
         """Filter items by their attributes.
 
         Ensure that the attribute is of the item, and the value is of the same type. All conditions are connected by AND.
@@ -56,12 +63,11 @@ class MaimaiItems(Generic[PlayerItemType]):
         Args:
             kwargs: the attributes to filter the items by.
         Returns:
-            the list of items that match all the conditions, return an empty list if no item is found.
+            an async generator yielding items that match all the conditions, yields no items if no item is found.
         """
-        filter_func: Callable[[PlayerItemType], bool] = lambda item: all(
-            getattr(item, key) == value for key, value in kwargs.items() if value is not None
-        )
-        return [item async for item in self.iter_items() if filter_func(item)]
+        async for item in self.iter_items():
+            if all(getattr(item, key) == value for key, value in kwargs.items() if value is not None):
+                yield item
 
 
 class MaimaiSongs:
@@ -71,7 +77,9 @@ class MaimaiSongs:
         """@private"""
         self._client = client
 
-    async def configure(self, provider: ISongProvider, alias_provider: IAliasProvider | None, curve_provider: ICurveProvider | None) -> "MaimaiSongs":
+    async def _configure(
+        self, provider: ISongProvider, alias_provider: IAliasProvider | None, curve_provider: ICurveProvider | None
+    ) -> "MaimaiSongs":
         current_provider_hash = hash(hash(provider) + hash(alias_provider) + hash(curve_provider))
         previous_provider_hash = await self._client._cache.get("provider", "", namespace="songs")
         if current_provider_hash != previous_provider_hash:
@@ -99,11 +107,17 @@ class MaimaiSongs:
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs)]
 
             await self._client._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs")
-            await self._client._cache.set("provider", current_provider_hash, ttl=60 * 60 * 24, namespace="songs")
+            await self._client._cache.set("provider", current_provider_hash, ttl=self._client._cache_ttl, namespace="songs")
         return self
 
     async def iter_songs(self) -> AsyncGenerator[Song, None]:
-        """All songs as async generator."""
+        """All songs as async generator.
+
+        This method will iterate all songs in the cache, and yield each song one by one. Unless you really need to iterate all songs, you should use `by_id` or `filter` instead.
+
+        Returns:
+            An async generator yielding all songs in the cache.
+        """
         song_ids: list[int] | None = await self._client._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         for song_id in song_ids:
@@ -144,64 +158,63 @@ class MaimaiSongs:
             if song := await self._client._cache.get(song_id, namespace="songs"):
                 return song
 
-    async def by_artist(self, artist: str) -> list[Song]:
+    async def by_artist(self, artist: str) -> AsyncGenerator[Song, None]:
         """Get songs by their artist, case-sensitive.
 
         Args:
             artist: the artist of the songs.
         Returns:
-            the list of songs that match the artist, return an empty list if no song is found.
+            an async generator yielding songs that match the artist.
         """
-        return [song async for song in self.iter_songs() if song.artist == artist]
+        return (song async for song in self.iter_songs() if song.artist == artist)
 
-    async def by_genre(self, genre: Genre) -> list[Song]:
+    async def by_genre(self, genre: Genre) -> AsyncGenerator[Song, None]:
         """Get songs by their genre, case-sensitive.
 
         Args:
             genre: the genre of the songs.
         Returns:
-            the list of songs that match the genre, return an empty list if no song is found.
+            an async generator yielding songs that match the genre.
         """
 
-        return [song async for song in self.iter_songs() if song.genre == genre]
+        return (song async for song in self.iter_songs() if song.genre == genre)
 
-    async def by_bpm(self, minimum: int, maximum: int) -> list[Song]:
+    async def by_bpm(self, minimum: int, maximum: int) -> AsyncGenerator[Song, None]:
         """Get songs by their BPM.
 
         Args:
             minimum: the minimum (inclusive) BPM of the songs.
             maximum: the maximum (inclusive) BPM of the songs.
         Returns:
-            the list of songs that match the BPM range, return an empty list if no song is found.
+            an async generator yielding songs that match the BPM.
         """
-        return [song async for song in self.iter_songs() if minimum <= song.bpm <= maximum]
+        return (song async for song in self.iter_songs() if minimum <= song.bpm <= maximum)
 
-    async def by_versions(self, versions: Version) -> list[Song]:
+    async def by_versions(self, versions: Version) -> AsyncGenerator[Song, None]:
         """Get songs by their versions, versions are fuzzy matched version of major maimai version.
 
         Args:
             versions: the versions of the songs.
         Returns:
-            the list of songs that match the versions, return an empty list if no song is found.
+            an async generator yielding songs that match the versions.
         """
+        async for song in self.iter_songs():
+            if versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value:
+                yield song
 
-        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
-        return [song async for song in self.iter_songs() if versions_func(song)]
-
-    async def by_keywords(self, keywords: str) -> list[Song]:
+    async def by_keywords(self, keywords: str) -> AsyncGenerator[Song, None]:
         """Get songs by their keywords, keywords are matched with song title, artist and aliases.
 
         Args:
             keywords: the keywords to match the songs.
         Returns:
-            the list of songs that match the keywords, return an empty list if no song is found.
+            an async generator yielding songs that match the keywords.
         """
-        keywords_func: Callable[[Song], bool] = (
-            lambda song: keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower()
-        )
-        return [song async for song in self.iter_songs() if keywords_func(song)]
+        async for song in self.iter_songs():
+            if keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower():
+                yield song
 
-    async def filter(self, **kwargs) -> list[Song]:
+    async def filter(self, **kwargs) -> AsyncGenerator[Song, None]:
         """Filter songs by their attributes.
 
         Ensure that the attribute is of the song, and the value is of the same type. All conditions are connected by AND.
@@ -209,13 +222,11 @@ class MaimaiSongs:
         Args:
             kwargs: the attributes to filter the songs by.
         Returns:
-            the list of songs that match all the conditions, return an empty list if no song is found.
+            an async generator yielding songs that match all the conditions.
         """
-        if "id" in kwargs and kwargs["id"] is not None:
-            # if id is provided, ignore other attributes, as id is unique
-            return [item] if (item := await self.by_id(kwargs["id"])) else []
-        filter_func: Callable[[Song], bool] = lambda song: all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)
-        return [song async for song in self.iter_songs() if filter_func(song)]
+        async for song in self.iter_songs():
+            if all(getattr(song, key) == value for key, value in kwargs.items() if value is not None):
+                yield song
 
 
 class MaimaiPlates:
@@ -232,7 +243,7 @@ class MaimaiPlates:
         """@private"""
         self._client = client
 
-    async def configure(self, plate: str, scores: list[Score]) -> "MaimaiPlates":
+    async def _configure(self, plate: str, scores: list[Score]) -> "MaimaiPlates":
         self._maimai_songs = await self._client.songs()
         self._version = plate_aliases.get(plate[0], plate[0])
         self._kind = plate_aliases.get(plate[1:], plate[1:])
@@ -269,6 +280,10 @@ class MaimaiPlates:
         return self
 
     @cached_property
+    def _major_type(self) -> SongType:
+        return SongType.DX if any(ver.value > 20000 for ver in self._versions) else SongType.STANDARD
+
+    @cached_property
     def no_remaster(self) -> bool:
         """Whether it is required to play ReMASTER levels in the plate.
 
@@ -277,27 +292,22 @@ class MaimaiPlates:
 
         return self._version not in ["舞", "霸"]
 
-    @cached_property
-    def major_type(self) -> SongType:
-        """The major song type of the plate, usually for identifying the levels.
-
-        Only 舞 and 霸 plates require ReMASTER levels, others don't.
-        """
-        return SongType.DX if any(ver.value > 20000 for ver in self._versions) else SongType.STANDARD
-
     async def get_remained(self) -> list[PlateObject]:
         """Get the remained songs and scores of the player on this plate.
 
         If player has ramained levels on one song, the song and ramained `level_index` will be included in the result, otherwise it won't.
 
         The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
+
+        Returns:
+            A list of `PlateObject` containing the song and the scores.
         """
         scores_dict: dict[int, list[PlateScore]] = {}
         [scores_dict.setdefault(score.id, []).append(score) for score in self._matched_scores]
         results = {
             song_id: PlateObject(song=song, scores=scores_dict.get(song_id, []))
             for song_id in self._matched_songs
-            if (song := PlateSong._from_song(await self._maimai_songs.by_id(song_id), self.major_type, self.no_remaster))
+            if (song := PlateSong._from_song(await self._maimai_songs.by_id(song_id), self._major_type, self.no_remaster))
         }
 
         def extract(score: PlateScore) -> None:
@@ -324,6 +334,9 @@ class MaimaiPlates:
         If player has levels (one or more) that met the requirement on the song, the song and cleared `level_index` will be included in the result, otherwise it won't.
 
         The distinct scores which met the plate requirement will be included in the result, the unfinished scores won't.
+
+        Returns:
+            A list of `PlateObject` containing the song and the scores.
         """
         results = {
             song_id: PlateObject(song=song, scores=[])
@@ -354,6 +367,9 @@ class MaimaiPlates:
         If player has ever played levels on the song, whether they met or not, the song and played `level_index` will be included in the result.
 
         All distinct scores will be included in the result.
+
+        Returns:
+            A list of `PlateObject` containing the song and the scores.
         """
         results = {
             song_id: PlateObject(song=song, scores=[])
@@ -371,27 +387,43 @@ class MaimaiPlates:
         All songs will be included in the result, with all levels, whether they met or not.
 
         No scores will be included in the result, use played, cleared, remained to get the scores.
+
+        Returns:
+            An async generator yielding `PlateObject` containing the song and the scores.
         """
         for song_id in self._matched_songs:
-            if song := PlateSong._from_song(await self._maimai_songs.by_id(song_id), self.major_type, self.no_remaster):
+            if song := PlateSong._from_song(await self._maimai_songs.by_id(song_id), self._major_type, self.no_remaster):
                 yield PlateObject(song=song, scores=[])
 
     async def count_played(self) -> int:
-        """Get the number of played levels on this plate."""
+        """Get the number of played levels on this plate.
+
+        Returns:
+            The number of played levels on this plate.
+        """
         return len([level for plate in await self.get_played() for level in plate.song.levels])
 
     async def count_cleared(self) -> int:
-        """Get the number of cleared levels on this plate."""
+        """Get the number of cleared levels on this plate.
+
+        Returns:
+            The number of cleared levels on this plate.
+        """
         return len([level for plate in await self.get_cleared() for level in plate.song.levels])
 
     async def count_remained(self) -> int:
-        """Get the number of remained levels on this plate."""
+        """Get the number of remained levels on this plate.
+
+        Returns:
+            The number of remained levels on this plate.
+        """
         return len([level for plate in await self.get_remained() for level in plate.song.levels])
 
     async def count_all(self) -> int:
         """Get the number of all levels on this plate.
 
-        This is the total number of levels on the plate, should equal to `cleared_num + remained_num`.
+        Returns:
+            The number of all levels on this plate.
         """
         return len([level async for plate in self.get_all() for level in plate.song.levels])
 
@@ -415,7 +447,7 @@ class MaimaiScores:
     def __init__(self, client: "MaimaiClient"):
         self._client = client
 
-    async def configure(self, scores: list[Score]) -> "MaimaiScores":
+    async def _configure(self, scores: list[Score]) -> "MaimaiScores":
         self.scores = scores
         scores_new: list[Score] = []
         scores_old: list[Score] = []
@@ -446,15 +478,18 @@ class MaimaiScores:
         Normally, player has more than one score for the same song and level, this method will return a new `MaimaiScores` object with the highest scores for each song and level.
 
         This method won't modify the original scores object, it will return a new one.
+
+        Returns:
+            A new `MaimaiScores` object with the distinct scores.
         """
         scores_unique = {}
         for score in self.scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
         new_scores = MaimaiScores(self._client)
-        return await new_scores.configure(list(scores_unique.values()))
+        return await new_scores._configure(list(scores_unique.values()))
 
-    async def by_song(
+    def by_song(
         self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
     ) -> Iterator[Score]:
         """Get scores of the song on that type and level_index.
@@ -474,7 +509,7 @@ class MaimaiScores:
             if score.id == song_id and (song_type is UNSET or score.type == song_type) and (level_index is UNSET or score.level_index == level_index)
         )
 
-    async def filter(self, **kwargs) -> list[Score]:
+    def filter(self, **kwargs) -> Iterator[Score]:
         """Filter scores by their attributes.
 
         Make sure the attribute is of the score, and the value is of the same type. All conditions are connected by AND.
@@ -482,9 +517,10 @@ class MaimaiScores:
         Args:
             kwargs: the attributes to filter the scores by.
         Returns:
-            the list of scores that match all the conditions, return an empty list if no score is found.
+            an iterator of scores that match all the conditions, yields no items if no score is found.
         """
-        return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items())]
+
+        return (score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items()))
 
 
 class MaimaiAreas:
@@ -495,20 +531,23 @@ class MaimaiAreas:
         """@private"""
         self._client = client
 
-    async def configure(self, lang: str, provider: IAreaProvider) -> "MaimaiAreas":
-        if hash(provider) != await self._client._cache.get("provider", "", namespace="areas"):
+    async def _configure(self, lang: str, provider: IAreaProvider) -> "MaimaiAreas":
+        if hash(provider) != await self._client._cache.get("provider", "", namespace=f"areas_{lang}"):
             areas = await provider.get_areas(lang, self._client)
-            await self._client._cache.set("ids", [area.id for area in areas.values()], namespace="areas")
-            await self._client._cache.multi_set(iter((k, v) for k, v in areas.items()), namespace="areas")
-            await self._client._cache.set("provider", hash(provider), ttl=60 * 60 * 24, namespace="areas")
+            await self._client._cache.set("ids", [area.id for area in areas.values()], namespace=f"areas_{lang}")
+            await self._client._cache.multi_set(iter((k, v) for k, v in areas.items()), namespace=f"areas_{lang}")
+            await self._client._cache.set("provider", hash(provider), ttl=self._client._cache_ttl, namespace=f"areas_{lang}")
         return self
 
     async def iter_areas(self) -> AsyncGenerator[Area, None]:
-        """All areas as list."""
-        area_ids: list[int] | None = await self._client._cache.get("ids", namespace="areas")
+        """All areas as async generator.
+
+        This method will iterate all areas in the cache, and yield each area one by one. Unless you really need to iterate all areas, you should use `by_id` or `by_name` instead.
+        """
+        area_ids: list[int] | None = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
         assert area_ids is not None, "Areas not found in cache, please call configure() first."
         for area_id in area_ids:
-            if area := await self._client._cache.get(area_id, namespace="areas"):
+            if area := await self._client._cache.get(area_id, namespace=f"areas_{self._lang}"):
                 yield area
 
     async def by_id(self, id: str) -> Area | None:
@@ -519,7 +558,7 @@ class MaimaiAreas:
         Returns:
             the area if it exists, otherwise return None.
         """
-        return await self._client._cache.get(id, namespace="areas")
+        return await self._client._cache.get(id, namespace=f"areas_{self._lang}")
 
     async def by_name(self, name: str) -> Area | None:
         """Get an area by its name, language-sensitive.
@@ -537,13 +576,24 @@ class MaimaiClient:
 
     _client: AsyncClient
     _cache: BaseCache
+    _cache_ttl: int
 
-    def __init__(self, timeout: float = 20.0, cache: BaseCache | _UnsetSentinel = UNSET, **kwargs) -> None:
+    def __init__(
+        self,
+        timeout: float = 20.0,
+        cache: BaseCache | _UnsetSentinel = UNSET,
+        cache_ttl: int = 60 * 60 * 24,
+        **kwargs,
+    ) -> None:
         """Initialize the maimai.py client.
 
         Args:
             timeout: the timeout of the requests, defaults to 20.0.
+            cache: the cache to use, defaults to `aiocache.SimpleMemoryCache()`.
+            cache_ttl: the TTL of the cache, defaults to 60 * 60 * 24.
+            kwargs: other arguments to pass to the `httpx.AsyncClient`.
         """
+        self._cache_ttl = cache_ttl
         self._client = httpx.AsyncClient(timeout=timeout, **kwargs)
         self._cache = SimpleMemoryCache() if isinstance(cache, _UnsetSentinel) else cache
 
@@ -578,7 +628,7 @@ class MaimaiClient:
             alias_provider = YuzuProvider()
         if isinstance(curve_provider, _UnsetSentinel):
             curve_provider = DivingFishProvider()
-        return await songs.configure(provider, alias_provider, curve_provider)
+        return await songs._configure(provider, alias_provider, curve_provider)
 
     async def players(
         self,
@@ -645,7 +695,7 @@ class MaimaiClient:
         all = await provider.get_scores_all(identifier, self)
 
         maimai_scores = MaimaiScores(self)
-        return await maimai_scores.configure(all + b35 + b15)
+        return await maimai_scores._configure(all + b35 + b15)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
@@ -715,7 +765,7 @@ class MaimaiClient:
         # songs = await MaimaiSongs._get_or_fetch(self._client)
         scores = await provider.get_scores_all(identifier, self)
         maimai_plates = MaimaiPlates(self)
-        return await maimai_plates.configure(plate, scores)
+        return await maimai_plates._configure(plate, scores)
 
     async def wechat(self, r=None, t=None, code=None, state=None) -> PlayerIdentifier | str:
         """Get the player identifier from the Wahlap Wechat OffiAccount.
@@ -792,8 +842,8 @@ class MaimaiClient:
         """
         if isinstance(provider, _UnsetSentinel):
             provider = LXNSProvider() if item in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
-        maimai_items = MaimaiItems[PlayerItemType](self, item.namespace())
-        return await maimai_items.configure(provider)
+        maimai_items = MaimaiItems[PlayerItemType](self, item._namespace())
+        return await maimai_items._configure(provider)
 
     async def areas(self, lang: Literal["ja", "zh"] = "ja", provider: IAreaProvider = LocalProvider()) -> MaimaiAreas:
         """Fetch maimai areas from the provider.
@@ -810,7 +860,7 @@ class MaimaiClient:
         """
 
         maimai_areas = MaimaiAreas(self)
-        return await maimai_areas.configure(lang, provider)
+        return await maimai_areas._configure(lang, provider)
 
     async def flush(self) -> None:
         """Flush the caches of the client, this will perform a full re-fetch of all the data.

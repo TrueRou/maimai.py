@@ -20,14 +20,16 @@ songs: MaimaiSongs = await client.songs()
 我们尚未有提供同步调度的开发计划，如果您有使用上的困难，请联系我们，我们将尽可能为您提供帮助。
 
 ::: tip
-您可以在整个应用程序中共用 `MaimaiClient` 实例，也可以在每次请求中创建新的实例。
+我们强烈推荐您在整个应用程序中共用 `MaimaiClient` 实例，因为缓存机制是基于 `MaimaiClient` 实例的。
+
+如果您在不同的地方创建了多个 `MaimaiClient` 实例，会导致缓存失效，造成性能损失。
 :::
 
 ## 封装对象
 
 上文提到过的 `MaimaiSongs` 是一个封装对象，与直接返回 `list[Song]` 相比，封装对象为您提供了一些方便的方法。
 
-例如，您可以直接调用 `songs.by_title()` 等方法直接进行筛选，如果需要，您也可以通过 `songs.songs` 访问原始列表。
+例如，您可以直接调用 `songs.by_title()` 等方法直接进行筛选，如果需要，您也可以通过 `songs.iter_songs` 通过生成器进行遍历。
 
 我们针对大多数数据都进行了封装（`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`），读者可以自行查看预置的方法。
 
@@ -55,8 +57,6 @@ player_lxns = await maimai.players(PlayerIdentifier(friend_code=664994421382429)
 # 使用水鱼作为数据源
 player_diving = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish)
 ```
-
-我们推荐您使用全局变量来储存数据源实例，这样只需要提供一次 `developer_token` 就可以了。
 
 ## 玩家标识
 
