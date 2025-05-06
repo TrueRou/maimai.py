@@ -1,78 +1,79 @@
-# maimai.py ([documentation](https://maimai.turou.fun))
+# maimai.py ([文档](https://maimai.turou.fun))
 
 [![PyPI version](https://img.shields.io/pypi/v/maimai-py)](https://pypi.org/project/maimai-py/)
 ![License](https://img.shields.io/pypi/l/maimai-py)
 ![Python versions](https://img.shields.io/pypi/pyversions/maimai-py)
-[![zh](https://img.shields.io/badge/README-中文-green.svg)](https://github.com/TrueRou/maimai.py/blob/main/README_CN.md)
+[![en](https://img.shields.io/badge/README-en-red.svg)](https://github.com/TrueRou/maimai.py/blob/main/README_EN.md)
 
 <p align="center">
   <a href="https://maimai.turou.fun">
-      <img src="https://s2.loli.net/2024/12/23/7T5nbMfzdAi8BtF.png" alt="maimai.py" />
+      <img src="https://s2.loli.net/2024/12/23/oXGnIBJS3Whd54p.png" alt="maimai.py" />
   </a>
 </p>
 
-The definitive python wrapper for MaimaiCN related development, wrapping the frequently used methods from DivingFish and LXNS.
+用于国服舞萌相关开发的最佳Python工具库, 封装水鱼/落雪查分器常用函数.
 
-We provide data models and methods based on MaiMai standard, and make implementation for both DivingFish and LXNS.
+提供了基于日服舞萌标准的数据模型和接口, 为水鱼和落雪分别做了数据源实现.
 
-Support querying songs, player information, scores, ratings, name plates from any data sources.
+支持从数据源查询歌曲、谱面、玩家信息、分数、Rating、姓名框、牌子进度.
 
-In addition, we support getting player scores with WeChat OpenID, parsing the score HTML, and uploading it to the data sources.
+另外, 支持联动微信 OpenID 获取玩家分数, 解析分数HTML, 并上传至数据源.
 
-## Installation
+## 使用方式
 
 ```bash
 pip install maimai-py
 ```
 
-To upgrade:
+升级方式:
 
 ```bash
 pip install -U maimai-py
 ```
 
-For more, read the docs: https://maimai.turou.fun/.
+另外, 您也可以[下载 maimai.py 客户端](https://github.com/TrueRou/maimai.py/releases), 使用任何编程语言进行开发.
 
-Additionally, you can [download the maimai.py client](https://github.com/TrueRou/maimai.py/releases) and develop using any programming language.
-
-## Quickstart
+## 快速开始
 
 ```python
 import asyncio
 from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, DivingFishProvider
 
+
 async def quick_start():
     maimai = MaimaiClient()
     divingfish = DivingFishProvider(developer_token="your_token_here")
 
-    # fetch all songs and their metadata
+    # 获取所有歌曲及其元数据
     songs: MaimaiSongs = await maimai.songs()
-    # fetch divingfish user turou's scores (b50 scores by default)
+    # 获取水鱼查分器用户 turou 的分数
     scores: MaimaiScores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
-    # fetch divingfish user turou's 舞将 plate information
+    # 获取水鱼查分器用户 turou 的舞将牌子信息
     plates: MaimaiPlates = await maimai.plates(PlayerIdentifier(username="turou"), "舞将", provider=divingfish)
 
     song = await songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
 
-    print(f"Song 1231: {song.artist} - {song.title}")
-    print(f"TuRou's rating: {scores.rating}, b15 top rating: {scores.scores_b15[0].dx_rating}")
-    print(f"TuRou's 舞将: {await plates.count_cleared()}/{await plates.count_all()} cleared")
+    print(f"歌曲 1231 是: {song.artist} - {song.title}")
+    print(f"TuRou 的 Rating 为: {scores.rating}, b15 中最高 Rating 为: {scores.scores_b15[0].dx_rating}")
+    print(f"TuRou 的 舞将 完成度: {await plates.count_cleared()}/{await plates.count_all()}")
 
 asyncio.run(quick_start())
 ```
 
-## Async
+更多内容请查看文档: https://maimai.turou.fun/.
 
-maimai.py is fully asynchronous by default, and there are no plans to provide synchronous methods.
+## 异步
 
-If you don't want to be asynchronous, you can use the `asyncio.run` wrapper to call asynchronous methods synchronously.
+maimai.py 默认采用全异步, 且暂时没有提供同步方法和接口的计划.
 
-## Client
+如果您不希望采用异步, 可以使用 `asyncio.run` 包裹方法, 将异步方法同步调用.
 
-maimai.py provides a RESTful API client, which you can call maimai.py features via HTTP requests from any language.
+## 客户端
 
-The client is compiled using Nuitka, please download it from the [Releases](https://github.com/TrueRou/maimai.py/releases) page.
+maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP请求来调用 maimai.py 的特性.
 
-Our client supports Windows and Linux, please download the corresponding version according to your system.
+客户端使用 Nuitka 编译, 请在 [Releases](https://github.com/TrueRou/maimai.py/releases) 页面下载.
 
-For the client API documentation, please see: https://openapi.maimai.turou.fun/.
+我们的客户端支持 Windows, Linux, 请根据您的系统下载对应的版本.
+
+客户端 Swagger 文档请查看: https://openapi.maimai.turou.fun/.
