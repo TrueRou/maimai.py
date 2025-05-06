@@ -1,18 +1,14 @@
-import asyncio
-from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from functools import cached_property
-from typing import Any, Callable, Generic, Iterator, Sequence, TypeVar
-from httpx import AsyncClient, Cookies
+from typing import Any, Sequence
+from httpx import Cookies
 
 from maimai_py.enums import *
-from maimai_py.caches import default_caches
-from maimai_py.exceptions import InvalidPlateError, InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
+from maimai_py.exceptions import InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
 from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
 
 
-@dataclass
+@dataclass(slots=True)
 class Song:
     id: int
     title: str
@@ -26,13 +22,6 @@ class Song:
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def _get_level_indexes(self, song_type: SongType, exclude_remaster: bool = False) -> list[LevelIndex]:
-        """@private"""
-        results = [diff.level_index for diff in self.difficulties._get_children(song_type)]
-        if exclude_remaster and LevelIndex.ReMASTER in results:
-            results.remove(LevelIndex.ReMASTER)
-        return results
-
     def get_difficulty(self, type: SongType, level_index: LevelIndex | None) -> "SongDifficulty | None":
         if type == SongType.DX:
             return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
@@ -42,7 +31,7 @@ class Song:
             return next(iter(self.difficulties.utage), None)
 
 
-@dataclass
+@dataclass(slots=True)
 class SongDifficulties:
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
@@ -54,7 +43,7 @@ class SongDifficulties:
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
 
 
-@dataclass
+@dataclass(slots=True)
 class CurveObject:
     sample_size: int
     fit_level_value: float
@@ -65,7 +54,7 @@ class CurveObject:
     fc_sample_size: dict[FCType, int]
 
 
-@dataclass
+@dataclass(slots=True)
 class SongDifficulty:
     type: SongType
     level: str
@@ -81,14 +70,14 @@ class SongDifficulty:
     curve: CurveObject | None
 
 
-@dataclass
+@dataclass(slots=True)
 class SongDifficultyUtage(SongDifficulty):
     kanji: str
     description: str
     is_buddy: bool
 
 
-@dataclass
+@dataclass(slots=True)
 class SongAlias:
     """@private"""
 
@@ -96,7 +85,7 @@ class SongAlias:
     aliases: list[str]
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerIdentifier:
     qq: int | None = None
     username: str | None = None
@@ -128,7 +117,7 @@ class PlayerIdentifier:
             raise InvalidPlayerIdentifierError("No valid identifier provided")
 
 
-@dataclass
+@dataclass(slots=True)
 class ArcadeResponse:
     """@private"""
 
@@ -147,81 +136,81 @@ class ArcadeResponse:
                 raise AimeServerError(resp.errmsg)
 
 
-@dataclass
-class CachedModel:
+@dataclass(slots=True)
+class PlayerItem:
     @staticmethod
-    def _cache_key() -> str:
+    def _namespace() -> str:
         raise NotImplementedError
 
 
-@dataclass
-class PlayerTrophy(CachedModel):
+@dataclass(slots=True)
+class PlayerTrophy(PlayerItem):
     id: int
     name: str
     color: str
 
     @staticmethod
-    def _cache_key():
+    def _namespace():
         return "trophies"
 
 
-@dataclass
-class PlayerIcon(CachedModel):
+@dataclass(slots=True)
+class PlayerIcon(PlayerItem):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
     @staticmethod
-    def _cache_key():
+    def _namespace():
         return "icons"
 
 
-@dataclass
-class PlayerNamePlate(CachedModel):
+@dataclass(slots=True)
+class PlayerNamePlate(PlayerItem):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
     @staticmethod
-    def _cache_key():
+    def _namespace():
         return "nameplates"
 
 
-@dataclass
-class PlayerFrame(CachedModel):
+@dataclass(slots=True)
+class PlayerFrame(PlayerItem):
     id: int
     name: str
     description: str | None = None
     genre: str | None = None
 
     @staticmethod
-    def _cache_key():
+    def _namespace():
         return "frames"
 
 
-@dataclass
-class PlayerPartner(CachedModel):
+@dataclass(slots=True)
+class PlayerPartner(PlayerItem):
     id: int
     name: str
 
     @staticmethod
-    def _cache_key():
+    def _namespace():
         return "partners"
 
 
-@dataclass
-class PlayerChara(CachedModel):
+@dataclass(slots=True)
+class PlayerChara(PlayerItem):
     id: int
     name: str
 
     @staticmethod
-    def _cache_key():
+    def _namespace():
         return "charas"
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerRegion:
     region_id: int
     region_name: str
@@ -229,41 +218,41 @@ class PlayerRegion:
     created_at: datetime
 
 
-@dataclass
+@dataclass(slots=True)
 class Player:
     name: str
     rating: int
 
 
-@dataclass
+@dataclass(slots=True)
 class DivingFishPlayer(Player):
     nickname: str
     plate: str
     additional_rating: int
 
 
-@dataclass
+@dataclass(slots=True)
 class LXNSPlayer(Player):
     friend_code: int
-    trophy: PlayerTrophy
     course_rank: int
     class_rank: int
     star: int
-    icon: PlayerIcon | None
-    name_plate: PlayerNamePlate | None
     frame: PlayerFrame | None
+    icon: PlayerIcon | None
+    trophy: PlayerTrophy | None
+    name_plate: PlayerNamePlate | None
     upload_time: str
 
 
-@dataclass
+@dataclass(slots=True)
 class ArcadePlayer(Player):
     is_login: bool
-    name_plate: PlayerNamePlate | None
     icon: PlayerIcon | None
-    trophy: PlayerFrame | None
+    trophy: PlayerTrophy | None
+    name_plate: PlayerNamePlate | None
 
 
-@dataclass
+@dataclass(slots=True)
 class AreaCharacter:
     name: str
     illustrator: str
@@ -273,9 +262,9 @@ class AreaCharacter:
     props: dict[str, str]
 
 
-@dataclass
+@dataclass(slots=True)
 class AreaSong:
-    id: int
+    id: int | None
     title: str
     artist: str
     description: str
@@ -283,7 +272,7 @@ class AreaSong:
     movie: str | None
 
 
-@dataclass
+@dataclass(slots=True)
 class Area:
     id: str
     name: str
@@ -294,10 +283,9 @@ class Area:
     songs: list[AreaSong]
 
 
-@dataclass
+@dataclass(slots=True)
 class Score:
     id: int
-    song_name: str
     level: str
     level_index: LevelIndex
     achievements: float | None
@@ -329,524 +317,72 @@ class Score:
             return self if self_fs > other_fs else other
         return self  # we consider they are equal
 
-    @property
-    def song(self) -> Song | None:
-        songs: MaimaiSongs = default_caches._caches["msongs"]
-        assert songs is not None and isinstance(songs, MaimaiSongs)
-        return songs.by_id(self.id)
 
-    @property
-    def difficulty(self) -> SongDifficulty | None:
-        if self.song:
-            return self.song.get_difficulty(self.type, self.level_index)
+@dataclass(slots=True)
+class PlateScore:
+    id: int
+    level_index: LevelIndex
+    achievements: float | None
+    fc: FCType | None
+    fs: FSType | None
+    rate: RateType
+    type: SongType
+
+    @staticmethod
+    def _from_score(score: Score) -> "PlateScore":
+        return PlateScore(
+            id=score.id,
+            level_index=score.level_index,
+            achievements=score.achievements,
+            fc=score.fc,
+            fs=score.fs,
+            rate=score.rate,
+            type=score.type,
+        )
+
+    def _join(self, other: "PlateScore | None"):
+        if other is None:
+            return self
+        if self.level_index != other.level_index or self.type != other.type:
+            raise ValueError("Cannot join scores with different level indexes or types")
+        self.achievements = max(self.achievements or 0, other.achievements or 0)
+        if self.fc != other.fc:
+            self_fc = self.fc.value if self.fc is not None else 100
+            other_fc = other.fc.value if other.fc is not None else 100
+            selected_value = min(self_fc, other_fc)
+            self.fc = FCType(selected_value) if selected_value != 100 else None
+        if self.fs != other.fs:
+            self_fs = self.fs.value if self.fs is not None else -1
+            other_fs = other.fs.value if other.fs is not None else -1
+            selected_value = max(self_fs, other_fs)
+            self.fs = FSType(selected_value) if selected_value != -1 else None
+        if self.rate != other.rate:
+            selected_value = min(self.rate.value, other.rate.value)
+            self.rate = RateType(selected_value)
 
 
-@dataclass
-class PlateObject:
-    song: Song
+@dataclass(slots=True)
+class PlateSong:
+    id: int
+    title: str
+    artist: str
     levels: list[LevelIndex]
-    scores: list[Score]
-
-
-CachedType = TypeVar("CachedType", bound=CachedModel)
-
-
-class MaimaiItems(Generic[CachedType]):
-    _cached_items: dict[int, CachedType]
-
-    def __init__(self, items: dict[int, CachedType]) -> None:
-        """@private"""
-        self._cached_items = items
-
-    @property
-    def values(self) -> Iterator[CachedType]:
-        """All items as list."""
-        return iter(self._cached_items.values())
-
-    def by_id(self, id: int) -> CachedType | None:
-        """Get an item by its ID.
-
-        Args:
-            id: the ID of the item.
-        Returns:
-            the item if it exists, otherwise return None.
-        """
-        return self._cached_items.get(id, None)
-
-    def filter(self, **kwargs) -> list[CachedType]:
-        """Filter items by their attributes.
-
-        Ensure that the attribute is of the item, and the value is of the same type. All conditions are connected by AND.
-
-        Args:
-            kwargs: the attributes to filter the items by.
-        Returns:
-            the list of items that match all the conditions, return an empty list if no item is found.
-        """
-        return [item for item in self.values if all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)]
-
-
-class MaimaiSongs:
-    _cached_songs: list[Song]
-    _cached_aliases: list[SongAlias]
-    _cached_curves: dict[str, list[CurveObject | None]]
-
-    _song_id_dict: dict[int, Song]  # song_id: song
-    _alias_entry_dict: dict[str, Song]  # alias_entry: song
-    _keywords_dict: dict[str, Song]  # keywords: song
-
-    def __init__(self, songs: list[Song], aliases: list[SongAlias] | None, curves: dict[str, list[CurveObject | None]] | None) -> None:
-        """@private"""
-        self._cached_songs = songs
-        self._cached_aliases = aliases or []
-        self._cached_curves = curves or {}
-        self._song_id_dict = {}
-        self._alias_entry_dict = {}
-        self._keywords_dict = {}
-        self._flush()
-
-    def _flush(self) -> None:
-        self._song_id_dict = {song.id: song for song in self._cached_songs}
-        self._keywords_dict = {}
-        default_caches._caches["lxns_detailed_songs"] = {}
-        for alias in self._cached_aliases or []:
-            if song := self._song_id_dict.get(alias.song_id):
-                song.aliases = alias.aliases
-                for alias_entry in alias.aliases:
-                    self._alias_entry_dict[alias_entry] = song
-        for idx, curve_list in (self._cached_curves or {}).items():
-            song_type: SongType = SongType._from_id(int(idx))
-            song_id = int(idx) % 10000
-            if song := self._song_id_dict.get(song_id):
-                diffs = song.difficulties._get_children(song_type)
-                if len(diffs) < len(curve_list):
-                    # ignore the extra curves, diving fish may return more curves than the song has, which is a bug
-                    curve_list = curve_list[: len(diffs)]
-                [diffs[i].__setattr__("curve", curve) for i, curve in enumerate(curve_list)]
-        for song in self._cached_songs:
-            keywords = song.title.lower() + song.artist.lower() + "".join(alias.lower() for alias in (song.aliases or []))
-            self._keywords_dict[keywords] = song
 
     @staticmethod
-    async def _get_or_fetch(client: AsyncClient, flush=False) -> "MaimaiSongs":
-        if "msongs" not in default_caches._caches or flush:
-            tasks = [
-                default_caches.get_or_fetch("songs", client, flush=flush),
-                default_caches.get_or_fetch("aliases", client, flush=flush),
-                default_caches.get_or_fetch("curves", client, flush=flush),
-            ]
-            songs, aliases, curves = await asyncio.gather(*tasks)
-            default_caches._caches["msongs"] = MaimaiSongs(songs, aliases, curves)
-        return default_caches._caches["msongs"]
-
-    @property
-    def songs(self) -> Iterator[Song]:
-        """All songs as list."""
-        return iter(self._song_id_dict.values())
-
-    def by_id(self, id: int) -> Song | None:
-        """Get a song by its ID.
-
-        Args:
-            id: the ID of the song, always smaller than `10000`, should (`% 10000`) if necessary.
-        Returns:
-            the song if it exists, otherwise return None.
-        """
-        return self._song_id_dict.get(id, None)
-
-    def by_title(self, title: str) -> Song | None:
-        """Get a song by its title.
-
-        Args:
-            title: the title of the song.
-        Returns:
-            the song if it exists, otherwise return None.
-        """
-        if title == "Link(CoF)":
-            return self.by_id(383)
-        return next((song for song in self.songs if song.title == title), None)
-
-    def by_alias(self, alias: str) -> Song | None:
-        """Get song by one possible alias.
-
-        Args:
-            alias: one possible alias of the song.
-        Returns:
-            the song if it exists, otherwise return None.
-        """
-        return self._alias_entry_dict.get(alias, None)
-
-    def by_artist(self, artist: str) -> list[Song]:
-        """Get songs by their artist, case-sensitive.
-
-        Args:
-            artist: the artist of the songs.
-        Returns:
-            the list of songs that match the artist, return an empty list if no song is found.
-        """
-        return [song for song in self.songs if song.artist == artist]
-
-    def by_genre(self, genre: Genre) -> list[Song]:
-        """Get songs by their genre, case-sensitive.
-
-        Args:
-            genre: the genre of the songs.
-        Returns:
-            the list of songs that match the genre, return an empty list if no song is found.
-        """
-
-        return [song for song in self.songs if song.genre == genre]
-
-    def by_bpm(self, minimum: int, maximum: int) -> list[Song]:
-        """Get songs by their BPM.
-
-        Args:
-            minimum: the minimum (inclusive) BPM of the songs.
-            maximum: the maximum (inclusive) BPM of the songs.
-        Returns:
-            the list of songs that match the BPM range, return an empty list if no song is found.
-        """
-        return [song for song in self.songs if minimum <= song.bpm <= maximum]
-
-    def by_versions(self, versions: Version) -> list[Song]:
-        """Get songs by their versions, versions are fuzzy matched version of major maimai version.
-
-        Args:
-            versions: the versions of the songs.
-        Returns:
-            the list of songs that match the versions, return an empty list if no song is found.
-        """
-
-        versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
-        return list(filter(versions_func, self.songs))
-
-    def by_keywords(self, keywords: str) -> list[Song]:
-        """Get songs by their keywords, keywords are matched with song title, artist and aliases.
-
-        Args:
-            keywords: the keywords to match the songs.
-        Returns:
-            the list of songs that match the keywords, return an empty list if no song is found.
-        """
-        return [v for k, v in self._keywords_dict.items() if keywords.lower() in k]
-
-    def filter(self, **kwargs) -> list[Song]:
-        """Filter songs by their attributes.
-
-        Ensure that the attribute is of the song, and the value is of the same type. All conditions are connected by AND.
-
-        Args:
-            kwargs: the attributes to filter the songs by.
-        Returns:
-            the list of songs that match all the conditions, return an empty list if no song is found.
-        """
-        if "id" in kwargs and kwargs["id"] is not None:
-            # if id is provided, ignore other attributes, as id is unique
-            return [item] if (item := self.by_id(kwargs["id"])) else []
-        return [song for song in self.songs if all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)]
-
-
-class MaimaiPlates:
-    scores: list[Score]
-    """The scores that match the plate version and kind."""
-    songs: list[Song]
-    """The songs that match the plate version and kind."""
-    version: str
-    """The version of the plate, e.g. "真", "舞"."""
-    kind: str
-    """The kind of the plate, e.g. "将", "神"."""
-
-    _versions: list[Version] = []
-
-    def __init__(self, scores: list[Score], version_str: str, kind: str, songs: MaimaiSongs) -> None:
-        """@private"""
-        self.scores = []
-        self.songs = []
-        self.version = plate_aliases.get(version_str, version_str)
-        self.kind = plate_aliases.get(kind, kind)
-        versions = []  # in case of invalid plate, we will raise an error
-        if self.version == "真":
-            versions = [plate_to_version["初"], plate_to_version["真"]]
-        if self.version in ["霸", "舞"]:
-            versions = [ver for ver in plate_to_version.values() if ver.value < 20000]
-        if plate_to_version.get(self.version):
-            versions = [plate_to_version[self.version]]
-        if not versions or self.kind not in ["将", "者", "极", "舞舞", "神"]:
-            raise InvalidPlateError(f"Invalid plate: {self.version}{self.kind}")
-        versions.append([ver for ver in plate_to_version.values() if ver.value > versions[-1].value][0])
-        self._versions = versions
-
-        scores_unique = {}
-        for score in scores:
-            if song := songs.by_id(score.id):
-                score_key = f"{score.id} {score.type} {score.level_index}"
-                if difficulty := song.get_difficulty(score.type, score.level_index):
-                    score_version = difficulty.version
-                    if score.level_index == LevelIndex.ReMASTER and self.no_remaster:
-                        continue  # skip ReMASTER levels if not required, e.g. in 霸 and 舞 plates
-                    if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
-                        scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-
-        for song in songs.songs:
-            diffs = song.difficulties._get_children()
-            if any(diff.version >= o.value and diff.version < versions[i + 1].value for i, o in enumerate(versions[:-1]) for diff in diffs):
-                self.songs.append(song)
-
-        self.scores = list(scores_unique.values())
-
-    @cached_property
-    def no_remaster(self) -> bool:
-        """Whether it is required to play ReMASTER levels in the plate.
-
-        Only 舞 and 霸 plates require ReMASTER levels, others don't.
-        """
-
-        return self.version not in ["舞", "霸"]
-
-    @cached_property
-    def major_type(self) -> SongType:
-        """The major song type of the plate, usually for identifying the levels.
-
-        Only 舞 and 霸 plates require ReMASTER levels, others don't.
-        """
-        return SongType.DX if any(ver.value > 20000 for ver in self._versions) else SongType.STANDARD
-
-    @cached_property
-    def remained(self) -> list[PlateObject]:
-        """Get the remained songs and scores of the player on this plate.
-
-        If player has ramained levels on one song, the song and ramained `level_index` will be included in the result, otherwise it won't.
-
-        The distinct scores which NOT met the plate requirement will be included in the result, the finished scores won't.
-        """
-        scores_dict: dict[int, list[Score]] = {}
-        [scores_dict.setdefault(score.id, []).append(score) for score in self.scores]
-        results = {
-            song.id: PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=scores_dict.get(song.id, []))
-            for song in self.songs
-        }
-
-        def extract(score: Score) -> None:
-            results[score.id].scores.remove(score)
-            if score.level_index in results[score.id].levels:
-                results[score.id].levels.remove(score.level_index)
-
-        if self.kind == "者":
-            [extract(score) for score in self.scores if score.rate.value <= RateType.A.value]
-        elif self.kind == "将":
-            [extract(score) for score in self.scores if score.rate.value <= RateType.SSS.value]
-        elif self.kind == "极":
-            [extract(score) for score in self.scores if score.fc and score.fc.value <= FCType.FC.value]
-        elif self.kind == "舞舞":
-            [extract(score) for score in self.scores if score.fs and score.fs.value <= FSType.FSD.value]
-        elif self.kind == "神":
-            [extract(score) for score in self.scores if score.fc and score.fc.value <= FCType.AP.value]
-
-        return [plate for plate in results.values() if plate.levels != []]
-
-    @cached_property
-    def cleared(self) -> list[PlateObject]:
-        """Get the cleared songs and scores of the player on this plate.
-
-        If player has levels (one or more) that met the requirement on the song, the song and cleared `level_index` will be included in the result, otherwise it won't.
-
-        The distinct scores which met the plate requirement will be included in the result, the unfinished scores won't.
-        """
-        results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
-
-        def insert(score: Score) -> None:
-            results[score.id].scores.append(score)
-            results[score.id].levels.append(score.level_index)
-
-        if self.kind == "者":
-            [insert(score) for score in self.scores if score.rate.value <= RateType.A.value]
-        elif self.kind == "将":
-            [insert(score) for score in self.scores if score.rate.value <= RateType.SSS.value]
-        elif self.kind == "极":
-            [insert(score) for score in self.scores if score.fc and score.fc.value <= FCType.FC.value]
-        elif self.kind == "舞舞":
-            [insert(score) for score in self.scores if score.fs and score.fs.value <= FSType.FSD.value]
-        elif self.kind == "神":
-            [insert(score) for score in self.scores if score.fc and score.fc.value <= FCType.AP.value]
-
-        return [plate for plate in results.values() if plate.levels != []]
-
-    @cached_property
-    def played(self) -> list[PlateObject]:
-        """Get the played songs and scores of the player on this plate.
-
-        If player has ever played levels on the song, whether they met or not, the song and played `level_index` will be included in the result.
-
-        All distinct scores will be included in the result.
-        """
-        results = {song.id: PlateObject(song=song, levels=[], scores=[]) for song in self.songs}
-        for score in self.scores:
-            results[score.id].scores.append(score)
-            results[score.id].levels.append(score.level_index)
-        return [plate for plate in results.values() if plate.levels != []]
-
-    @cached_property
-    def all(self) -> Iterator[PlateObject]:
-        """Get all songs on this plate, usually used for statistics of the plate.
-
-        All songs will be included in the result, with all levels, whether they met or not.
-
-        No scores will be included in the result, use played, cleared, remained to get the scores.
-        """
-
-        return iter(PlateObject(song=song, levels=song._get_level_indexes(self.major_type, self.no_remaster), scores=[]) for song in self.songs)
-
-    @cached_property
-    def played_num(self) -> int:
-        """Get the number of played levels on this plate."""
-        return len([level for plate in self.played for level in plate.levels])
-
-    @cached_property
-    def cleared_num(self) -> int:
-        """Get the number of cleared levels on this plate."""
-        return len([level for plate in self.cleared for level in plate.levels])
-
-    @cached_property
-    def remained_num(self) -> int:
-        """Get the number of remained levels on this plate."""
-        return len([level for plate in self.remained for level in plate.levels])
-
-    @cached_property
-    def all_num(self) -> int:
-        """Get the number of all levels on this plate.
-
-        This is the total number of levels on the plate, should equal to `cleared_num + remained_num`.
-        """
-        return len([level for plate in self.all for level in plate.levels])
-
-
-class MaimaiScores:
-    scores: list[Score]
-    """All scores of the player when `ScoreKind.ALL`, otherwise only the b50 scores."""
-    scores_b35: list[Score]
-    """The b35 scores of the player."""
-    scores_b15: list[Score]
-    """The b15 scores of the player."""
-    rating: int
-    """The total rating of the player."""
-    rating_b35: int
-    """The b35 rating of the player."""
-    rating_b15: int
-    """The b15 rating of the player."""
+    def _from_song(song: Song | None, song_type: SongType, exclude_remaster: bool = False) -> "PlateSong | None":
+        if song:
+            levels = [diff.level_index for diff in song.difficulties._get_children(song_type)]
+            if exclude_remaster and LevelIndex.ReMASTER in levels:
+                levels.remove(LevelIndex.ReMASTER)
+            return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=levels)
 
     @staticmethod
-    def _get_distinct_scores(scores: list[Score]) -> list[Score]:
-        scores_unique = {}
-        for score in scores:
-            score_key = f"{score.id} {score.type} {score.level_index}"
-            scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-        return list(scores_unique.values())
-
-    def __init__(
-        self, b35: list[Score] | None = None, b15: list[Score] | None = None, all: list[Score] | None = None, songs: MaimaiSongs | None = None
-    ):
-        self.scores = all or (b35 + b15 if b35 and b15 else None) or []
-        # if b35 and b15 are not provided, try to calculate them from all scores
-        if (not b35 or not b15) and all:
-            distinct_scores = MaimaiScores._get_distinct_scores(all)  # scores have to be distinct to calculate the bests
-            scores_new: list[Score] = []
-            scores_old: list[Score] = []
-            for score in distinct_scores:
-                if songs and (diff := score.difficulty):
-                    (scores_new if diff.version >= current_version.value else scores_old).append(score)
-            scores_old.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
-            scores_new.sort(key=lambda score: (score.dx_rating, score.dx_score, score.achievements), reverse=True)
-            b35 = scores_old[:35]
-            b15 = scores_new[:15]
-        self.scores_b35 = b35 or []
-        self.scores_b15 = b15 or []
-        self.rating_b35 = int(sum((score.dx_rating or 0) for score in b35) if b35 else 0)
-        self.rating_b15 = int(sum((score.dx_rating or 0) for score in b15) if b15 else 0)
-        self.rating = self.rating_b35 + self.rating_b15
-
-    @property
-    def as_distinct(self) -> "MaimaiScores":
-        """Get the distinct scores.
-
-        Normally, player has more than one score for the same song and level, this method will return a new `MaimaiScores` object with the highest scores for each song and level.
-
-        This method won't modify the original scores object, it will return a new one.
-
-        If ScoreKind is BEST, this won't make any difference, because the scores are already the best ones.
-        """
-        distinct_scores = MaimaiScores._get_distinct_scores(self.scores)
-        songs: MaimaiSongs = default_caches._caches["msongs"]
-        assert songs is not None and isinstance(songs, MaimaiSongs)
-        return MaimaiScores(b35=self.scores_b35, b15=self.scores_b15, all=distinct_scores, songs=songs)
-
-    def by_song(
-        self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
-    ) -> Iterator[Score]:
-        """Get scores of the song on that type and level_index.
-
-        If song_type or level_index is not provided, all scores of the song will be returned.
-
-        Args:
-            song_id: the ID of the song to get the scores by.
-            song_type: the type of the song to get the scores by, defaults to None.
-            level_index: the level index of the song to get the scores by, defaults to None.
-        Returns:
-            the list of scores of the song, return an empty list if no score is found.
-        """
-        for score in self.scores:
-            if score.id != song_id:
-                continue
-            if song_type is not UNSET and score.type != song_type:
-                continue
-            if level_index is not UNSET and score.level_index != level_index:
-                continue
-            yield score
-
-    def filter(self, **kwargs) -> list[Score]:
-        """Filter scores by their attributes.
-
-        Make sure the attribute is of the score, and the value is of the same type. All conditions are connected by AND.
-
-        Args:
-            kwargs: the attributes to filter the scores by.
-        Returns:
-            the list of scores that match all the conditions, return an empty list if no score is found.
-        """
-        return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items())]
+    def _from_song_no_levels(song: Song | None) -> "PlateSong | None":
+        if song:
+            return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=[])
 
 
-class MaimaiAreas:
-    lang: str
-    """The language of the areas."""
-
-    _area_id_dict: dict[str, Area]  # area_id: area
-
-    def __init__(self, lang: str, areas: dict[str, Area]) -> None:
-        """@private"""
-        self.lang = lang
-        self._area_id_dict = areas
-
-    @property
-    def values(self) -> Iterator[Area]:
-        """All areas as list."""
-        return iter(self._area_id_dict.values())
-
-    def by_id(self, id: str) -> Area | None:
-        """Get an area by its ID.
-
-        Args:
-            id: the ID of the area.
-        Returns:
-            the area if it exists, otherwise return None.
-        """
-        return self._area_id_dict.get(id, None)
-
-    def by_name(self, name: str) -> Area | None:
-        """Get an area by its name, language-sensitive.
-
-        Args:
-            name: the name of the area.
-        Returns:
-            the area if it exists, otherwise return None.
-        """
-        return next((area for area in self.values if area.name == name), None)
+@dataclass(slots=True)
+class PlateObject:
+    song: PlateSong
+    scores: list[PlateScore]

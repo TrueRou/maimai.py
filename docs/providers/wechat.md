@@ -1,23 +1,23 @@
 # WechatProvider
 
-Get the score information from the Maimai DX page of the Maimai OffiAccount via HTML parsing.
+从舞萌服务号的舞萌DX页面，通过HTML解析获取分数信息。
 
-Implementation: IPlayerProvider, IScoreProvider
+实现：IPlayerProvider, IScoreProvider
 
-Source: https://maimai.wahlap.com/maimai-mobile/
+源站：https://maimai.wahlap.com/maimai-mobile/
 
-## About IScoreProvider
+## 关于IScoreProvider
 
-`IScoreProvider` only supports getting scores, not uploading scores.
+`IScoreProvider` 仅支持获取成绩，不支持上传成绩。
 
-## How to use
+## 如何使用
 
-To use WechatProvider, you need to use a proxy, please refer to the [Sample Projects](../dev/samples.md) section for examples.
+使用 WechatProvider 需要配合代理，具体使用例子可以查看 [示例项目](../dev/samples.md) 部分。
 
-## How it works
+## 实现原理
 
-The principle refers to [Bakapiano program](https://github.com/bakapiano/maimaidx-prober-proxy-updater), here is the quote from Bakapiano:
+原理参考了[Bakapiano方案](https://github.com/bakapiano/maimaidx-prober-proxy-updater)，这里引用Bakapiano的原话：
 
-> Modify the redirect_uri link in WeChat OAuth2 authentication, change https://example.com to http://example.com and intercept it via HTTP proxy. After that, the server will get the maimai DX score data through the authentication information. Theoretically, all platforms are supported, as long as the built-in WeChat browser on the corresponding platform uses the global HTTP proxy.
+> 修改微信 OAuth2 认证中的 redirect_uri 链接，将 https://example.com 修改为 http://example.com 并通过 HTTP 代理截获。之后服务器通过认证信息获取舞萌 DX 成绩数据。理论上全平台支持，只要对应平台下的微信内置浏览器走全局 HTTP 代理
 
-We provide `maimai.wechat()` method and `maimai.scores(wx_player, ScoreKind.ALL, WechatProvider())` method to wrap the above principle, which is convenient for developers to call.
+我们提供 `maimai.wechat()` 方法，以及 `maimai.scores(wx_player, ScoreKind.ALL, WechatProvider())` 方法，将上述原理封装，方便开发者调用。

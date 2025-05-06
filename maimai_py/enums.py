@@ -124,11 +124,6 @@ plate_aliases: dict[str, str] = {
 """@private"""
 
 
-class ScoreKind(Enum):
-    BEST = 0
-    ALL = 1
-
-
 class LevelIndex(Enum):
     BASIC = 0
     ADVANCED = 1

@@ -1,7 +1,10 @@
 from abc import abstractmethod
-from httpx import AsyncClient
+from typing import TYPE_CHECKING
 
 from maimai_py.models import *
+
+if TYPE_CHECKING:
+    from maimai_py.maimai import MaimaiClient
 
 
 class ISongProvider:
@@ -11,7 +14,7 @@ class ISongProvider:
     """
 
     @abstractmethod
-    async def get_songs(self, client: AsyncClient) -> list[Song]:
+    async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         """@private"""
         raise NotImplementedError()
 
@@ -23,7 +26,7 @@ class IAliasProvider:
     """
 
     @abstractmethod
-    async def get_aliases(self, client: AsyncClient) -> list[SongAlias]:
+    async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
         """@private"""
         raise NotImplementedError()
 
@@ -35,7 +38,7 @@ class IPlayerProvider:
     """
 
     @abstractmethod
-    async def get_player(self, identifier: PlayerIdentifier, client: AsyncClient) -> Player:
+    async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> Player:
         """@private"""
         raise NotImplementedError()
 
@@ -47,18 +50,18 @@ class IScoreProvider:
     """
 
     @abstractmethod
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: AsyncClient) -> tuple[list[Score] | None, list[Score] | None]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score] | None, list[Score] | None]:
         """@private"""
         # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
         return None, None
 
     @abstractmethod
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: AsyncClient) -> None:
+    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         """@private"""
         raise NotImplementedError()
 
@@ -70,7 +73,7 @@ class ICurveProvider:
     """
 
     @abstractmethod
-    async def get_curves(self, client: AsyncClient) -> dict[str, list[CurveObject | None]]:
+    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject | None]]:
         """@private"""
         raise NotImplementedError()
 
@@ -82,7 +85,7 @@ class IRegionProvider:
     """
 
     @abstractmethod
-    async def get_regions(self, identifier: PlayerIdentifier, client: AsyncClient) -> list[PlayerRegion]:
+    async def get_regions(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[PlayerRegion]:
         """@private"""
         raise NotImplementedError()
 
@@ -94,32 +97,32 @@ class IItemListProvider:
     """
 
     @abstractmethod
-    async def get_icons(self, client: AsyncClient) -> dict[int, PlayerIcon]:
+    async def get_icons(self, client: "MaimaiClient") -> dict[int, PlayerIcon]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_nameplates(self, client: AsyncClient) -> dict[int, PlayerNamePlate]:
+    async def get_nameplates(self, client: "MaimaiClient") -> dict[int, PlayerNamePlate]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_frames(self, client: AsyncClient) -> dict[int, PlayerFrame]:
+    async def get_frames(self, client: "MaimaiClient") -> dict[int, PlayerFrame]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_partners(self, client: AsyncClient) -> dict[int, PlayerPartner]:
+    async def get_partners(self, client: "MaimaiClient") -> dict[int, PlayerPartner]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_charas(self, client: AsyncClient) -> dict[int, PlayerChara]:
+    async def get_charas(self, client: "MaimaiClient") -> dict[int, PlayerChara]:
         """@private"""
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_trophies(self, client: AsyncClient) -> dict[int, PlayerTrophy]:
+    async def get_trophies(self, client: "MaimaiClient") -> dict[int, PlayerTrophy]:
         """@private"""
         raise NotImplementedError()
 
@@ -131,6 +134,6 @@ class IAreaProvider:
     """
 
     @abstractmethod
-    async def get_areas(self, lang: str, client: AsyncClient) -> dict[str, Area]:
+    async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:
         """@private"""
         raise NotImplementedError()
