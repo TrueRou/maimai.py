@@ -39,25 +39,25 @@ pip install -U maimai-py
 
 ```python
 import asyncio
-from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, LXNSProvider, DivingFishProvider
+from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, DivingFishProvider
 
 
 async def quick_start():
     maimai = MaimaiClient()
-    divingfish = DivingFishProvider(developer_token="")
+    divingfish = DivingFishProvider(developer_token="your_token_here")
 
     # 获取所有歌曲及其元数据
     songs: MaimaiSongs = await maimai.songs()
-    # 获取水鱼查分器用户 turou 的分数 (默认获取 b50 分数)
+    # 获取水鱼查分器用户 turou 的分数
     scores: MaimaiScores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
     # 获取水鱼查分器用户 turou 的舞将牌子信息
     plates: MaimaiPlates = await maimai.plates(PlayerIdentifier(username="turou"), "舞将", provider=divingfish)
 
-    song = songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
+    song = await songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
 
     print(f"歌曲 1231 是: {song.artist} - {song.title}")
     print(f"TuRou 的 Rating 为: {scores.rating}, b15 中最高 Rating 为: {scores.scores_b15[0].dx_rating}")
-    print(f"TuRou 的 舞将 完成度: {plates.cleared_num}/{plates.all_num}")
+    print(f"TuRou 的 舞将 完成度: {await plates.count_cleared()}/{await plates.count_all()}")
 
 asyncio.run(quick_start())
 ```
