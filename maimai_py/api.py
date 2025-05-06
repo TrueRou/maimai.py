@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
 
+from maimai_py.maimai import MaimaiPlates
 from maimai_py.models import *
-from maimai_py.enums import ScoreKind
 from maimai_py.exceptions import MaimaiPyError
 from maimai_py import MaimaiClient, MaimaiSongs, LXNSProvider, DivingFishProvider, ArcadeProvider
 
@@ -40,41 +40,13 @@ def get_filters(functions: dict[Any, Callable[..., bool]]):
     return filter
 
 
-@dataclass
+@dataclass(slots=True)
 class PlayerBests:
     rating: int
     rating_b35: int
     rating_b15: int
     scores_b35: list[Score]
     scores_b15: list[Score]
-
-
-@dataclass
-class PlateStats:
-    remained_num: int
-    cleared_num: int
-    played_num: int
-    all_num: int
-
-
-@dataclass
-class SongSimple:
-    id: int
-    title: str
-    artist: str
-
-
-@dataclass
-class PlateObjectSimple:
-    song: SongSimple
-    levels: list[LevelIndex]
-    scores: list[Score] | None
-
-
-@dataclass
-class PlateSimple:
-    stats: PlateStats
-    data: list[PlateObjectSimple]
 
 
 if find_spec("fastapi"):
@@ -131,13 +103,13 @@ if find_spec("fastapi"):
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=1000),
     ):
-        songs: MaimaiSongs = await maimai_client.songs()
+        songs: MaimaiSongs = await maimai_client.songs(curve_provider=None)
         type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []  # type: ignore
         level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
         versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
         keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
         filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
-        results = list(filter(filters, songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)))
+        results = list(filter(filters, await songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)))
         return pagination(page_size, page, results)
 
     @router.get(
@@ -160,7 +132,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerIcon], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        results = list(filter(filters, await items.filter(name=name, description=description, genre=genre)))
         return pagination(page_size, page, results)
 
     @router.get(
@@ -183,7 +155,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerNamePlate], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        results = list(filter(filters, await items.filter(name=name, description=description, genre=genre)))
         return pagination(page_size, page, results)
 
     @router.get(
@@ -206,7 +178,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerFrame], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, items.filter(name=name, description=description, genre=genre)))
+        results = list(filter(filters, await items.filter(name=name, description=description, genre=genre)))
         return pagination(page_size, page, results)
 
     @router.get(
@@ -228,7 +200,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerTrophy], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, items.filter(name=name, color=color)))
+        results = list(filter(filters, await items.filter(name=name, color=color)))
         return pagination(page_size, page, results)
 
     @router.get(
@@ -287,7 +259,7 @@ if find_spec("fastapi"):
             return [area] if (area := areas.by_id(id)) else []
         if name is not None:
             return [area] if (area := areas.by_name(name)) else []
-        return pagination(page_size, page, list(areas.values))
+        return pagination(page_size, page, [x async for x in areas.iter_areas()])
 
     @router.get(
         "/lxns/players",
@@ -335,7 +307,7 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_lxns_player),
         provider: LXNSProvider = Depends(dep_lxns),
     ):
-        scores = await maimai_client.scores(player, kind=ScoreKind.ALL, provider=provider)
+        scores = await maimai_client.scores(player, provider=provider)
         return scores.scores  # no pagination because it costs more
 
     @router.get(
@@ -348,7 +320,7 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_diving_player),
         provider: DivingFishProvider = Depends(dep_diving),
     ):
-        scores = await maimai_client.scores(player, kind=ScoreKind.ALL, provider=provider)
+        scores = await maimai_client.scores(player, provider=provider)
         return scores.scores  # no pagination because it costs more
 
     @router.get(
@@ -361,7 +333,7 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_arcade_player),
         provider: ArcadeProvider = Depends(dep_arcade),
     ):
-        scores = await maimai_client.scores(player, kind=ScoreKind.ALL, provider=provider)
+        scores = await maimai_client.scores(player, provider=provider)
         return scores.scores  # no pagination because it costs more
 
     @router.post(
@@ -399,7 +371,7 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_lxns_player),
         provider: LXNSProvider = Depends(dep_lxns),
     ):
-        scores = await maimai_client.scores(player, kind=ScoreKind.BEST, provider=provider)
+        scores = await maimai_client.scores(player, provider=provider)
         return PlayerBests(
             rating=scores.rating,
             rating_b35=scores.rating_b35,
@@ -418,7 +390,7 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_diving_player),
         provider: DivingFishProvider = Depends(dep_diving),
     ):
-        scores = await maimai_client.scores(player, kind=ScoreKind.BEST, provider=provider)
+        scores = await maimai_client.scores(player, provider=provider)
         return PlayerBests(
             rating=scores.rating,
             rating_b35=scores.rating_b35,
@@ -437,7 +409,7 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_arcade_player),
         provider: ArcadeProvider = Depends(dep_arcade),
     ):
-        scores = await maimai_client.scores(player, kind=ScoreKind.BEST, provider=provider)
+        scores = await maimai_client.scores(player, provider=provider)
         return PlayerBests(
             rating=scores.rating,
             rating_b35=scores.rating_b35,
@@ -446,7 +418,7 @@ if find_spec("fastapi"):
             scores_b15=scores.scores_b15,
         )
 
-    @router.get("/lxns/plates", response_model=PlateSimple, tags=["lxns"], description="Get player plates from LXNS")
+    @router.get("/lxns/plates", response_model=list[PlateObject], tags=["lxns"], description="Get player plates from LXNS")
     async def get_plate_lxns(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -454,13 +426,9 @@ if find_spec("fastapi"):
         provider: LXNSProvider = Depends(dep_lxns),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        data: list[PlateObject] = getattr(plates, attr)
-        return PlateSimple(
-            stats=PlateStats(remained_num=plates.remained_num, cleared_num=plates.cleared_num, played_num=plates.played_num, all_num=plates.all_num),
-            data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
-        )
+        return await getattr(plates, f"get_{attr}")()
 
-    @router.get("/divingfish/plates", response_model=PlateSimple, tags=["divingfish"], description="Get player plates from Diving Fish")
+    @router.get("/divingfish/plates", response_model=list[PlateObject], tags=["divingfish"], description="Get player plates from Diving Fish")
     async def get_plate_diving(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -468,13 +436,9 @@ if find_spec("fastapi"):
         provider: DivingFishProvider = Depends(dep_diving),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        data: list[PlateObject] = getattr(plates, attr)
-        return PlateSimple(
-            stats=PlateStats(remained_num=plates.remained_num, cleared_num=plates.cleared_num, played_num=plates.played_num, all_num=plates.all_num),
-            data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
-        )
+        return await getattr(plates, f"get_{attr}")()
 
-    @router.get("/arcade/plates", response_model=PlateSimple, tags=["arcade"], description="Get player plates from Arcade")
+    @router.get("/arcade/plates", response_model=list[PlateObject], tags=["arcade"], description="Get player plates from Arcade")
     async def get_plate_arcade(
         plate: str,
         attr: Literal["remained", "cleared", "played", "all"] = "remained",
@@ -482,11 +446,7 @@ if find_spec("fastapi"):
         provider: ArcadeProvider = Depends(dep_arcade),
     ):
         plates: MaimaiPlates = await maimai_client.plates(player, plate, provider=provider)
-        data: list[PlateObject] = getattr(plates, attr)
-        return PlateSimple(
-            stats=PlateStats(remained_num=plates.remained_num, cleared_num=plates.cleared_num, played_num=plates.played_num, all_num=plates.all_num),
-            data=[PlateObjectSimple(song=SongSimple(p.song.id, p.song.title, p.song.artist), levels=p.levels, scores=p.scores) for p in data],
-        )
+        return await getattr(plates, f"get_{attr}")()
 
     @router.get("/arcade/regions", response_model=list[PlayerRegion], tags=["arcade"], description="Get player regions from Arcade")
     async def get_region(

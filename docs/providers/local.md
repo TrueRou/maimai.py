@@ -1,17 +1,17 @@
 # LocalProvider
 
-Implementation: IItemListProvider, IAreaProvider
+实现：IItemListProvider, IAreaProvider
 
-Given that some collection data does not have open APIs available, we provide a local collection data source for storing collection data that cannot be obtained through APIs.
+鉴于部分收藏品数据没有开放API提供，我们提供了一个本地的收藏品数据源，用于存放一些无法通过API获取的收藏品数据。
 
-## About Collections
+## 关于收藏品
 
-Currently included collections are:
+目前包含的收藏品有：
 
 `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`
 
-# About Map Areas
+# 关于跑图区域
 
-The local data source provides data for some map areas, offering original Japanese area names and Chinese translations.
+本地数据源提供了一些跑图区域的数据，提供日语原版的区域名称和中文翻译。
 
-The Chinese translation files may be incomplete or outdated. Pull requests are welcome to help us improve these data.
+中文翻译文件可能不完成或过时，欢迎提交 PR 来帮助我们完善这些数据。

@@ -39,12 +39,11 @@ Additionally, you can [download the maimai.py client](https://github.com/TrueRou
 
 ```python
 import asyncio
-from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, LXNSProvider, DivingFishProvider
-
+from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, DivingFishProvider
 
 async def quick_start():
     maimai = MaimaiClient()
-    divingfish = DivingFishProvider(developer_token="")
+    divingfish = DivingFishProvider(developer_token="your_token_here")
 
     # fetch all songs and their metadata
     songs: MaimaiSongs = await maimai.songs()
@@ -53,11 +52,11 @@ async def quick_start():
     # fetch divingfish user turou's 舞将 plate information
     plates: MaimaiPlates = await maimai.plates(PlayerIdentifier(username="turou"), "舞将", provider=divingfish)
 
-    song = songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
+    song = await songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
 
     print(f"Song 1231: {song.artist} - {song.title}")
     print(f"TuRou's rating: {scores.rating}, b15 top rating: {scores.scores_b15[0].dx_rating}")
-    print(f"TuRou's 舞将: {plates.cleared_num}/{plates.all_num} cleared")
+    print(f"TuRou's 舞将: {await plates.count_cleared()}/{await plates.count_all()} cleared")
 
 asyncio.run(quick_start())
 ```
