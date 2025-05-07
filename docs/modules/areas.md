@@ -26,10 +26,13 @@
 ## MaimaiAreas 对象
 
 ```python
-async def iter_areas(self) -> AsyncGenerator[Area, None]:
-    """所有区域的异步生成器。
+async def get_all(self) -> list[Area]:
+    """获取所有区域，以列表返回。
 
-    此方法将遍历缓存中的所有区域，并逐个生成每个区域。除非您确实需要遍历所有区域，否则应该使用 `by_id` 或 `by_name` 代替。
+    此方法将遍历缓存中的所有区域。除非您确实需要遍历所有区域，否则应该使用 `by_id` 或 `by_name` 代替。
+
+    返回值:
+        一个列表，包含所有区域。
     """
 
 async def by_id(self, id: str) -> Area | None:

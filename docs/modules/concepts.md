@@ -29,7 +29,7 @@ songs: MaimaiSongs = await client.songs()
 
 上文提到过的 `MaimaiSongs` 是一个封装对象，与直接返回 `list[Song]` 相比，封装对象为您提供了一些方便的方法。
 
-例如，您可以直接调用 `songs.by_title()` 等方法直接进行筛选，如果需要，您也可以通过 `songs.iter_songs` 通过生成器进行遍历。
+例如，您可以直接调用 `songs.by_title()` 等方法直接进行筛选，如果需要，您也可以通过 `songs.get_all` 进行遍历。
 
 我们针对大多数数据都进行了封装（`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`），读者可以自行查看预置的方法。
 

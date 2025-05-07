@@ -29,7 +29,7 @@ async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingf
         ]
     )
 
-    my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), "舞将", provider=lxns)
+    my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), "桃将", provider=lxns)
     assert await my_plate.count_cleared() + await my_plate.count_remained() == await my_plate.count_all()
 
 

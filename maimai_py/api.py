@@ -259,7 +259,7 @@ if find_spec("fastapi"):
             return [area] if (area := areas.by_id(id)) else []
         if name is not None:
             return [area] if (area := areas.by_name(name)) else []
-        return pagination(page_size, page, [x async for x in areas.iter_areas()])
+        return pagination(page_size, page, await areas.get_all())
 
     @router.get(
         "/lxns/players",

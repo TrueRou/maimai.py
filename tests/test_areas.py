@@ -6,7 +6,7 @@ from maimai_py.maimai import MaimaiClient
 @pytest.mark.asyncio()
 async def test_areas(maimai: MaimaiClient):
     areas = await maimai.areas()
-    async for area in areas.iter_areas():
+    for area in await areas.get_all():
         assert len(area.songs) >= 1
 
 

@@ -30,10 +30,13 @@
 ## MaimaiItems 对象
 
 ```python
-async def iter_items(self) -> AsyncGenerator[PlayerItemType, None]:
-    """以异步生成器方式获取所有收藏品。
+async def get_all(self) -> list[PlayerItemType]:
+    """获取所有收藏品，以列表返回。
 
     此方法将遍历缓存中的所有收藏品，并逐个生成每个收藏品。除非您确实需要遍历所有收藏品，否则应使用 `by_id` 或 `filter` 方法。
+
+    返回值:
+        一个列表，包含所有收藏品。
     """
 
 async def by_id(self, id: int) -> PlayerItemType | None:

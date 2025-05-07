@@ -27,13 +27,13 @@
 ## MaimaiSongs 对象
 
 ```python
-async def iter_songs(self) -> AsyncGenerator[Song, None]:
-    """所有歌曲作为异步生成器。
+async def get_all(self) -> list[Song]:
+    """获取所有歌曲，以列表返回。
 
     此方法将遍历缓存中的所有歌曲，并逐一生成每首歌曲。除非您确实需要遍历所有歌曲，否则应使用 `by_id` 或 `filter` 方法代替。
 
     返回值:
-        一个异步生成器，生成缓存中的所有歌曲。
+        一个列表，包含缓存中的所有歌曲。
     """
 
 async def by_id(self, id: int) -> Song | None:

@@ -376,10 +376,11 @@ class PlateSong:
                 levels.remove(LevelIndex.ReMASTER)
             return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=levels)
 
-    @staticmethod
-    def _from_song_no_levels(song: Song | None) -> "PlateSong | None":
-        if song:
-            return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=[])
+    def _as_empty(self) -> "PlateSong":
+        return PlateSong(id=self.id, title=self.title, artist=self.artist, levels=[])
+
+    def _as_full(self) -> "PlateSong":
+        return PlateSong(id=self.id, title=self.title, artist=self.artist, levels=self.levels.copy())
 
 
 @dataclass(slots=True)
