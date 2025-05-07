@@ -74,6 +74,17 @@
 | `rating_b15` | `int`         | 玩家 B15 Rating                                                    |
 
 ```python
+async def configure(self, scores: list[Score]) -> "MaimaiScores":
+    """通过分数列表初始化分数对象。
+    
+    此方法将根据分数的 dx_rating、dx_score 和 achievements 进行排序，并将其分为 b35 和 b15 分数。
+    
+    参数:
+        scores: 要初始化的分数列表。
+    返回值:
+        初始化后的 MaimaiScores 对象。
+    """
+
 async def get_distinct(self) -> "MaimaiScores":
     """获取去重后的分数。
 

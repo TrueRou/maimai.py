@@ -23,8 +23,12 @@ class MaimaiItems(Generic[PlayerItemType]):
         self._client = client
         self._namespace = namespace
 
-    async def _configure(self, provider: IItemListProvider) -> "MaimaiItems":
+    async def _configure(self, provider: IItemListProvider | _UnsetSentinel) -> "MaimaiItems":
+        if isinstance(provider, _UnsetSentinel):
+            if await self._client._cache.get("provider", None, namespace=self._namespace) is not None:
+                return self
         if hash(provider) != await self._client._cache.get("provider", "", namespace=self._namespace):
+            provider = LXNSProvider() if PlayerItemType in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
             val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
             await self._client._cache.set("ids", [key for key in val.keys()], namespace=self._namespace)
             await self._client._cache.multi_set(val.items(), namespace=self._namespace)
@@ -78,11 +82,20 @@ class MaimaiSongs:
         self._client = client
 
     async def _configure(
-        self, provider: ISongProvider, alias_provider: IAliasProvider | None, curve_provider: ICurveProvider | None
+        self,
+        provider: ISongProvider | _UnsetSentinel,
+        alias_provider: IAliasProvider | None | _UnsetSentinel,
+        curve_provider: ICurveProvider | None | _UnsetSentinel,
     ) -> "MaimaiSongs":
         current_provider_hash = hash(hash(provider) + hash(alias_provider) + hash(curve_provider))
         previous_provider_hash = await self._client._cache.get("provider", "", namespace="songs")
+        if isinstance(provider, _UnsetSentinel) and isinstance(alias_provider, _UnsetSentinel) and isinstance(curve_provider, _UnsetSentinel):
+            if await self._client._cache.get("provider", None, namespace="songs") is not None:
+                return self
         if current_provider_hash != previous_provider_hash:
+            provider = provider if not isinstance(provider, _UnsetSentinel) else LXNSProvider()
+            alias_provider = alias_provider if not isinstance(alias_provider, _UnsetSentinel) else YuzuProvider()
+            curve_provider = curve_provider if not isinstance(curve_provider, _UnsetSentinel) else DivingFishProvider()
             songs = await provider.get_songs(self._client)
             aliases = await alias_provider.get_aliases(self._client) if alias_provider else []
             curves = await curve_provider.get_curves(self._client) if curve_provider else {}
@@ -447,7 +460,16 @@ class MaimaiScores:
     def __init__(self, client: "MaimaiClient"):
         self._client = client
 
-    async def _configure(self, scores: list[Score]) -> "MaimaiScores":
+    async def configure(self, scores: list[Score]) -> "MaimaiScores":
+        """Initialize the scores by the scores list.
+
+        This method will sort the scores by their dx_rating, dx_score and achievements, and split them into b35 and b15 scores.
+
+        Args:
+            scores: the scores list to initialize.
+        Returns:
+            The MaimaiScores object with the scores initialized.
+        """
         self.scores = scores
         scores_new: list[Score] = []
         scores_old: list[Score] = []
@@ -487,7 +509,7 @@ class MaimaiScores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
         new_scores = MaimaiScores(self._client)
-        return await new_scores._configure(list(scores_unique.values()))
+        return await new_scores.configure(list(scores_unique.values()))
 
     def by_song(
         self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
@@ -531,9 +553,13 @@ class MaimaiAreas:
         """@private"""
         self._client = client
 
-    async def _configure(self, lang: str, provider: IAreaProvider) -> "MaimaiAreas":
+    async def _configure(self, lang: str, provider: IAreaProvider | _UnsetSentinel) -> "MaimaiAreas":
         self._lang = lang
+        if isinstance(provider, _UnsetSentinel):
+            if await self._client._cache.get("provider", None, namespace=f"areas_{lang}") is not None:
+                return self
         if hash(provider) != await self._client._cache.get("provider", "", namespace=f"areas_{lang}"):
+            provider = provider if not isinstance(provider, _UnsetSentinel) else LocalProvider()
             areas = await provider.get_areas(lang, self._client)
             await self._client._cache.set("ids", [area.id for area in areas.values()], namespace=f"areas_{lang}")
             await self._client._cache.multi_set(iter((k, v) for k, v in areas.items()), namespace=f"areas_{lang}")
@@ -613,7 +639,6 @@ class MaimaiClient:
         Available curve providers: `DivingFishProvider`.
 
         Args:
-            flush: whether to flush the cache, defaults to False.
             provider: override the data source to fetch the player from, defaults to `LXNSProvider`.
             alias_provider: override the data source to fetch the song aliases from, defaults to `YuzuProvider`.
             curve_provider: override the data source to fetch the song curves from, defaults to `DivingFishProvider`.
@@ -623,12 +648,6 @@ class MaimaiClient:
             httpx.HTTPError: Request failed due to network issues.
         """
         songs = MaimaiSongs(self)
-        if isinstance(provider, _UnsetSentinel):
-            provider = LXNSProvider()
-        if isinstance(alias_provider, _UnsetSentinel):
-            alias_provider = YuzuProvider()
-        if isinstance(curve_provider, _UnsetSentinel):
-            curve_provider = DivingFishProvider()
         return await songs._configure(provider, alias_provider, curve_provider)
 
     async def players(
@@ -696,7 +715,7 @@ class MaimaiClient:
         all = await provider.get_scores_all(identifier, self)
 
         maimai_scores = MaimaiScores(self)
-        return await maimai_scores._configure(all + b35 + b15)
+        return await maimai_scores.configure(all + b35 + b15)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
@@ -841,8 +860,7 @@ class MaimaiClient:
             FileNotFoundError: The item file is not found.
             httpx.HTTPError: Request failed due to network issues.
         """
-        if isinstance(provider, _UnsetSentinel):
-            provider = LXNSProvider() if item in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
+
         maimai_items = MaimaiItems[PlayerItemType](self, item._namespace())
         return await maimai_items._configure(provider)
 
@@ -862,10 +880,3 @@ class MaimaiClient:
 
         maimai_areas = MaimaiAreas(self)
         return await maimai_areas._configure(lang, provider)
-
-    async def flush(self) -> None:
-        """Flush the caches of the client, this will perform a full re-fetch of all the data.
-
-        Notice that only items ("songs", "aliases", "curves", "icons", "plates", "frames", "trophy", "chara", "partner") will be cached, this will only affect those items.
-        """
-        await self._cache.clear()

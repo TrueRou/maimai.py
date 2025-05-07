@@ -16,5 +16,8 @@ class _UnsetSentinel:
     def __deepcopy__(self: _T, _: Any) -> _T:
         return self
 
+    def __hash__(self) -> int:
+        return hash("unset_sentinel")
+
 
 UNSET = _UnsetSentinel()

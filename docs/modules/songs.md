@@ -10,7 +10,6 @@
 
 | 参数名         | 类型             | 说明                                                  |
 |----------------|------------------|-----------------------------------------------------|
-| flush          | `bool`           | 是否刷新缓存，默认为 `False`                           |
 | provider       | `ISongProvider`  | 覆写默认数据源，默认为 `LXNSProvider`                  |
 | alias_provider | `IAliasProvider` | 覆写默认别名数据源，默认为 `YuzuProvider`              |
 | curve_provider | `ICurveProvider` | 覆写默认相对难度曲线数据源，默认为`DivingFishProvider` |
