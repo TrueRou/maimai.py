@@ -37,7 +37,7 @@ jobs:
       - name: Build Python script
         uses: Nuitka/Nuitka-Action@main
         with:
-          nuitka-version: main
+          nuitka-version: 2.6.9
           script-name: maimai_py/api.py
           include-data-dir: maimai_py/providers/local=maimai_py/providers/local
           mode: app
