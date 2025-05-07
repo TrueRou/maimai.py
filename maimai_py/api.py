@@ -109,7 +109,7 @@ if find_spec("fastapi"):
         versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
         keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
         filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
-        results = list(filter(filters, await songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)))
+        results = [x async for x in songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version) if filters(x)]
         return pagination(page_size, page, results)
 
     @router.get(
@@ -132,7 +132,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerIcon], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, await items.filter(name=name, description=description, genre=genre)))
+        results = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
         return pagination(page_size, page, results)
 
     @router.get(
@@ -155,7 +155,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerNamePlate], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, await items.filter(name=name, description=description, genre=genre)))
+        results = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
         return pagination(page_size, page, results)
 
     @router.get(
@@ -178,7 +178,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerFrame], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, await items.filter(name=name, description=description, genre=genre)))
+        results = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
         return pagination(page_size, page, results)
 
     @router.get(
@@ -200,7 +200,7 @@ if find_spec("fastapi"):
             return [item] if (item := items.by_id(id)) else []
         keyword_func: Callable[[PlayerTrophy], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
         filters = get_filters({keywords: keyword_func})
-        results = list(filter(filters, await items.filter(name=name, color=color)))
+        results = [x async for x in items.filter(name=name, color=color) if filters(x)]
         return pagination(page_size, page, results)
 
     @router.get(
