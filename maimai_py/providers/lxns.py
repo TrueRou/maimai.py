@@ -1,11 +1,13 @@
 import dataclasses
+import hashlib
 from typing import TYPE_CHECKING
+
 from httpx import Response
 
-from maimai_py.models import *
 from maimai_py.enums import *
-from maimai_py.providers import IAliasProvider, IPlayerProvider, IScoreProvider, ISongProvider, IItemListProvider
 from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
+from maimai_py.models import *
+from maimai_py.providers import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
@@ -37,8 +39,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         """
         self.developer_token = developer_token
 
-    def __hash__(self) -> int:
-        return hash(f"lxns-{self.developer_token or 0}")
+    def _hash(self) -> str:
+        return hashlib.md5(b"lxns").hexdigest()
 
     async def _ensure_friend_code(self, client: "MaimaiClient", identifier: PlayerIdentifier) -> None:
         if identifier.friend_code is None:

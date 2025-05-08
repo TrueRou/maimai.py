@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maimai-py"
-version = "1.0.3"
+version = "1.0.4"
 description = "The definitive python wrapper for MaimaiCN."
 authors = ["Usagi no Niku <chenbohan911@163.com>"]
 license = "MIT"

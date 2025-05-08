@@ -1,12 +1,14 @@
+import hashlib
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from maimai_ffi import arcade
 
 from maimai_py.enums import *
-from maimai_py.models import *
-from maimai_py.utils import ScoreCoefficient
-from maimai_py.providers import IPlayerProvider, IRegionProvider, IScoreProvider
 from maimai_py.exceptions import InvalidPlayerIdentifierError
+from maimai_py.models import *
+from maimai_py.providers import IPlayerProvider, IRegionProvider, IScoreProvider
+from maimai_py.utils import ScoreCoefficient
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
@@ -27,8 +29,8 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
     def __init__(self, http_proxy: str | None = None):
         self._http_proxy = http_proxy
 
-    def __hash__(self) -> int:
-        return hash(f"arcade-0")
+    def _hash(self) -> str:
+        return hashlib.md5(b"arcade").hexdigest()
 
     @staticmethod
     async def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:

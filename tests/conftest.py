@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from maimai_py import MaimaiClient
@@ -23,7 +24,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(skip_slow)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def maimai():
     return MaimaiClient()
 

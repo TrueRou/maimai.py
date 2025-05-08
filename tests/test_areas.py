@@ -3,7 +3,7 @@ import pytest
 from maimai_py.maimai import MaimaiClient
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio(scope="session")
 async def test_areas(maimai: MaimaiClient):
     areas = await maimai.areas()
     for area in await areas.get_all():

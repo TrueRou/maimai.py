@@ -1,11 +1,12 @@
 import pytest
+
 from maimai_py.exceptions import TitleServerError
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import ArcadePlayer, PlayerIdentifier
 from maimai_py.providers.arcade import ArcadeProvider
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio(scope="session")
 @pytest.mark.slow()
 async def test_arcade(maimai: MaimaiClient, arcade: ArcadeProvider):
     try:

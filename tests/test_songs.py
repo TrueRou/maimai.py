@@ -5,7 +5,7 @@ from maimai_py.providers import LXNSProvider
 from maimai_py.providers.divingfish import DivingFishProvider
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio(scope="session")
 async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
     songs = await maimai.songs()
     song1 = await songs.by_id(1231)  # 生命不詳

@@ -1,9 +1,10 @@
+import hashlib
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from maimai_py.models import *
-from maimai_py.providers import IItemListProvider, IAreaProvider
+from maimai_py.providers import IAreaProvider, IItemListProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient
@@ -15,8 +16,19 @@ class LocalProvider(IItemListProvider, IAreaProvider):
     Most of the data are stored in JSON files in the same directory as this file.
     """
 
-    def __hash__(self) -> int:
-        return hash(f"local-0")
+    def _hash(self) -> str:
+        current_folder = Path(__file__).resolve().parent
+        json_files = sorted(current_folder.glob("*.json"))
+
+        if not json_files:
+            return hashlib.md5(b"local").hexdigest()
+
+        combined_content = b""
+        for file_path in json_files:
+            with open(file_path, "rb") as f:
+                combined_content += f.read()
+
+        return hashlib.md5(combined_content).hexdigest()
 
     def _read_file(self, file_name: str) -> Any:
         current_folder = Path(__file__).resolve().parent

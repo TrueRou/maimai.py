@@ -1,11 +1,13 @@
 import dataclasses
-from httpx import Response
+import hashlib
 from typing import TYPE_CHECKING, Generator
 
+from httpx import Response
+
 from maimai_py.enums import *
+from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
 from maimai_py.models import *
 from maimai_py.providers import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
-from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
@@ -37,8 +39,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         """
         self.developer_token = developer_token
 
-    def __hash__(self) -> int:
-        return hash(f"divingfish-{self.developer_token or 0}")
+    def _hash(self) -> str:
+        return hashlib.md5(b"divingfish").hexdigest()
 
     @staticmethod
     def _deser_song(song: dict) -> Song:

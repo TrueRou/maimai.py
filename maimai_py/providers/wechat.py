@@ -1,14 +1,16 @@
 import asyncio
 import functools
+import hashlib
 import operator
 import random
 from typing import TYPE_CHECKING
+
 from httpx import Cookies
 
 from maimai_py.enums import *
+from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.models import *
 from maimai_py.providers import IScoreProvider
-from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.utils import ScoreCoefficient, wmdx_html2json
 
 if TYPE_CHECKING:
@@ -25,8 +27,8 @@ class WechatProvider(IScoreProvider):
     Wahlap Wechat OffiAccount: https://maimai.wahlap.com/maimai-mobile/
     """
 
-    def __hash__(self) -> int:
-        return hash(f"wechat-0")
+    def _hash(self) -> str:
+        return hashlib.md5(b"wechat").hexdigest()
 
     @staticmethod
     async def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:

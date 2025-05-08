@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 from functools import cached_property
 from typing import AsyncGenerator, Generic, Iterator, Literal, Type, TypeVar
 
@@ -32,8 +33,11 @@ class MaimaiItems(Generic[PlayerItemType]):
                 return self
         # Really assign the unset provider to the default one.
         provider = LXNSProvider() if PlayerItemType in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
+        # Check if the current provider hash is different from the previous one, which means we need to reconfigure the songs.
+        current_provider_hash = provider._hash()
+        previous_provider_hash = await self._client._cache.get("provider", "", namespace=self._namespace)
         # If different or previous is empty, we need to reconfigure the items.
-        if hash(provider) != await self._client._cache.get("provider", "", namespace=self._namespace):
+        if current_provider_hash != previous_provider_hash:
             val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
             await self._client._cache.set("ids", [key for key in val.keys()], namespace=self._namespace)
             await self._client._cache.multi_set(val.items(), namespace=self._namespace)
@@ -109,7 +113,9 @@ class MaimaiSongs:
         alias_provider = alias_provider if not isinstance(alias_provider, _UnsetSentinel) else YuzuProvider()
         curve_provider = curve_provider if not isinstance(curve_provider, _UnsetSentinel) else DivingFishProvider()
         # Check if the current provider hash is different from the previous one, which means we need to reconfigure the songs.
-        current_provider_hash = hash(hash(provider) + hash(alias_provider) + hash(curve_provider))
+        current_provider_hash = hashlib.md5(
+            (provider._hash() + (alias_provider._hash() if alias_provider else "") + (curve_provider._hash() if curve_provider else "")).encode()
+        ).hexdigest()
         previous_provider_hash = await self._client._cache.get("provider", "", namespace="songs")
         # If different or previous is empty, we need to reconfigure the songs.
         if current_provider_hash != previous_provider_hash:

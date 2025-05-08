@@ -14,6 +14,9 @@ class ISongProvider:
     """
 
     @abstractmethod
+    def _hash(self) -> str: ...
+
+    @abstractmethod
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         """@private"""
         raise NotImplementedError()
@@ -24,6 +27,9 @@ class IAliasProvider:
 
     Available providers: `YuzuProvider`, `LXNSProvider`
     """
+
+    @abstractmethod
+    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
@@ -38,6 +44,9 @@ class IPlayerProvider:
     """
 
     @abstractmethod
+    def _hash(self) -> str: ...
+
+    @abstractmethod
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> Player:
         """@private"""
         raise NotImplementedError()
@@ -48,6 +57,9 @@ class IScoreProvider:
 
     Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`
     """
+
+    @abstractmethod
+    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score] | None, list[Score] | None]:
@@ -73,6 +85,9 @@ class ICurveProvider:
     """
 
     @abstractmethod
+    def _hash(self) -> str: ...
+
+    @abstractmethod
     async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject | None]]:
         """@private"""
         raise NotImplementedError()
@@ -85,6 +100,9 @@ class IRegionProvider:
     """
 
     @abstractmethod
+    def _hash(self) -> str: ...
+
+    @abstractmethod
     async def get_regions(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[PlayerRegion]:
         """@private"""
         raise NotImplementedError()
@@ -95,6 +113,9 @@ class IItemListProvider:
 
     Available providers: `LXNSProvider`, `LocalProvider`
     """
+
+    @abstractmethod
+    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_icons(self, client: "MaimaiClient") -> dict[int, PlayerIcon]:
@@ -132,6 +153,9 @@ class IAreaProvider:
 
     Available providers: `LocalProvider`
     """
+
+    @abstractmethod
+    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:

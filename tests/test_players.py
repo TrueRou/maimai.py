@@ -5,7 +5,7 @@ from maimai_py.models import PlayerIdentifier
 from maimai_py.providers import LXNSProvider
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio(scope="session")
 async def test_players_fetching(maimai: MaimaiClient, lxns: LXNSProvider):
     player = await maimai.players(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
     assert player.rating > 10000

@@ -1,3 +1,4 @@
+import hashlib
 from typing import TYPE_CHECKING
 
 from maimai_py.models import SongAlias
@@ -18,8 +19,8 @@ class YuzuProvider(IAliasProvider):
     base_url = "https://api.yuzuchan.moe/"
     """The base URL for the Yuzu API."""
 
-    def __hash__(self) -> int:
-        return hash(f"yuzu")
+    def _hash(self) -> str:
+        return hashlib.md5(b"yuzu").hexdigest()
 
     async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
         resp = await client._client.get(self.base_url + "maimaidx/maimaidxalias")

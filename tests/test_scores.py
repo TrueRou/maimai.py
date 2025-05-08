@@ -7,7 +7,7 @@ from maimai_py.providers.divingfish import DivingFishProvider
 from maimai_py.providers.lxns import LXNSProvider
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio(scope="session")
 async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
     my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
     assert my_scores.rating_b35 > 10000
@@ -33,7 +33,7 @@ async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingf
     assert await my_plate.count_cleared() + await my_plate.count_remained() == await my_plate.count_all()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio(scope="session")
 @pytest.mark.slow()
 async def test_scores_updating_lxns_personal(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
     from tests import secrets
@@ -42,7 +42,7 @@ async def test_scores_updating_lxns_personal(maimai: MaimaiClient, lxns: LXNSPro
     await maimai.updates(PlayerIdentifier(credentials=secrets.lxns_personal_token), scores.scores, provider=lxns)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio(scope="session")
 async def test_scores_updating(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
     scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
     await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
