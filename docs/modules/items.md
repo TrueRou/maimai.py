@@ -39,6 +39,15 @@ async def get_all(self) -> list[PlayerItemType]:
         一个列表，包含所有收藏品。
     """
 
+async def get_batch(self, ids: list[int]) -> list[PlayerItemType]:
+    """通过ID列表获取收藏品。
+
+    参数:
+        ids: 收藏品的ID列表。
+    返回值:
+        一个列表，包含所有找到的收藏品。如果没有找到任何收藏品，则返回空列表。
+    """
+
 async def by_id(self, id: int) -> PlayerItemType | None:
     """通过ID获取收藏品。
 

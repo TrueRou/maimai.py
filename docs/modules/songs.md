@@ -36,6 +36,15 @@ async def get_all(self) -> list[Song]:
         一个列表，包含缓存中的所有歌曲。
     """
 
+async def get_batch(self, ids: list[int]) -> list[Song]:
+    """通过 ID 列表获取歌曲。
+
+    参数:
+        ids: 歌曲的 ID 列表。
+    返回值:
+        一个列表，包含所有找到的歌曲。如果没有找到任何歌曲，则返回空列表。
+    """
+
 async def by_id(self, id: int) -> Song | None:
     """通过 ID 获取歌曲。
 

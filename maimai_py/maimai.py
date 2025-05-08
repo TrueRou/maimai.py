@@ -1,14 +1,16 @@
-import httpx
+import asyncio
 from functools import cached_property
 from typing import AsyncGenerator, Generic, Iterator, Literal, Type, TypeVar
-from httpx import AsyncClient
-from aiocache import SimpleMemoryCache, BaseCache
 
+import httpx
+from aiocache import BaseCache, SimpleMemoryCache
+from httpx import AsyncClient
 from maimai_ffi import arcade
+
 from maimai_py.enums import *
+from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
 from maimai_py.models import *
 from maimai_py.providers import *
-from maimai_py.exceptions import InvalidPlateError, WechatTokenExpiredError
 from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
 
 PlayerItemType = TypeVar("PlayerItemType", bound=PlayerItem)
@@ -24,11 +26,14 @@ class MaimaiItems(Generic[PlayerItemType]):
         self._namespace = namespace
 
     async def _configure(self, provider: IItemListProvider | _UnsetSentinel) -> "MaimaiItems":
+        # Check if the provider is unset, which means we want to access the cache directly.
         if isinstance(provider, _UnsetSentinel):
             if await self._client._cache.get("provider", None, namespace=self._namespace) is not None:
                 return self
+        # Really assign the unset provider to the default one.
+        provider = LXNSProvider() if PlayerItemType in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
+        # If different or previous is empty, we need to reconfigure the items.
         if hash(provider) != await self._client._cache.get("provider", "", namespace=self._namespace):
-            provider = LXNSProvider() if PlayerItemType in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
             val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
             await self._client._cache.set("ids", [key for key in val.keys()], namespace=self._namespace)
             await self._client._cache.multi_set(val.items(), namespace=self._namespace)
@@ -46,6 +51,16 @@ class MaimaiItems(Generic[PlayerItemType]):
         item_ids: list[int] | None = await self._client._cache.get("ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         return await self._client._cache.multi_get(item_ids, namespace=self._namespace)
+
+    async def get_batch(self, ids: list[int]) -> list[PlayerItemType]:
+        """Get items by their IDs.
+
+        Args:
+            ids: the IDs of the items.
+        Returns:
+            A list of items if they exist, otherwise return an empty list.
+        """
+        return await self._client._cache.multi_get(ids, namespace=self._namespace)
 
     async def by_id(self, id: int) -> PlayerItemType | None:
         """Get an item by its ID.
@@ -85,26 +100,37 @@ class MaimaiSongs:
         alias_provider: IAliasProvider | None | _UnsetSentinel,
         curve_provider: ICurveProvider | None | _UnsetSentinel,
     ) -> "MaimaiSongs":
-        current_provider_hash = hash(hash(provider) + hash(alias_provider) + hash(curve_provider))
-        previous_provider_hash = await self._client._cache.get("provider", "", namespace="songs")
+        # Check if all providers are unset, which means we want to access the cache directly.
         if isinstance(provider, _UnsetSentinel) and isinstance(alias_provider, _UnsetSentinel) and isinstance(curve_provider, _UnsetSentinel):
             if await self._client._cache.get("provider", None, namespace="songs") is not None:
                 return self
+        # Really assign the unset providers to the default ones.
+        provider = provider if not isinstance(provider, _UnsetSentinel) else LXNSProvider()
+        alias_provider = alias_provider if not isinstance(alias_provider, _UnsetSentinel) else YuzuProvider()
+        curve_provider = curve_provider if not isinstance(curve_provider, _UnsetSentinel) else DivingFishProvider()
+        # Check if the current provider hash is different from the previous one, which means we need to reconfigure the songs.
+        current_provider_hash = hash(hash(provider) + hash(alias_provider) + hash(curve_provider))
+        previous_provider_hash = await self._client._cache.get("provider", "", namespace="songs")
+        # If different or previous is empty, we need to reconfigure the songs.
         if current_provider_hash != previous_provider_hash:
-            provider = provider if not isinstance(provider, _UnsetSentinel) else LXNSProvider()
-            alias_provider = alias_provider if not isinstance(alias_provider, _UnsetSentinel) else YuzuProvider()
-            curve_provider = curve_provider if not isinstance(curve_provider, _UnsetSentinel) else DivingFishProvider()
-            songs = await provider.get_songs(self._client)
-            aliases = await alias_provider.get_aliases(self._client) if alias_provider else []
-            curves = await curve_provider.get_curves(self._client) if curve_provider else {}
-            await self._client._cache.set("ids", [song.id for song in songs], namespace="songs")
-            await self._client._cache.set(
-                "versions",
-                {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.difficulties._get_children()},
-                namespace="songs",
+            # Get the resources from the providers in parallel.
+            songs_task = asyncio.create_task(provider.get_songs(self._client))
+            aliases_task = asyncio.create_task(alias_provider.get_aliases(self._client)) if alias_provider else None
+            curves_task = asyncio.create_task(curve_provider.get_curves(self._client)) if curve_provider else None
+            songs, aliases, curves = await songs_task, (await aliases_task if aliases_task else []), (await curves_task if curves_task else {})
+
+            id_task = asyncio.create_task(self._client._cache.set("ids", [song.id for song in songs], namespace="songs"))
+            version_task = asyncio.create_task(
+                self._client._cache.set(
+                    "versions",
+                    {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.difficulties._get_children()},
+                    namespace="songs",
+                )
             )
-            await self._client._cache.multi_set(iter((song.title, song.id) for song in songs), namespace="tracks")
-            await self._client._cache.multi_set(iter((entry, alias.song_id) for alias in aliases for entry in alias.aliases), namespace="aliases")
+            track_task = asyncio.create_task(self._client._cache.multi_set(iter((song.title, song.id) for song in songs), namespace="tracks"))
+            alias_task = asyncio.create_task(
+                self._client._cache.multi_set(iter((entry, alias.song_id) for alias in aliases for entry in alias.aliases), namespace="aliases")
+            )
             aliases_dict = {alias.song_id: alias.aliases for alias in aliases}
             curves_dict = {song_id: curve for song_id, curve in curves.items()}
 
@@ -122,8 +148,11 @@ class MaimaiSongs:
                         diffs = song.difficulties._get_children(SongType.UTAGE)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs)]
 
-            await self._client._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs")
-            await self._client._cache.set("provider", current_provider_hash, ttl=self._client._cache_ttl, namespace="songs")
+            song_task = asyncio.create_task(self._client._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs"))
+            provider_task = asyncio.create_task(
+                self._client._cache.set("provider", current_provider_hash, ttl=self._client._cache_ttl, namespace="songs")
+            )
+            await asyncio.gather(id_task, version_task, track_task, alias_task, song_task, provider_task)
         return self
 
     async def get_all(self) -> list[Song]:
@@ -137,6 +166,16 @@ class MaimaiSongs:
         song_ids: list[int] | None = await self._client._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         return await self._client._cache.multi_get(song_ids, namespace="songs")
+
+    async def get_batch(self, ids: list[int]) -> list[Song]:
+        """Get songs by their IDs.
+
+        Args:
+            ids: the IDs of the songs.
+        Returns:
+            A list of songs if they exist, otherwise return an empty list.
+        """
+        return await self._client._cache.multi_get(ids, namespace="songs")
 
     async def by_id(self, id: int) -> Song | None:
         """Get a song by its ID.
@@ -549,15 +588,21 @@ class MaimaiAreas:
 
     async def _configure(self, lang: str, provider: IAreaProvider | _UnsetSentinel) -> "MaimaiAreas":
         self._lang = lang
+        # Check if the provider is unset, which means we want to access the cache directly.
         if isinstance(provider, _UnsetSentinel):
             if await self._client._cache.get("provider", None, namespace=f"areas_{lang}") is not None:
                 return self
+        # Really assign the unset provider to the default one.
+        provider = provider if not isinstance(provider, _UnsetSentinel) else LocalProvider()
+        # If different or previous is empty, we need to reconfigure the areas.
         if hash(provider) != await self._client._cache.get("provider", "", namespace=f"areas_{lang}"):
-            provider = provider if not isinstance(provider, _UnsetSentinel) else LocalProvider()
             areas = await provider.get_areas(lang, self._client)
-            await self._client._cache.set("ids", [area.id for area in areas.values()], namespace=f"areas_{lang}")
-            await self._client._cache.multi_set(iter((k, v) for k, v in areas.items()), namespace=f"areas_{lang}")
-            await self._client._cache.set("provider", hash(provider), ttl=self._client._cache_ttl, namespace=f"areas_{lang}")
+            tasks = [
+                asyncio.create_task(self._client._cache.set("ids", [area.id for area in areas.values()], namespace=f"areas_{lang}")),
+                asyncio.create_task(self._client._cache.multi_set(iter((k, v) for k, v in areas.items()), namespace=f"areas_{lang}")),
+                asyncio.create_task(self._client._cache.set("provider", hash(provider), ttl=self._client._cache_ttl, namespace=f"areas_{lang}")),
+            ]
+            await asyncio.gather(*tasks)
         return self
 
     async def get_all(self) -> list[Area]:
@@ -571,6 +616,16 @@ class MaimaiAreas:
         area_ids: list[int] | None = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
         assert area_ids is not None, "Areas not found in cache, please call configure() first."
         return await self._client._cache.multi_get(area_ids, namespace=f"areas_{self._lang}")
+
+    async def get_batch(self, ids: list[str]) -> list[Area]:
+        """Get areas by their IDs.
+
+        Args:
+            ids: the IDs of the areas.
+        Returns:
+            A list of areas if they exist, otherwise return an empty list.
+        """
+        return await self._client._cache.multi_get(ids, namespace=f"areas_{self._lang}")
 
     async def by_id(self, id: str) -> Area | None:
         """Get an area by its ID.
