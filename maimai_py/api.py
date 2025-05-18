@@ -1,10 +1,11 @@
+import asyncio
 from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
 
 from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiSongs
 from maimai_py.exceptions import MaimaiPyError
-from maimai_py.maimai import MaimaiPlates
+from maimai_py.maimai import MaimaiPlates, MaimaiScores
 from maimai_py.models import *
 
 router = None
@@ -13,6 +14,21 @@ local_lxns_token = None
 local_divingfish_token = None
 local_arcade_proxy = None
 maimai_client = MaimaiClient()
+
+
+@dataclass(slots=True)
+class ScorePublic(Score):
+    song_name: str
+    level_value: float
+
+
+@dataclass(slots=True)
+class PlayerBests:
+    rating: int
+    rating_b35: int
+    rating_b15: int
+    scores_b35: list[ScorePublic]
+    scores_b15: list[ScorePublic]
 
 
 def pagination(page_size, page, data):
@@ -39,13 +55,41 @@ def get_filters(functions: dict[Any, Callable[..., bool]]):
     return filter
 
 
-@dataclass(slots=True)
-class PlayerBests:
-    rating: int
-    rating_b35: int
-    rating_b15: int
-    scores_b35: list[Score]
-    scores_b15: list[Score]
+@staticmethod
+async def ser_score(score: Score, songs: dict[int, Song]) -> ScorePublic | None:
+    if (song := songs.get(score.id)) and (diff := song.get_difficulty(score.type, score.level_index)):
+        return ScorePublic(
+            id=score.id,
+            song_name=song.title,
+            level=score.level,
+            level_index=score.level_index,
+            level_value=diff.level_value,
+            achievements=score.achievements,
+            fc=score.fc,
+            fs=score.fs,
+            dx_score=score.dx_score,
+            dx_rating=score.dx_rating,
+            rate=score.rate,
+            type=score.type,
+        )
+
+
+@staticmethod
+async def ser_bests(maimai_scores: MaimaiScores, maimai_songs: MaimaiSongs) -> PlayerBests:
+    song_ids = [score.id for score in maimai_scores.scores_b35 + maimai_scores.scores_b15]
+    songs: list[Song] = await maimai_songs.get_batch(song_ids) if len(song_ids) > 0 else []
+    required_songs: dict[int, Song] = {song.id: song for song in songs}
+    async with asyncio.TaskGroup() as tg:
+        b35_tasks = [tg.create_task(ser_score(score, required_songs)) for score in maimai_scores.scores_b35]
+        b15_tasks = [tg.create_task(ser_score(score, required_songs)) for score in maimai_scores.scores_b15]
+    scores_b35, scores_b15 = [v for task in b35_tasks if (v := task.result())], [v for task in b15_tasks if (v := task.result())]
+    return PlayerBests(
+        rating=maimai_scores.rating,
+        rating_b35=maimai_scores.rating_b35,
+        rating_b15=maimai_scores.rating_b15,
+        scores_b35=scores_b35,
+        scores_b15=scores_b15,
+    )
 
 
 if find_spec("fastapi"):
@@ -370,14 +414,8 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_lxns_player),
         provider: LXNSProvider = Depends(dep_lxns),
     ):
-        scores = await maimai_client.scores(player, provider=provider)
-        return PlayerBests(
-            rating=scores.rating,
-            rating_b35=scores.rating_b35,
-            rating_b15=scores.rating_b15,
-            scores_b35=scores.scores_b35,
-            scores_b15=scores.scores_b15,
-        )
+        songs, scores = await asyncio.gather(maimai_client.songs(), maimai_client.scores(player, provider=provider))
+        return await ser_bests(scores, songs)
 
     @router.get(
         "/divingfish/bests",
@@ -389,14 +427,8 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_diving_player),
         provider: DivingFishProvider = Depends(dep_diving),
     ):
-        scores = await maimai_client.scores(player, provider=provider)
-        return PlayerBests(
-            rating=scores.rating,
-            rating_b35=scores.rating_b35,
-            rating_b15=scores.rating_b15,
-            scores_b35=scores.scores_b35,
-            scores_b15=scores.scores_b15,
-        )
+        songs, scores = await asyncio.gather(maimai_client.songs(), maimai_client.scores(player, provider=provider))
+        return await ser_bests(scores, songs)
 
     @router.get(
         "/arcade/bests",
@@ -408,14 +440,8 @@ if find_spec("fastapi"):
         player: PlayerIdentifier = Depends(dep_arcade_player),
         provider: ArcadeProvider = Depends(dep_arcade),
     ):
-        scores = await maimai_client.scores(player, provider=provider)
-        return PlayerBests(
-            rating=scores.rating,
-            rating_b35=scores.rating_b35,
-            rating_b15=scores.rating_b15,
-            scores_b35=scores.scores_b35,
-            scores_b15=scores.scores_b15,
-        )
+        songs, scores = await asyncio.gather(maimai_client.songs(), maimai_client.scores(player, provider=provider))
+        return await ser_bests(scores, songs)
 
     @router.get("/lxns/plates", response_model=list[PlateObject], tags=["lxns"], description="Get player plates from LXNS")
     async def get_plate_lxns(
