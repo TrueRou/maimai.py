@@ -2,11 +2,10 @@ from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
 
+from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiSongs
+from maimai_py.exceptions import MaimaiPyError
 from maimai_py.maimai import MaimaiPlates
 from maimai_py.models import *
-from maimai_py.exceptions import MaimaiPyError
-from maimai_py import MaimaiClient, MaimaiSongs, LXNSProvider, DivingFishProvider, ArcadeProvider
-
 
 router = None
 asgi_app = None
@@ -50,9 +49,9 @@ class PlayerBests:
 
 
 if find_spec("fastapi"):
-    from fastapi import APIRouter, FastAPI, Query, Request, Header, Depends
-    from fastapi.responses import JSONResponse
+    from fastapi import APIRouter, Depends, FastAPI, Header, Query, Request
     from fastapi.openapi.utils import get_openapi
+    from fastapi.responses import JSONResponse
 
     asgi_app = FastAPI()
     router = APIRouter()
@@ -256,9 +255,9 @@ if find_spec("fastapi"):
     ):
         areas = await maimai_client.areas(lang)
         if id is not None:
-            return [area] if (area := areas.by_id(id)) else []
+            return [area] if (area := await areas.by_id(id)) else []
         if name is not None:
-            return [area] if (area := areas.by_name(name)) else []
+            return [area] if (area := await areas.by_name(name)) else []
         return pagination(page_size, page, await areas.get_all())
 
     @router.get(
@@ -480,8 +479,8 @@ if find_spec("fastapi"):
 
 
 if find_spec("uvicorn") and __name__ == "__main__":
-    import uvicorn
     import typer
+    import uvicorn
 
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
@@ -495,10 +494,11 @@ if find_spec("uvicorn") and __name__ == "__main__":
 
 if find_spec("maimai_ffi") and find_spec("nuitka"):
     import json
+
     import cryptography
     import cryptography.fernet
-    import cryptography.hazmat.primitives.ciphers
     import cryptography.hazmat.backends
+    import cryptography.hazmat.primitives.ciphers
     import maimai_ffi
     import maimai_ffi.model
     import maimai_ffi.request
