@@ -505,13 +505,31 @@ if find_spec("fastapi"):
 
 
 if find_spec("uvicorn") and __name__ == "__main__":
+    from urllib.parse import unquote, urlparse
+
     import typer
     import uvicorn
+    from aiocache import RedisCache
+    from aiocache.serializers import PickleSerializer
 
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
         port: Annotated[int, typer.Option(help="The port number to bind to.")] = 8000,
+        redis: Annotated[str | None, typer.Option(help="Redis server address, for example: redis://localhost:6379/0.")] = None,
     ):
+        redis_backend = UNSET
+        if redis:
+            redis_url = urlparse(redis)
+            redis_backend = RedisCache(
+                serializer=PickleSerializer(),
+                endpoint=unquote(redis_url.hostname or "localhost"),
+                port=redis_url.port or 6379,
+                password=redis_url.password,
+                db=int(unquote(redis_url.path).replace("/", "")),
+            )
+        global maimai_client
+        maimai_client = MaimaiClient(cache=redis_backend)
+
         if asgi_app is not None:
             uvicorn.run(asgi_app, host=host, port=port)
 
@@ -528,3 +546,4 @@ if find_spec("maimai_ffi") and find_spec("nuitka"):
     import maimai_ffi
     import maimai_ffi.model
     import maimai_ffi.request
+    import redis
