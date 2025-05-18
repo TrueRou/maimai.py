@@ -7,7 +7,7 @@ from maimai_py.providers.divingfish import DivingFishProvider
 
 @pytest.mark.asyncio(scope="session")
 async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
-    songs = await maimai.songs()
+    songs = await maimai.songs(curve_provider=divingfish)
     song1 = await songs.by_id(1231)  # 生命不詳
     song2 = await songs.by_alias("不知死活")
 
