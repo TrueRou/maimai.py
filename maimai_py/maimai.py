@@ -688,7 +688,7 @@ class MaimaiClient:
     ) -> MaimaiSongs:
         """Fetch all maimai songs from the provider.
 
-        Available providers: `DivingFishProvider`, `LXNSProvider`.
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `HybridProvider`.
 
         Available alias providers: `YuzuProvider`, `LXNSProvider`.
 

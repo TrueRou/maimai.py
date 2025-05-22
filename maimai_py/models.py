@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Sequence
+
 from httpx import Cookies
 
 from maimai_py.enums import *
-from maimai_py.exceptions import InvalidPlayerIdentifierError, AimeServerError, ArcadeError, TitleServerError
+from maimai_py.exceptions import AimeServerError, ArcadeError, InvalidPlayerIdentifierError, TitleServerError
 from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
 
 
@@ -68,6 +69,15 @@ class SongDifficulty:
     touch_num: int
     break_num: int
     curve: CurveObject | None
+
+    def _get_divingfish_id(self, id: int) -> int:
+        if id < 0 or id > 9999:
+            raise ValueError("Invalid song ID")
+        if self.type == SongType.DX:
+            return id + 10000
+        elif self.type == SongType.UTAGE:
+            return id + 100000
+        return id
 
 
 @dataclass(slots=True)
