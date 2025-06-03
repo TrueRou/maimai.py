@@ -4,13 +4,13 @@
 
 从数据源获取所有歌曲。
 
-**支持的数据源**：`DivingFishProvider`、`LXNSProvider`。
+**支持的数据源**：`DivingFishProvider`、`LXNSProvider`, `HybridProvider`。
 
 ### 参数
 
 | 参数名         | 类型             | 说明                                                  |
 |----------------|------------------|-----------------------------------------------------|
-| provider       | `ISongProvider`  | 覆写默认数据源，默认为 `LXNSProvider`                  |
+| provider       | `ISongProvider`  | 覆写默认数据源，默认为 `HybridProvider`                |
 | alias_provider | `IAliasProvider` | 覆写默认别名数据源，默认为 `YuzuProvider`              |
 | curve_provider | `ICurveProvider` | 覆写默认相对难度曲线数据源，默认为`DivingFishProvider` |
 
