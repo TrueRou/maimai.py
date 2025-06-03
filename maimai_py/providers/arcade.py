@@ -7,7 +7,7 @@ from maimai_ffi import arcade
 from maimai_py.enums import *
 from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.models import *
-from maimai_py.providers import IPlayerProvider, IRegionProvider, IScoreProvider
+from maimai_py.providers.base import IPlayerProvider, IRegionProvider, IScoreProvider
 from maimai_py.utils import ScoreCoefficient
 
 if TYPE_CHECKING:

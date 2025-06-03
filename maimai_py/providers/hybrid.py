@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from maimai_py.enums import *
 from maimai_py.models import *
-from maimai_py.providers import ISongProvider
+from maimai_py.providers.base import ISongProvider
 from maimai_py.providers.lxns import LXNSProvider
 
 if TYPE_CHECKING:

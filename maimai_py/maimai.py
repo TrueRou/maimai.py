@@ -676,9 +676,9 @@ class MaimaiClient:
             cache_ttl: the TTL of the cache, defaults to 60 * 60 * 24.
             kwargs: other arguments to pass to the `httpx.AsyncClient`.
         """
-        self._cache_ttl = cache_ttl
         self._client = httpx.AsyncClient(timeout=timeout, **kwargs)
         self._cache = SimpleMemoryCache() if isinstance(cache, _UnsetSentinel) else cache
+        self._cache_ttl = cache_ttl
 
     async def songs(
         self,

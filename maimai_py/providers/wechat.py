@@ -10,7 +10,7 @@ from httpx import Cookies
 from maimai_py.enums import *
 from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.models import *
-from maimai_py.providers import IScoreProvider
+from maimai_py.providers.base import IScoreProvider
 from maimai_py.utils import ScoreCoefficient, wmdx_html2json
 
 if TYPE_CHECKING:
