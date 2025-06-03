@@ -562,7 +562,7 @@ if find_spec("fastapi"):
             return router
 
 
-if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]) and __name__ == "__main__":
+if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     import typer
     import uvicorn
     from fastapi import APIRouter, Depends, FastAPI, Query, Request
@@ -626,7 +626,8 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]) and __name__ == 
             with open(f"openapi.json", "w") as f:
                 json.dump(specs, f)
 
-    typer.run(main)
+    if __name__ == "__main__":
+        typer.run(main)
 
 
 if find_spec("maimai_ffi") and find_spec("nuitka"):
