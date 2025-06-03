@@ -4,9 +4,6 @@ from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
 from urllib.parse import unquote, urlparse
 
-from aiocache import RedisCache
-from aiocache.serializers import PickleSerializer
-
 from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiSongs
 from maimai_py.exceptions import MaimaiPyError
 from maimai_py.maimai import MaimaiPlates, MaimaiScores
@@ -355,8 +352,8 @@ if find_spec("fastapi"):
             identifier = await self._client.qrcode(qrcode, http_proxy=self._arcade_proxy)
             return ParsedQRCode(credentials=str(identifier.credentials))
 
-        def get_base(self, tags: list[str | Enum] | None = None) -> APIRouter:
-            router = APIRouter(tags=tags)
+        def get_base(self) -> APIRouter:
+            router = APIRouter()
             router.add_api_route(
                 "/songs",
                 self._get_songs,
@@ -423,8 +420,8 @@ if find_spec("fastapi"):
             )
             return router
 
-        def get_divingfish(self, tags: list[str | Enum] | None = None) -> APIRouter:
-            router = APIRouter(tags=tags)
+        def get_divingfish(self) -> APIRouter:
+            router = APIRouter()
             router.add_api_route(
                 "/players",
                 self._get_player_diving,
@@ -466,8 +463,8 @@ if find_spec("fastapi"):
             )
             return router
 
-        def get_lxns(self, tags: list[str | Enum] | None = None) -> APIRouter:
-            router = APIRouter(tags=tags)
+        def get_lxns(self) -> APIRouter:
+            router = APIRouter()
             router.add_api_route(
                 "/players",
                 self._get_player_lxns,
@@ -509,8 +506,8 @@ if find_spec("fastapi"):
             )
             return router
 
-        def get_arcade(self, tags: list[str | Enum] | None = None) -> APIRouter:
-            router = APIRouter(tags=tags)
+        def get_arcade(self) -> APIRouter:
+            router = APIRouter()
             router.add_api_route(
                 "/players",
                 self._get_player_arcade,
@@ -569,6 +566,16 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     from fastapi.openapi.utils import get_openapi
     from fastapi.responses import JSONResponse
 
+    # prepare for ASGI app
+    asgi_app = FastAPI(title="maimai.py API", description="The definitive python wrapper for MaimaiCN related development.")
+    maimai_routes = MaimaiRoutes(MaimaiClient())  # type: ignore
+
+    # register routes and middlewares
+    asgi_app.include_router(maimai_routes.get_base(), tags=["base"])
+    asgi_app.include_router(maimai_routes.get_divingfish(), prefix="/divingfish", tags=["divingfish"])
+    asgi_app.include_router(maimai_routes.get_lxns(), prefix="/lxns", tags=["lxns"])
+    asgi_app.include_router(maimai_routes.get_arcade(), prefix="/arcade", tags=["arcade"])
+
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
         port: Annotated[int, typer.Option(help="The port number to bind to.")] = 8000,
@@ -579,7 +586,10 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     ):
         # prepare for redis cache backend
         redis_backend = UNSET
-        if redis:
+        if redis and find_spec("redis"):
+            from aiocache import RedisCache
+            from aiocache.serializers import PickleSerializer
+
             redis_url = urlparse(redis)
             redis_backend = RedisCache(
                 serializer=PickleSerializer(),
@@ -589,16 +599,12 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
                 db=int(unquote(redis_url.path).replace("/", "")),
             )
 
-        # prepare for ASGI app
-        asgi_app = FastAPI(title="maimai.py API", description="The definitive python wrapper for MaimaiCN related development.")
+        # override the default maimai.py client
         maimai_client = MaimaiClient(cache=redis_backend)
-        maimai_routes = MaimaiRoutes(maimai_client, lxns_token=lxns_token, divingfish_token=divingfish_token, arcade_proxy=arcade_proxy)
-
-        # register routes and middlewares
-        asgi_app.include_router(maimai_routes.get_base(tags=["base"]))
-        asgi_app.include_router(maimai_routes.get_divingfish(tags=["divingfish"]), prefix="/divingfish")
-        asgi_app.include_router(maimai_routes.get_lxns(tags=["lxns"]), prefix="/lxns")
-        asgi_app.include_router(maimai_routes.get_arcade(tags=["arcade"]), prefix="/arcade")
+        maimai_routes._client = maimai_client
+        maimai_routes._lxns_token = lxns_token
+        maimai_routes._divingfish_token = divingfish_token
+        maimai_routes._arcade_proxy = arcade_proxy
 
         @asgi_app.exception_handler(MaimaiPyError)
         async def exception_handler(request: Request, exc: MaimaiPyError):
@@ -614,17 +620,16 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         # run the ASGI app with uvicorn
         uvicorn.run(asgi_app, host=host, port=port)
 
-        # generate OpenAPI specs and save to file, if needed
-        def openapi():
-            specs = get_openapi(
-                title=asgi_app.title,
-                version=asgi_app.version,
-                openapi_version=asgi_app.openapi_version,
-                description=asgi_app.description,
-                routes=asgi_app.routes,
-            )
-            with open(f"openapi.json", "w") as f:
-                json.dump(specs, f)
+    def openapi():
+        specs = get_openapi(
+            title=asgi_app.title,
+            version=asgi_app.version,
+            openapi_version=asgi_app.openapi_version,
+            description=asgi_app.description,
+            routes=asgi_app.routes,
+        )
+        with open(f"openapi.json", "w") as f:
+            json.dump(specs, f)
 
     if __name__ == "__main__":
         typer.run(main)
