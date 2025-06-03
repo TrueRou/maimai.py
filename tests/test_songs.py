@@ -22,10 +22,14 @@ async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfi
     hybrid = HybridProvider()
 
     songs = await maimai.songs(provider=hybrid)
+    songs = await maimai.songs()
     song4 = await songs.by_id(1231)
     assert song4 is not None
     assert song4.title == song1.title
     assert song4.difficulties.dx[0].tap_num == song1.difficulties.dx[0].tap_num
+
+    many_songs = await songs.get_batch([1231, 1232, 1233])
+    assert len(many_songs) == 3
 
     assert any([song.id == 1568 async for song in songs.by_keywords("超天酱")])
 

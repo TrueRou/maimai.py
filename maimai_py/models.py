@@ -350,25 +350,25 @@ class PlateScore:
             type=score.type,
         )
 
-    def _join(self, other: "PlateScore | None"):
-        if other is None:
-            return self
-        if self.level_index != other.level_index or self.type != other.type:
-            raise ValueError("Cannot join scores with different level indexes or types")
-        self.achievements = max(self.achievements or 0, other.achievements or 0)
-        if self.fc != other.fc:
-            self_fc = self.fc.value if self.fc is not None else 100
-            other_fc = other.fc.value if other.fc is not None else 100
-            selected_value = min(self_fc, other_fc)
-            self.fc = FCType(selected_value) if selected_value != 100 else None
-        if self.fs != other.fs:
-            self_fs = self.fs.value if self.fs is not None else -1
-            other_fs = other.fs.value if other.fs is not None else -1
-            selected_value = max(self_fs, other_fs)
-            self.fs = FSType(selected_value) if selected_value != -1 else None
-        if self.rate != other.rate:
-            selected_value = min(self.rate.value, other.rate.value)
-            self.rate = RateType(selected_value)
+    def _join(self, other: "PlateScore | None") -> "PlateScore":
+        if other is not None:
+            if self.level_index != other.level_index or self.type != other.type:
+                raise ValueError("Cannot join scores with different level indexes or types")
+            self.achievements = max(self.achievements or 0, other.achievements or 0)
+            if self.fc != other.fc:
+                self_fc = self.fc.value if self.fc is not None else 100
+                other_fc = other.fc.value if other.fc is not None else 100
+                selected_value = min(self_fc, other_fc)
+                self.fc = FCType(selected_value) if selected_value != 100 else None
+            if self.fs != other.fs:
+                self_fs = self.fs.value if self.fs is not None else -1
+                other_fs = other.fs.value if other.fs is not None else -1
+                selected_value = max(self_fs, other_fs)
+                self.fs = FSType(selected_value) if selected_value != -1 else None
+            if self.rate != other.rate:
+                selected_value = min(self.rate.value, other.rate.value)
+                self.rate = RateType(selected_value)
+        return self
 
 
 @dataclass(slots=True)
