@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING
 
 from httpx import Response
 
-from maimai_py.enums import *
-from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError, PrivacyLimitationError
 from maimai_py.models import *
-from maimai_py.providers.base import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProvider, ISongProvider
+
+from .base import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs

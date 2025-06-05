@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from maimai_py.models import *
-from maimai_py.providers import IAreaProvider, IItemListProvider
+
+from ..base import IAreaProvider, IItemListProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient

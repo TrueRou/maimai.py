@@ -2,10 +2,11 @@ import asyncio
 import hashlib
 from typing import TYPE_CHECKING
 
-from maimai_py.enums import *
 from maimai_py.models import *
-from maimai_py.providers.base import ISongProvider
-from maimai_py.providers.lxns import LXNSProvider
+
+from .base import ISongProvider
+from .divingfish import DivingFishProvider
+from .lxns import LXNSProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient
@@ -21,8 +22,8 @@ class HybridProvider(ISongProvider):
     DivingFish: https://www.diving-fish.com/maimaidx/prober/
     """
 
-    base_url_lxns = "https://maimai.lxns.net/"
-    base_url_divingfish = "https://www.diving-fish.com/api/maimaidxprober/"
+    base_url_lxns = LXNSProvider.base_url
+    base_url_divingfish = DivingFishProvider.base_url
 
     def _hash(self) -> str:
         return hashlib.md5(b"hybrid").hexdigest()

@@ -1,9 +1,6 @@
 import pytest
 
-from maimai_py.maimai import MaimaiClient
-from maimai_py.providers import LXNSProvider
-from maimai_py.providers.divingfish import DivingFishProvider
-from maimai_py.providers.hybrid import HybridProvider
+from maimai_py import DivingFishProvider, HybridProvider, LXNSProvider, MaimaiClient
 
 
 @pytest.mark.asyncio(scope="session")

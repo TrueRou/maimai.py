@@ -2,7 +2,8 @@ import hashlib
 from typing import TYPE_CHECKING
 
 from maimai_py.models import SongAlias
-from maimai_py.providers.base import IAliasProvider
+
+from .base import IAliasProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient

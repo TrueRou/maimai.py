@@ -2,8 +2,7 @@ import os
 
 import pytest
 
-from maimai_py import MaimaiClient
-from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
+from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient
 
 
 def pytest_addoption(parser):

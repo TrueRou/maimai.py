@@ -1,9 +1,6 @@
 import pytest
 
-from maimai_py.exceptions import TitleServerError
-from maimai_py.maimai import MaimaiClient
-from maimai_py.models import ArcadePlayer, PlayerIdentifier
-from maimai_py.providers.arcade import ArcadeProvider
+from maimai_py import ArcadePlayer, ArcadeProvider, MaimaiClient, PlayerIdentifier, TitleServerError
 
 
 @pytest.mark.asyncio(scope="session")

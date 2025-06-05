@@ -1,6 +1,6 @@
 import pytest
 
-from maimai_py.maimai import MaimaiClient
+from maimai_py import MaimaiClient
 
 
 @pytest.mark.asyncio(scope="session")

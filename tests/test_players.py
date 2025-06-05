@@ -1,8 +1,6 @@
 import pytest
 
-from maimai_py.maimai import MaimaiClient
-from maimai_py.models import PlayerIdentifier
-from maimai_py.providers import LXNSProvider
+from maimai_py import LXNSProvider, MaimaiClient, PlayerIdentifier
 
 
 @pytest.mark.asyncio(scope="session")

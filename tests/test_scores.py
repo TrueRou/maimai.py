@@ -1,10 +1,6 @@
 import pytest
 
-from maimai_py.enums import LevelIndex
-from maimai_py.maimai import MaimaiClient
-from maimai_py.models import PlayerIdentifier
-from maimai_py.providers.divingfish import DivingFishProvider
-from maimai_py.providers.lxns import LXNSProvider
+from maimai_py import DivingFishProvider, LevelIndex, LXNSProvider, MaimaiClient, PlayerIdentifier
 
 
 @pytest.mark.asyncio(scope="session")

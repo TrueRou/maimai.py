@@ -7,11 +7,10 @@ from typing import TYPE_CHECKING
 
 from httpx import Cookies
 
-from maimai_py.enums import *
-from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.models import *
-from maimai_py.providers.base import IScoreProvider
 from maimai_py.utils import ScoreCoefficient, wmdx_html2json
+
+from .base import IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs

@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Sequence
-
-from httpx import Cookies
+from typing import Any, MutableMapping, Sequence
 
 from maimai_py.enums import *
-from maimai_py.exceptions import AimeServerError, ArcadeError, InvalidPlayerIdentifierError, TitleServerError
-from maimai_py.utils.sentinel import UNSET, _UnsetSentinel
+from maimai_py.exceptions import *
+from maimai_py.utils import UNSET, _UnsetSentinel
 
 
 @dataclass(slots=True)
@@ -100,7 +98,7 @@ class PlayerIdentifier:
     qq: int | None = None
     username: str | None = None
     friend_code: int | None = None
-    credentials: str | Cookies | None = None
+    credentials: str | MutableMapping[str, str] | None = None
 
     def __post_init__(self):
         if self.qq is None and self.username is None and self.friend_code is None and self.credentials is None:

@@ -4,11 +4,10 @@ from typing import TYPE_CHECKING
 
 from maimai_ffi import arcade
 
-from maimai_py.enums import *
-from maimai_py.exceptions import InvalidPlayerIdentifierError
 from maimai_py.models import *
-from maimai_py.providers.base import IPlayerProvider, IRegionProvider, IScoreProvider
 from maimai_py.utils import ScoreCoefficient
+
+from .base import IPlayerProvider, IRegionProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
