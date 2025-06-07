@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maimai-py"
-version = "1.1.1"
+version = "1.1.2"
 description = "The definitive python wrapper for MaimaiCN."
 authors = ["Usagi no Niku <chenbohan911@163.com>"]
 license = "MIT"
@@ -16,6 +16,7 @@ maimai-ffi = "^0.4.1"
 aiocache = "^0.12.3"
 lxml = "^5.4.0"
 cchardet = "2.2.0a2"
+httpcore = "^1.0.9"
 
 [tool.poetry.scripts]
 openapi = "maimai_py.api:openapi"
