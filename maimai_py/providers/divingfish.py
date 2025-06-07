@@ -9,7 +9,7 @@ from maimai_py.models import *
 from .base import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
 if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiClient, MaimaiSongs
+    from maimai_py.maimai import MaimaiClient
 
 
 class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider):
@@ -100,8 +100,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         )
 
     @staticmethod
-    async def _ser_score(score: Score, songs: "MaimaiSongs") -> dict | None:
-        song_title = song.title if (song := await songs.by_id(score.id)) else None
+    def _ser_score(score: Score, songs: dict[int, Song]) -> dict | None:
+        song_title = song.title if (song := songs.get(score.id)) else None
         song_title = "Link(CoF)" if score.id == 383 else song_title
         if song_title is not None:
             return {
@@ -195,7 +195,10 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             headers = {"Import-Token": identifier.credentials}
         else:
             raise InvalidPlayerIdentifierError("Either username and password or import token is required to deliver scores")
-        scores_json = [json for score in scores if (json := await DivingFishProvider._ser_score(score, maimai_songs))]
+        song_ids = [id for score in scores if (id := score.id)]
+        songs: list[Song] = await maimai_songs.get_batch(song_ids) if len(song_ids) > 0 else []
+        required_songs: dict[int, Song] = {song.id: song for song in songs if song}
+        scores_json = [json for score in scores if (json := DivingFishProvider._ser_score(score, required_songs))]
         resp2 = await client._client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
         self._check_response_player(resp2)
 

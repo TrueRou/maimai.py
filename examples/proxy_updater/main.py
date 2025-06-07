@@ -2,9 +2,10 @@ import asyncio
 import logging
 import os
 import threading
+
+from mitmproxy.addons import default_addons
 from mitmproxy.master import Master
 from mitmproxy.options import Options
-from mitmproxy.addons import default_addons
 
 from examples.proxy_updater.config import config
 from examples.proxy_updater.proxy import WechatWahlapAddon

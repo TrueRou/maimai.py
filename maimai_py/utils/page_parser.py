@@ -2,13 +2,27 @@
 # Reference: https://github.com/Diving-Fish/maimaidx-prober
 
 import re
-from typing import Iterator
-from bs4 import BeautifulSoup
+from dataclasses import dataclass
+from importlib.util import find_spec
 
 link_dx_score = [372, 522, 942, 924, 1425]
 
 
-def get_data_from_div(div):
+@dataclass(slots=True)
+class HTMLScore:
+    title: str
+    level: str
+    level_index: int
+    type: str
+    achievements: float
+    dx_score: int
+    rate: str
+    fc: str
+    fs: str
+    ds: int
+
+
+def get_data_from_div(div) -> HTMLScore | None:
     form = div.find(name="form")
 
     if not re.search(r"diff_(.*).png", form.contents[1].attrs["src"]):
@@ -21,7 +35,7 @@ def get_data_from_div(div):
         matched = re.search(r"_(.*).png", src)
         type_ = "SD" if matched and matched.group(1) == "standard" else "DX"
 
-    def get_level_index(src: str):
+    def get_level_index(src: str) -> int:
         if src.find("remaster") != -1:
             return 4
         elif src.find("master") != -1:
@@ -35,32 +49,42 @@ def get_data_from_div(div):
         else:
             return -1
 
-    def get_music_icon(src: str):
+    def get_music_icon(src: str) -> str:
         matched = re.search(r"music_icon_(.+?)\.png", src)
         return matched.group(1) if matched and matched.group(1) != "back" else ""
+
+    def get_dx_score(src: list, pos: int) -> int:
+        # different parsers have different structures
+        target = src[1].string or src[2].string
+        return int(target.strip().split("/")[pos].replace(" ", "").replace(",", ""))
 
     if len(form.contents) == 23:
         title = form.contents[7].string
         level_index = get_level_index(form.contents[1].attrs["src"])
-        full_dx_score = int(form.contents[11].contents[1].string.strip().split("/")[1].replace(" ", "").replace(",", ""))
+        full_dx_score = get_dx_score(form.contents[11].contents, 1)
         if title == "Link" and full_dx_score != link_dx_score[level_index]:
             title = "Link(CoF)"
-        data = {
-            "title": title,
-            "level": form.contents[5].string,
-            "level_index": level_index,
-            "type": type_,
-            "achievements": float(form.contents[9].string[:-1]),
-            "dxScore": int(form.contents[11].contents[1].string.strip().split("/")[0].replace(" ", "").replace(",", "")),
-            "rate": get_music_icon(form.contents[17].attrs["src"]),
-            "fc": get_music_icon(form.contents[15].attrs["src"]),
-            "fs": get_music_icon(form.contents[13].attrs["src"]),
-            "ds": 0,
-        }
-        return data
+        return HTMLScore(
+            title=str(title),
+            level=str(form.contents[5].string),
+            level_index=int(level_index),
+            type=str(type_),
+            achievements=float(form.contents[9].string[:-1]),
+            dx_score=get_dx_score(form.contents[11].contents, 0),
+            rate=get_music_icon(form.contents[17].attrs["src"]),
+            fc=get_music_icon(form.contents[15].attrs["src"]),
+            fs=get_music_icon(form.contents[13].attrs["src"]),
+            ds=0,
+        )
     return None
 
 
-def wmdx_html2json(html: str) -> Iterator[dict]:
-    soup = BeautifulSoup(html, "html.parser")
-    return iter(v for div in soup.find_all(class_="w_450 m_15 p_r f_0") if (v := get_data_from_div(div)))
+def wmdx_html2json(html: str) -> list[HTMLScore]:
+    import cchardet
+    import lxml
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "lxml")
+    results = [v for div in soup.find_all(class_="w_450 m_15 p_r f_0") if (v := get_data_from_div(div))]
+    soup.decompose()
+    return results

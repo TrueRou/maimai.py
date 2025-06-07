@@ -9,7 +9,7 @@ from maimai_py.models import *
 from .base import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
 if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiClient, MaimaiSongs
+    from maimai_py.maimai import MaimaiClient
 
 
 class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider, IItemListProvider):
@@ -124,8 +124,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         )
 
     @staticmethod
-    async def _ser_score(score: Score, songs: "MaimaiSongs") -> dict | None:
-        song_title = song.title if (song := await songs.by_id(score.id)) else None
+    def _ser_score(score: Score, songs: dict[int, Song]) -> dict | None:
+        song_title = song.title if (song := songs.get(score.id)) else None
         if song_title is not None:
             return {
                 "id": score.id,
@@ -215,7 +215,10 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             # If the player has a personal token, use it to update the scores
             use_headers["X-User-Token"] = identifier.credentials
             entrypoint = f"api/v0/user/maimai/player/scores"
-        scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]}
+        song_ids = [id for score in scores if (id := score.id)]
+        songs: list[Song] = await maimai_songs.get_batch(song_ids) if len(song_ids) > 0 else []
+        required_songs: dict[int, Song] = {song.id: song for song in songs if song}
+        scores_dict = {"scores": [json for score in scores if (json := LXNSProvider._ser_score(score, required_songs))]}
         resp = await client._client.post(self.base_url + entrypoint, headers=use_headers, json=scores_dict)
         resp.raise_for_status()
         resp_json = resp.json()

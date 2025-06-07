@@ -86,8 +86,8 @@ diving_player = PlayerIdentifier(username=config["diving_fish"]["username"], cre
 lxns_player = PlayerIdentifier(friend_code=config["lxns"]["friend_code"])
 
 tasks = [
-    maimai.updates(diving_player, scores.scores, provider=divingfish),
-    maimai.updates(lxns_player, scores.scores, provider=lxns)
+    asyncio.create_task(maimai.updates(diving_player, scores.scores, provider=divingfish)),
+    asyncio.create_task(maimai.updates(lxns_player, scores.scores, provider=lxns))
 ]
 
 await asyncio.gather(*tasks)
