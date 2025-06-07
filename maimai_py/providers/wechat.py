@@ -30,8 +30,8 @@ class WechatProvider(IScoreProvider):
         return hashlib.md5(b"wechat").hexdigest()
 
     @staticmethod
-    def _deser_score(score: HTMLScore, songs: dict[str, Song]) -> Score | None:
-        if song := songs.get(score.title):
+    async def _deser_score(score: HTMLScore, songs: "MaimaiSongs") -> Score | None:
+        if song := await songs.by_title(score.title):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
             song_type = SongType.STANDARD if score.type == "SD" else SongType.DX if score.type == "DX" and not is_utage else SongType.UTAGE
             level_index = LevelIndex(score.level_index)
@@ -55,10 +55,7 @@ class WechatProvider(IScoreProvider):
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
         scores: list[HTMLScore] = await event_loop.run_in_executor(None, wmdx_html2json, resp1.text)
-        resp2: list[int] = await client._cache.multi_get([score.title for score in scores], namespace="tracks")
-        songs: list[Song] = await maimai_songs.get_batch(resp2) if len(resp2) > 0 else []
-        required_songs: dict[str, Song] = {song.title: song for song in songs if song}
-        return [result for score in scores if (result := WechatProvider._deser_score(score, required_songs))]
+        return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]
 
     async def _crawl_scores(self, client: "MaimaiClient", cookies: Cookies, maimai_songs: "MaimaiSongs") -> Sequence[Score]:
         tasks = [asyncio.create_task(self._crawl_scores_diff(client, diff, cookies, maimai_songs)) for diff in [0, 1, 2, 3, 4]]
