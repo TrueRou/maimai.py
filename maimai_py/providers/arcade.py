@@ -10,7 +10,7 @@ from maimai_py.utils import ScoreCoefficient
 from .base import IPlayerProvider, IRegionProvider, IScoreProvider
 
 if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiClient
+    from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
 class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
@@ -32,11 +32,11 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
         return hashlib.md5(b"arcade").hexdigest()
 
     @staticmethod
-    def _deser_score(score: dict, songs: dict[int, Song]) -> Score | None:
+    async def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:
         song_type = SongType._from_id(score["musicId"])
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
         achievement = float(score["achievement"]) / 10000
-        if song := songs.get(score["musicId"] % 10000):
+        if song := await songs.by_id(score["musicId"] % 10000):
             if diff := song.get_difficulty(song_type, level_index):
                 fs_type = FSType(score["syncStatus"]) if 0 < score["syncStatus"] < 5 else None
                 fs_type = FSType.SYNC if score["syncStatus"] == 5 else fs_type
@@ -78,10 +78,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
             ArcadeResponse._raise_for_error(resp)
             if resp.data and isinstance(resp.data, list):
-                song_ids = [id for score in resp.data if (id := (score["musicId"] % 10000))]
-                songs: list[Song] = await maimai_songs.get_batch(song_ids) if len(song_ids) > 0 else []
-                required_songs: dict[int, Song] = {song.id: song for song in songs if song}
-                return [s for score in resp.data if (s := ArcadeProvider._deser_score(score, required_songs))]
+                return [s for score in resp.data if (s := await ArcadeProvider._deser_score(score, maimai_songs))]
             raise ArcadeError("Invalid response from the server.")
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
