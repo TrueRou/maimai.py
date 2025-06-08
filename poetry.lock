@@ -66,84 +66,6 @@ files = [
 ]
 
 [[package]]
-name = "beautifulsoup4"
-version = "4.13.3"
-description = "Screen-scraping library"
-optional = false
-python-versions = ">=3.7.0"
-groups = ["main"]
-files = [
-    {file = "beautifulsoup4-4.13.3-py3-none-any.whl", hash = "sha256:99045d7d3f08f91f0d656bc9b7efbae189426cd913d830294a15eefa0ea4df16"},
-    {file = "beautifulsoup4-4.13.3.tar.gz", hash = "sha256:1bd32405dacc920b42b83ba01644747ed77456a65760e285fbc47633ceddaf8b"},
-]
-
-[package.dependencies]
-soupsieve = ">1.2"
-typing-extensions = ">=4.0.0"
-
-[package.extras]
-cchardet = ["cchardet"]
-chardet = ["chardet"]
-charset-normalizer = ["charset-normalizer"]
-html5lib = ["html5lib"]
-lxml = ["lxml"]
-
-[[package]]
-name = "cchardet"
-version = "2.2.0a2"
-description = "cChardet is high speed universal character encoding detector."
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "cchardet-2.2.0a2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:173dc7d2aa051cdff01a1bbe3a681e50bf3cc2fcb88d0575c37c07943a3f0a6c"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d2a30977c53af58904e39ee1b221c0034ff8cee9e6a409bd39e4705ce3d0398b"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:83596074a4852ad7002621315a9c0662a1270a3747aec6d9c830ac8816c9190b"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fcc2ad43c9d9b05d499f9472277d3e927f6630353fa295d93d5c6919b6108ae0"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:54feb6f5c2f54051ec3af55c6b9d0ae0870689abcaec191daf5287d2c2050730"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:54280ab70b6345bd06a3274fd2991a8bc9840b8da3727cf5ace2efe5ecd06ff3"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:299e80c86efbd02d52449f0c296cdb9839e0c607992ccef33659d98518cb76db"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-musllinux_1_2_i686.whl", hash = "sha256:6623be177efd3231fc8f7bd2da4bbc558f5fd1cd099ec0db83a913999cd257f6"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:f1bf76a9cd29dc570efc8e063fbbc1f1130c89a62024f555691779467ef8480e"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-win32.whl", hash = "sha256:c936b6843770511341d7ea78b33d4fec46238edd4e10d545e24323d04585b270"},
-    {file = "cchardet-2.2.0a2-cp310-cp310-win_amd64.whl", hash = "sha256:b26ebd946e552a12fb1e60d474e09d6e742b52d360d12308d5ca6c810e05278c"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:4eca9d72232ce573557ae165b3eec153611979961ec209bc2fc376a7bb7c0776"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:7a9e5ba63bdee6ce9bb97492d973fa236e2c0fc01f8ae13329c08e7861ffe119"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:7ca99c25e1a1f02ff35f00562dca781b3782db0e3163a0c3bab52cb57688674a"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4cb82e1b5d343850a854dede7fa9915ac1d9c1030a3f798248fbacca40b79379"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e46d924bd4496b8bfb0f417255d527d529a82f83a5b9398eb005129d8877a6ee"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:bb54703825d95d7c52511f3b984b2a25a8942f6a92b64cb8474ab521e2df4cc4"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:ff6c1a5c0e71dfdb1d351bec43bc5d715a5df7796b9c67a9e26d7aa64f52fd00"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-musllinux_1_2_i686.whl", hash = "sha256:f35778033ce4663d2ce506f8926bdadf66a9ab9dea490e675b7221a2dfd41923"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:e0d4c1f700ad422c55f7b2448b4b21eba46336fc34069dd8a8473a618b5ff621"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-win32.whl", hash = "sha256:bc861d83c917aaa5ab2cf756ad5960ec6896a14e3ee345e16592b1dc3996bdae"},
-    {file = "cchardet-2.2.0a2-cp311-cp311-win_amd64.whl", hash = "sha256:f91ee677d02265f96c90c2b5b6d234bd564466cf3472afa5f9ca4f436fef1712"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:e9e215140963abd978f2e8ebd09c9644f2f17c032a7040880fbb28aea2fd7db2"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:516f8c81e6ac703aa192f4c79adc42c78fc450bd61f1fb271348b227a9535515"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:4761d842377c924f2f58a5cabaadd317dc74b3a4c04b56e389c1901ff766854e"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f1e2ac0b6ecfcb5600a92d6f1aa05c8b8c0d86ff3525b32bac938138a2028de4"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5a78c4fcf431c0629c25dd605c2eca7e6c553d919ac39301485c44b3cacba6c1"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c5ecc5b9ffba2f5cb262d62155b46b742b0bdc79abfd9cc5d2892e2d7748da4e"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:a8bc49d95ecaf1a70c03885bc990bfed320ffc3edeabd0d8f614a2a83b4ccc3b"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-musllinux_1_2_i686.whl", hash = "sha256:40d8046004bd4ca9a3ed20ac4862a75740729daecc44ffa78e3fa2f402a32835"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:39c8f33c277080836fd7dfd47fbfcf8641d2ee2af6db460a92877a7742868427"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-win32.whl", hash = "sha256:2efddfe92a2f74dce18b783962dc8b4bf36ed2b42137ad4aa792635dcd3be73b"},
-    {file = "cchardet-2.2.0a2-cp312-cp312-win_amd64.whl", hash = "sha256:677aa6ff5f69ba899ba0ab40080d3e60503240cd8b4de4de44985a627b8d5f76"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:8bfe2093e841e6d033476c8aa10acdfb4d2dd5d7594435e3798f3d1c9cd2d09f"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:1b0c70355a6acff57e8a07aa5607747b3668a1166f499a14492a8e06f3ee93b7"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:d66584cf2c6b72172b624dcb8669d0ac5dfe7e115c8c4a52333782a87c25ca8e"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:23add63d7bb1efd484128f1ce53ad4ca807ba1b8d04622a341ad2776f5734a79"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:193c82df2d471f021e0813f8af611cf0067fb7fe51637723209836a76728e593"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:529f2faa7c723de0df22c2dbbd07b228804cfa4ea4f6ff85e4323683a2061bee"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-musllinux_1_2_aarch64.whl", hash = "sha256:078083933bc9ce86eddf35af3fd590232c826462b29fbe3da7cd669dd177871d"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-musllinux_1_2_i686.whl", hash = "sha256:bd1b48918e955ec9dc156e9596bcf4b833756edc1d6a7ee0d6569ffabc98b15b"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:365b549190ec28819ec594007203ba471770b8dd8b4737ac4f6bbefeb1c4e6e7"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-win32.whl", hash = "sha256:e835ca2d2b4119597b4ee2cf360052f6ac94fcefc1c799ef6f0344c4470e4c9c"},
-    {file = "cchardet-2.2.0a2-cp39-cp39-win_amd64.whl", hash = "sha256:c6cc1e026bcfa14f2a2cd2d6b53fbb57d4bf2de446951c87d9c52d91f9a1dbba"},
-    {file = "cchardet-2.2.0a2.tar.gz", hash = "sha256:dd72bb1872eca9d279055bc7c3491a62ce1db7bfd330b7d48d7239a59c2f9823"},
-]
-
-[[package]]
 name = "certifi"
 version = "2025.1.31"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1116,18 +1038,6 @@ files = [
 ]
 
 [[package]]
-name = "soupsieve"
-version = "2.6"
-description = "A modern CSS selector implementation for Beautiful Soup."
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "soupsieve-2.6-py3-none-any.whl", hash = "sha256:e72c4ff06e4fb6e4b5a9f0f55fe6e81514581fca1515028625d0f299c602ccc9"},
-    {file = "soupsieve-2.6.tar.gz", hash = "sha256:e2e68417777af359ec65daac1057404a3c8a5455bb8abc36f1a9866ab1a51abb"},
-]
-
-[[package]]
 name = "starlette"
 version = "0.45.3"
 description = "The little ASGI library that shines."
@@ -1217,6 +1127,7 @@ files = [
     {file = "typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"},
     {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},
 ]
+markers = {main = "python_version < \"3.13\""}
 
 [[package]]
 name = "uvicorn"
@@ -1354,4 +1265,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "5956270377467c439e8e679e1ef5184e3ae3ad1a395bfa21d4d5d140479110b4"
+content-hash = "77aeba3837f4016415f0ca4a7e51f09019b55043b2f72e8ca9355b14a68117ff"
