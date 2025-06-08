@@ -2,7 +2,6 @@ import re
 from dataclasses import dataclass
 
 from lxml import etree
-from memory_profiler import profile
 
 link_dx_score = [372, 522, 942, 924, 1425]
 
@@ -123,7 +122,6 @@ def get_data_from_div(div) -> HTMLScore | None:
         return None
 
 
-@profile
 def wmdx_html2json(html: str) -> list[HTMLScore]:
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
