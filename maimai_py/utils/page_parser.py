@@ -87,7 +87,7 @@ def get_data_from_div(div) -> HTMLScore | None:
         score_elem = form.xpath(".//div[contains(@class, 'music_score_block')]")
 
         title = title_elem[0].text if title_elem else ""
-        if title != "\u3000": # Corner case for id 1422 (如月车站)
+        if title != "\u3000":  # Corner case for id 1422 (如月车站)
             title = title.strip()
         level = level_elem[0].text.strip() if level_elem else ""
         level_index = get_level_index(img_src)
@@ -136,5 +136,7 @@ def wmdx_html2json(html: str) -> list[HTMLScore]:
         score = get_data_from_div(div)
         if score is not None:
             results.append(score)
+
+    del parser, root, divs
 
     return results

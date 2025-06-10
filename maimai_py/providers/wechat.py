@@ -51,10 +51,9 @@ class WechatProvider(IScoreProvider):
                 )
 
     async def _crawl_scores_diff(self, client: "MaimaiClient", diff: int, cookies: Cookies, maimai_songs: "MaimaiSongs") -> list[Score]:
-        event_loop = asyncio.get_event_loop()
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
-        scores: list[HTMLScore] = await event_loop.run_in_executor(None, wmdx_html2json, resp1.text)
+        scores: list[HTMLScore] = wmdx_html2json(str(resp1.text))
         return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]
 
     async def _crawl_scores(self, client: "MaimaiClient", cookies: Cookies, maimai_songs: "MaimaiSongs") -> Sequence[Score]:
