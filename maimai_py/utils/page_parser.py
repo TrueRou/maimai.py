@@ -86,7 +86,9 @@ def get_data_from_div(div) -> HTMLScore | None:
         level_elem = form.xpath(".//div[contains(@class, 'music_lv_block')]")
         score_elem = form.xpath(".//div[contains(@class, 'music_score_block')]")
 
-        title = title_elem[0].text.strip() if title_elem else ""
+        title = title_elem[0].text if title_elem else ""
+        if title != "\u3000": # Corner case for id 1422 (如月车站)
+            title = title.strip()
         level = level_elem[0].text.strip() if level_elem else ""
         level_index = get_level_index(img_src)
 
