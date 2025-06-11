@@ -49,9 +49,18 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                     raise InvalidPlayerIdentifierError(resp.json()["message"])
                 identifier.friend_code = resp.json()["data"]["friend_code"]
 
-    @staticmethod
-    def _use_user_api(identifier: PlayerIdentifier) -> dict | None:
-        return identifier.credentials and isinstance(identifier.credentials, str)
+    async def _build_player_request(self, path: str, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[str, dict[str, str]]:
+        use_user_api = identifier.credentials and isinstance(identifier.credentials, str)
+        if use_user_api:
+            # user-level API takes the precedence: If personal token provided, use it first
+            assert isinstance(identifier.credentials, str)
+            entrypoint = f"api/v0/user/maimai/player/{path}"
+            headers = {"X-User-Token": identifier.credentials}
+        else:
+            await self._ensure_friend_code(client, identifier)
+            entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/{path}"
+            headers = self.headers
+        return self.base_url + entrypoint, headers
 
     @staticmethod
     def _deser_note(diff: dict, key: str) -> int:
@@ -177,14 +186,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         maimai_icons = await client.items(PlayerIcon)
         maimai_trophies = await client.items(PlayerTrophy)
         maimai_nameplates = await client.items(PlayerNamePlate)
-        if LXNSProvider._use_user_api(identifier):
-            # user-level API takes the precedence: If personal token provided, use it first
-            entrypoint = f"api/v0/user/maimai/player"
-            headers = {"X-User-Token": identifier.credentials}
-        else:
-            entrypoint = f"api/v0/maimai/player/{identifier._as_lxns()}/scores"
-            headers = self.headers
-        resp = await client._client.get(self.base_url + entrypoint, headers=headers)
+        url, headers = await self._build_player_request("scores", identifier, client)
+        resp = await client._client.get(url, headers=headers)
         resp_data = self._check_response_player(resp)["data"]
         return LXNSPlayer(
             name=resp_data["name"],
@@ -211,30 +214,16 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         )
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        if LXNSProvider._use_user_api(identifier):
-            # user-level API takes the precedence: If personal token provided, use it first
-            entrypoint = f"api/v0/user/maimai/player/scores"
-            headers = {"X-User-Token": identifier.credentials}
-        else:
-            await self._ensure_friend_code(client, identifier)
-            entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
-            headers = self.headers
-        resp = await client._client.get(self.base_url + entrypoint, headers=headers)
+        url, headers = await self._build_player_request("scores", identifier, client)
+        resp = await client._client.get(url, headers=headers)
         resp_data = self._check_response_player(resp)["data"]
         return [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         maimai_songs = await client.songs()
-        if LXNSProvider._use_user_api(identifier):
-            # user-level API takes the precedence: If personal token provided, use it first
-            entrypoint = f"api/v0/user/maimai/player/scores"
-            headers = {"X-User-Token": identifier.credentials}
-        else:
-            await self._ensure_friend_code(client, identifier)
-            entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/scores"
-            headers = self.headers
+        url, headers = await self._build_player_request("scores", identifier, client)
         scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]}
-        resp = await client._client.post(self.base_url + entrypoint, headers=headers, json=scores_dict)
+        resp = await client._client.post(url, headers=headers, json=scores_dict)
         resp.raise_for_status()
         resp_json = resp.json()
         if not resp_json["success"] and resp_json["code"] == 400:
