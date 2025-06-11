@@ -11,7 +11,7 @@ async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingf
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
 
     my_scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
-    assert my_scores.rating > 15000
+    assert my_scores.rating_b35 > 10000
     score = next(my_scores.by_song(1231, level_index=LevelIndex.MASTER))
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
 

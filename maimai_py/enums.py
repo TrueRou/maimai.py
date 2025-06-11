@@ -21,6 +21,7 @@ class Version(IntEnum):
     MAIMAI_DX_UNIVERSE = 22000  # 舞萌DX 2022
     MAIMAI_DX_FESTIVAL = 23000  # 舞萌DX 2023
     MAIMAI_DX_BUDDIES = 24000  # 舞萌DX 2024
+    MAIMAI_DX_PRISM = 25000  # 舞萌DX 2025
     MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
 
 
@@ -64,6 +65,7 @@ plate_to_version: dict[str, Version] = {
     "祝": Version.MAIMAI_DX_FESTIVAL,
     "双": Version.MAIMAI_DX_BUDDIES,
     "宴": Version.MAIMAI_DX_BUDDIES,
+    "镜": Version.MAIMAI_DX_PRISM,
     "未": Version.MAIMAI_DX_FUTURE,
 }
 """@private"""
@@ -93,6 +95,7 @@ divingfish_to_version: dict[str, Version] = {
     "maimai でらっくす FESTiVAL PLUS": Version.MAIMAI_DX_FESTIVAL,
     "maimai でらっくす BUDDiES": Version.MAIMAI_DX_BUDDIES,
     "maimai でらっくす BUDDiES PLUS": Version.MAIMAI_DX_BUDDIES,
+    "maimai でらっくす PRiSM": Version.MAIMAI_DX_PRISM,
 }
 """@private"""
 

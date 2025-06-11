@@ -17,7 +17,7 @@ class YuzuProvider(IAliasProvider):
     Yuzu: https://bot.yuzuchan.moe/
     """
 
-    base_url = "https://api.yuzuchan.moe/"
+    base_url = "https://www.yuzuchan.moe/api/"
     """The base URL for the Yuzu API."""
 
     def _hash(self) -> str:
