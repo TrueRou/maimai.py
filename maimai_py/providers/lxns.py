@@ -60,6 +60,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             await self._ensure_friend_code(client, identifier)
             entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/{path}"
             headers = self.headers
+        entrypoint = entrypoint.removesuffix("/")
         return self.base_url + entrypoint, headers, use_user_api
 
     @staticmethod
@@ -186,7 +187,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         maimai_icons = await client.items(PlayerIcon)
         maimai_trophies = await client.items(PlayerTrophy)
         maimai_nameplates = await client.items(PlayerNamePlate)
-        url, headers, _ = await self._build_player_request("scores", identifier, client)
+        url, headers, _ = await self._build_player_request("", identifier, client)
         resp = await client._client.get(url, headers=headers)
         resp_data = self._check_response_player(resp)["data"]
         return LXNSPlayer(
