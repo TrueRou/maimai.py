@@ -49,8 +49,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
                     raise InvalidPlayerIdentifierError(resp.json()["message"])
                 identifier.friend_code = resp.json()["data"]["friend_code"]
 
-    async def _build_player_request(self, path: str, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[str, dict[str, str]]:
-        use_user_api = identifier.credentials and isinstance(identifier.credentials, str)
+    async def _build_player_request(self, path: str, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[str, dict[str, str], bool]:
+        use_user_api = identifier.credentials is not None and isinstance(identifier.credentials, str)
         if use_user_api:
             # user-level API takes the precedence: If personal token provided, use it first
             assert isinstance(identifier.credentials, str)
@@ -60,7 +60,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             await self._ensure_friend_code(client, identifier)
             entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/{path}"
             headers = self.headers
-        return self.base_url + entrypoint, headers
+        return self.base_url + entrypoint, headers, use_user_api
 
     @staticmethod
     def _deser_note(diff: dict, key: str) -> int:
@@ -186,7 +186,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         maimai_icons = await client.items(PlayerIcon)
         maimai_trophies = await client.items(PlayerTrophy)
         maimai_nameplates = await client.items(PlayerNamePlate)
-        url, headers = await self._build_player_request("scores", identifier, client)
+        url, headers, _ = await self._build_player_request("scores", identifier, client)
         resp = await client._client.get(url, headers=headers)
         resp_data = self._check_response_player(resp)["data"]
         return LXNSPlayer(
@@ -213,15 +213,21 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             [s for score in resp_data["dx"] if (s := LXNSProvider._deser_score(score))],
         )
 
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        url, headers = await self._build_player_request("scores", identifier, client)
+    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        url, headers, use_user_api = await self._build_player_request("scores", identifier, client)
         resp = await client._client.get(url, headers=headers)
         resp_data = self._check_response_player(resp)["data"]
-        return [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
+        scores = [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
+        if not use_user_api:
+            # LXNSProvider's developer-level API scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
+            # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
+            b35, b15 = await self.get_scores_best(identifier, client)
+            scores.extend(b35 + b15)
+        return scores
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         maimai_songs = await client.songs()
-        url, headers = await self._build_player_request("scores", identifier, client)
+        url, headers, _ = await self._build_player_request("scores", identifier, client)
         scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]}
         resp = await client._client.post(url, headers=headers, json=scores_dict)
         resp.raise_for_status()

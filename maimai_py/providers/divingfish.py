@@ -168,17 +168,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             additional_rating=resp_json["additional_rating"],
         )
 
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score], list[Score]]:
-        req_json = identifier._as_diving_fish()
-        req_json["b50"] = True
-        resp = await client._client.post(self.base_url + "query/player", json=req_json)
-        resp_json = self._check_response_player(resp)
-        return (
-            [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"]],
-            [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["dx"]],
-        )
-
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
         resp_json = self._check_response_player(resp)
         return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]

@@ -62,13 +62,7 @@ class IScoreProvider:
     def _hash(self) -> str: ...
 
     @abstractmethod
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score] | None, list[Score] | None]:
-        """@private"""
-        # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
-        return None, None
-
-    @abstractmethod
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         """@private"""
         raise NotImplementedError()
 
