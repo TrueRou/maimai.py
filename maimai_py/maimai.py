@@ -143,13 +143,13 @@ class MaimaiSongs:
                 if curve_provider is not None:
                     if curves := curves_dict.get((song.id, SongType.DX), None):
                         diffs = song.difficulties._get_children(SongType.DX)
-                        [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs)]
+                        [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
                     if curves := curves_dict.get((song.id, SongType.STANDARD), None):
                         diffs = song.difficulties._get_children(SongType.STANDARD)
-                        [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs)]
+                        [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
                     if curves := curves_dict.get((song.id, SongType.UTAGE), None):
                         diffs = song.difficulties._get_children(SongType.UTAGE)
-                        [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs)]
+                        [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
 
             song_task = asyncio.create_task(self._client._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs"))
             provider_task = asyncio.create_task(
