@@ -73,7 +73,7 @@ class LocalProvider(IItemListProvider, IAreaProvider):
 
     async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:
         maimai_songs = await client.songs()
-        return {
+        areas = {
             item["id"]: Area(
                 id=item["id"],
                 name=item["name"],
@@ -93,7 +93,7 @@ class LocalProvider(IItemListProvider, IAreaProvider):
                 ],
                 songs=[
                     AreaSong(
-                        id=s.id if (s := await maimai_songs.by_title(song["title"])) else None,
+                        id=None,
                         title=song["title"],
                         artist=song["artist"],
                         description=song["description"],
@@ -105,3 +105,8 @@ class LocalProvider(IItemListProvider, IAreaProvider):
             )
             for item in self._read_file_list(f"areas_{lang}")
         }
+        for area in areas.values():
+            for song in area.songs:
+                maimai_song = await maimai_songs.by_title(song.title)
+                song.id = maimai_song.id if maimai_song else None
+        return areas
