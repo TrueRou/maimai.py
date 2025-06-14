@@ -39,11 +39,11 @@ pip install -U maimai-py
 import asyncio
 from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, DivingFishProvider
 
+# 全局创建 MaimaiClient 实例
+maimai = MaimaiClient()
+divingfish = DivingFishProvider(developer_token="your_token_here")
 
 async def quick_start():
-    maimai = MaimaiClient()
-    divingfish = DivingFishProvider(developer_token="your_token_here")
-
     # 获取所有歌曲及其元数据
     songs: MaimaiSongs = await maimai.songs()
     # 获取水鱼查分器用户 turou 的分数

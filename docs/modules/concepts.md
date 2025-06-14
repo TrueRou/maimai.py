@@ -4,6 +4,24 @@
 
 与 `RESTful` 规范类似，如果您能理解我们的规范，便可以直接使用符合直觉的方式进行开发，而不必过多阅读文档和API。
 
+## 缓存
+
+maimai.py 中的所有方法和接口都支持缓存机制，默认情况下会缓存 24 小时。
+
+```python
+# ✅ 全局创建一个 MaimaiClient 实例, 避免缓存失效
+maimai = MaimaiClient()
+async def quick_start():
+    songs: MaimaiSongs = await maimai.songs() # 填充缓存
+    songs: MaimaiSongs = await maimai.songs() # 命中缓存
+
+asyncio.run(quick_start())
+```
+
+::: danger
+务必在全局只创建一个 `MaimaiClient` 实例，避免缓存失效。
+:::
+
 ## 异步
 
 在 maimai.py 中，所有方法和接口都需要通过 `MaimaiClient` 进行**异步**的调用，类似下面的形式。
@@ -68,6 +86,8 @@ player_diving = await maimai.players(PlayerIdentifier(username="turou"), provide
 - 上传分数到水鱼时使用用户名和密码：`PlayerIdentitifer(username="Username", credentials="Password")`。
 - 上传分数到水鱼时使用Import-Token：`PlayerIdentitifer(credentials="Import-Token")`。
 - 使用机台作为数据源时，`credentials` 就是玩家加密后的userId，您可以保存并复用。
+
+阅读对应 Provider 的文档可以了解更多关于如何使用 `PlayerIdentifier` 的信息。
 
 ## 曲目ID
 

@@ -43,6 +43,21 @@ maimai.py 的缓存遵循生存周期，默认的生存周期为24小时，您�
 
 然而，我们不推荐您主动调用 `clear` 方法，如果您在开发Web应用，这可能会导致没有关闭的连接无法找到缓存资源。
 
+## 关于Redis
+
+maimai.py 的缓存默认使用内存缓存，如果您需要使用 Redis 缓存，可以通过 `MaimaiClient` 的 `cache` 参数来使用 Redis 。
+
+```python
+# ✅ 支持使用 Redis 缓存, 重启后不会丢失
+maimai = MaimaiClient(cache=RedisCache(serializer=PickleSerializer()))
+
+async def quick_start():
+    songs: MaimaiSongs = await maimai.songs() # 命中缓存
+    songs: MaimaiSongs = await maimai.songs() # 命中缓存
+
+asyncio.run(quick_start())
+```
+
 
 ## 性能建议
 

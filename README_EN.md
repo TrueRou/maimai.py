@@ -39,10 +39,11 @@ Additionally, you can [download the maimai.py client](https://github.com/TrueRou
 import asyncio
 from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, DivingFishProvider
 
-async def quick_start():
-    maimai = MaimaiClient()
-    divingfish = DivingFishProvider(developer_token="your_token_here")
+# Create a global MaimaiClient instance
+maimai = MaimaiClient()
+divingfish = DivingFishProvider(developer_token="your_token_here")
 
+async def quick_start():
     # fetch all songs and their metadata
     songs: MaimaiSongs = await maimai.songs()
     # fetch divingfish user turou's scores (b50 scores by default)
