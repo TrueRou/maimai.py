@@ -61,7 +61,7 @@ class WechatProvider(IScoreProvider):
         results = await asyncio.gather(*tasks)
         return functools.reduce(operator.concat, results, [])
 
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()  # Ensure songs are loaded in cache
         if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")

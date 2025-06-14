@@ -1,3 +1,5 @@
+from importlib.util import find_spec
+
 import pytest
 
 from maimai_py import DivingFishProvider, LevelIndex, LXNSProvider, MaimaiClient, PlayerIdentifier
@@ -9,6 +11,12 @@ async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingf
     assert my_scores.rating_b35 > 10000
     score = next(my_scores.by_song(1231, level_index=LevelIndex.MASTER))
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
+
+    if find_spec("tests.secrets"):
+        from tests import secrets
+
+        personal_scores = await maimai.scores(PlayerIdentifier(credentials=secrets.lxns_personal_token), provider=lxns)
+        assert personal_scores.rating == my_scores.rating
 
     my_scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
     assert my_scores.rating_b35 > 10000
@@ -32,10 +40,11 @@ async def test_scores_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingf
 @pytest.mark.asyncio(scope="session")
 @pytest.mark.slow()
 async def test_scores_updating_lxns_personal(maimai: MaimaiClient, lxns: LXNSProvider, divingfish: DivingFishProvider):
-    from tests import secrets
+    if find_spec("tests.secrets"):
+        from tests import secrets
 
-    scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
-    await maimai.updates(PlayerIdentifier(credentials=secrets.lxns_personal_token), scores.scores, provider=lxns)
+        scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
+        await maimai.updates(PlayerIdentifier(credentials=secrets.lxns_personal_token), scores.scores, provider=lxns)
 
 
 @pytest.mark.asyncio(scope="session")

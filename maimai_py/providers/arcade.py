@@ -72,7 +72,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             raise ArcadeError("Invalid response from the server.")
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
-    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
@@ -81,10 +81,6 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
                 return [s for score in resp.data if (s := await ArcadeProvider._deser_score(score, maimai_songs))]
             raise ArcadeError("Invalid response from the server.")
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score] | None, list[Score] | None]:
-        # Return (None, None) will call the main client to handle this, which will then fetch all scores instead
-        return None, None
 
     async def get_regions(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[PlayerRegion]:
         if identifier.credentials and isinstance(identifier.credentials, str):

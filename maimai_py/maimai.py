@@ -759,16 +759,10 @@ class MaimaiClient:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
-        # LXNSProvider's ALL scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
-        # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-        b35, b15, all = [], [], []
-
-        if isinstance(provider, LXNSProvider):
-            b35, b15 = await provider.get_scores_best(identifier, self)
-        all = await provider.get_scores_all(identifier, self)
+        scores = await provider.get_scores(identifier, self)
 
         maimai_scores = MaimaiScores(self)
-        return await maimai_scores.configure(all + b35 + b15)
+        return await maimai_scores.configure(scores)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
@@ -836,7 +830,7 @@ class MaimaiClient:
             httpx.HTTPError: Request failed due to network issues.
         """
         # songs = await MaimaiSongs._get_or_fetch(self._client)
-        scores = await provider.get_scores_all(identifier, self)
+        scores = await provider.get_scores(identifier, self)
         maimai_plates = MaimaiPlates(self)
         return await maimai_plates._configure(plate, scores)
 
