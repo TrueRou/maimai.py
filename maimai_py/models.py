@@ -393,5 +393,6 @@ class PlateSong:
 
 @dataclass(slots=True)
 class PlateObject:
-    song: PlateSong
-    scores: list[PlateScore]
+    song: Song
+    levels: set[LevelIndex]
+    scores: list[Score]

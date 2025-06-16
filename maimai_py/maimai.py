@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+from collections import defaultdict
 from functools import cached_property
 from typing import Any, AsyncGenerator, Generic, Iterator, Literal, Type, TypeVar
 
@@ -297,8 +298,8 @@ class MaimaiPlates:
     _kind: str  # The kind of the plate, e.g. "将", "神".
     _version: str  # The version of the plate, e.g. "真", "舞".
     _versions: set[Version] = set()  # The matched versions set of the plate.
-    _matched_songs: list[PlateSong] = []
-    _matched_scores: list[PlateScore] = []
+    _matched_songs: list[Song] = []
+    _matched_scores: list[Score] = []
 
     def __init__(self, client: "MaimaiClient") -> None:
         """@private"""
@@ -326,9 +327,7 @@ class MaimaiPlates:
         for k, v in song_diff_versions.items():
             if any(v >= o.value and v < versions[i + 1].value for i, o in enumerate(versions[:-1])):
                 versioned_matched_songs.add(int(k.split(" ")[0]))
-        for song in await self._client._cache.multi_get(list(versioned_matched_songs), namespace="songs"):
-            if song := PlateSong._from_song(song, self._major_type, self.no_remaster):
-                self._matched_songs.append(song)
+        self._matched_songs = await self._client._cache.multi_get(list(versioned_matched_songs), namespace="songs")
 
         versioned_joined_scores = {}
         for score in scores:
@@ -355,6 +354,12 @@ class MaimaiPlates:
 
         return self._version not in ["舞", "霸"]
 
+    def _get_levels(self, song: Song) -> set[LevelIndex]:
+        levels = set(diff.level_index for diff in song.difficulties._get_children(self._major_type))
+        if self.no_remaster and LevelIndex.ReMASTER in levels:
+            levels.remove(LevelIndex.ReMASTER)
+        return levels
+
     async def get_remained(self) -> list[PlateObject]:
         """Get the remained songs and scores of the player on this plate.
 
@@ -365,14 +370,16 @@ class MaimaiPlates:
         Returns:
             A list of `PlateObject` containing the song and the scores.
         """
-        scores_dict: dict[int, list[PlateScore]] = {}
-        [scores_dict.setdefault(score.id, []).append(score) for score in self._matched_scores]
-        results = {song.id: PlateObject(song=song._as_full(), scores=scores_dict.get(song.id, [])) for song in self._matched_songs}
+        # Group scores by song ID to pre-fill the PlateObject.
+        grouped = defaultdict(list)
+        [grouped[score.id].append(score) for score in self._matched_scores]
+        # Create PlateObject for each song with its levels and scores.
+        results = {song.id: PlateObject(song=song, levels=self._get_levels(song), scores=grouped.get(song.id, [])) for song in self._matched_songs}
 
-        def extract(score: PlateScore) -> None:
+        def extract(score: Score) -> None:
             results[score.id].scores.remove(score)
-            if score.level_index in results[score.id].song.levels:
-                results[score.id].song.levels.remove(score.level_index)
+            if score.level_index in results[score.id].levels:
+                results[score.id].levels.remove(score.level_index)
 
         if self._kind == "者":
             [extract(score) for score in self._matched_scores if score.rate.value <= RateType.A.value]
@@ -385,7 +392,7 @@ class MaimaiPlates:
         elif self._kind == "神":
             [extract(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.AP.value]
 
-        return [plate for plate in results.values() if plate.song.levels != []]
+        return [plate for plate in results.values() if len(plate.levels) > 0]
 
     async def get_cleared(self) -> list[PlateObject]:
         """Get the cleared songs and scores of the player on this plate.
@@ -397,11 +404,11 @@ class MaimaiPlates:
         Returns:
             A list of `PlateObject` containing the song and the scores.
         """
-        results = {song.id: PlateObject(song=song._as_empty(), scores=[]) for song in self._matched_songs}
+        results = {song.id: PlateObject(song=song, levels=set(), scores=[]) for song in self._matched_songs}
 
-        def insert(score: PlateScore) -> None:
+        def insert(score: Score) -> None:
             results[score.id].scores.append(score)
-            results[score.id].song.levels.append(score.level_index)
+            results[score.id].levels.add(score.level_index)
 
         if self._kind == "者":
             [insert(score) for score in self._matched_scores if score.rate.value <= RateType.A.value]
@@ -414,7 +421,7 @@ class MaimaiPlates:
         elif self._kind == "神":
             [insert(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.AP.value]
 
-        return [plate for plate in results.values() if plate.song.levels != []]
+        return [plate for plate in results.values() if len(plate.levels) > 0]
 
     async def get_played(self) -> list[PlateObject]:
         """Get the played songs and scores of the player on this plate.
@@ -426,23 +433,31 @@ class MaimaiPlates:
         Returns:
             A list of `PlateObject` containing the song and the scores.
         """
-        results = {song.id: PlateObject(song=song._as_empty(), scores=[]) for song in self._matched_songs}
+        results = {song.id: PlateObject(song=song, levels=set(), scores=[]) for song in self._matched_songs}
+
         for score in self._matched_scores:
             results[score.id].scores.append(score)
-            results[score.id].song.levels.append(score.level_index)
-        return [plate for plate in results.values() if plate.song.levels != []]
+            results[score.id].levels.add(score.level_index)
+
+        return [plate for plate in results.values() if len(plate.levels) > 0]
 
     async def get_all(self) -> list[PlateObject]:
-        """Get all songs on this plate, usually used for statistics of the plate.
+        """Get all songs and scores on this plate, usually used for overall statistics of the plate.
 
-        All songs will be included in the result, with all levels, whether they met or not.
+        All songs will be included in the result, with played `level_index`, whether they met or not.
 
-        No scores will be included in the result, use played, cleared, remained to get the scores.
+        All distinct scores will be included in the result.
 
         Returns:
             A list of `PlateObject` containing the song and the scores.
         """
-        return [PlateObject(song=song._as_full(), scores=[]) for song in self._matched_songs]
+        results = {song.id: PlateObject(song=song, levels=set(), scores=[]) for song in self._matched_songs}
+
+        for score in self._matched_scores:
+            results[score.id].scores.append(score)
+            results[score.id].levels.add(score.level_index)
+
+        return [plate for plate in results.values()]
 
     async def count_played(self) -> int:
         """Get the number of played levels on this plate.
@@ -450,7 +465,7 @@ class MaimaiPlates:
         Returns:
             The number of played levels on this plate.
         """
-        return len([level for plate in await self.get_played() for level in plate.song.levels])
+        return len([level for plate in await self.get_played() for level in plate.levels])
 
     async def count_cleared(self) -> int:
         """Get the number of cleared levels on this plate.
@@ -458,7 +473,7 @@ class MaimaiPlates:
         Returns:
             The number of cleared levels on this plate.
         """
-        return len([level for plate in await self.get_cleared() for level in plate.song.levels])
+        return len([level for plate in await self.get_cleared() for level in plate.levels])
 
     async def count_remained(self) -> int:
         """Get the number of remained levels on this plate.
@@ -466,7 +481,7 @@ class MaimaiPlates:
         Returns:
             The number of remained levels on this plate.
         """
-        return len([level for plate in await self.get_remained() for level in plate.song.levels])
+        return len([level for plate in await self.get_remained() for level in plate.levels])
 
     async def count_all(self) -> int:
         """Get the number of all levels on this plate.
@@ -474,7 +489,7 @@ class MaimaiPlates:
         Returns:
             The number of all levels on this plate.
         """
-        return len([level for plate in await self.get_all() for level in plate.song.levels])
+        return sum(len(self._get_levels(plate.song)) for plate in await self.get_all())
 
 
 class MaimaiScores:
