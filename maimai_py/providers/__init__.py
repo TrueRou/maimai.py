@@ -1,5 +1,15 @@
 from .arcade import ArcadeProvider
-from .base import IAliasProvider, IAreaProvider, ICurveProvider, IItemListProvider, IPlayerProvider, IRegionProvider, IScoreProvider, ISongProvider
+from .base import (
+    IAliasProvider,
+    IAreaProvider,
+    ICurveProvider,
+    IItemListProvider,
+    IPlayerProvider,
+    IProvider,
+    IRegionProvider,
+    IScoreProvider,
+    ISongProvider,
+)
 from .divingfish import DivingFishProvider
 from .hybrid import HybridProvider
 from .local import LocalProvider
@@ -8,6 +18,7 @@ from .wechat import WechatProvider
 from .yuzu import YuzuProvider
 
 __all__ = [
+    "IProvider",
     "IAliasProvider",
     "IAreaProvider",
     "ICurveProvider",
