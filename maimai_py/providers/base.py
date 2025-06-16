@@ -54,8 +54,17 @@ class IScoreProvider(IProvider):
     Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`
     """
 
+    async def get_scores_one(self, identifier: PlayerIdentifier, id: int, client: "MaimaiClient") -> list[Score]:
+        """@private"""
+        scores = await self.get_scores_all(identifier, client)
+        return [score for score in scores if score.id == id]
+
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        """@private"""
+        return await self.get_scores_all(identifier, client)
+
     @abstractmethod
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         """@private"""
         raise NotImplementedError()
 

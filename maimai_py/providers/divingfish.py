@@ -1,10 +1,12 @@
 import dataclasses
 import hashlib
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Generator, override
 
 from httpx import Response
 
+from maimai_py.maimai import MaimaiClient
 from maimai_py.models import *
+from maimai_py.models import PlayerIdentifier, Score
 
 from .base import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
 
@@ -168,10 +170,15 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             additional_rating=resp_json["additional_rating"],
         )
 
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
         resp_json = self._check_response_player(resp)
         return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]
+
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        resp = await client._client.post(self.base_url + "query/player", json={"b50": True, **identifier._as_diving_fish()})
+        resp_json = self._check_response_player(resp)
+        return [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"] + resp_json["charts"]["dx"]]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         headers, cookies = None, None

@@ -773,7 +773,7 @@ class MaimaiClient:
             TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
         """
-        scores = await provider.get_scores(identifier, self)
+        scores = await provider.get_scores_all(identifier, self)
 
         maimai_scores = MaimaiScores(self)
         return await maimai_scores.configure(scores)
@@ -844,7 +844,7 @@ class MaimaiClient:
             httpx.HTTPError: Request failed due to network issues.
         """
         # songs = await MaimaiSongs._get_or_fetch(self._client)
-        scores = await provider.get_scores(identifier, self)
+        scores = await provider.get_scores_all(identifier, self)
         maimai_plates = MaimaiPlates(self)
         return await maimai_plates._configure(plate, scores)
 

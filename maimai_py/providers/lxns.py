@@ -204,17 +204,14 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             upload_time=resp_data["upload_time"],
         )
 
-    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> tuple[list[Score], list[Score]]:
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         await self._ensure_friend_code(client, identifier)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/bests"
         resp = await client._client.get(self.base_url + entrypoint, headers=self.headers)
         resp_data = self._check_response_player(resp)["data"]
-        return (
-            [s for score in resp_data["standard"] if (s := LXNSProvider._deser_score(score))],
-            [s for score in resp_data["dx"] if (s := LXNSProvider._deser_score(score))],
-        )
+        return [s for score in resp_data["standard"] + resp_data["dx"] if (s := LXNSProvider._deser_score(score))]
 
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         url, headers, use_user_api = await self._build_player_request("scores", identifier, client)
         resp = await client._client.get(url, headers=headers)
         resp_data = self._check_response_player(resp)["data"]
@@ -222,8 +219,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         if not use_user_api:
             # LXNSProvider's developer-level API scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
             # In this case, we should always fetch the b35 and b15 scores for LXNSProvider.
-            b35, b15 = await self.get_scores_best(identifier, client)
-            scores.extend(b35 + b15)
+            scores.extend(await self.get_scores_best(identifier, client))
         return scores
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:

@@ -72,7 +72,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             raise ArcadeError("Invalid response from the server.")
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
