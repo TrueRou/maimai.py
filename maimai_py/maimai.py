@@ -2,7 +2,7 @@ import asyncio
 import hashlib
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, AsyncGenerator, Generic, Iterator, Literal, Type, TypeVar
+from typing import Any, Callable, Generic, Iterator, Literal, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -74,7 +74,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         """
         return await self._client._cache.get(id, namespace=self._namespace)
 
-    async def filter(self, **kwargs) -> AsyncGenerator[PlayerItemType, None]:
+    async def filter(self, **kwargs) -> list[PlayerItemType]:
         """Filter items by their attributes.
 
         Ensure that the attribute is of the item, and the value is of the same type. All conditions are connected by AND.
@@ -84,9 +84,8 @@ class MaimaiItems(Generic[PlayerItemType]):
         Returns:
             an async generator yielding items that match all the conditions, yields no items if no item is found.
         """
-        for item in await self.get_all():
-            if all(getattr(item, key) == value for key, value in kwargs.items() if value is not None):
-                yield item
+        cond = lambda item: all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)
+        return [item for item in await self.get_all() if cond(item)]
 
 
 class MaimaiSongs:
@@ -215,7 +214,7 @@ class MaimaiSongs:
             if song := await self._client._cache.get(song_id, namespace="songs"):
                 return song
 
-    async def by_artist(self, artist: str) -> AsyncGenerator[Song, None]:
+    async def by_artist(self, artist: str) -> list[Song]:
         """Get songs by their artist, case-sensitive.
 
         Args:
@@ -223,11 +222,9 @@ class MaimaiSongs:
         Returns:
             an async generator yielding songs that match the artist.
         """
-        for song in await self.get_all():
-            if song.artist == artist:
-                yield song
+        return [song for song in await self.get_all() if song.artist == artist]
 
-    async def by_genre(self, genre: Genre) -> AsyncGenerator[Song, None]:
+    async def by_genre(self, genre: Genre) -> list[Song]:
         """Get songs by their genre, case-sensitive.
 
         Args:
@@ -235,11 +232,9 @@ class MaimaiSongs:
         Returns:
             an async generator yielding songs that match the genre.
         """
-        for song in await self.get_all():
-            if song.genre == genre:
-                yield song
+        return [song for song in await self.get_all() if song.genre == genre]
 
-    async def by_bpm(self, minimum: int, maximum: int) -> AsyncGenerator[Song, None]:
+    async def by_bpm(self, minimum: int, maximum: int) -> list[Song]:
         """Get songs by their BPM.
 
         Args:
@@ -248,11 +243,9 @@ class MaimaiSongs:
         Returns:
             an async generator yielding songs that match the BPM.
         """
-        for song in await self.get_all():
-            if minimum <= song.bpm <= maximum:
-                yield song
+        return [song for song in await self.get_all() if minimum <= song.bpm <= maximum]
 
-    async def by_versions(self, versions: Version) -> AsyncGenerator[Song, None]:
+    async def by_versions(self, versions: Version) -> list[Song]:
         """Get songs by their versions, versions are fuzzy matched version of major maimai version.
 
         Args:
@@ -260,11 +253,10 @@ class MaimaiSongs:
         Returns:
             an async generator yielding songs that match the versions.
         """
-        for song in await self.get_all():
-            if versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value:
-                yield song
+        cond = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
+        return [song for song in await self.get_all() if cond(song)]
 
-    async def by_keywords(self, keywords: str) -> AsyncGenerator[Song, None]:
+    async def by_keywords(self, keywords: str) -> list[Song]:
         """Get songs by their keywords, keywords are matched with song title, artist and aliases.
 
         Args:
@@ -272,11 +264,10 @@ class MaimaiSongs:
         Returns:
             an async generator yielding songs that match the keywords.
         """
-        for song in await self.get_all():
-            if keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower():
-                yield song
+        cond = lambda song: keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower()
+        return [song for song in await self.get_all() if cond(song)]
 
-    async def filter(self, **kwargs) -> AsyncGenerator[Song, None]:
+    async def filter(self, **kwargs) -> list[Song]:
         """Filter songs by their attributes.
 
         Ensure that the attribute is of the song, and the value is of the same type. All conditions are connected by AND.
@@ -286,9 +277,8 @@ class MaimaiSongs:
         Returns:
             an async generator yielding songs that match all the conditions.
         """
-        for song in await self.get_all():
-            if all(getattr(song, key) == value for key, value in kwargs.items() if value is not None):
-                yield song
+        cond = lambda song: all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)
+        return [song for song in await self.get_all() if cond(song)]
 
 
 class MaimaiPlates:
@@ -749,13 +739,17 @@ class MaimaiClient:
         identifier: PlayerIdentifier,
         provider: IScoreProvider = LXNSProvider(),
     ) -> MaimaiScores:
-        """Fetch player's scores from the provider.
+        """Fetch player's ALL scores from the provider.
+
+        All scores of the player will be fetched, if you want to fetch only the best scores (for better performance), use `maimai.bests()` instead.
 
         For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
         For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.qrcode()`.
         Credentials can be reused, since it won't expire, also, userId is encrypted, can't be used in any other cases outside the maimai.py
+
+        For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.
 
         Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`, `ArcadeProvider`.
 
@@ -777,6 +771,85 @@ class MaimaiClient:
 
         maimai_scores = MaimaiScores(self)
         return await maimai_scores.configure(scores)
+
+    async def bests(
+        self,
+        identifier: PlayerIdentifier,
+        provider: IScoreProvider = LXNSProvider(),
+    ) -> MaimaiScores:
+        """Fetch player's B50 scores from the provider.
+
+        Though MaimaiScores is used, this method will only return the best 50 scores. if you want all scores, please use `maimai.scores()` method instead.
+
+        For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
+        Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
+
+        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.qrcode()`.
+        Credentials can be reused, since it won't expire, also, userId is encrypted, can't be used in any other cases outside the maimai.py
+
+        For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.
+
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`, `ArcadeProvider`.
+
+        Args:
+            identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
+            provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
+        Returns:
+            The scores object of the player, with all the data fetched.
+        Raises:
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
+            PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            httpx.HTTPError: Request failed due to network issues.
+        Raises:
+            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+        """
+        scores = await provider.get_scores_best(identifier, self)
+
+        maimai_scores = MaimaiScores(self)
+        return await maimai_scores.configure(scores)
+
+    async def minfo(
+        self,
+        song: Song | int | str,
+        identifier: PlayerIdentifier,
+        provider: IScoreProvider = LXNSProvider(),
+    ) -> tuple[Song, list[Score]] | None:
+        """Fetch player's scores on the specific song.
+
+        This method will return all scores of the player on the song.
+
+        For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.
+
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`, `ArcadeProvider`.
+
+        Args:
+            song: the song to fetch the scores from, can be a `Song` object, or a song_id (int), or keywords (str).
+            identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
+            provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
+        Returns:
+            A tuple of the song and the scores of the player on the song, or None if the song is not found.
+        Raises:
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
+            PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            httpx.HTTPError: Request failed due to network issues.
+        Raises:
+            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+        """
+        maimai_songs = await self.songs()
+        if isinstance(song, str):
+            search_result = await maimai_songs.by_keywords(song)
+            song = search_result[0] if len(search_result) > 0 else song
+        if isinstance(song, int):
+            search_result = await maimai_songs.by_id(song)
+            song = search_result if search_result is not None else song
+        if isinstance(song, Song):
+            scores = await provider.get_scores_one(identifier, song, self)
+            return song, scores
+        return None
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.

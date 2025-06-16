@@ -57,7 +57,7 @@ async def by_id(self, id: int) -> PlayerItemType | None:
         如果收藏品存在则返回该收藏品，否则返回 None。
     """
 
-async def filter(self, **kwargs) -> AsyncGenerator[PlayerItemType, None]:
+async def filter(self, **kwargs) -> list[PlayerItemType]:
     """通过属性筛选收藏品。
 
     确保属性属于收藏品本身，且值的类型相同。所有条件通过 AND 连接。
@@ -65,7 +65,7 @@ async def filter(self, **kwargs) -> AsyncGenerator[PlayerItemType, None]:
     参数:
         kwargs: 用于筛选收藏品的属性。
     返回值:
-        一个异步生成器，生成符合所有条件的收藏品，如果没有找到则不生成任何内容。
+        一个列表，包含所有符合条件的收藏品。
     """
 ```
 

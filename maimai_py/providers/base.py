@@ -54,10 +54,10 @@ class IScoreProvider(IProvider):
     Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`
     """
 
-    async def get_scores_one(self, identifier: PlayerIdentifier, id: int, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
         """@private"""
         scores = await self.get_scores_all(identifier, client)
-        return [score for score in scores if score.id == id]
+        return [score for score in scores if score.id == song.id]
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         """@private"""

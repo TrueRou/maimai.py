@@ -28,8 +28,9 @@ class PlayerBests:
 
 
 @dataclass(slots=True)
-class ParsedCode:
-    credentials: str
+class PlayerSong:
+    song: Song
+    scores: list[Score]
 
 
 def xstr(s: str | None) -> str:
@@ -170,14 +171,14 @@ if find_spec("fastapi"):
                 page_size: int = Query(100, ge=1),
                 provider: ISongProvider = Depends(dep_provider),
             ) -> list[Song]:
-                songs: MaimaiSongs = await self._client.songs(provider=provider)
+                maimai_songs: MaimaiSongs = await self._client.songs(provider=provider)
                 type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []  # type: ignore
                 level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
                 versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
                 keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
+                songs = await maimai_songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
                 filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
-                filtered = songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
-                result = [x async for x in filtered if filters(x)]
+                result = [song for song in songs if filters(song)]
                 return pagination(page_size, page, result)
 
             async def _get_icons(
@@ -193,11 +194,9 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerIcon, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func: Callable[[PlayerIcon], bool] = lambda icon: xstr(keywords) in (
-                    xstr(icon.name) + xstr(icon.description) + xstr(icon.genre)
-                )
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
                 filters = get_filters({keywords: keyword_func})
-                result = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
+                result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_nameplates(
@@ -213,11 +212,9 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerNamePlate, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func: Callable[[PlayerNamePlate], bool] = lambda icon: xstr(keywords) in (
-                    xstr(icon.name) + xstr(icon.description) + xstr(icon.genre)
-                )
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
                 filters = get_filters({keywords: keyword_func})
-                result = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
+                result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_frames(
@@ -233,11 +230,9 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerFrame, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func: Callable[[PlayerFrame], bool] = lambda icon: xstr(keywords) in (
-                    xstr(icon.name) + xstr(icon.description) + xstr(icon.genre)
-                )
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
                 filters = get_filters({keywords: keyword_func})
-                result = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
+                result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_trophies(
@@ -252,9 +247,9 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerTrophy, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func: Callable[[PlayerTrophy], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
                 filters = get_filters({keywords: keyword_func})
-                result = [x async for x in items.filter(name=name, color=color) if filters(x)]
+                result = [x for x in await items.filter(name=name, color=color) if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_charas(
@@ -268,7 +263,9 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerChara, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                result = [x async for x in items.filter(name=name or keywords)]
+                keyword_func = lambda chara: xstr(keywords) in xstr(chara.name)
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name) if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_partners(
@@ -282,13 +279,16 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerPartner, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                result = [x async for x in items.filter(name=name or keywords)]
+                keyword_func = lambda partner: xstr(keywords) in xstr(partner.name)
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name) if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_areas(
                 lang: Literal["ja", "zh"] = "ja",
                 id: str | None = None,
                 name: str | None = None,
+                keywords: str | None = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IAreaProvider = Depends(dep_provider),
@@ -298,7 +298,9 @@ if find_spec("fastapi"):
                     return [area] if (area := await areas.by_id(id)) else []
                 if name is not None:
                     return [area] if (area := await areas.by_name(name)) else []
-                result = await areas.get_all()
+                keyword_func = lambda area: xstr(keywords) in (xstr(area.name) + xstr(area.comment))
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await areas.get_all() if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_scores(
@@ -325,7 +327,7 @@ if find_spec("fastapi"):
                 player: PlayerIdentifier = Depends(dep_player),
             ) -> PlayerBests:
                 songs = await self._client.songs()
-                scores = await self._client.scores(player, provider=provider)
+                scores = await self._client.bests(player, provider=provider)
                 return await ser_bests(scores, songs)
 
             async def _post_scores(
@@ -344,8 +346,21 @@ if find_spec("fastapi"):
                 plates: MaimaiPlates = await self._client.plates(player, plate, provider=provider)
                 return await getattr(plates, f"get_{attr}")()
 
+            async def _get_minfo(
+                id: int | None = None,
+                title: str | None = None,
+                keywords: str | None = None,
+                provider: IScoreProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> PlayerSong | None:
+                song_trait = id if id is not None else title if title is not None else keywords if keywords is not None else None
+                if song_trait is not None:
+                    minfo_result = await self._client.minfo(song_trait, player, provider=provider)
+                    if minfo_result is not None:
+                        return PlayerSong(minfo_result[0], minfo_result[1])
+
             bases: list[Callable] = [_get_songs, _get_icons, _get_nameplates, _get_frames, _get_trophies, _get_charas, _get_partners, _get_areas]
-            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates]
+            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo]
 
             all = players + (bases if not skip_base else [])
             [try_add_route(func, router, dep_provider) for func in all]
