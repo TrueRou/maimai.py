@@ -329,14 +329,13 @@ class MaimaiPlates:
                 versioned_matched_songs.add(int(k.split(" ")[0]))
         self._matched_songs = await self._client._cache.multi_get(list(versioned_matched_songs), namespace="songs")
 
-        versioned_joined_scores = {}
+        versioned_joined_scores: dict[str, Score] = {}
         for score in scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             if score_version := song_diff_versions.get(score_key, None):
                 if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
                     if not (score.level_index == LevelIndex.ReMASTER and self.no_remaster):
-                        plate_score = PlateScore._from_score(score)
-                        versioned_joined_scores[score_key] = plate_score._join(versioned_joined_scores.get(score_key, None))
+                        versioned_joined_scores[score_key] = score._join(versioned_joined_scores.get(score_key, None))
 
         self._matched_scores = list(versioned_joined_scores.values())
         return self

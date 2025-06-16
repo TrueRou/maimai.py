@@ -325,30 +325,7 @@ class Score:
             return self if self_fs > other_fs else other
         return self  # we consider they are equal
 
-
-@dataclass(slots=True)
-class PlateScore:
-    id: int
-    level_index: LevelIndex
-    achievements: float | None
-    fc: FCType | None
-    fs: FSType | None
-    rate: RateType
-    type: SongType
-
-    @staticmethod
-    def _from_score(score: Score) -> "PlateScore":
-        return PlateScore(
-            id=score.id,
-            level_index=score.level_index,
-            achievements=score.achievements,
-            fc=score.fc,
-            fs=score.fs,
-            rate=score.rate,
-            type=score.type,
-        )
-
-    def _join(self, other: "PlateScore | None") -> "PlateScore":
+    def _join(self, other: "Score | None") -> "Score":
         if other is not None:
             if self.level_index != other.level_index or self.type != other.type:
                 raise ValueError("Cannot join scores with different level indexes or types")
@@ -367,28 +344,6 @@ class PlateScore:
                 selected_value = min(self.rate.value, other.rate.value)
                 self.rate = RateType(selected_value)
         return self
-
-
-@dataclass(slots=True)
-class PlateSong:
-    id: int
-    title: str
-    artist: str
-    levels: list[LevelIndex]
-
-    @staticmethod
-    def _from_song(song: Song | None, song_type: SongType, exclude_remaster: bool = False) -> "PlateSong | None":
-        if song:
-            levels = [diff.level_index for diff in song.difficulties._get_children(song_type)]
-            if exclude_remaster and LevelIndex.ReMASTER in levels:
-                levels.remove(LevelIndex.ReMASTER)
-            return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=levels)
-
-    def _as_empty(self) -> "PlateSong":
-        return PlateSong(id=self.id, title=self.title, artist=self.artist, levels=[])
-
-    def _as_full(self) -> "PlateSong":
-        return PlateSong(id=self.id, title=self.title, artist=self.artist, levels=self.levels.copy())
 
 
 @dataclass(slots=True)
