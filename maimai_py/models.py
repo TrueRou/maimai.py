@@ -41,6 +41,12 @@ class SongDifficulties:
             return self.standard + self.dx + self.utage
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
 
+    def _get_divingfish_ids(self, id: int) -> set[int]:
+        ids = set()
+        for difficulty in self._get_children():
+            ids.add(difficulty._get_divingfish_id(id))
+        return ids
+
 
 @dataclass(slots=True)
 class CurveObject:
