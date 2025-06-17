@@ -97,6 +97,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             fs=FSType[score["fs"].upper()] if score["fs"] else None,
             dx_score=score["dxScore"],
             dx_rating=score["ra"],
+            play_count=None,
             rate=RateType[score["rate"].upper()],
             type=SongType._from_id(score["song_id"]),
         )

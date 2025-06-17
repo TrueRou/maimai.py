@@ -71,6 +71,7 @@ async def ser_score(score: Score, songs: dict[int, Song]) -> ScoreExtend | None:
             fs=score.fs,
             dx_score=score.dx_score,
             dx_rating=score.dx_rating,
+            play_count=score.play_count,
             rate=score.rate,
             type=score.type,
         )

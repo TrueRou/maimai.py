@@ -301,6 +301,7 @@ class Score:
     fs: FSType | None
     dx_score: int | None
     dx_rating: float | None
+    play_count: int | None
     rate: RateType
     type: SongType
 

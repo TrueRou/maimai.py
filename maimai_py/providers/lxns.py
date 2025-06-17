@@ -133,6 +133,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             fs=FSType[score["fs"].upper()] if score["fs"] else None,
             dx_score=score["dx_score"] if "dx_score" in score else None,
             dx_rating=int(score["dx_rating"]) if "dx_rating" in score else None,
+            play_count=None,
             rate=RateType[score["rate"].upper()],
             type=SongType[score["type"].upper()],
         )

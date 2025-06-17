@@ -46,6 +46,7 @@ class WechatProvider(IScoreProvider):
                     fs=FSType[score.fs.upper().replace("FDX", "FSD")] if score.fs else None,
                     dx_score=score.dx_score,
                     dx_rating=rating,
+                    play_count=None,
                     rate=RateType[score.rate.upper()],
                     type=song_type,
                 )
