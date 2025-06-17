@@ -4,7 +4,7 @@ from importlib.util import find_spec
 from typing import Annotated, Callable, Literal
 from urllib.parse import unquote, urlparse
 
-from maimai_py import ArcadeProvider, DivingFishProvider, HybridProvider, LXNSProvider, MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs
+from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs
 from maimai_py.models import *
 from maimai_py.providers.base import (
     IAimeProvider,
@@ -16,6 +16,7 @@ from maimai_py.providers.base import (
     IScoreProvider,
     ISongProvider,
 )
+from maimai_py.providers.hybrid import HybridProvider
 
 PlateAttrs = Literal["remained", "cleared", "played", "all"]
 

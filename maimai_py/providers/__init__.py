@@ -12,7 +12,6 @@ from .base import (
     ISongProvider,
 )
 from .divingfish import DivingFishProvider
-from .hybrid import HybridProvider
 from .local import LocalProvider
 from .lxns import LXNSProvider
 from .wechat import WechatProvider
@@ -31,7 +30,6 @@ __all__ = [
     "IAimeProvider",
     "ArcadeProvider",
     "DivingFishProvider",
-    "HybridProvider",
     "LocalProvider",
     "LXNSProvider",
     "WechatProvider",

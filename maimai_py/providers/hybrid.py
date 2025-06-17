@@ -13,13 +13,9 @@ if TYPE_CHECKING:
 
 
 class HybridProvider(ISongProvider, IItemListProvider, IAreaProvider):
-    """The provider that fetches data from the LXNS and DivingFish, and hybrids them together.
+    """The provider that fetches data from the LXNS and local, and hybrids them together.
 
-    This provider is used to provide full notes and utage songs data, taking advantage of the LXNS and DivingFish APIs.
-
-    LXNS: https://maimai.lxns.net/
-
-    DivingFish: https://www.diving-fish.com/maimaidx/prober/
+    This provider is used to api endpoints creation, which are not normally used by the client.
     """
 
     base_url_lxns = LXNSProvider.base_url
