@@ -5,15 +5,16 @@ from typing import TYPE_CHECKING
 from maimai_ffi import arcade
 
 from maimai_py.models import *
+from maimai_py.models import PlayerIdentifier
 from maimai_py.utils import ScoreCoefficient
 
-from .base import IPlayerProvider, IRegionProvider, IScoreProvider
+from .base import IAimeProvider, IPlayerProvider, IRegionProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
+class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IAimeProvider):
     """The provider that fetches data from the wahlap maimai arcade.
 
     This part of the maimai.py is not open-source, we distribute the compiled version of this part of the code as maimai_ffi.
@@ -98,3 +99,11 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
                     for region in resp.data["userRegionList"]
                 ]
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
+
+    async def auth_aime(self, code: str, client: "MaimaiClient") -> PlayerIdentifier:
+        resp: ArcadeResponse = await arcade.get_uid_encrypted(code, http_proxy=self._http_proxy)
+        ArcadeResponse._raise_for_error(resp)
+        if resp.data and isinstance(resp.data, bytes):
+            return PlayerIdentifier(credentials=resp.data.decode())
+        else:
+            raise ArcadeError("Invalid QR code or QR code has expired")

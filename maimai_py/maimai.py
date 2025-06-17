@@ -959,26 +959,25 @@ class MaimaiClient:
         else:
             raise WechatTokenExpiredError("Wechat token is expired")
 
-    async def qrcode(self, qrcode: str, http_proxy: str | None = None) -> PlayerIdentifier:
+    async def aime(self, code: str, provider: IAimeProvider | _UnsetSentinel = UNSET) -> PlayerIdentifier:
         """Get the player identifier from the Wahlap QR code.
 
         Player identifier is the encrypted userId, can't be used in any other cases outside the maimai.py.
 
+        Available providers: `ArcadeProvider`.
+
         Args:
             qrcode: the QR code of the player, should begin with SGWCMAID.
-            http_proxy: the http proxy to use for the request, defaults to None.
+            provider: override the default QR code provider, defaults to `ArcadeProvider`.
         Returns:
             The player identifier of the player.
         Raises:
             AimeServerError: Maimai Aime server error, may be invalid QR code or QR code has expired.
             TitleServerError: Maimai title server related errors, possibly network problems.
         """
-        resp: ArcadeResponse = await arcade.get_uid_encrypted(qrcode, http_proxy=http_proxy)
-        ArcadeResponse._raise_for_error(resp)
-        if resp.data and isinstance(resp.data, bytes):
-            return PlayerIdentifier(credentials=resp.data.decode())
-        else:
-            raise ArcadeError("Invalid QR code or QR code has expired")
+        if isinstance(provider, _UnsetSentinel):
+            provider = ArcadeProvider()  # Default provider for QR code is ArcadeProvider
+        return await provider.auth_aime(code, self)
 
     async def items(self, item: Type[PlayerItemType], provider: IItemListProvider | _UnsetSentinel = UNSET) -> MaimaiItems[PlayerItemType]:
         """Fetch maimai player items from the cache default provider.

@@ -1,5 +1,6 @@
 from .arcade import ArcadeProvider
 from .base import (
+    IAimeProvider,
     IAliasProvider,
     IAreaProvider,
     ICurveProvider,
@@ -27,6 +28,7 @@ __all__ = [
     "IRegionProvider",
     "IScoreProvider",
     "ISongProvider",
+    "IAimeProvider",
     "ArcadeProvider",
     "DivingFishProvider",
     "HybridProvider",

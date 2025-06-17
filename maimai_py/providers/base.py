@@ -145,3 +145,15 @@ class IAreaProvider(IProvider):
     async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:
         """@private"""
         raise NotImplementedError()
+
+
+class IAimeProvider(IProvider):
+    """The provider that authenticate aime account from a specific source.
+
+    Available providers: `ArcadeProvider`
+    """
+
+    @abstractmethod
+    async def auth_aime(self, code: str, client: "MaimaiClient") -> PlayerIdentifier:
+        """@private"""
+        raise NotImplementedError()

@@ -6,7 +6,16 @@ from urllib.parse import unquote, urlparse
 
 from maimai_py import ArcadeProvider, DivingFishProvider, HybridProvider, LXNSProvider, MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs
 from maimai_py.models import *
-from maimai_py.providers.base import IAreaProvider, IItemListProvider, IPlayerProvider, IProvider, IRegionProvider, IScoreProvider, ISongProvider
+from maimai_py.providers.base import (
+    IAimeProvider,
+    IAreaProvider,
+    IItemListProvider,
+    IPlayerProvider,
+    IProvider,
+    IRegionProvider,
+    IScoreProvider,
+    ISongProvider,
+)
 
 PlateAttrs = Literal["remained", "cleared", "played", "all"]
 
@@ -360,8 +369,14 @@ if find_spec("fastapi"):
                     if minfo_result is not None:
                         return PlayerSong(minfo_result[0], minfo_result[1])
 
+            async def _get_aime(
+                code: str,
+                provider: IAimeProvider = Depends(dep_provider),
+            ) -> PlayerIdentifier:
+                return await self._client.aime(code, provider=provider)
+
             bases: list[Callable] = [_get_songs, _get_icons, _get_nameplates, _get_frames, _get_trophies, _get_charas, _get_partners, _get_areas]
-            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo]
+            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo, _get_aime]
 
             all = players + (bases if not skip_base else [])
             [try_add_route(func, router, dep_provider) for func in all]
