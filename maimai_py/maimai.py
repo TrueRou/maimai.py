@@ -106,7 +106,7 @@ class MaimaiSongs:
             if await self._client._cache.get("provider", None, namespace="songs") is not None:
                 return self
         # Really assign the unset providers to the default ones.
-        provider = provider if not isinstance(provider, _UnsetSentinel) else HybridProvider()
+        provider = provider if not isinstance(provider, _UnsetSentinel) else LXNSProvider()
         alias_provider = alias_provider if not isinstance(alias_provider, _UnsetSentinel) else YuzuProvider()
         curve_provider = curve_provider if not isinstance(curve_provider, _UnsetSentinel) else None  # Don't fetch curves if not provided.
         # Check if the current provider hash is different from the previous one, which means we need to reconfigure the songs.
@@ -689,14 +689,14 @@ class MaimaiClient:
     ) -> MaimaiSongs:
         """Fetch all maimai songs from the provider.
 
-        Available providers: `DivingFishProvider`, `LXNSProvider`, `HybridProvider`.
+        Available providers: `DivingFishProvider`, `LXNSProvider`.
 
         Available alias providers: `YuzuProvider`, `LXNSProvider`.
 
         Available curve providers: `DivingFishProvider`.
 
         Args:
-            provider: override the data source to fetch the player from, defaults to `HybridProvider`.
+            provider: override the data source to fetch the player from, defaults to `LXNSProvider`.
             alias_provider: override the data source to fetch the song aliases from, defaults to `YuzuProvider`.
             curve_provider: override the data source to fetch the song curves from, defaults to `None`.
         Returns:

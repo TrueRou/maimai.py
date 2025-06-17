@@ -1,10 +1,9 @@
 import dataclasses
 import hashlib
-from typing import TYPE_CHECKING, Generator, override
+from typing import TYPE_CHECKING, Generator
 
 from httpx import Response
 
-from maimai_py.maimai import MaimaiClient
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier, Score
 

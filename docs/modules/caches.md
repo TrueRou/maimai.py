@@ -4,17 +4,17 @@
 
 在当前版本的 maimai.py 中，共有 9 类数据会被缓存，如下表所示。
 
-| 参数名       | 说明     | 缓存场景                                 | 默认缓存数据源   |
-|--------------|--------|--------------------------------------|------------------|
-| `songs`      | 曲目     | 获取曲目列表或获取分数时依赖曲目信息     | `HybridProvider` |
-| `aliases`    | 曲目别名 | 获取曲目列表或获取分数时依赖曲目信息     | `YuzuProvider`   |
-| `curves`     | 曲目拟合 | 获取曲目列表或获取分数时依赖曲目信息     | `None`           |
-| `icons`      | 头像     | 获取头像列表或获取分数时依赖头像         | `LXNSProvider`   |
-| `nameplates` | 姓名框   | 获取姓名框列表或获取分数时依赖姓名框     | `LXNSProvider`   |
-| `frames`     | 背景     | 获取背景列表或获取分数时依赖背景         | `LXNSProvider`   |
-| `trophies`   | 称号     | 获取称号列表或获取分数时依赖称号         | `LocalProvider`  |
-| `charas`     | 旅行伙伴 | 获取旅行伙伴列表或获取分数时依赖旅行伙伴 | `LocalProvider`  |
-| `partners`   | 搭档     | 获取搭档列表或获取分数时依赖搭档         | `LocalProvider`  |
+| 参数名       | 说明     | 缓存场景                                 | 默认缓存数据源  |
+|--------------|--------|--------------------------------------|-----------------|
+| `songs`      | 曲目     | 获取曲目列表或获取分数时依赖曲目信息     | `LXNSProvider`  |
+| `aliases`    | 曲目别名 | 获取曲目列表或获取分数时依赖曲目信息     | `YuzuProvider`  |
+| `curves`     | 曲目拟合 | 获取曲目列表或获取分数时依赖曲目信息     | `None`          |
+| `icons`      | 头像     | 获取头像列表或获取分数时依赖头像         | `LXNSProvider`  |
+| `nameplates` | 姓名框   | 获取姓名框列表或获取分数时依赖姓名框     | `LXNSProvider`  |
+| `frames`     | 背景     | 获取背景列表或获取分数时依赖背景         | `LXNSProvider`  |
+| `trophies`   | 称号     | 获取称号列表或获取分数时依赖称号         | `LocalProvider` |
+| `charas`     | 旅行伙伴 | 获取旅行伙伴列表或获取分数时依赖旅行伙伴 | `LocalProvider` |
+| `partners`   | 搭档     | 获取搭档列表或获取分数时依赖搭档         | `LocalProvider` |
 
 当遇到缓存场景时，会先检查缓存是否存在，如果存在则直接返回缓存数据，否则会向数据源请求数据并缓存。
 
@@ -23,7 +23,7 @@
 因此，您可以通过主动调用方法来手动指定数据源，并且提前将数据进行缓存，例如：
 
 ```python
-# 第一次获取分数，被动缓存曲目信息，选用默认缓存数据源(HybridProvider, YuzuProvider, DivingFishProvider)
+# 第一次获取分数，被动缓存曲目信息，选用默认缓存数据源(LXNSProvider, YuzuProvider, DivingFishProvider)
 my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
 # 再获取一次分数，因为曲目信息已经被缓存，所以不会再次请求曲目信息
 my_scores = await maimai.scores(PlayerIdentifier(friend_code=664994421382429), provider=lxns)

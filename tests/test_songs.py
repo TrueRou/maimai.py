@@ -16,10 +16,7 @@ async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfi
     assert song1.difficulties.dx[3].curve.sample_size > 10000
     assert song2.id == song1.id
 
-    hybrid = HybridProvider()
-
-    songs = await maimai.songs(provider=hybrid)
-    songs = await maimai.songs()
+    songs = await maimai.songs(provider=lxns)
     song4 = await songs.by_id(1231)
     assert song4 is not None
     assert song4.title == song1.title
@@ -28,7 +25,7 @@ async def test_songs_fetching(maimai: MaimaiClient, lxns: LXNSProvider, divingfi
     many_songs = await songs.get_batch([1231, 1232, 1233])
     assert len(many_songs) == 3
 
-    assert any([song.id == 1568 async for song in songs.by_keywords("超天酱")])
+    assert any([song.id == 1568 for song in await songs.by_keywords("超天酱")])
 
 
 if __name__ == "__main__":

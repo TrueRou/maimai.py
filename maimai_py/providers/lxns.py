@@ -169,7 +169,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         return resp_json
 
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
-        resp = await client._client.get(self.base_url + "api/v0/maimai/song/list")
+        resp = await client._client.get(self.base_url + "api/v0/maimai/song/list?notes=true")
         resp.raise_for_status()
         resp_json = resp.json()
         unique_songs: dict[int, Song] = {}
