@@ -221,6 +221,8 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
         return scores
 
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        if identifier.friend_code is None:
+            return await self.get_scores_all(identifier, client)
         await self._ensure_friend_code(client, identifier)
         entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/bests"
         resp = await client._client.get(self.base_url + entrypoint, headers=self.headers)

@@ -183,7 +183,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.post(
             self.base_url + "dev/player/record",
-            json={"music_id": song.difficulties._get_divingfish_ids(song.id), **identifier._as_diving_fish()},
+            json={"music_id": list(song.difficulties._get_divingfish_ids(song.id)), **identifier._as_diving_fish()},
             headers=self.headers,
         )
         resp_json: dict[str, dict] = self._check_response_player(resp)

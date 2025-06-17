@@ -815,7 +815,7 @@ class MaimaiClient:
         song: Song | int | str,
         identifier: PlayerIdentifier,
         provider: IScoreProvider = LXNSProvider(),
-    ) -> tuple[Song, list[Score]] | None:
+    ) -> tuple[Song | None, list[Score]]:
         """Fetch player's scores on the specific song.
 
         This method will return all scores of the player on the song.
@@ -829,7 +829,8 @@ class MaimaiClient:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
             provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
         Returns:
-            A tuple of the song and the scores of the player on the song, or None if the song is not found.
+            A tuple of the song and the scores of the player on the song. If the song is not found, the song will be None and scores will be an empty list.
+            If the song is found, the song will be a `Song` object and scores will be a list of `Score` objects.
         Raises:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
@@ -849,7 +850,7 @@ class MaimaiClient:
         if isinstance(song, Song):
             scores = await provider.get_scores_one(identifier, song, self)
             return song, scores
-        return None
+        return None, []
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.

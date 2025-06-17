@@ -366,9 +366,9 @@ if find_spec("fastapi"):
             ) -> PlayerSong | None:
                 song_trait = id if id is not None else title if title is not None else keywords if keywords is not None else None
                 if song_trait is not None:
-                    minfo_result = await self._client.minfo(song_trait, player, provider=provider)
-                    if minfo_result is not None:
-                        return PlayerSong(minfo_result[0], minfo_result[1])
+                    song, scores = await self._client.minfo(song_trait, player, provider=provider)
+                    if song is not None:
+                        return PlayerSong(song, scores)
 
             async def _get_aime(
                 code: str,
