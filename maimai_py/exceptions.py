@@ -1,8 +1,20 @@
+from maimai_ffi.exceptions import (
+    AimeServerError,
+    ArcadeError,
+    ArcadeIdentifierError,
+    TitleServerBlockedError,
+    TitleServerError,
+    TitleServerNetworkError,
+)
+
+
 class MaimaiPyError(Exception):
     """Base exception class for all exceptions raised by maimai_py."""
 
+
 class InvalidJsonError(MaimaiPyError):
     """Invalid JSON response from the provider."""
+
 
 class InvalidPlayerIdentifierError(MaimaiPyError):
     """Player identifier is invalid for the provider.
@@ -39,15 +51,3 @@ class PrivacyLimitationError(MaimaiPyError):
 
 class InvalidWechatTokenError(MaimaiPyError):
     """Wahlap Wechat OffiAccount token is invalid or expired."""
-
-
-class ArcadeError(MaimaiPyError):
-    """Base exception class for all exceptions raised by maimai arcade."""
-
-
-class AimeServerError(ArcadeError):
-    """Base exception class for all exceptions raised by maimai aime server."""
-
-
-class TitleServerError(ArcadeError):
-    """Base exception class for all exceptions raised by maimai title server."""

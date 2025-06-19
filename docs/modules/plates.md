@@ -28,6 +28,14 @@
 | `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据      |
 | `httpx.HTTPError`              | 由于网络问题导致请求失败              |
 
+只有使用 `ArcadeProvider` 才可能触发的异常:
+
+| 错误名称                  | 描述                                           |
+|---------------------------|----------------------------------------------|
+| `TitleServerNetworkError` | 舞萌 官方服务器相关错误，可能是网络问题         |
+| `TitleServerBlockedError` | 舞萌 官方服务器拒绝了请求，可能是因为 IP 被过滤 |
+| `ArcadeIdentifierError`   | 舞萌 用户 ID 无效，或者用户未找到               |
+
 ## MaimaiPlates 对象
 
 ```python

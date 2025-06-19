@@ -764,8 +764,9 @@ class MaimaiClient:
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             httpx.HTTPError: Request failed due to network issues.
         Raises:
-            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
-            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
+            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         scores = await provider.get_scores_all(identifier, self)
 
@@ -802,8 +803,9 @@ class MaimaiClient:
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             httpx.HTTPError: Request failed due to network issues.
         Raises:
-            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
-            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
+            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         scores = await provider.get_scores_best(identifier, self)
 
@@ -837,8 +839,9 @@ class MaimaiClient:
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             httpx.HTTPError: Request failed due to network issues.
         Raises:
-            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
-            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
+            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         maimai_songs = await self.songs()
         if isinstance(song, str):
@@ -861,8 +864,9 @@ class MaimaiClient:
         Returns:
             The list of regions that the player has played.
         Raises:
-            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
-            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
+            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         return await provider.get_regions(identifier, self)
 
@@ -916,6 +920,10 @@ class MaimaiClient:
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             httpx.HTTPError: Request failed due to network issues.
+        Raises:
+            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
+            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         # songs = await MaimaiSongs._get_or_fetch(self._client)
         scores = await provider.get_scores_all(identifier, self)

@@ -30,10 +30,11 @@
 
 只有使用 `ArcadeProvider` 才可能触发的异常:
 
-| 错误名称           | 描述                                      |
-|--------------------|-----------------------------------------|
-| `TitleServerError` | 舞萌标题服务器的相关错误，可能是网络问题   |
-| `ArcadeError`      | 舞萌 Response 非法，或者提供的玩家标识有误 |
+| 错误名称                  | 描述                                           |
+|---------------------------|----------------------------------------------|
+| `TitleServerNetworkError` | 舞萌 官方服务器相关错误，可能是网络问题         |
+| `TitleServerBlockedError` | 舞萌 官方服务器拒绝了请求，可能是因为 IP 被过滤 |
+| `ArcadeIdentifierError`   | 舞萌 用户 ID 无效，或者用户未找到               |
 
 ## maimai.updates() 方法
 
@@ -43,11 +44,11 @@
 
 ### 参数
 
-| 参数名     | 类型               | 说明                                                          |
-|------------|--------------------|-------------------------------------------------------------|
-| identifier | `PlayerIdentifier` | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
-| scores     | `list[Score]`      | 分数列表，通常是从其他数据源获取的分数                         |
-| provider   | `IScoreProvider`   | 数据源，默认为 `LXNSProvider`                                  |
+| 参数名     | 类型                   | 说明                                                          |
+|------------|------------------------|-------------------------------------------------------------|
+| identifier | `PlayerIdentifier`     | 玩家标识，例如 `PlayerIdentifier(friend_code=664994421382429)` |
+| scores     | `list[Score]`          | 分数列表，通常是从其他数据源获取的分数                         |
+| provider   | `IScoreUpdateProvider` | 数据源，默认为 `LXNSProvider`                                  |
 
 ### 返回值
 
