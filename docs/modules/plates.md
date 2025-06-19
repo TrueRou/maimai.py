@@ -33,7 +33,7 @@
 ```python
 @cached_property
 def no_remaster(self) -> bool:
-    """获取该牌子是否需要游玩 ReMASTER 难度。
+    """获取该牌子是否跳过 ReMASTER 难度检测。
 
     只有 舞 和 霸 牌子需要游玩 ReMASTER 难度。
     """
@@ -72,11 +72,11 @@ async def get_played(self) -> list[PlateObject]:
     """
 
 async def get_all(self) -> list[PlateObject]:
-    """获取该牌子上的所有歌曲，通常用于查询牌子信息。
+    """获取该牌子上的所有歌曲和成绩，通常用于牌子的整体统计。
 
-    所有相关的歌曲都将被包含在结果中，包含所有难度。
+    所有歌曲都将被包含在结果中，包括已玩过的 `level_index`，无论是否达成要求。
 
-    结果中不会包含成绩，请使用 `played`, `cleared`, `remained` 属性来获取玩家成绩。
+    所有不同的成绩都将被包含在结果中。
 
     返回值:
         包含歌曲和成绩的 `PlateObject` 列表。

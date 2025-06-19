@@ -2,7 +2,7 @@
 
 ## maimai.scores() 方法
 
-从数据源获取玩家的成绩。
+从数据源获取玩家的所有成绩。
 
 对于 `WechatProvider` 和 `ArcadeProvider`，玩家标识必须具有 `credentials` 属性。具体可以阅读对应数据源的文档。
 

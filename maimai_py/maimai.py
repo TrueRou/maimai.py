@@ -746,7 +746,7 @@ class MaimaiClient:
         For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
-        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.qrcode()`.
+        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.aime()`.
         Credentials can be reused, since it won't expire, also, userId is encrypted, can't be used in any other cases outside the maimai.py
 
         For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.
@@ -784,7 +784,7 @@ class MaimaiClient:
         For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
-        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.qrcode()`.
+        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.aime()`.
         Credentials can be reused, since it won't expire, also, userId is encrypted, can't be used in any other cases outside the maimai.py
 
         For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.

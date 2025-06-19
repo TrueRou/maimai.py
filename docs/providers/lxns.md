@@ -1,6 +1,6 @@
 # LXNSProvider
 
-实现：ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider, IItemListProvider
+实现：ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, IAliasProvider, IItemListProvider
 
 源站：https://maimai.lxns.net/
 

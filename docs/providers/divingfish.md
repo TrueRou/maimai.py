@@ -1,6 +1,6 @@
 # DivingFishProvider
 
-实现：ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider
+实现：ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, ICurveProvider
 
 源站：https://www.diving-fish.com/maimaidx/prober/
 

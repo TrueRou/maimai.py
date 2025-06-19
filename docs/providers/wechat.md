@@ -2,13 +2,9 @@
 
 从舞萌服务号的舞萌DX页面，通过HTML解析获取分数信息。
 
-实现：IPlayerProvider, IScoreProvider
+实现：IScoreProvider
 
 源站：https://maimai.wahlap.com/maimai-mobile/
-
-## 关于IScoreProvider
-
-`IScoreProvider` 仅支持获取成绩，不支持上传成绩。
 
 ## 如何使用
 

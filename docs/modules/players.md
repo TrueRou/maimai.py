@@ -66,18 +66,20 @@
 | `WechatTokenExpiredError` | 微信Token已过期，请重新授权 |
 | `httpx.HTTPError`         | 由于网络问题导致请求失败   |
 
-## maimai.qrcode() 方法
+## maimai.aime() 方法
 
 从 **玩家二维码** 获取 `PlayerIdentifier`。
 
 该方法从舞萌机台的接口通过玩家二维码获取玩家userId，maimai.py 解析出的userId仅能在内部使用。
 
+**支持的数据源**：`ArcadeProvider`。
+
 ### 参数
 
-| 参数名     | 类型          | 说明                                  |
-|------------|---------------|-------------------------------------|
-| qrcode     | `str`         | 玩家的 QR 码，应以 SGWCMAID 开始       |
-| http_proxy | `str \| None` | 代理地址，例如 `http://127.0.0.1:7890` |
+| 参数名   | 类型            | 说明                            |
+|----------|-----------------|-------------------------------|
+| code     | `str`           | 玩家的 QR 码，应以 SGWCMAID 开始 |
+| provider | `IAimeProvider` | 数据源，默认为 `ArcadeProvider`  |
 
 ### 返回值
 
