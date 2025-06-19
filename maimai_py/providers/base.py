@@ -68,6 +68,13 @@ class IScoreProvider(IProvider):
         """@private"""
         raise NotImplementedError()
 
+
+class IScoreUpdateProvider(IProvider):
+    """The provider that updates scores to a specific source.
+
+    Available providers: `DivingFishProvider`, `LXNSProvider`
+    """
+
     @abstractmethod
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         """@private"""

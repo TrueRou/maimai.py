@@ -870,13 +870,13 @@ class MaimaiClient:
         self,
         identifier: PlayerIdentifier,
         scores: list[Score],
-        provider: IScoreProvider = LXNSProvider(),
+        provider: IScoreUpdateProvider = LXNSProvider(),
     ) -> None:
         """Update player's scores to the provider.
 
-        For Diving Fish, the player identifier should be the player's username and password, or import token, e.g.:
+        This method is used to update the player's scores to the provider, usually used for updating scores fetched from other providers.
 
-        `PlayerIdentifier(username="turou", credentials="password")` or `PlayerIdentifier(credentials="my_diving_fish_import_token")`.
+        For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.
 
         Available providers: `DivingFishProvider`, `LXNSProvider`.
 

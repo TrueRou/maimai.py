@@ -14,6 +14,7 @@ from maimai_py.providers.base import (
     IProvider,
     IRegionProvider,
     IScoreProvider,
+    IScoreUpdateProvider,
     ISongProvider,
 )
 from maimai_py.providers.hybrid import HybridProvider
@@ -343,7 +344,7 @@ if find_spec("fastapi"):
 
             async def _post_scores(
                 scores: list[Score],
-                provider: IScoreProvider = Depends(dep_provider),
+                provider: IScoreUpdateProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
             ) -> None:
                 await self._client.updates(player, scores, provider=provider)

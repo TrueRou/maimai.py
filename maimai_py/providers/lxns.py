@@ -10,13 +10,13 @@ from httpx import Response
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier, Score, Song
 
-from .base import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProvider, ISongProvider
+from .base import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, ISongProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider, IItemListProvider):
+class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, IAliasProvider, IItemListProvider):
     """The provider that fetches data from the LXNS.
 
     LXNS: https://maimai.lxns.net/

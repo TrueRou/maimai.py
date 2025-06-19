@@ -9,6 +9,7 @@ from .base import (
     IProvider,
     IRegionProvider,
     IScoreProvider,
+    IScoreUpdateProvider,
     ISongProvider,
 )
 from .divingfish import DivingFishProvider
@@ -19,6 +20,7 @@ from .yuzu import YuzuProvider
 
 __all__ = [
     "IProvider",
+    "IScoreUpdateProvider",
     "IAliasProvider",
     "IAreaProvider",
     "ICurveProvider",
