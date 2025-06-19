@@ -1,11 +1,11 @@
-from maimai_ffi.exceptions import (
-    AimeServerError,
-    ArcadeError,
-    ArcadeIdentifierError,
-    TitleServerBlockedError,
-    TitleServerError,
-    TitleServerNetworkError,
-)
+from typing import Type
+
+from maimai_ffi.exceptions import AimeServerError, ArcadeIdentifierError, TitleServerBlockedError, TitleServerNetworkError
+
+AimeServerError: Type[Exception]
+ArcadeIdentifierError: Type[Exception]
+TitleServerBlockedError: Type[Exception]
+TitleServerNetworkError: Type[Exception]
 
 
 class MaimaiPyError(Exception):

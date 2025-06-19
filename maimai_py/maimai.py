@@ -2,11 +2,10 @@ import asyncio
 import hashlib
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, Callable, Generic, Iterator, Literal, Type, TypeVar
+from typing import Any, Generic, Iterator, Literal, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
-from maimai_ffi import arcade
 
 from maimai_py.models import *
 from maimai_py.providers import *
@@ -729,8 +728,9 @@ class MaimaiClient:
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             httpx.HTTPError: Request failed due to network issues.
         Raises:
-            TitleServerError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
-            ArcadeError: Only for ArcadeProvider, maimai response is invalid, or user id is invalid.
+            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
+            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
+            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         return await provider.get_player(identifier, self)
 

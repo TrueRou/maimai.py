@@ -115,7 +115,7 @@ async def ser_bests(maimai_scores: MaimaiScores, maimai_songs: MaimaiSongs) -> P
 
 
 if find_spec("fastapi"):
-    from fastapi import APIRouter, Depends, FastAPI, Header, Query, Request
+    from fastapi import APIRouter, Depends, FastAPI, Query, Request
     from fastapi.openapi.utils import get_openapi
     from fastapi.responses import JSONResponse
 
