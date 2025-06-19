@@ -154,13 +154,13 @@ class IAreaProvider(IProvider):
         raise NotImplementedError()
 
 
-class IAimeProvider(IProvider):
-    """The provider that authenticate aime account from a specific source.
+class IIdentifierProvider(IProvider):
+    """The provider that fetches player identifiers from a specific source.
 
     Available providers: `ArcadeProvider`
     """
 
     @abstractmethod
-    async def auth_aime(self, code: str, client: "MaimaiClient") -> PlayerIdentifier:
+    async def get_identifier(self, code: str | dict[str, str], client: "MaimaiClient") -> PlayerIdentifier:
         """@private"""
         raise NotImplementedError()

@@ -922,63 +922,47 @@ class MaimaiClient:
         maimai_plates = MaimaiPlates(self)
         return await maimai_plates._configure(plate, scores)
 
-    async def wechat(self, r=None, t=None, code=None, state=None) -> PlayerIdentifier | str:
-        """Get the player identifier from the Wahlap Wechat OffiAccount.
+    async def wechat(self) -> str:
+        """Get the wechat oauth url from the Wahlap Wechat OffiAccount.
 
-        Call the method with no parameters to get the URL, then redirect the user to the URL with your mitmproxy enabled.
+        Access the url in user's wechat client, then redirect the user to the URL with your mitmproxy enabled.
 
-        Your mitmproxy should intercept the response from tgk-wcaime.wahlap.com, then call the method with the parameters from the intercepted response.
+        Your mitmproxy should intercept the response from tgk-wcaime.wahlap.com, which should contains t, r, code, and state parameters in the URL.
 
-        With the parameters from specific user's response, the method will return the user's player identifier.
+        Then call `maimai.identifiers(provider=WechatProvider, code=...)` with the parameters from the intercepted response.
 
-        Never cache or store the player identifier, as the cookies may expire at any time.
-
-        Args:
-            r: the r parameter from the request, defaults to None.
-            t: the t parameter from the request, defaults to None.
-            code: the code parameter from the request, defaults to None.
-            state: the state parameter from the request, defaults to None.
         Returns:
-            The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
+            The URL to get the identifier.
         Raises:
-            WechatTokenExpiredError: Wechat token is expired, please re-authorize.
             httpx.HTTPError: Request failed due to network issues.
         """
-        if not all([r, t, code, state]):
-            resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
-            return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
-        params = {"r": r, "t": t, "code": code, "state": state}
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
-            "Host": "tgk-wcaime.wahlap.com",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-        }
-        resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers, timeout=5)
-        if resp.status_code == 302 and resp.next_request:
-            resp_next = await self._client.get(resp.next_request.url, headers=headers)
-            return PlayerIdentifier(credentials=resp_next.cookies)
-        else:
-            raise WechatTokenExpiredError("Wechat token is expired")
+        resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
+        return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
 
-    async def aime(self, code: str, provider: IAimeProvider | _UnsetSentinel = UNSET) -> PlayerIdentifier:
-        """Get the player identifier from the Wahlap QR code.
+    async def identifiers(
+        self,
+        code: str | dict[str, str],
+        provider: IIdentifierProvider | _UnsetSentinel = UNSET,
+    ) -> PlayerIdentifier:
+        """Get the player identifier from the provider.
 
         Player identifier is the encrypted userId, can't be used in any other cases outside the maimai.py.
 
-        Available providers: `ArcadeProvider`.
+        Available providers: `WechatProvider`, `ArcadeProvider`.
 
         Args:
-            qrcode: the QR code of the player, should begin with SGWCMAID.
-            provider: override the default QR code provider, defaults to `ArcadeProvider`.
+            code: the code to get the player identifier, can be a string or a dictionary with `r`, `t`, `code`, and `state` keys.
+            provider: override the default provider, defaults to `ArcadeProvider`.
         Returns:
             The player identifier of the player.
         Raises:
+            InvalidWechatTokenError: Wechat token is expired, please re-authorize.
             AimeServerError: Maimai Aime server error, may be invalid QR code or QR code has expired.
-            TitleServerError: Maimai title server related errors, possibly network problems.
+            httpx.HTTPError: Request failed due to network issues.
         """
         if isinstance(provider, _UnsetSentinel):
-            provider = ArcadeProvider()  # Default provider for QR code is ArcadeProvider
-        return await provider.auth_aime(code, self)
+            provider = ArcadeProvider()
+        return await provider.get_identifier(code, self)
 
     async def items(self, item: Type[PlayerItemType], provider: IItemListProvider | _UnsetSentinel = UNSET) -> MaimaiItems[PlayerItemType]:
         """Fetch maimai player items from the cache default provider.

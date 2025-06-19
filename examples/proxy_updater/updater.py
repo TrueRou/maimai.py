@@ -5,7 +5,7 @@ from httpx import ConnectError, ReadTimeout
 
 from examples.proxy_updater.config import config
 from maimai_py import DivingFishProvider, LXNSProvider, MaimaiClient, PlayerIdentifier, WechatProvider
-from maimai_py.exceptions import InvalidPlayerIdentifierError, PrivacyLimitationError, WechatTokenExpiredError
+from maimai_py.exceptions import InvalidPlayerIdentifierError, InvalidWechatTokenError, PrivacyLimitationError
 
 maimai = MaimaiClient(timeout=60)
 diving_provider = DivingFishProvider()
@@ -23,7 +23,7 @@ async def update_prober(r: str, t: str, code: str, state: str):
     try:
         print("\033[32mProber updating was triggered.\033[0m")
         # fetch the player's scores from Wahlap Wechat OffiAccount
-        wx_player = await maimai.wechat(r, t, code, state)
+        wx_player = await maimai.identifiers(code={"r": r, "t": t, "code": code, "state": state}, provider=WechatProvider())
         assert isinstance(wx_player, PlayerIdentifier)
         print("\033[32mPlayer fetched successfully.\033[0m")
         scores = await maimai.scores(wx_player, WechatProvider())
@@ -42,7 +42,7 @@ async def update_prober(r: str, t: str, code: str, state: str):
         print(f"\033[32mProber updated successfully.\033[0m")
     except (ConnectError, ReadTimeout) as e:
         print(f"\033[31mConnection to the server timed out.\033[0m")
-    except (InvalidPlayerIdentifierError, PrivacyLimitationError, WechatTokenExpiredError) as e:
+    except (InvalidPlayerIdentifierError, PrivacyLimitationError, InvalidWechatTokenError) as e:
         print(f"\033[31m{e}.\033[0m")
     except Exception as e:
         traceback.print_exc()

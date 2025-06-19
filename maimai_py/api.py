@@ -7,8 +7,8 @@ from urllib.parse import unquote, urlparse
 from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs
 from maimai_py.models import *
 from maimai_py.providers.base import (
-    IAimeProvider,
     IAreaProvider,
+    IIdentifierProvider,
     IItemListProvider,
     IPlayerProvider,
     IProvider,
@@ -371,14 +371,14 @@ if find_spec("fastapi"):
                     if song is not None:
                         return PlayerSong(song, scores)
 
-            async def _get_aime(
+            async def _get_identifiers(
                 code: str,
-                provider: IAimeProvider = Depends(dep_provider),
+                provider: IIdentifierProvider = Depends(dep_provider),
             ) -> PlayerIdentifier:
-                return await self._client.aime(code, provider=provider)
+                return await self._client.identifiers(code, provider=provider)
 
             bases: list[Callable] = [_get_songs, _get_icons, _get_nameplates, _get_frames, _get_trophies, _get_charas, _get_partners, _get_areas]
-            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo, _get_aime]
+            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo, _get_identifiers]
 
             all = players + (bases if not skip_base else [])
             [try_add_route(func, router, dep_provider) for func in all]
