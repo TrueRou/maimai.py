@@ -1,8 +1,9 @@
 import dataclasses
 import hashlib
+from json import JSONDecodeError
 from typing import TYPE_CHECKING
 
-from httpx import Response
+from httpx import HTTPStatusError, Response
 
 from maimai_py.models import *
 
@@ -27,7 +28,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
     def headers(self):
         """@private"""
         if not self.developer_token:
-            raise InvalidDeveloperTokenError()
+            raise InvalidDeveloperTokenError("Developer token is not provided.")
         return {"Authorization": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):
@@ -156,16 +157,24 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
             }
 
     def _check_response_player(self, resp: Response) -> dict:
-        resp.raise_for_status()
-        resp_json = resp.json()
-        if not resp_json["success"]:
-            if resp_json["code"] in [400, 404]:
-                raise InvalidPlayerIdentifierError(resp_json["message"])
-            elif resp_json["code"] in [403]:
-                raise PrivacyLimitationError(resp_json["message"])
-            elif resp_json["code"] in [401]:
-                raise InvalidDeveloperTokenError(resp_json["message"])
-        return resp_json
+        try:
+            resp_json = resp.json()
+            if not resp_json["success"]:
+                if resp_json["code"] in [400, 404]:
+                    raise InvalidPlayerIdentifierError(resp_json["message"])
+                elif resp_json["code"] in [403]:
+                    raise PrivacyLimitationError(resp_json["message"])
+                elif resp_json["code"] in [401]:
+                    raise InvalidDeveloperTokenError(resp_json["message"])
+                elif resp.status_code in [400, 401]:
+                    raise InvalidPlayerIdentifierError(resp_json["message"])
+                elif not resp.is_success:
+                    resp.raise_for_status()
+            return resp_json
+        except JSONDecodeError as exc:
+            raise InvalidJsonError(resp.text) from exc
+        except HTTPStatusError as exc:
+            raise MaimaiPyError(exc) from exc
 
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/song/list")

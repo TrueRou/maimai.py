@@ -1,6 +1,8 @@
 class MaimaiPyError(Exception):
     """Base exception class for all exceptions raised by maimai_py."""
 
+class InvalidJsonError(MaimaiPyError):
+    """Invalid JSON response from the provider."""
 
 class InvalidPlayerIdentifierError(MaimaiPyError):
     """Player identifier is invalid for the provider.

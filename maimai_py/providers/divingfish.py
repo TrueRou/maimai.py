@@ -1,8 +1,9 @@
 import dataclasses
 import hashlib
+from json import JSONDecodeError
 from typing import TYPE_CHECKING, Generator
 
-from httpx import Response
+from httpx import HTTPStatusError, Response
 
 from maimai_py.models import *
 
@@ -27,7 +28,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     def headers(self):
         """@private"""
         if not self.developer_token:
-            raise InvalidDeveloperTokenError()
+            raise InvalidDeveloperTokenError("Developer token is not provided.")
         return {"developer-token": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):
@@ -131,17 +132,23 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
         )
 
     def _check_response_player(self, resp: Response) -> dict:
-        resp.raise_for_status()
-        resp_json = resp.json()
-        if "msg" in resp_json and resp_json["msg"] in ["请先联系水鱼申请开发者token", "开发者token有误", "开发者token被禁用"]:
-            raise InvalidDeveloperTokenError(resp_json["msg"])
-        elif "message" in resp_json and resp_json["message"] in ["导入token有误", "尚未登录", "会话过期"]:
-            raise InvalidPlayerIdentifierError(resp_json["message"])
-        elif resp.status_code in [400, 401]:
-            raise InvalidPlayerIdentifierError(resp_json["message"])
-        elif resp.status_code == 403:
-            raise PrivacyLimitationError(resp_json["message"])
-        return resp_json
+        try:
+            resp_json = resp.json()
+            if resp.status_code in [400, 401]:
+                raise InvalidPlayerIdentifierError(resp_json["message"])
+            elif resp.status_code == 403:
+                raise PrivacyLimitationError(resp_json["message"])
+            elif "msg" in resp_json and resp_json["msg"] in ["请先联系水鱼申请开发者token", "开发者token有误", "开发者token被禁用"]:
+                raise InvalidDeveloperTokenError(resp_json["msg"])
+            elif "message" in resp_json and resp_json["message"] in ["导入token有误", "尚未登录", "会话过期"]:
+                raise InvalidPlayerIdentifierError(resp_json["message"])
+            elif not resp.is_success:
+                resp.raise_for_status()
+            return resp_json
+        except JSONDecodeError as exc:
+            raise InvalidJsonError(resp.text) from exc
+        except HTTPStatusError as exc:
+            raise MaimaiPyError(exc) from exc
 
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         resp = await client._client.get(self.base_url + "music_data")
