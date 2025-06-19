@@ -28,7 +28,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
     def headers(self):
         """@private"""
         if not self.developer_token:
-            raise InvalidDeveloperTokenError()
+            raise InvalidDeveloperTokenError("Developer token is not provided.")
         return {"developer-token": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):

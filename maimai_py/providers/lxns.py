@@ -28,7 +28,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvide
     def headers(self):
         """@private"""
         if not self.developer_token:
-            raise InvalidDeveloperTokenError()
+            raise InvalidDeveloperTokenError("Developer token is not provided.")
         return {"Authorization": self.developer_token}
 
     def __init__(self, developer_token: str | None = None):
