@@ -154,48 +154,27 @@
 
 ## Score
 
-| 字段           | 类型             | 说明              |
-|----------------|------------------|-------------------|
-| `id`           | `int`            | 曲目ID            |
-| `level`        | `str`            | 难度标级，如 `14+` |
-| `level_index`  | `LevelIndex`     | 难度索引          |
-| `achievements` | `float \| None`  | 达成率            |
-| `fc`           | `FCType`         | FULL COMBO 类型   |
-| `fs`           | `FSType`         | FULL SYNC 类型    |
-| `dx_score`     | `int \| None`    | DX分数            |
-| `dx_rating`    | `float \| None`  | DX Rating         |
-| `rate`         | `RateType`       | 评级类型          |
-| `type`         | `SongType`       | 谱面类型          |
-| `song`         | `Song`           | 对应曲目对象      |
-| `difficulty`   | `SongDifficulty` | 对应难度对象      |
-
-## PlateSong
-
-| 字段     | 类型               | 说明             |
-|----------|--------------------|----------------|
-| `id`     | `int`              | 曲目ID           |
-| `title`  | `str`              | 曲名             |
-| `artist` | `str`              | 艺术家           |
-| `levels` | `list[LevelIndex]` | 关联难度索引列表 |
-
-## PlateScore
-
-| 字段           | 类型             | 说明            |
-|----------------|------------------|---------------|
-| `id`           | `int`            | 曲目ID          |
-| `level_index`  | `LevelIndex`     | 难度索引        |
-| `achievements` | `float \| None`  | 达成率          |
-| `fc`           | `FCType \| None` | FULL COMBO 类型 |
-| `fs`           | `FSType \| None` | FULL SYNC 类型  |
-| `rate`         | `RateType`       | 评级类型        |
-| `type`         | `SongType`       | 谱面类型        |
+| 字段           | 类型            | 说明              |
+|----------------|-----------------|-------------------|
+| `id`           | `int`           | 曲目ID            |
+| `level`        | `str`           | 难度标级，如 `14+` |
+| `level_index`  | `LevelIndex`    | 难度索引          |
+| `achievements` | `float \| None` | 达成率            |
+| `fc`           | `FCType`        | FULL COMBO 类型   |
+| `fs`           | `FSType`        | FULL SYNC 类型    |
+| `dx_score`     | `int \| None`   | DX分数            |
+| `dx_rating`    | `float \| None` | DX Rating         |
+| `play_count`   | `int \| None`   | 游玩次数          |
+| `rate`         | `RateType`      | 评级类型          |
+| `type`         | `SongType`      | 谱面类型          |
 
 ## PlateObject
 
 | 字段     | 类型               | 说明     |
 |----------|--------------------|--------|
-| `song`   | `PlateSong`        | 歌曲     |
-| `scores` | `list[PlateScore]` | 成绩列表 |
+| `song`   | `Song`             | 歌曲     |
+| `levels` | `list[LevelIndex]` | 关联难度 |
+| `scores` | `list[Score]`      | 成绩列表 |
 
 ## PlayerRegion
 

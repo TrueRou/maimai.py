@@ -8,15 +8,16 @@ from typing import TYPE_CHECKING
 from httpx import Cookies
 
 from maimai_py.models import *
+from maimai_py.models import PlayerIdentifier
 from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2json
 
-from .base import IScoreProvider
+from .base import IIdentifierProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class WechatProvider(IScoreProvider):
+class WechatProvider(IScoreProvider, IIdentifierProvider):
     """The provider that fetches data from the Wahlap Wechat OffiAccount.
 
     PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
@@ -46,6 +47,7 @@ class WechatProvider(IScoreProvider):
                     fs=FSType[score.fs.upper().replace("FDX", "FSD")] if score.fs else None,
                     dx_score=score.dx_score,
                     dx_rating=rating,
+                    play_count=None,
                     rate=RateType[score.rate.upper()],
                     type=song_type,
                 )
@@ -61,9 +63,24 @@ class WechatProvider(IScoreProvider):
         results = await asyncio.gather(*tasks)
         return functools.reduce(operator.concat, results, [])
 
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()  # Ensure songs are loaded in cache
         if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
         scores = await self._crawl_scores(client, identifier.credentials, maimai_songs)
         return list(scores)
+
+    async def get_identifier(self, code: str | dict[str, str], client: "MaimaiClient") -> PlayerIdentifier:
+        if isinstance(code, dict) and all([code.get("r"), code.get("t"), code.get("code"), code.get("state")]):
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+                "Host": "tgk-wcaime.wahlap.com",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            }
+            resp = await client._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=code, headers=headers)
+            if resp.status_code == 302 and resp.next_request:
+                resp_next = await client._client.get(resp.next_request.url, headers=headers)
+                return PlayerIdentifier(credentials=resp_next.cookies)
+            else:
+                raise InvalidWechatTokenError("Invalid or expired Wechat token")
+        raise InvalidWechatTokenError("Invalid Wechat token format, expected a dict with 'r', 't', 'code', and 'state' keys")

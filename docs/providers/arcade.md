@@ -2,7 +2,7 @@
 
 从舞萌机台的接口通过玩家二维码获取玩家userId，进而获取分数信息
 
-实现：IPlayerProvider, IScoreProvider
+实现：IPlayerProvider, IScoreProvider, IRegionProvider, IAimeProvider
 
 源站：WahlapAimeServer、WahlapTitleServer
 
@@ -44,4 +44,3 @@ provider = ArcadeProvider(http_proxy="http://127.0.0.1:7890")
 ## 已知问题
 
 - [The server responded with a status of 200](https://github.com/TrueRou/maimai.py/issues/21)
-- 当出现 IndexError: list index out of range 时，请重新获取分数

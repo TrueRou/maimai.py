@@ -1,6 +1,6 @@
 # DivingFishProvider
 
-实现：ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider
+实现：ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, ICurveProvider
 
 源站：https://www.diving-fish.com/maimaidx/prober/
 
@@ -30,4 +30,4 @@
 
 ## 已知问题
 
-- 水鱼 UTAGE 曲目不包含 `notes` 信息，如果需要，推荐使用 `HybridProvider` 或 `LXNSProvider`。
+- 水鱼 UTAGE 曲目不包含 `notes` 信息，如果需要，推荐使用 `LXNSProvider`。

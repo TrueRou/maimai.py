@@ -7,14 +7,16 @@ if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient
 
 
-class ISongProvider:
+class IProvider:
+    @abstractmethod
+    def _hash(self) -> str: ...
+
+
+class ISongProvider(IProvider):
     """The provider that fetches songs from a specific source.
 
     Available providers: `DivingFishProvider`, `LXNSProvider`
     """
-
-    @abstractmethod
-    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
@@ -22,14 +24,11 @@ class ISongProvider:
         raise NotImplementedError()
 
 
-class IAliasProvider:
+class IAliasProvider(IProvider):
     """The provider that fetches song aliases from a specific source.
 
     Available providers: `YuzuProvider`, `LXNSProvider`
     """
-
-    @abstractmethod
-    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
@@ -37,14 +36,11 @@ class IAliasProvider:
         raise NotImplementedError()
 
 
-class IPlayerProvider:
+class IPlayerProvider(IProvider):
     """The provider that fetches players from a specific source.
 
     Available providers: `DivingFishProvider`, `LXNSProvider`
     """
-
-    @abstractmethod
-    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> Player:
@@ -52,19 +48,32 @@ class IPlayerProvider:
         raise NotImplementedError()
 
 
-class IScoreProvider:
+class IScoreProvider(IProvider):
     """The provider that fetches scores from a specific source.
 
     Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`
     """
 
-    @abstractmethod
-    def _hash(self) -> str: ...
+    async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
+        """@private"""
+        scores = await self.get_scores_all(identifier, client)
+        return [score for score in scores if score.id == song.id]
+
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        """@private"""
+        return await self.get_scores_all(identifier, client)
 
     @abstractmethod
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         """@private"""
         raise NotImplementedError()
+
+
+class IScoreUpdateProvider(IProvider):
+    """The provider that updates scores to a specific source.
+
+    Available providers: `DivingFishProvider`, `LXNSProvider`
+    """
 
     @abstractmethod
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
@@ -72,14 +81,11 @@ class IScoreProvider:
         raise NotImplementedError()
 
 
-class ICurveProvider:
+class ICurveProvider(IProvider):
     """The provider that fetches statistics curves from a specific source.
 
     Available providers: `DivingFishProvider`
     """
-
-    @abstractmethod
-    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject | None]]:
@@ -87,14 +93,11 @@ class ICurveProvider:
         raise NotImplementedError()
 
 
-class IRegionProvider:
+class IRegionProvider(IProvider):
     """The provider that fetches player regions from a specific source.
 
     Available providers: `ArcadeProvider`
     """
-
-    @abstractmethod
-    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_regions(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[PlayerRegion]:
@@ -102,14 +105,11 @@ class IRegionProvider:
         raise NotImplementedError()
 
 
-class IItemListProvider:
+class IItemListProvider(IProvider):
     """The provider that fetches player item list data from a specific source.
 
     Available providers: `LXNSProvider`, `LocalProvider`
     """
-
-    @abstractmethod
-    def _hash(self) -> str: ...
 
     @abstractmethod
     async def get_icons(self, client: "MaimaiClient") -> dict[int, PlayerIcon]:
@@ -142,16 +142,25 @@ class IItemListProvider:
         raise NotImplementedError()
 
 
-class IAreaProvider:
+class IAreaProvider(IProvider):
     """The provider that fetches area data from a specific source.
 
     Available providers: `LocalProvider`
     """
 
     @abstractmethod
-    def _hash(self) -> str: ...
+    async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:
+        """@private"""
+        raise NotImplementedError()
+
+
+class IIdentifierProvider(IProvider):
+    """The provider that fetches player identifiers from a specific source.
+
+    Available providers: `ArcadeProvider`
+    """
 
     @abstractmethod
-    async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:
+    async def get_identifier(self, code: str | dict[str, str], client: "MaimaiClient") -> PlayerIdentifier:
         """@private"""
         raise NotImplementedError()

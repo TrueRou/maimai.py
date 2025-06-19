@@ -1,6 +1,6 @@
 # LXNSProvider
 
-实现：ISongProvider, IPlayerProvider, IScoreProvider, IAliasProvider, IItemListProvider
+实现：ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, IAliasProvider, IItemListProvider
 
 源站：https://maimai.lxns.net/
 
@@ -28,4 +28,3 @@
 
 - 通过落雪开发者API获取或上传信息时，需要玩家同意落雪的隐私设置，否则会抛出隐私异常。
 - 新用户第一次使用落雪时，需要使用落雪官方代理上传一次，才能正常使用落雪API。
-- 落雪数据源批量获取歌曲不包含 `notes` 数量，如果需要，推荐使用 `HybridProvider` 或 `DivingFishProvider`。

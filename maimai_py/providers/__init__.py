@@ -1,13 +1,26 @@
 from .arcade import ArcadeProvider
-from .base import IAliasProvider, IAreaProvider, ICurveProvider, IItemListProvider, IPlayerProvider, IRegionProvider, IScoreProvider, ISongProvider
+from .base import (
+    IAliasProvider,
+    IAreaProvider,
+    ICurveProvider,
+    IIdentifierProvider,
+    IItemListProvider,
+    IPlayerProvider,
+    IProvider,
+    IRegionProvider,
+    IScoreProvider,
+    IScoreUpdateProvider,
+    ISongProvider,
+)
 from .divingfish import DivingFishProvider
-from .hybrid import HybridProvider
 from .local import LocalProvider
 from .lxns import LXNSProvider
 from .wechat import WechatProvider
 from .yuzu import YuzuProvider
 
 __all__ = [
+    "IProvider",
+    "IScoreUpdateProvider",
     "IAliasProvider",
     "IAreaProvider",
     "ICurveProvider",
@@ -16,9 +29,9 @@ __all__ = [
     "IRegionProvider",
     "IScoreProvider",
     "ISongProvider",
+    "IIdentifierProvider",
     "ArcadeProvider",
     "DivingFishProvider",
-    "HybridProvider",
     "LocalProvider",
     "LXNSProvider",
     "WechatProvider",

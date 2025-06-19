@@ -6,14 +6,27 @@ from urllib.parse import unquote, urlparse
 
 from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs
 from maimai_py.models import *
+from maimai_py.providers.base import (
+    IAreaProvider,
+    IIdentifierProvider,
+    IItemListProvider,
+    IPlayerProvider,
+    IProvider,
+    IRegionProvider,
+    IScoreProvider,
+    IScoreUpdateProvider,
+    ISongProvider,
+)
+from maimai_py.providers.hybrid import HybridProvider
 
 PlateAttrs = Literal["remained", "cleared", "played", "all"]
 
 
 @dataclass(slots=True)
-class ScorePublic(Score):
-    song_name: str
+class ScoreExtend(Score):
+    title: str
     level_value: float
+    level_dx_score: int
 
 
 @dataclass(slots=True)
@@ -21,13 +34,22 @@ class PlayerBests:
     rating: int
     rating_b35: int
     rating_b15: int
-    scores_b35: list[ScorePublic]
-    scores_b15: list[ScorePublic]
+    scores_b35: list[ScoreExtend]
+    scores_b15: list[ScoreExtend]
 
 
 @dataclass(slots=True)
-class ParsedQRCode:
-    credentials: str
+class PlayerSong:
+    song: Song
+    scores: list[Score]
+
+
+def xstr(s: str | None) -> str:
+    return "" if s is None else str(s).lower()
+
+
+def istr(i: list | None) -> str:
+    return "" if i is None else "".join(i).lower()
 
 
 def pagination(page_size, page, data):
@@ -40,33 +62,27 @@ def pagination(page_size, page, data):
     return data[start:end]
 
 
-def xstr(s: str | None) -> str:
-    return "" if s is None else str(s).lower()
-
-
-def istr(i: list | None) -> str:
-    return "" if i is None else "".join(i).lower()
-
-
 def get_filters(functions: dict[Any, Callable[..., bool]]):
     union = [flag for cond, flag in functions.items() if cond is not None]
     filter = lambda obj: all([flag(obj) for flag in union])
     return filter
 
 
-async def ser_score(score: Score, songs: dict[int, Song]) -> ScorePublic | None:
+async def ser_score(score: Score, songs: dict[int, Song]) -> ScoreExtend | None:
     if (song := songs.get(score.id)) and (diff := song.get_difficulty(score.type, score.level_index)):
-        return ScorePublic(
+        return ScoreExtend(
             id=score.id,
-            song_name=song.title,
+            title=song.title,
             level=score.level,
             level_index=score.level_index,
             level_value=diff.level_value,
+            level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
             achievements=score.achievements,
             fc=score.fc,
             fs=score.fs,
             dx_score=score.dx_score,
             dx_rating=score.dx_rating,
+            play_count=score.play_count,
             rate=score.rate,
             type=score.type,
         )
@@ -94,18 +110,6 @@ if find_spec("fastapi"):
     from fastapi.openapi.utils import get_openapi
     from fastapi.responses import JSONResponse
 
-    def dep_lxns_player(friend_code: int | None = None, qq: int | None = None):
-        return PlayerIdentifier(qq=qq, friend_code=friend_code)
-
-    def dep_diving_player_auth(username: str | None = None, credentials: str | None = None):
-        return PlayerIdentifier(username=username, credentials=credentials)
-
-    def dep_diving_player(username: str | None = None, qq: int | None = None):
-        return PlayerIdentifier(qq=qq, username=username)
-
-    def dep_arcade_player(credentials: str):
-        return PlayerIdentifier(credentials=credentials)
-
     class MaimaiRoutes:
         _client: MaimaiClient
 
@@ -125,454 +129,279 @@ if find_spec("fastapi"):
             self._divingfish_token = divingfish_token
             self._arcade_proxy = arcade_proxy
 
-        async def _get_songs(
-            self,
-            id: int | None = None,
-            title: str | None = None,
-            artist: str | None = None,
-            genre: Genre | None = None,
-            bpm: int | None = None,
-            map: str | None = None,
-            version: int | None = None,
-            type: SongType | None = None,
-            level: str | None = None,
-            versions: Version | None = None,
-            keywords: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            songs: MaimaiSongs = await self._client.songs()
-            type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []  # type: ignore
-            level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
-            versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
-            keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
-            filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
-            results = [x async for x in songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version) if filters(x)]
-            return pagination(page_size, page, results)
+        def _dep_lxns_player(self, credentials: str | None = None, friend_code: int | None = None, qq: int | None = None):
+            return PlayerIdentifier(credentials=credentials, qq=qq, friend_code=friend_code)
 
-        async def _get_icons(
-            self,
-            id: int | None = None,
-            name: str | None = None,
-            description: str | None = None,
-            genre: str | None = None,
-            keywords: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            items = await self._client.items(PlayerIcon)
-            if id is not None:
-                return [item] if (item := items.by_id(id)) else []
-            keyword_func: Callable[[PlayerIcon], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
-            filters = get_filters({keywords: keyword_func})
-            results = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
-            return pagination(page_size, page, results)
+        def _dep_divingfish_player(self, username: str | None = None, credentials: str | None = None, qq: int | None = None):
+            return PlayerIdentifier(qq=qq, credentials=credentials, username=username)
 
-        async def _get_nameplates(
-            self,
-            id: int | None = None,
-            name: str | None = None,
-            description: str | None = None,
-            genre: str | None = None,
-            keywords: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            items = await self._client.items(PlayerNamePlate)
-            if id is not None:
-                return [item] if (item := items.by_id(id)) else []
-            keyword_func: Callable[[PlayerNamePlate], bool] = lambda icon: xstr(keywords) in (
-                xstr(icon.name) + xstr(icon.description) + xstr(icon.genre)
-            )
-            filters = get_filters({keywords: keyword_func})
-            results = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
-            return pagination(page_size, page, results)
+        def _dep_arcade_player(self, credentials: str):
+            return PlayerIdentifier(credentials=credentials)
 
-        async def _get_frames(
-            self,
-            id: int | None = None,
-            name: str | None = None,
-            description: str | None = None,
-            genre: str | None = None,
-            keywords: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            items = await self._client.items(PlayerFrame)
-            if id is not None:
-                return [item] if (item := items.by_id(id)) else []
-            keyword_func: Callable[[PlayerFrame], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
-            filters = get_filters({keywords: keyword_func})
-            results = [x async for x in items.filter(name=name, description=description, genre=genre) if filters(x)]
-            return pagination(page_size, page, results)
+        def _dep_divingfish(self) -> IProvider:
+            return DivingFishProvider(developer_token=self._divingfish_token)
 
-        async def _get_trophies(
-            self,
-            id: int | None = None,
-            name: str | None = None,
-            color: str | None = None,
-            keywords: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            items = await self._client.items(PlayerTrophy)
-            if id is not None:
-                return [item] if (item := items.by_id(id)) else []
-            keyword_func: Callable[[PlayerTrophy], bool] = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
-            filters = get_filters({keywords: keyword_func})
-            results = [x async for x in items.filter(name=name, color=color) if filters(x)]
-            return pagination(page_size, page, results)
+        def _dep_lxns(self) -> IProvider:
+            return LXNSProvider(developer_token=self._lxns_token)
 
-        async def _get_charas(
-            self,
-            id: int | None = None,
-            name: str | None = None,
-            keywords: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            items = await self._client.items(PlayerChara)
-            if id is not None:
-                return [item] if (item := items.by_id(id)) else []
-            results = items.filter(name=name or keywords)
-            return pagination(page_size, page, results)
+        def _dep_arcade(self) -> IProvider:
+            return ArcadeProvider(http_proxy=self._arcade_proxy)
 
-        async def _get_partners(
-            self,
-            id: int | None = None,
-            name: str | None = None,
-            keywords: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            items = await self._client.items(PlayerPartner)
-            if id is not None:
-                return [item] if (item := items.by_id(id)) else []
-            results = items.filter(name=name or keywords)
-            return pagination(page_size, page, results)
+        def _dep_hybrid(self) -> IProvider:
+            return HybridProvider()
 
-        async def _get_areas(
-            self,
-            lang: Literal["ja", "zh"] = "ja",
-            id: str | None = None,
-            name: str | None = None,
-            page: int = Query(1, ge=1),
-            page_size: int = Query(100, ge=1, le=1000),
-        ):
-            areas = await self._client.areas(lang)
-            if id is not None:
-                return [area] if (area := await areas.by_id(id)) else []
-            if name is not None:
-                return [area] if (area := await areas.by_name(name)) else []
-            return pagination(page_size, page, await areas.get_all())
-
-        async def _get_player_lxns(self, player: PlayerIdentifier = Depends(dep_lxns_player)):
-            provider = LXNSProvider(self._lxns_token)
-            return await self._client.players(player, provider)
-
-        async def _get_player_diving(self, player: PlayerIdentifier = Depends(dep_diving_player)):
-            provider = DivingFishProvider(self._divingfish_token)
-            return await self._client.players(player, provider)
-
-        async def _get_player_arcade(self, player: PlayerIdentifier = Depends(dep_arcade_player)):
-            provider = ArcadeProvider(self._arcade_proxy)
-            return await self._client.players(player, provider)
-
-        async def _get_scores_lxns(self, player: PlayerIdentifier = Depends(dep_lxns_player)):
-            provider = LXNSProvider(self._lxns_token)
-            scores = await self._client.scores(player, provider=provider)
-            return scores.scores  # no pagination because it costs more
-
-        async def _get_scores_diving(self, player: PlayerIdentifier = Depends(dep_diving_player)):
-            provider = DivingFishProvider(self._divingfish_token)
-            scores = await self._client.scores(player, provider=provider)
-            return scores.scores  # no pagination because it costs more
-
-        async def _get_scores_arcade(self, player: PlayerIdentifier = Depends(dep_arcade_player)):
-            provider = ArcadeProvider(self._arcade_proxy)
-            scores = await self._client.scores(player, provider=provider)
-            return scores.scores  # no pagination because it costs more
-
-        async def _update_scores_lxns(self, scores: list[Score], player: PlayerIdentifier = Depends(dep_lxns_player)):
-            provider = LXNSProvider(self._lxns_token)
-            await self._client.updates(player, scores, provider=provider)
-
-        async def _update_scores_diving(self, scores: list[Score], player: PlayerIdentifier = Depends(dep_diving_player_auth)):
-            provider = DivingFishProvider(self._divingfish_token)
-            await self._client.updates(player, scores, provider=provider)
-
-        async def _get_bests_lxns(self, player: PlayerIdentifier = Depends(dep_lxns_player)):
-            provider = LXNSProvider(self._lxns_token)
-            songs, scores = await asyncio.gather(
-                asyncio.create_task(self._client.songs()),
-                asyncio.create_task(self._client.scores(player, provider=provider)),
-            )
-            return await ser_bests(scores, songs)
-
-        async def _get_bests_diving(self, player: PlayerIdentifier = Depends(dep_diving_player)):
-            provider = DivingFishProvider(self._divingfish_token)
-            songs, scores = await asyncio.gather(
-                asyncio.create_task(self._client.songs()),
-                asyncio.create_task(self._client.scores(player, provider=provider)),
-            )
-            return await ser_bests(scores, songs)
-
-        async def _get_bests_arcade(self, player: PlayerIdentifier = Depends(dep_arcade_player)):
-            provider = ArcadeProvider(self._arcade_proxy)
-            songs, scores = await asyncio.gather(
-                asyncio.create_task(self._client.songs()),
-                asyncio.create_task(self._client.scores(player, provider=provider)),
-            )
-            return await ser_bests(scores, songs)
-
-        async def _get_plate_lxns(
-            self, plate: str, attr: Literal["remained", "cleared", "played", "all"] = "remained", player: PlayerIdentifier = Depends(dep_lxns_player)
-        ):
-            provider = LXNSProvider(self._lxns_token)
-            plates: MaimaiPlates = await self._client.plates(player, plate, provider=provider)
-            return await getattr(plates, f"get_{attr}")()
-
-        async def _get_plate_diving(self, plate: str, attr: PlateAttrs = "remained", player: PlayerIdentifier = Depends(dep_diving_player)):
-            provider = DivingFishProvider(self._divingfish_token)
-            plates: MaimaiPlates = await self._client.plates(player, plate, provider=provider)
-            return await getattr(plates, f"get_{attr}")()
-
-        async def _get_plate_arcade(self, plate: str, attr: PlateAttrs = "remained", player: PlayerIdentifier = Depends(dep_arcade_player)):
-            provider = ArcadeProvider(self._arcade_proxy)
-            plates: MaimaiPlates = await self._client.plates(player, plate, provider=provider)
-            return await getattr(plates, f"get_{attr}")()
-
-        async def _get_region_arcade(self, player: PlayerIdentifier = Depends(dep_arcade_player)):
-            provider = ArcadeProvider(self._arcade_proxy)
-            return await self._client.regions(player, provider=provider)
-
-        async def _get_qrcode_arcade(self, qrcode: str):
-            identifier = await self._client.qrcode(qrcode, http_proxy=self._arcade_proxy)
-            return ParsedQRCode(credentials=str(identifier.credentials))
-
-        def get_base(self) -> APIRouter:
+        def get_router(self, dep_provider: Callable, dep_player: Callable | None = None, skip_base: bool = True) -> APIRouter:
             router = APIRouter()
-            router.add_api_route(
-                "/songs",
-                self._get_songs,
-                name="get_songs",
-                methods=["GET"],
-                response_model=list[Song],
-                description="Get songs by various filters, filters are combined by AND",
-            )
-            router.add_api_route(
-                "/icons",
-                self._get_icons,
-                name="get_icons",
-                methods=["GET"],
-                response_model=list[PlayerIcon],
-                description="Get player icons by various filters, filters are combined by AND",
-            )
-            router.add_api_route(
-                "/nameplates",
-                self._get_nameplates,
-                name="get_nameplates",
-                methods=["GET"],
-                response_model=list[PlayerNamePlate],
-                description="Get player nameplates by various filters, filters are combined by AND",
-            )
-            router.add_api_route(
-                "/frames",
-                self._get_frames,
-                name="get_frames",
-                methods=["GET"],
-                response_model=list[PlayerFrame],
-                description="Get player frames by various filters, filters are combined by AND",
-            )
-            router.add_api_route(
-                "/trophies",
-                self._get_trophies,
-                name="get_trophies",
-                methods=["GET"],
-                response_model=list[PlayerTrophy],
-                description="Get player trophies by various filters, filters are combined by AND",
-            )
-            router.add_api_route(
-                "/charas",
-                self._get_charas,
-                name="get_charas",
-                methods=["GET"],
-                response_model=list[PlayerChara],
-                description="Get player charas by various filters, filters are combined by AND",
-            )
-            router.add_api_route(
-                "/partners",
-                self._get_partners,
-                name="get_partners",
-                methods=["GET"],
-                response_model=list[PlayerPartner],
-                description="Get player partners by various filters, filters are combined by AND",
-            )
-            router.add_api_route(
-                "/areas",
-                self._get_areas,
-                name="get_areas",
-                methods=["GET"],
-                response_model=list[Area],
-                description="Get areas",
-            )
-            return router
 
-        def get_divingfish(self) -> APIRouter:
-            router = APIRouter()
-            router.add_api_route(
-                "/players",
-                self._get_player_diving,
-                name="get_player_diving",
-                methods=["GET"],
-                response_model=DivingFishPlayer,
-                description="Get player info from Diving Fish",
-            )
-            router.add_api_route(
-                "/scores",
-                self._get_scores_diving,
-                name="get_scores_diving",
-                methods=["GET"],
-                response_model=list[Score],
-                description="Get player ALL scores from Diving Fish",
-            )
-            router.add_api_route(
-                "/scores",
-                self._update_scores_diving,
-                name="update_scores_diving",
-                methods=["POST"],
-                description="Update player scores to Diving Fish, should provide the user's username and password, or import token as credentials.",
-            )
-            router.add_api_route(
-                "/bests",
-                self._get_bests_diving,
-                name="get_bests_diving",
-                methods=["GET"],
-                response_model=PlayerBests,
-                description="Get player b50 scores from Diving Fish",
-            )
-            router.add_api_route(
-                "/plates",
-                self._get_plate_diving,
-                name="get_plate_diving",
-                methods=["GET"],
-                response_model=list[PlateObject],
-                description="Get player plates from Diving Fish",
-            )
-            return router
+            def try_add_route(func: Callable, router: APIRouter, dep_provider: Callable):
+                provider_type = func.__annotations__.get("provider")
+                if provider_type and isinstance(dep_provider(), provider_type):
+                    method = "GET" if "get_" in func.__name__ else "POST"
+                    response_model = func.__annotations__.get("return")
+                    router.add_api_route(
+                        f"/{func.__name__.split('_')[-1]}",
+                        func,
+                        name=f"{func.__name__}",
+                        methods=[method],
+                        response_model=response_model,
+                        description=func.__doc__,
+                    )
 
-        def get_lxns(self) -> APIRouter:
-            router = APIRouter()
-            router.add_api_route(
-                "/players",
-                self._get_player_lxns,
-                name="get_player_lxns",
-                methods=["GET"],
-                response_model=LXNSPlayer,
-                description="Get player info from LXNS",
-            )
-            router.add_api_route(
-                "/scores",
-                self._get_scores_lxns,
-                name="get_scores_lxns",
-                methods=["GET"],
-                response_model=list[Score],
-                description="Get player ALL scores from LXNS",
-            )
-            router.add_api_route(
-                "/scores",
-                self._update_scores_lxns,
-                name="update_scores_lxns",
-                methods=["POST"],
-                description="Update player scores to LXNS",
-            )
-            router.add_api_route(
-                "/bests",
-                self._get_bests_lxns,
-                name="get_bests_lxns",
-                methods=["GET"],
-                response_model=PlayerBests,
-                description="Get player b50 scores from LXNS",
-            )
-            router.add_api_route(
-                "/plates",
-                self._get_plate_lxns,
-                name="get_plate_lxns",
-                methods=["GET"],
-                response_model=list[PlateObject],
-                description="Get player plates from LXNS",
-            )
-            return router
+            async def _get_songs(
+                id: int | None = None,
+                title: str | None = None,
+                artist: str | None = None,
+                genre: Genre | None = None,
+                bpm: int | None = None,
+                map: str | None = None,
+                version: int | None = None,
+                type: SongType | None = None,
+                level: str | None = None,
+                versions: Version | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: ISongProvider = Depends(dep_provider),
+            ) -> list[Song]:
+                maimai_songs: MaimaiSongs = await self._client.songs(provider=provider)
+                type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []  # type: ignore
+                level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
+                versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
+                keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
+                songs = await maimai_songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
+                filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
+                result = [song for song in songs if filters(song)]
+                return pagination(page_size, page, result)
 
-        def get_arcade(self) -> APIRouter:
-            router = APIRouter()
-            router.add_api_route(
-                "/players",
-                self._get_player_arcade,
-                name="get_player_arcade",
-                methods=["GET"],
-                response_model=ArcadePlayer,
-                description="Get player info from Arcade",
-            )
-            router.add_api_route(
-                "/scores",
-                self._get_scores_arcade,
-                name="get_scores_arcade",
-                methods=["GET"],
-                response_model=list[Score],
-                description="Get player ALL scores from Arcade",
-            )
-            router.add_api_route(
-                "/bests",
-                self._get_bests_arcade,
-                name="get_bests_arcade",
-                methods=["GET"],
-                response_model=PlayerBests,
-                description="Get player b50 scores from Arcade",
-            )
-            router.add_api_route(
-                "/plates",
-                self._get_plate_arcade,
-                name="get_plate_arcade",
-                methods=["GET"],
-                response_model=list[PlateObject],
-                description="Get player plates from Arcade",
-            )
-            router.add_api_route(
-                "/regions",
-                self._get_region_arcade,
-                name="get_region_arcade",
-                methods=["GET"],
-                response_model=list[PlayerRegion],
-                description="Get player regions from Arcade",
-            )
-            router.add_api_route(
-                "/qrcode",
-                self._get_qrcode_arcade,
-                name="get_qrcode_arcade",
-                methods=["GET"],
-                response_model=ParsedQRCode,
-                description="Get encrypted player credentials from QR code",
-            )
+            async def _get_icons(
+                id: int | None = None,
+                name: str | None = None,
+                description: str | None = None,
+                genre: str | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: IItemListProvider = Depends(dep_provider),
+            ) -> list[PlayerIcon]:
+                items = await self._client.items(PlayerIcon, provider=provider)
+                if id is not None:
+                    return [item] if (item := await items.by_id(id)) else []
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
+                return pagination(page_size, page, result)
+
+            async def _get_nameplates(
+                id: int | None = None,
+                name: str | None = None,
+                description: str | None = None,
+                genre: str | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: IItemListProvider = Depends(dep_provider),
+            ) -> list[PlayerNamePlate]:
+                items = await self._client.items(PlayerNamePlate, provider=provider)
+                if id is not None:
+                    return [item] if (item := await items.by_id(id)) else []
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
+                return pagination(page_size, page, result)
+
+            async def _get_frames(
+                id: int | None = None,
+                name: str | None = None,
+                description: str | None = None,
+                genre: str | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: IItemListProvider = Depends(dep_provider),
+            ) -> list[PlayerFrame]:
+                items = await self._client.items(PlayerFrame, provider=provider)
+                if id is not None:
+                    return [item] if (item := await items.by_id(id)) else []
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
+                return pagination(page_size, page, result)
+
+            async def _get_trophies(
+                id: int | None = None,
+                name: str | None = None,
+                color: str | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: IItemListProvider = Depends(dep_provider),
+            ) -> list[PlayerTrophy]:
+                items = await self._client.items(PlayerTrophy, provider=provider)
+                if id is not None:
+                    return [item] if (item := await items.by_id(id)) else []
+                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name, color=color) if filters(x)]
+                return pagination(page_size, page, result)
+
+            async def _get_charas(
+                id: int | None = None,
+                name: str | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: IItemListProvider = Depends(dep_provider),
+            ) -> list[PlayerChara]:
+                items = await self._client.items(PlayerChara, provider=provider)
+                if id is not None:
+                    return [item] if (item := await items.by_id(id)) else []
+                keyword_func = lambda chara: xstr(keywords) in xstr(chara.name)
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name) if filters(x)]
+                return pagination(page_size, page, result)
+
+            async def _get_partners(
+                id: int | None = None,
+                name: str | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: IItemListProvider = Depends(dep_provider),
+            ) -> list[PlayerPartner]:
+                items = await self._client.items(PlayerPartner, provider=provider)
+                if id is not None:
+                    return [item] if (item := await items.by_id(id)) else []
+                keyword_func = lambda partner: xstr(keywords) in xstr(partner.name)
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await items.filter(name=name) if filters(x)]
+                return pagination(page_size, page, result)
+
+            async def _get_areas(
+                lang: Literal["ja", "zh"] = "ja",
+                id: str | None = None,
+                name: str | None = None,
+                keywords: str | None = None,
+                page: int = Query(1, ge=1),
+                page_size: int = Query(100, ge=1),
+                provider: IAreaProvider = Depends(dep_provider),
+            ) -> list[Area]:
+                areas = await self._client.areas(lang, provider=provider)
+                if id is not None:
+                    return [area] if (area := await areas.by_id(id)) else []
+                if name is not None:
+                    return [area] if (area := await areas.by_name(name)) else []
+                keyword_func = lambda area: xstr(keywords) in (xstr(area.name) + xstr(area.comment))
+                filters = get_filters({keywords: keyword_func})
+                result = [x for x in await areas.get_all() if filters(x)]
+                return pagination(page_size, page, result)
+
+            async def _get_scores(
+                provider: IScoreProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> list[Score]:
+                scores = await self._client.scores(player, provider=provider)
+                return scores.scores
+
+            async def _get_regions(
+                provider: IRegionProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> list[PlayerRegion]:
+                return await self._client.regions(player, provider=provider)
+
+            async def _get_players(
+                provider: IPlayerProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> Player | DivingFishPlayer | LXNSPlayer | ArcadePlayer:
+                return await self._client.players(player, provider=provider)
+
+            async def _get_bests(
+                provider: IScoreProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> PlayerBests:
+                songs = await self._client.songs()
+                scores = await self._client.bests(player, provider=provider)
+                return await ser_bests(scores, songs)
+
+            async def _post_scores(
+                scores: list[Score],
+                provider: IScoreUpdateProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> None:
+                await self._client.updates(player, scores, provider=provider)
+
+            async def _get_plates(
+                plate: str,
+                attr: Literal["remained", "cleared", "played", "all"] = "remained",
+                provider: IScoreProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> list[PlateObject]:
+                plates: MaimaiPlates = await self._client.plates(player, plate, provider=provider)
+                return await getattr(plates, f"get_{attr}")()
+
+            async def _get_minfo(
+                id: int | None = None,
+                title: str | None = None,
+                keywords: str | None = None,
+                provider: IScoreProvider = Depends(dep_provider),
+                player: PlayerIdentifier = Depends(dep_player),
+            ) -> PlayerSong | None:
+                song_trait = id if id is not None else title if title is not None else keywords if keywords is not None else None
+                if song_trait is not None:
+                    song, scores = await self._client.minfo(song_trait, player, provider=provider)
+                    if song is not None:
+                        return PlayerSong(song, scores)
+
+            async def _get_identifiers(
+                code: str,
+                provider: IIdentifierProvider = Depends(dep_provider),
+            ) -> PlayerIdentifier:
+                return await self._client.identifiers(code, provider=provider)
+
+            bases: list[Callable] = [_get_songs, _get_icons, _get_nameplates, _get_frames, _get_trophies, _get_charas, _get_partners, _get_areas]
+            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo, _get_identifiers]
+
+            all = players + (bases if not skip_base else [])
+            [try_add_route(func, router, dep_provider) for func in all]
+
             return router
 
 
 if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     import typer
     import uvicorn
-    from fastapi import APIRouter, Depends, FastAPI, Query, Request
+    from fastapi import APIRouter, Depends, FastAPI, Request
     from fastapi.openapi.utils import get_openapi
     from fastapi.responses import JSONResponse
 
     # prepare for ASGI app
     asgi_app = FastAPI(title="maimai.py API", description="The definitive python wrapper for MaimaiCN related development.")
-    maimai_routes = MaimaiRoutes(MaimaiClient())  # type: ignore
+    routes = MaimaiRoutes(MaimaiClient())  # type: ignore
 
     # register routes and middlewares
-    asgi_app.include_router(maimai_routes.get_base(), tags=["base"])
-    asgi_app.include_router(maimai_routes.get_divingfish(), prefix="/divingfish", tags=["divingfish"])
-    asgi_app.include_router(maimai_routes.get_lxns(), prefix="/lxns", tags=["lxns"])
-    asgi_app.include_router(maimai_routes.get_arcade(), prefix="/arcade", tags=["arcade"])
+    asgi_app.include_router(routes.get_router(routes._dep_hybrid, skip_base=False), tags=["base"])
+    asgi_app.include_router(routes.get_router(routes._dep_divingfish, routes._dep_divingfish_player), prefix="/divingfish", tags=["divingfish"])
+    asgi_app.include_router(routes.get_router(routes._dep_lxns, routes._dep_lxns_player), prefix="/lxns", tags=["lxns"])
+    asgi_app.include_router(routes.get_router(routes._dep_arcade, routes._dep_arcade_player), prefix="/arcade", tags=["arcade"])
 
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
@@ -599,10 +428,10 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
 
         # override the default maimai.py client
         maimai_client = MaimaiClient(cache=redis_backend)
-        maimai_routes._client = maimai_client
-        maimai_routes._lxns_token = lxns_token
-        maimai_routes._divingfish_token = divingfish_token
-        maimai_routes._arcade_proxy = arcade_proxy
+        routes._client = maimai_client
+        routes._lxns_token = lxns_token
+        routes._divingfish_token = divingfish_token
+        routes._arcade_proxy = arcade_proxy
 
         @asgi_app.exception_handler(MaimaiPyError)
         async def exception_handler(request: Request, exc: MaimaiPyError):

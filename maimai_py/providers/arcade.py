@@ -5,15 +5,16 @@ from typing import TYPE_CHECKING
 from maimai_ffi import arcade
 
 from maimai_py.models import *
+from maimai_py.models import PlayerIdentifier
 from maimai_py.utils import ScoreCoefficient
 
-from .base import IPlayerProvider, IRegionProvider, IScoreProvider
+from .base import IIdentifierProvider, IPlayerProvider, IRegionProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
+class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IIdentifierProvider):
     """The provider that fetches data from the wahlap maimai arcade.
 
     This part of the maimai.py is not open-source, we distribute the compiled version of this part of the code as maimai_ffi.
@@ -49,6 +50,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
                     fs=fs_type,
                     dx_score=score["deluxscoreMax"],
                     dx_rating=ScoreCoefficient(achievement).ra(diff.level_value),
+                    play_count=score["playCount"],
                     rate=RateType._from_achievement(achievement),
                     type=song_type,
                 )
@@ -72,7 +74,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
             raise ArcadeError("Invalid response from the server.")
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp: ArcadeResponse = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
@@ -97,3 +99,11 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider):
                     for region in resp.data["userRegionList"]
                 ]
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
+
+    async def get_identifier(self, code: str | dict[str, str], client: "MaimaiClient") -> PlayerIdentifier:
+        resp: ArcadeResponse = await arcade.get_uid_encrypted(str(code), http_proxy=self._http_proxy)
+        ArcadeResponse._raise_for_error(resp)
+        if resp.data and isinstance(resp.data, bytes):
+            return PlayerIdentifier(credentials=resp.data.decode())
+        else:
+            raise ArcadeError("Invalid QR code or QR code has expired")

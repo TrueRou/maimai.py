@@ -6,14 +6,15 @@ from typing import TYPE_CHECKING, Generator
 from httpx import HTTPStatusError, Response
 
 from maimai_py.models import *
+from maimai_py.models import PlayerIdentifier, Score, Song
 
-from .base import ICurveProvider, IPlayerProvider, IScoreProvider, ISongProvider
+from .base import ICurveProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, ISongProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveProvider):
+class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, ICurveProvider):
     """The provider that fetches data from the Diving Fish.
 
     DivingFish: https://www.diving-fish.com/maimaidx/prober/
@@ -96,6 +97,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             fs=FSType[score["fs"].upper()] if score["fs"] else None,
             dx_score=score["dxScore"],
             dx_rating=score["ra"],
+            play_count=None,
             rate=RateType[score["rate"].upper()],
             type=SongType._from_id(score["song_id"]),
         )
@@ -175,10 +177,24 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, ICurveP
             additional_rating=resp_json["additional_rating"],
         )
 
-    async def get_scores(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+    async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
         resp_json = self._check_response_player(resp)
         return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]
+
+    async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        resp = await client._client.post(self.base_url + "query/player", json={"b50": True, **identifier._as_diving_fish()})
+        resp_json = self._check_response_player(resp)
+        return [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"] + resp_json["charts"]["dx"]]
+
+    async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
+        resp = await client._client.post(
+            self.base_url + "dev/player/record",
+            json={"music_id": list(song.difficulties._get_divingfish_ids(song.id)), **identifier._as_diving_fish()},
+            headers=self.headers,
+        )
+        resp_json: dict[str, dict] = self._check_response_player(resp)
+        return [s for scores in resp_json.values() for score in scores if (s := DivingFishProvider._deser_score(score))]
 
     async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
         headers, cookies = None, None

@@ -37,8 +37,8 @@ class PrivacyLimitationError(MaimaiPyError):
     """The user has not accepted the privacy policy or exceeded the privacy limit of the provider."""
 
 
-class WechatTokenExpiredError(MaimaiPyError):
-    """Wahlap Wechat OffiAccount token is expired."""
+class InvalidWechatTokenError(MaimaiPyError):
+    """Wahlap Wechat OffiAccount token is invalid or expired."""
 
 
 class ArcadeError(MaimaiPyError):

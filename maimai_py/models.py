@@ -41,6 +41,12 @@ class SongDifficulties:
             return self.standard + self.dx + self.utage
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
 
+    def _get_divingfish_ids(self, id: int) -> set[int]:
+        ids = set()
+        for difficulty in self._get_children():
+            ids.add(difficulty._get_divingfish_id(id))
+        return ids
+
 
 @dataclass(slots=True)
 class CurveObject:
@@ -301,6 +307,7 @@ class Score:
     fs: FSType | None
     dx_score: int | None
     dx_rating: float | None
+    play_count: int | None
     rate: RateType
     type: SongType
 
@@ -325,30 +332,7 @@ class Score:
             return self if self_fs > other_fs else other
         return self  # we consider they are equal
 
-
-@dataclass(slots=True)
-class PlateScore:
-    id: int
-    level_index: LevelIndex
-    achievements: float | None
-    fc: FCType | None
-    fs: FSType | None
-    rate: RateType
-    type: SongType
-
-    @staticmethod
-    def _from_score(score: Score) -> "PlateScore":
-        return PlateScore(
-            id=score.id,
-            level_index=score.level_index,
-            achievements=score.achievements,
-            fc=score.fc,
-            fs=score.fs,
-            rate=score.rate,
-            type=score.type,
-        )
-
-    def _join(self, other: "PlateScore | None") -> "PlateScore":
+    def _join(self, other: "Score | None") -> "Score":
         if other is not None:
             if self.level_index != other.level_index or self.type != other.type:
                 raise ValueError("Cannot join scores with different level indexes or types")
@@ -370,28 +354,7 @@ class PlateScore:
 
 
 @dataclass(slots=True)
-class PlateSong:
-    id: int
-    title: str
-    artist: str
-    levels: list[LevelIndex]
-
-    @staticmethod
-    def _from_song(song: Song | None, song_type: SongType, exclude_remaster: bool = False) -> "PlateSong | None":
-        if song:
-            levels = [diff.level_index for diff in song.difficulties._get_children(song_type)]
-            if exclude_remaster and LevelIndex.ReMASTER in levels:
-                levels.remove(LevelIndex.ReMASTER)
-            return PlateSong(id=song.id, title=song.title, artist=song.artist, levels=levels)
-
-    def _as_empty(self) -> "PlateSong":
-        return PlateSong(id=self.id, title=self.title, artist=self.artist, levels=[])
-
-    def _as_full(self) -> "PlateSong":
-        return PlateSong(id=self.id, title=self.title, artist=self.artist, levels=self.levels.copy())
-
-
-@dataclass(slots=True)
 class PlateObject:
-    song: PlateSong
-    scores: list[PlateScore]
+    song: Song
+    levels: set[LevelIndex]
+    scores: list[Score]
