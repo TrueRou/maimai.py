@@ -8,13 +8,13 @@ from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier
 from maimai_py.utils import ScoreCoefficient
 
-from .base import IIdentifierProvider, IPlayerProvider, IRegionProvider, IScoreProvider
+from .base import IPlayerIdentifierProvider, IPlayerProvider, IRegionProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IIdentifierProvider):
+class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerIdentifierProvider):
     """The provider that fetches data from the wahlap maimai arcade.
 
     This part of the maimai.py is not open-source, we distribute the compiled version of this part of the code as maimai_ffi.
@@ -24,16 +24,16 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IIdentifi
     maimai.ffi: https://pypi.org/project/maimai-ffi
     """
 
-    _http_proxy: str | None = None
+    _http_proxy: Union[str, None] = None
 
-    def __init__(self, http_proxy: str | None = None):
+    def __init__(self, http_proxy: Union[str, None] = None):
         self._http_proxy = http_proxy
 
     def _hash(self) -> str:
         return hashlib.md5(b"arcade").hexdigest()
 
     @staticmethod
-    async def _deser_score(score: dict, songs: "MaimaiSongs") -> Score | None:
+    async def _deser_score(score: dict, songs: "MaimaiSongs") -> Union[Score, None]:
         song_type = SongType._from_id(score["musicId"])
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
         achievement = float(score["achievement"]) / 10000
@@ -92,6 +92,6 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IIdentifi
             ]
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
-    async def get_identifier(self, code: str | dict[str, str], client: "MaimaiClient") -> PlayerIdentifier:
+    async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         resp_bytes: bytes = await arcade.get_uid_encrypted(str(code), http_proxy=self._http_proxy)
         return PlayerIdentifier(credentials=resp_bytes.decode())

@@ -1,15 +1,15 @@
 import asyncio
 from dataclasses import dataclass
 from importlib.util import find_spec
-from typing import Annotated, Callable, Literal
+from typing import Annotated, Any, Callable, Literal, Union
 from urllib.parse import unquote, urlparse
 
 from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs
 from maimai_py.models import *
 from maimai_py.providers.base import (
     IAreaProvider,
-    IIdentifierProvider,
     IItemListProvider,
+    IPlayerIdentifierProvider,
     IPlayerProvider,
     IProvider,
     IRegionProvider,
@@ -22,15 +22,17 @@ from maimai_py.providers.hybrid import HybridProvider
 PlateAttrs = Literal["remained", "cleared", "played", "all"]
 
 
-@dataclass(slots=True)
+@dataclass
 class ScoreExtend(Score):
+    __slots__ = ["title", "level_value", "level_dx_score"]
     title: str
     level_value: float
     level_dx_score: int
 
 
-@dataclass(slots=True)
+@dataclass
 class PlayerBests:
+    __slots__ = ["rating", "rating_b35", "rating_b15", "scores_b35", "scores_b15"]
     rating: int
     rating_b35: int
     rating_b15: int
@@ -38,17 +40,18 @@ class PlayerBests:
     scores_b15: list[ScoreExtend]
 
 
-@dataclass(slots=True)
+@dataclass
 class PlayerSong:
+    __slots__ = ["song", "scores"]
     song: Song
     scores: list[Score]
 
 
-def xstr(s: str | None) -> str:
+def xstr(s: Union[str, None]) -> str:
     return "" if s is None else str(s).lower()
 
 
-def istr(i: list | None) -> str:
+def istr(i: Union[list, None]) -> str:
     return "" if i is None else "".join(i).lower()
 
 
@@ -68,7 +71,7 @@ def get_filters(functions: dict[Any, Callable[..., bool]]):
     return filter
 
 
-async def ser_score(score: Score, songs: dict[int, Song]) -> ScoreExtend | None:
+async def ser_score(score: Score, songs: dict[int, Song]) -> Union[ScoreExtend, None]:
     if (song := songs.get(score.id)) and (diff := song.get_difficulty(score.type, score.level_index)):
         return ScoreExtend(
             id=score.id,
@@ -92,10 +95,16 @@ async def ser_bests(maimai_scores: MaimaiScores, maimai_songs: MaimaiSongs) -> P
     song_ids = [score.id for score in maimai_scores.scores_b35 + maimai_scores.scores_b15]
     songs: list[Song] = await maimai_songs.get_batch(song_ids) if len(song_ids) > 0 else []
     required_songs: dict[int, Song] = {song.id: song for song in songs}
-    async with asyncio.TaskGroup() as tg:
-        b35_tasks = [tg.create_task(ser_score(score, required_songs)) for score in maimai_scores.scores_b35]
-        b15_tasks = [tg.create_task(ser_score(score, required_songs)) for score in maimai_scores.scores_b15]
-    scores_b35, scores_b15 = [v for task in b35_tasks if (v := task.result())], [v for task in b15_tasks if (v := task.result())]
+
+    # 替换 TaskGroup 为 asyncio.gather
+    b35_tasks = [ser_score(score, required_songs) for score in maimai_scores.scores_b35]
+    b15_tasks = [ser_score(score, required_songs) for score in maimai_scores.scores_b15]
+
+    b35_results, b15_results = await asyncio.gather(asyncio.gather(*b35_tasks), asyncio.gather(*b15_tasks))
+
+    scores_b35 = [v for v in b35_results if v is not None]
+    scores_b15 = [v for v in b15_results if v is not None]
+
     return PlayerBests(
         rating=maimai_scores.rating,
         rating_b35=maimai_scores.rating_b35,
@@ -113,26 +122,26 @@ if find_spec("fastapi"):
     class MaimaiRoutes:
         _client: MaimaiClient
 
-        _lxns_token: str | None = None
-        _divingfish_token: str | None = None
-        _arcade_proxy: str | None = None
+        _lxns_token: Union[str, None] = None
+        _divingfish_token: Union[str, None] = None
+        _arcade_proxy: Union[str, None] = None
 
         def __init__(
             self,
             client: MaimaiClient,
-            lxns_token: str | None = None,
-            divingfish_token: str | None = None,
-            arcade_proxy: str | None = None,
+            lxns_token: Union[str, None] = None,
+            divingfish_token: Union[str, None] = None,
+            arcade_proxy: Union[str, None] = None,
         ):
             self._client = client
             self._lxns_token = lxns_token
             self._divingfish_token = divingfish_token
             self._arcade_proxy = arcade_proxy
 
-        def _dep_lxns_player(self, credentials: str | None = None, friend_code: int | None = None, qq: int | None = None):
+        def _dep_lxns_player(self, credentials: Union[str, None] = None, friend_code: Union[int, None] = None, qq: Union[int, None] = None):
             return PlayerIdentifier(credentials=credentials, qq=qq, friend_code=friend_code)
 
-        def _dep_divingfish_player(self, username: str | None = None, credentials: str | None = None, qq: int | None = None):
+        def _dep_divingfish_player(self, username: Union[str, None] = None, credentials: Union[str, None] = None, qq: Union[int, None] = None):
             return PlayerIdentifier(qq=qq, credentials=credentials, username=username)
 
         def _dep_arcade_player(self, credentials: str):
@@ -150,7 +159,7 @@ if find_spec("fastapi"):
         def _dep_hybrid(self) -> IProvider:
             return HybridProvider()
 
-        def get_router(self, dep_provider: Callable, dep_player: Callable | None = None, skip_base: bool = True) -> APIRouter:
+        def get_router(self, dep_provider: Callable, dep_player: Union[Callable, None] = None, skip_base: bool = True) -> APIRouter:
             router = APIRouter()
 
             def try_add_route(func: Callable, router: APIRouter, dep_provider: Callable):
@@ -168,17 +177,17 @@ if find_spec("fastapi"):
                     )
 
             async def _get_songs(
-                id: int | None = None,
-                title: str | None = None,
-                artist: str | None = None,
-                genre: Genre | None = None,
-                bpm: int | None = None,
-                map: str | None = None,
-                version: int | None = None,
-                type: SongType | None = None,
-                level: str | None = None,
-                versions: Version | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                title: Union[str, None] = None,
+                artist: Union[str, None] = None,
+                genre: Union[Genre, None] = None,
+                bpm: Union[int, None] = None,
+                map: Union[str, None] = None,
+                version: Union[int, None] = None,
+                type: Union[SongType, None] = None,
+                level: Union[str, None] = None,
+                versions: Union[Version, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: ISongProvider = Depends(dep_provider),
@@ -194,11 +203,11 @@ if find_spec("fastapi"):
                 return pagination(page_size, page, result)
 
             async def _get_icons(
-                id: int | None = None,
-                name: str | None = None,
-                description: str | None = None,
-                genre: str | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                name: Union[str, None] = None,
+                description: Union[str, None] = None,
+                genre: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IItemListProvider = Depends(dep_provider),
@@ -212,11 +221,11 @@ if find_spec("fastapi"):
                 return pagination(page_size, page, result)
 
             async def _get_nameplates(
-                id: int | None = None,
-                name: str | None = None,
-                description: str | None = None,
-                genre: str | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                name: Union[str, None] = None,
+                description: Union[str, None] = None,
+                genre: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IItemListProvider = Depends(dep_provider),
@@ -230,11 +239,11 @@ if find_spec("fastapi"):
                 return pagination(page_size, page, result)
 
             async def _get_frames(
-                id: int | None = None,
-                name: str | None = None,
-                description: str | None = None,
-                genre: str | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                name: Union[str, None] = None,
+                description: Union[str, None] = None,
+                genre: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IItemListProvider = Depends(dep_provider),
@@ -248,10 +257,10 @@ if find_spec("fastapi"):
                 return pagination(page_size, page, result)
 
             async def _get_trophies(
-                id: int | None = None,
-                name: str | None = None,
-                color: str | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                name: Union[str, None] = None,
+                color: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IItemListProvider = Depends(dep_provider),
@@ -265,9 +274,9 @@ if find_spec("fastapi"):
                 return pagination(page_size, page, result)
 
             async def _get_charas(
-                id: int | None = None,
-                name: str | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                name: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IItemListProvider = Depends(dep_provider),
@@ -281,9 +290,9 @@ if find_spec("fastapi"):
                 return pagination(page_size, page, result)
 
             async def _get_partners(
-                id: int | None = None,
-                name: str | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                name: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IItemListProvider = Depends(dep_provider),
@@ -298,9 +307,9 @@ if find_spec("fastapi"):
 
             async def _get_areas(
                 lang: Literal["ja", "zh"] = "ja",
-                id: str | None = None,
-                name: str | None = None,
-                keywords: str | None = None,
+                id: Union[str, None] = None,
+                name: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 page: int = Query(1, ge=1),
                 page_size: int = Query(100, ge=1),
                 provider: IAreaProvider = Depends(dep_provider),
@@ -331,7 +340,7 @@ if find_spec("fastapi"):
             async def _get_players(
                 provider: IPlayerProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
-            ) -> Player | DivingFishPlayer | LXNSPlayer | ArcadePlayer:
+            ) -> Union[Player, DivingFishPlayer, LXNSPlayer, ArcadePlayer]:
                 return await self._client.players(player, provider=provider)
 
             async def _get_bests(
@@ -359,12 +368,12 @@ if find_spec("fastapi"):
                 return await getattr(plates, f"get_{attr}")()
 
             async def _get_minfo(
-                id: int | None = None,
-                title: str | None = None,
-                keywords: str | None = None,
+                id: Union[int, None] = None,
+                title: Union[str, None] = None,
+                keywords: Union[str, None] = None,
                 provider: IScoreProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
-            ) -> PlayerSong | None:
+            ) -> Union[PlayerSong, None]:
                 song_trait = id if id is not None else title if title is not None else keywords if keywords is not None else None
                 if song_trait is not None:
                     song, scores = await self._client.minfo(song_trait, player, provider=provider)
@@ -373,7 +382,7 @@ if find_spec("fastapi"):
 
             async def _get_identifiers(
                 code: str,
-                provider: IIdentifierProvider = Depends(dep_provider),
+                provider: IPlayerIdentifierProvider = Depends(dep_provider),
             ) -> PlayerIdentifier:
                 return await self._client.identifiers(code, provider=provider)
 
@@ -406,10 +415,10 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
         port: Annotated[int, typer.Option(help="The port number to bind to.")] = 8000,
-        redis: Annotated[str | None, typer.Option(help="Redis server address, for example: redis://localhost:6379/0.")] = None,
-        lxns_token: Annotated[str | None, typer.Option(help="LXNS token for LXNS API.")] = None,
-        divingfish_token: Annotated[str | None, typer.Option(help="Diving Fish token for Diving Fish API.")] = None,
-        arcade_proxy: Annotated[str | None, typer.Option(help="HTTP proxy for Arcade API.")] = None,
+        redis: Annotated[Union[str, None], typer.Option(help="Redis server address, for example: redis://localhost:6379/0.")] = None,
+        lxns_token: Annotated[Union[str, None], typer.Option(help="LXNS token for LXNS API.")] = None,
+        divingfish_token: Annotated[Union[str, None], typer.Option(help="Diving Fish token for Diving Fish API.")] = None,
+        arcade_proxy: Annotated[Union[str, None], typer.Option(help="HTTP proxy for Arcade API.")] = None,
     ):
         # prepare for redis cache backend
         redis_backend = UNSET

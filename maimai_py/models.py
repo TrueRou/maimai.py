@@ -1,27 +1,27 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, MutableMapping, Sequence
+from typing import Any, MutableMapping, Sequence, Union
 
 from maimai_py.enums import *
 from maimai_py.exceptions import *
 from maimai_py.utils import UNSET, _UnsetSentinel
 
 
-@dataclass(slots=True)
+@dataclass()
 class Song:
     id: int
     title: str
     artist: str
     genre: Genre
     bpm: int
-    map: str | None
+    map: Union[str, None]
     version: int
-    rights: str | None
-    aliases: list[str] | None
+    rights: Union[str, None]
+    aliases: Union[list[str], None]
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def get_difficulty(self, type: SongType, level_index: LevelIndex | None) -> "SongDifficulty | None":
+    def get_difficulty(self, type: SongType, level_index: Union[LevelIndex, None]) -> Union["SongDifficulty", None]:
         if type == SongType.DX:
             return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
         if type == SongType.STANDARD:
@@ -30,13 +30,13 @@ class Song:
             return next(iter(self.difficulties.utage), None)
 
 
-@dataclass(slots=True)
+@dataclass()
 class SongDifficulties:
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
 
-    def _get_children(self, song_type: SongType | _UnsetSentinel = UNSET) -> Sequence["SongDifficulty"]:
+    def _get_children(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> Sequence["SongDifficulty"]:
         if song_type == UNSET:
             return self.standard + self.dx + self.utage
         return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
@@ -48,7 +48,7 @@ class SongDifficulties:
         return ids
 
 
-@dataclass(slots=True)
+@dataclass()
 class CurveObject:
     sample_size: int
     fit_level_value: float
@@ -59,7 +59,7 @@ class CurveObject:
     fc_sample_size: dict[FCType, int]
 
 
-@dataclass(slots=True)
+@dataclass()
 class SongDifficulty:
     type: SongType
     level: str
@@ -72,7 +72,7 @@ class SongDifficulty:
     slide_num: int
     touch_num: int
     break_num: int
-    curve: CurveObject | None
+    curve: Union[CurveObject, None]
 
     def _get_divingfish_id(self, id: int) -> int:
         if id < 0 or id > 9999:
@@ -84,14 +84,14 @@ class SongDifficulty:
         return id
 
 
-@dataclass(slots=True)
+@dataclass()
 class SongDifficultyUtage(SongDifficulty):
     kanji: str
     description: str
     is_buddy: bool
 
 
-@dataclass(slots=True)
+@dataclass()
 class SongAlias:
     """@private"""
 
@@ -99,12 +99,12 @@ class SongAlias:
     aliases: list[str]
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerIdentifier:
-    qq: int | None = None
-    username: str | None = None
-    friend_code: int | None = None
-    credentials: str | MutableMapping[str, str] | None = None
+    qq: Union[int, None] = None
+    username: Union[str, None] = None
+    friend_code: Union[int, None] = None
+    credentials: Union[str, MutableMapping[str, str], None] = None
 
     def __post_init__(self):
         if self.qq is None and self.username is None and self.friend_code is None and self.credentials is None:
@@ -131,14 +131,14 @@ class PlayerIdentifier:
             raise InvalidPlayerIdentifierError("No valid identifier provided")
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerItem:
     @staticmethod
     def _namespace() -> str:
         raise NotImplementedError
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerTrophy(PlayerItem):
     id: int
     name: str
@@ -149,43 +149,43 @@ class PlayerTrophy(PlayerItem):
         return "trophies"
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerIcon(PlayerItem):
     id: int
     name: str
-    description: str | None = None
-    genre: str | None = None
+    description: Union[str, None] = None
+    genre: Union[str, None] = None
 
     @staticmethod
     def _namespace():
         return "icons"
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerNamePlate(PlayerItem):
     id: int
     name: str
-    description: str | None = None
-    genre: str | None = None
+    description: Union[str, None] = None
+    genre: Union[str, None] = None
 
     @staticmethod
     def _namespace():
         return "nameplates"
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerFrame(PlayerItem):
     id: int
     name: str
-    description: str | None = None
-    genre: str | None = None
+    description: Union[str, None] = None
+    genre: Union[str, None] = None
 
     @staticmethod
     def _namespace():
         return "frames"
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerPartner(PlayerItem):
     id: int
     name: str
@@ -195,7 +195,7 @@ class PlayerPartner(PlayerItem):
         return "partners"
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerChara(PlayerItem):
     id: int
     name: str
@@ -205,7 +205,7 @@ class PlayerChara(PlayerItem):
         return "charas"
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlayerRegion:
     region_id: int
     region_name: str
@@ -213,41 +213,41 @@ class PlayerRegion:
     created_at: datetime
 
 
-@dataclass(slots=True)
+@dataclass()
 class Player:
     name: str
     rating: int
 
 
-@dataclass(slots=True)
+@dataclass()
 class DivingFishPlayer(Player):
     nickname: str
     plate: str
     additional_rating: int
 
 
-@dataclass(slots=True)
+@dataclass()
 class LXNSPlayer(Player):
     friend_code: int
     course_rank: int
     class_rank: int
     star: int
-    frame: PlayerFrame | None
-    icon: PlayerIcon | None
-    trophy: PlayerTrophy | None
-    name_plate: PlayerNamePlate | None
+    frame: Union[PlayerFrame, None]
+    icon: Union[PlayerIcon, None]
+    trophy: Union[PlayerTrophy, None]
+    name_plate: Union[PlayerNamePlate, None]
     upload_time: str
 
 
-@dataclass(slots=True)
+@dataclass()
 class ArcadePlayer(Player):
     is_login: bool
-    icon: PlayerIcon | None
-    trophy: PlayerTrophy | None
-    name_plate: PlayerNamePlate | None
+    icon: Union[PlayerIcon, None]
+    trophy: Union[PlayerTrophy, None]
+    name_plate: Union[PlayerNamePlate, None]
 
 
-@dataclass(slots=True)
+@dataclass()
 class AreaCharacter:
     name: str
     illustrator: str
@@ -257,17 +257,17 @@ class AreaCharacter:
     props: dict[str, str]
 
 
-@dataclass(slots=True)
+@dataclass()
 class AreaSong:
-    id: int | None
+    id: Union[int, None]
     title: str
     artist: str
     description: str
-    illustrator: str | None
-    movie: str | None
+    illustrator: Union[str, None]
+    movie: Union[str, None]
 
 
-@dataclass(slots=True)
+@dataclass()
 class Area:
     id: str
     name: str
@@ -278,21 +278,21 @@ class Area:
     songs: list[AreaSong]
 
 
-@dataclass(slots=True)
+@dataclass()
 class Score:
     id: int
     level: str
     level_index: LevelIndex
-    achievements: float | None
-    fc: FCType | None
-    fs: FSType | None
-    dx_score: int | None
-    dx_rating: float | None
-    play_count: int | None
+    achievements: Union[float, None]
+    fc: Union[FCType, None]
+    fs: Union[FSType, None]
+    dx_score: Union[int, None]
+    dx_rating: Union[float, None]
+    play_count: Union[int, None]
     rate: RateType
     type: SongType
 
-    def _compare(self, other: "Score | None") -> "Score":
+    def _compare(self, other: Union["Score", None]) -> "Score":
         if other is None:
             return self
         if self.dx_score != other.dx_score:  # larger value is better
@@ -313,7 +313,7 @@ class Score:
             return self if self_fs > other_fs else other
         return self  # we consider they are equal
 
-    def _join(self, other: "Score | None") -> "Score":
+    def _join(self, other: Union["Score", None]) -> "Score":
         if other is not None:
             if self.level_index != other.level_index or self.type != other.type:
                 raise ValueError("Cannot join scores with different level indexes or types")
@@ -334,7 +334,7 @@ class Score:
         return self
 
 
-@dataclass(slots=True)
+@dataclass()
 class PlateObject:
     song: Song
     levels: set[LevelIndex]

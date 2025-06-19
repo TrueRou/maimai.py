@@ -22,4 +22,4 @@ async def test_areas(maimai: MaimaiClient):
 
 
 if __name__ == "__main__":
-    pytest.main(["-q", "-x", "--runslow", "-p no:warnings", "-s", __file__])
+    pytest.main(["-q", "-x", "-p no:warnings", "-s", __file__])

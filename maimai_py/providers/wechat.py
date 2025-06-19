@@ -11,13 +11,13 @@ from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier
 from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2json
 
-from .base import IIdentifierProvider, IScoreProvider
+from .base import IPlayerIdentifierProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class WechatProvider(IScoreProvider, IIdentifierProvider):
+class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
     """The provider that fetches data from the Wahlap Wechat OffiAccount.
 
     PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
@@ -31,7 +31,7 @@ class WechatProvider(IScoreProvider, IIdentifierProvider):
         return hashlib.md5(b"wechat").hexdigest()
 
     @staticmethod
-    async def _deser_score(score: HTMLScore, songs: "MaimaiSongs") -> Score | None:
+    async def _deser_score(score: HTMLScore, songs: "MaimaiSongs") -> Union[Score, None]:
         if song := await songs.by_title(score.title):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
             song_type = SongType.STANDARD if score.type == "SD" else SongType.DX if score.type == "DX" and not is_utage else SongType.UTAGE
@@ -70,7 +70,7 @@ class WechatProvider(IScoreProvider, IIdentifierProvider):
         scores = await self._crawl_scores(client, identifier.credentials, maimai_songs)
         return list(scores)
 
-    async def get_identifier(self, code: str | dict[str, str], client: "MaimaiClient") -> PlayerIdentifier:
+    async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         if isinstance(code, dict) and all([code.get("r"), code.get("t"), code.get("code"), code.get("state")]):
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",

@@ -23,7 +23,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
     LXNS: https://maimai.lxns.net/
     """
 
-    developer_token: str | None
+    developer_token: Union[str, None]
     """The developer token used to access the LXNS API."""
     base_url = "https://maimai.lxns.net/"
     """The base URL for the LXNS API."""
@@ -35,7 +35,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
             raise InvalidDeveloperTokenError("Developer token is not provided.")
         return {"Authorization": self.developer_token}
 
-    def __init__(self, developer_token: str | None = None):
+    def __init__(self, developer_token: Union[str, None] = None):
         """Initializes the LXNSProvider.
 
         Args:
@@ -144,7 +144,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         )
 
     @staticmethod
-    async def _ser_score(score: Score, songs: "MaimaiSongs") -> dict | None:
+    async def _ser_score(score: Score, songs: "MaimaiSongs") -> Union[dict, None]:
         song_title = song.title if (song := await songs.by_id(score.id)) else None
         if song_title is not None:
             return {

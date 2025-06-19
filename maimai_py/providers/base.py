@@ -88,7 +88,7 @@ class ICurveProvider(IProvider):
     """
 
     @abstractmethod
-    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject | None]]:
+    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[Union[CurveObject, None]]]:
         """@private"""
         raise NotImplementedError()
 
@@ -154,13 +154,13 @@ class IAreaProvider(IProvider):
         raise NotImplementedError()
 
 
-class IIdentifierProvider(IProvider):
+class IPlayerIdentifierProvider(IProvider):
     """The provider that fetches player identifiers from a specific source.
 
     Available providers: `ArcadeProvider`
     """
 
     @abstractmethod
-    async def get_identifier(self, code: str | dict[str, str], client: "MaimaiClient") -> PlayerIdentifier:
+    async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         """@private"""
         raise NotImplementedError()

@@ -24,7 +24,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         self._client = client
         self._namespace = namespace
 
-    async def _configure(self, provider: IItemListProvider | _UnsetSentinel) -> "MaimaiItems":
+    async def _configure(self, provider: Union[IItemListProvider, _UnsetSentinel] = UNSET) -> "MaimaiItems":
         # Check if the provider is unset, which means we want to access the cache directly.
         if isinstance(provider, _UnsetSentinel):
             if await self._client._cache.get("provider", None, namespace=self._namespace) is not None:
@@ -50,7 +50,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         Returns:
             A list with all items in the cache, return an empty list if no item is found.
         """
-        item_ids: list[int] | None = await self._client._cache.get("ids", namespace=self._namespace)
+        item_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         return await self._client._cache.multi_get(item_ids, namespace=self._namespace)
 
@@ -64,7 +64,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         """
         return await self._client._cache.multi_get(ids, namespace=self._namespace)
 
-    async def by_id(self, id: int) -> PlayerItemType | None:
+    async def by_id(self, id: int) -> Union[PlayerItemType, None]:
         """Get an item by its ID.
 
         Args:
@@ -97,9 +97,9 @@ class MaimaiSongs:
 
     async def _configure(
         self,
-        provider: ISongProvider | _UnsetSentinel,
-        alias_provider: IAliasProvider | None | _UnsetSentinel,
-        curve_provider: ICurveProvider | None | _UnsetSentinel,
+        provider: Union[ISongProvider, _UnsetSentinel],
+        alias_provider: Union[IAliasProvider, None, _UnsetSentinel],
+        curve_provider: Union[ICurveProvider, None, _UnsetSentinel],
     ) -> "MaimaiSongs":
         # Check if all providers are unset, which means we want to access the cache directly.
         if isinstance(provider, _UnsetSentinel) and isinstance(alias_provider, _UnsetSentinel) and isinstance(curve_provider, _UnsetSentinel):
@@ -166,7 +166,7 @@ class MaimaiSongs:
         Returns:
             A list of all songs in the cache, return an empty list if no song is found.
         """
-        song_ids: list[int] | None = await self._client._cache.get("ids", namespace="songs")
+        song_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         return await self._client._cache.multi_get(song_ids, namespace="songs")
 
@@ -180,7 +180,7 @@ class MaimaiSongs:
         """
         return await self._client._cache.multi_get(ids, namespace="songs")
 
-    async def by_id(self, id: int) -> Song | None:
+    async def by_id(self, id: int) -> Union[Song, None]:
         """Get a song by its ID.
 
         Args:
@@ -190,7 +190,7 @@ class MaimaiSongs:
         """
         return await self._client._cache.get(id, namespace="songs")
 
-    async def by_title(self, title: str) -> Song | None:
+    async def by_title(self, title: str) -> Union[Song, None]:
         """Get a song by its title.
 
         Args:
@@ -202,7 +202,7 @@ class MaimaiSongs:
         song_id = 383 if title == "Link(CoF)" else song_id
         return await self._client._cache.get(song_id, namespace="songs") if song_id else None
 
-    async def by_alias(self, alias: str) -> Song | None:
+    async def by_alias(self, alias: str) -> Union[Song, None]:
         """Get song by one possible alias.
 
         Args:
@@ -552,7 +552,7 @@ class MaimaiScores:
         return await new_scores.configure(list(scores_unique.values()))
 
     def by_song(
-        self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
+        self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
     ) -> Iterator[Score]:
         """Get scores of the song on that type and level_index.
 
@@ -593,7 +593,7 @@ class MaimaiAreas:
         """@private"""
         self._client = client
 
-    async def _configure(self, lang: str, provider: IAreaProvider | _UnsetSentinel) -> "MaimaiAreas":
+    async def _configure(self, lang: str, provider: Union[IAreaProvider, _UnsetSentinel]) -> "MaimaiAreas":
         self._lang = lang
         # Check if the provider is unset, which means we want to access the cache directly.
         if isinstance(provider, _UnsetSentinel):
@@ -620,7 +620,7 @@ class MaimaiAreas:
         Returns:
             A list of all areas in the cache, return an empty list if no area is found.
         """
-        area_ids: list[int] | None = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
+        area_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
         assert area_ids is not None, "Areas not found in cache, please call configure() first."
         return await self._client._cache.multi_get(area_ids, namespace=f"areas_{self._lang}")
 
@@ -634,7 +634,7 @@ class MaimaiAreas:
         """
         return await self._client._cache.multi_get(ids, namespace=f"areas_{self._lang}")
 
-    async def by_id(self, id: str) -> Area | None:
+    async def by_id(self, id: str) -> Union[Area, None]:
         """Get an area by its ID.
 
         Args:
@@ -644,7 +644,7 @@ class MaimaiAreas:
         """
         return await self._client._cache.get(id, namespace=f"areas_{self._lang}")
 
-    async def by_name(self, name: str) -> Area | None:
+    async def by_name(self, name: str) -> Union[Area, None]:
         """Get an area by its name, language-sensitive.
 
         Args:
@@ -665,7 +665,7 @@ class MaimaiClient:
     def __init__(
         self,
         timeout: float = 20.0,
-        cache: BaseCache | _UnsetSentinel = UNSET,
+        cache: Union[BaseCache, _UnsetSentinel] = UNSET,
         cache_ttl: int = 60 * 60 * 24,
         **kwargs,
     ) -> None:
@@ -683,9 +683,9 @@ class MaimaiClient:
 
     async def songs(
         self,
-        provider: ISongProvider | _UnsetSentinel = UNSET,
-        alias_provider: IAliasProvider | None | _UnsetSentinel = UNSET,
-        curve_provider: ICurveProvider | None | _UnsetSentinel = UNSET,
+        provider: Union[ISongProvider, _UnsetSentinel] = UNSET,
+        alias_provider: Union[IAliasProvider, None, _UnsetSentinel] = UNSET,
+        curve_provider: Union[ICurveProvider, None, _UnsetSentinel] = UNSET,
     ) -> MaimaiSongs:
         """Fetch all maimai songs from the provider.
 
@@ -814,10 +814,10 @@ class MaimaiClient:
 
     async def minfo(
         self,
-        song: Song | int | str,
+        song: Union[Song, int, str],
         identifier: PlayerIdentifier,
         provider: IScoreProvider = LXNSProvider(),
-    ) -> tuple[Song | None, list[Score]]:
+    ) -> tuple[Union[Song, None], list[Score]]:
         """Fetch player's scores on the specific song.
 
         This method will return all scores of the player on the song.
@@ -949,8 +949,8 @@ class MaimaiClient:
 
     async def identifiers(
         self,
-        code: str | dict[str, str],
-        provider: IIdentifierProvider | _UnsetSentinel = UNSET,
+        code: Union[str, dict[str, str]],
+        provider: Union[IPlayerIdentifierProvider, _UnsetSentinel] = UNSET,
     ) -> PlayerIdentifier:
         """Get the player identifier from the provider.
 
@@ -972,7 +972,7 @@ class MaimaiClient:
             provider = ArcadeProvider()
         return await provider.get_identifier(code, self)
 
-    async def items(self, item: Type[PlayerItemType], provider: IItemListProvider | _UnsetSentinel = UNSET) -> MaimaiItems[PlayerItemType]:
+    async def items(self, item: Type[PlayerItemType], provider: Union[IItemListProvider, _UnsetSentinel] = UNSET) -> MaimaiItems[PlayerItemType]:
         """Fetch maimai player items from the cache default provider.
 
         Available items: `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`.

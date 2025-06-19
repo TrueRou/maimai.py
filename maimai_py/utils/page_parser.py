@@ -1,13 +1,15 @@
 import re
 from dataclasses import dataclass
+from typing import Union
 
 from lxml import etree
 
 link_dx_score = [372, 522, 942, 924, 1425]
 
 
-@dataclass(slots=True)
+@dataclass()
 class HTMLScore:
+    __slots__ = ["title", "level", "level_index", "type", "achievements", "dx_score", "rate", "fc", "fs", "ds"]
     title: str
     level: str
     level_index: int
@@ -20,7 +22,7 @@ class HTMLScore:
     ds: int
 
 
-def get_data_from_div(div) -> HTMLScore | None:
+def get_data_from_div(div) -> Union[HTMLScore, None]:
     form = div.find(".//form")
     if form is None:
         return None
