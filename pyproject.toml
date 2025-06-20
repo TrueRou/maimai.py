@@ -11,7 +11,7 @@ packages = [{include = "maimai_py"}]
 python = "^3.9"
 httpx = "^0.28.0"
 cryptography = ">=38.0"
-maimai-ffi = "0.5.0"
+maimai-ffi = "0.5.2"
 aiocache = "^0.12.3"
 lxml = "^5.4.0"
 httpcore = "^1.0.9"
