@@ -661,6 +661,12 @@ class MaimaiClient:
     _cache: BaseCache
     _cache_ttl: int
 
+    def __new__(cls, *args, **kw):
+        if not hasattr(cls, '_instance'):
+            orig = super(MaimaiClient, cls)
+            cls._instance = orig.__new__(cls, *args, **kw)
+        return cls._instance
+
     def __init__(
         self,
         timeout: float = 20.0,
@@ -1006,3 +1012,13 @@ class MaimaiClient:
 
         maimai_areas = MaimaiAreas(self)
         return await maimai_areas._configure(lang, provider)
+
+
+class MaimaiClientMultithreading(MaimaiClient):
+    """Multi-threading version of maimai.py.
+    Introduced by issue #28. Users who want to share the same client instance across multiple threads can use this class.
+    """
+
+    def __new__(cls, *args, **kw):
+        # Override the singleton behavior by always creating a new instance
+        return super(MaimaiClient, cls).__new__(cls)
