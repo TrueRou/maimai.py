@@ -668,7 +668,7 @@ class MaimaiClient:
                 "MaimaiClient is a singleton, args are ignored in this case, due to the singleton nature. "
                 "If you think this is a mistake, please check MaimaiClientMultithreading. "
             )
-            warnings.warn(warn_message, skip_file_prefixes=("maimai_py", "maimai_py/"))
+            warnings.warn(warn_message, stacklevel=2)
             return cls._instance
         orig = super(MaimaiClient, cls)
         cls._instance = orig.__new__(cls, *args, **kwargs)
