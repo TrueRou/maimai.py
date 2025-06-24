@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+import warnings
 from collections import defaultdict
 from functools import cached_property
 from typing import Any, Generic, Iterator, Literal, Type, TypeVar
@@ -661,10 +662,16 @@ class MaimaiClient:
     _cache: BaseCache
     _cache_ttl: int
 
-    def __new__(cls, *args, **kw):
-        if not hasattr(cls, '_instance'):
-            orig = super(MaimaiClient, cls)
-            cls._instance = orig.__new__(cls, *args, **kw)
+    def __new__(cls, *args, **kwargs):
+        if hasattr(cls, "_instance"):
+            warn_message = (
+                "MaimaiClient is a singleton, args are ignored in this case, due to the singleton nature. "
+                "If you think this is a mistake, please check MaimaiClientMultithreading. "
+            )
+            warnings.warn(warn_message, skip_file_prefixes=("maimai_py", "maimai_py/"))
+            return cls._instance
+        orig = super(MaimaiClient, cls)
+        cls._instance = orig.__new__(cls, *args, **kwargs)
         return cls._instance
 
     def __init__(
@@ -1019,6 +1026,6 @@ class MaimaiClientMultithreading(MaimaiClient):
     Introduced by issue #28. Users who want to share the same client instance across multiple threads can use this class.
     """
 
-    def __new__(cls, *args, **kw):
+    def __new__(cls, *args, **kwargs):
         # Override the singleton behavior by always creating a new instance
         return super(MaimaiClient, cls).__new__(cls)
