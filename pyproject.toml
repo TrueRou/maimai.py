@@ -28,6 +28,7 @@ uvicorn = "^0.34.0"
 nuitka = "^2.5.9"
 typer = "^0.15.2"
 redis = "^6.1.0"
+python-dotenv = "^1.1.1"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "session"

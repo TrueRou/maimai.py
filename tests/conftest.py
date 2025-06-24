@@ -1,9 +1,12 @@
 import os
 
 import pytest
+from dotenv import load_dotenv
 
 from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient
 from maimai_py.models import PlayerIdentifier
+
+load_dotenv()
 
 
 @pytest.fixture(scope="session")
@@ -13,19 +16,13 @@ def maimai():
 
 @pytest.fixture(scope="session")
 def lxns():
-    if not (token := os.environ.get("LXNS_DEVELOPER_TOKEN")):
-        from tests import secrets
-
-        token = secrets.lxns_developer_token
+    token = os.environ.get("LXNS_DEVELOPER_TOKEN")
     return LXNSProvider(developer_token=token)
 
 
 @pytest.fixture(scope="session")
 def divingfish():
-    if not (token := os.environ.get("DIVINGFISH_DEVELOPER_TOKEN")):
-        from tests import secrets
-
-        token = secrets.divingfish_developer_token
+    token = os.environ.get("DIVINGFISH_DEVELOPER_TOKEN")
     return DivingFishProvider(developer_token=token)
 
 
@@ -36,27 +33,18 @@ def arcade():
 
 @pytest.fixture(scope="session")
 def lxns_player():
-    if not (personal_token := os.environ.get("LXNS_PERSONAL_TOKEN")):
-        from tests import secrets
-
-        personal_token = secrets.lxns_personal_token
+    personal_token = os.environ.get("LXNS_PERSONAL_TOKEN")
     return PlayerIdentifier(credentials=personal_token)
 
 
 @pytest.fixture(scope="session")
 def divingfish_player():
-    if not (username := os.environ.get("DIVINGFISH_USERNAME")) or not (password := os.environ.get("DIVINGFISH_PASSWORD")):
-        from tests import secrets
-
-        username = secrets.divingfish_username
-        password = secrets.divingfish_password
+    username = os.environ.get("DIVINGFISH_USERNAME")
+    password = os.environ.get("DIVINGFISH_PASSWORD")
     return PlayerIdentifier(username=username, credentials=password)
 
 
 @pytest.fixture(scope="session")
 def arcade_player():
-    if not (encrypted_userid := os.environ.get("ARCADE_ENCRYPTED_USERID")):
-        from tests import secrets
-
-        encrypted_userid = secrets.arcade_encrypted_userid
+    encrypted_userid = os.environ.get("ARCADE_ENCRYPTED_USERID")
     return PlayerIdentifier(credentials=encrypted_userid)
