@@ -19,6 +19,7 @@ from maimai_py.providers.base import (
     ISongProvider,
 )
 from maimai_py.providers.hybrid import HybridProvider
+from maimai_py.utils.sentinel import _UnsetSentinel
 
 PlateAttrs = Literal["remained", "cleared", "played", "all"]
 
@@ -430,8 +431,7 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
             )
 
         # override the default maimai.py client
-        maimai_client = MaimaiClient(cache=redis_backend)
-        routes._client = maimai_client
+        routes._client._cache = routes._client._cache if isinstance(redis_backend, _UnsetSentinel) else redis_backend
         routes._lxns_token = lxns_token
         routes._divingfish_token = divingfish_token
         routes._arcade_proxy = arcade_proxy
