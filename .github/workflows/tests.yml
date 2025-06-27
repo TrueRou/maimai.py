@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - develop
+    paths:
+      - "tests/**"
+      - "maimai_py/**"
+      - "pyproject.toml"
+      - "poetry.lock"
   workflow_dispatch:
 
 jobs:
