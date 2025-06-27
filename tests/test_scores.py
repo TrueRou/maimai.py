@@ -16,6 +16,10 @@ async def test_scores_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lx
     bests = await maimai.bests(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
     assert my_scores.rating == bests.rating
 
+    bests_fallback = await maimai.bests(lxns_player, provider=lxns)
+    assert my_scores.rating == bests_fallback.rating
+    assert len(bests_fallback.scores) <= 50
+
     song, scores = await maimai.minfo(1231, PlayerIdentifier(friend_code=664994421382429), provider=lxns)
     assert song is not None
     assert all(score.id == song.id for score in scores)
@@ -30,6 +34,7 @@ async def test_scores_fetching_divingfish(maimai: MaimaiClient, divingfish: Divi
 
     bests = await maimai.bests(divingfish_player, provider=divingfish)
     assert my_scores.rating == bests.rating
+    assert len(bests.scores) <= 50
 
     song, scores = await maimai.minfo(1231, PlayerIdentifier(username="turou"), provider=divingfish)
     assert song is not None

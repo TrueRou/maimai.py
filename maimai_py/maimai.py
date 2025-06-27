@@ -500,7 +500,7 @@ class MaimaiScores:
     def __init__(self, client: "MaimaiClient"):
         self._client = client
 
-    async def configure(self, scores: list[Score]) -> "MaimaiScores":
+    async def configure(self, scores: list[Score], b50_only: bool = False) -> "MaimaiScores":
         """Initialize the scores by the scores list.
 
         This method will sort the scores by their dx_rating, dx_score and achievements, and split them into b35 and b15 scores.
@@ -510,13 +510,12 @@ class MaimaiScores:
         Returns:
             The MaimaiScores object with the scores initialized.
         """
-        self.scores = scores
         scores_new: list[Score] = []
         scores_old: list[Score] = []
         await self._client.songs()  # ensure songs are cached
 
         scores_unique: dict[str, Score] = {}
-        for score in self.scores:
+        for score in scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
 
@@ -529,6 +528,7 @@ class MaimaiScores:
         scores_new.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
         self.scores_b35 = scores_old[:35]
         self.scores_b15 = scores_new[:15]
+        self.scores = self.scores_b35 + self.scores_b15 if b50_only else scores
         self.rating_b35 = int(sum((score.dx_rating or 0) for score in self.scores_b35))
         self.rating_b15 = int(sum((score.dx_rating or 0) for score in self.scores_b15))
         self.rating = self.rating_b35 + self.rating_b15
@@ -823,7 +823,7 @@ class MaimaiClient:
         scores = await provider.get_scores_best(identifier, self)
 
         maimai_scores = MaimaiScores(self)
-        return await maimai_scores.configure(scores)
+        return await maimai_scores.configure(scores, b50_only=True)
 
     async def minfo(
         self,
