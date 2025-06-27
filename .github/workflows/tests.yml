@@ -1,0 +1,32 @@
+name: Run Unit Tests
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    environment: tests
+    steps:
+      - name: Fetch the repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare Python Environment
+        run: pip install poetry && poetry install --no-cache --no-interaction --all-groups
+
+      - name: 🧪 Run Pytests
+        run: poetry run pytest tests/ -s -q -p no:warnings
+        env:
+          ARCADE_ENCRYPTED_USERID: ${{ secrets.ARCADE_ENCRYPTED_USERID }}
+          DIVINGFISH_DEVELOPER_TOKEN: ${{ secrets.DIVINGFISH_DEVELOPER_TOKEN }}
+          DIVINGFISH_PASSWORD: ${{ secrets.DIVINGFISH_PASSWORD }}
+          DIVINGFISH_USERNAME: ${{ secrets.DIVINGFISH_USERNAME }}
+          LXNS_DEVELOPER_TOKEN: ${{ secrets.LXNS_DEVELOPER_TOKEN }}
+          LXNS_PERSONAL_TOKEN: ${{ secrets.LXNS_PERSONAL_TOKEN }}

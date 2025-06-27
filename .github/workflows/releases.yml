@@ -1,0 +1,137 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+
+jobs:
+  nuitka:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    environment: releases
+    steps:
+      - name: Fetch the Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 🚀 Install Dependencies for Nuitka
+        env:
+          POETRY_VIRTUALENVS_CREATE: false
+        run: pip install poetry && poetry install --no-cache --no-interaction --all-groups
+
+      - name: 🚀 Build Restful Client
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: 2.6.9
+          script-name: maimai_py/api.py
+          include-data-dir: maimai_py/providers/local=maimai_py/providers/local
+          mode: app
+
+      - name: 🚀 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }} Build
+          path: |
+            build/*.exe
+            build/*.bin
+            build/*.app/**/*
+          include-hidden-files: true
+
+      - name: 🚀 Release for Linux
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          overwrite: true
+          file: build/api.bin
+          asset_name: maimai.py-linux-amd64
+
+      - name: 🚀 Release for Windows
+        if: runner.os == 'Windows'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          overwrite: true
+          file: build/api.exe
+          asset_name: maimai.py-windows-amd64.exe
+  pypi:
+    runs-on: ubuntu-latest
+    environment: releases
+    steps:
+      - name: Fetch the Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: ⭐ Install Dependencies for Build
+        if: runner.os == 'Linux'
+        run: pip install poetry && poetry install && poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+
+      - name: ⭐ Deploy to PyPi
+        if: runner.os == 'Linux'
+        run: poetry build && poetry publish
+  docs:
+    runs-on: ubuntu-latest
+    environment: releases
+    steps:
+      - name: Fetch the Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Prepare for Poetry environment
+        run: pip install poetry && poetry install --no-cache --no-interaction --all-groups
+
+      - name: 📖 Generate PDocs
+        run: mkdir pdocs && poetry run python -m pdoc maimai_py --docformat google -o ./pdocs
+
+      - name: 📖 Generate Swagger Docs
+        run: mkdir sdocs && poetry run openapi && cp openapi.json sdocs/openapi.json && cp docs/swagger.html sdocs/index.html
+
+      - name: 📖 Generate VitePress Docs
+        working-directory: ./docs
+        run: npm install && npm run docs:build
+
+      - name: 📖 Deploy to Server
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "pdocs/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}/api.maimai.turou.fun
+
+      - name: 📖 Deploy to Server
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "sdocs/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}/openapi.maimai.turou.fun
+
+      - name: 📖 Deploy to Server
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "docs/.vitepress/dist/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}/maimai.turou.fun
