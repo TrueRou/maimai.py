@@ -7,8 +7,10 @@ from maimai_py.exceptions import *
 from maimai_py.utils import UNSET, _UnsetSentinel
 
 
-@dataclass()
+@dataclass
 class Song:
+    __slots__ = ("id", "title", "artist", "genre", "bpm", "map", "version", "rights", "aliases", "disabled", "difficulties")
+
     id: int
     title: str
     artist: str
@@ -30,8 +32,10 @@ class Song:
             return next(iter(self.difficulties.utage), None)
 
 
-@dataclass()
+@dataclass
 class SongDifficulties:
+    __slots__ = ("standard", "dx", "utage")
+
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
@@ -48,8 +52,10 @@ class SongDifficulties:
         return ids
 
 
-@dataclass()
+@dataclass
 class CurveObject:
+    __slots__ = ("sample_size", "fit_level_value", "avg_achievements", "stdev_achievements", "avg_dx_score", "rate_sample_size", "fc_sample_size")
+
     sample_size: int
     fit_level_value: float
     avg_achievements: float
@@ -59,8 +65,24 @@ class CurveObject:
     fc_sample_size: dict[FCType, int]
 
 
-@dataclass()
+@dataclass
 class SongDifficulty:
+    __slots__ = (
+        "id",
+        "type",
+        "level",
+        "level_value",
+        "level_index",
+        "note_designer",
+        "version",
+        "tap_num",
+        "hold_num",
+        "slide_num",
+        "touch_num",
+        "break_num",
+        "curve",
+    )
+
     type: SongType
     level: str
     level_value: float
@@ -84,22 +106,24 @@ class SongDifficulty:
         return id
 
 
-@dataclass()
+@dataclass
 class SongDifficultyUtage(SongDifficulty):
+    __slots__ = ("kanji", "description", "is_buddy")
+
     kanji: str
     description: str
     is_buddy: bool
 
 
-@dataclass()
+@dataclass
 class SongAlias:
-    """@private"""
+    __slots__ = ("song_id", "aliases")
 
     song_id: int
     aliases: list[str]
 
 
-@dataclass()
+@dataclass
 class PlayerIdentifier:
     qq: Union[int, None] = None
     username: Union[str, None] = None
@@ -131,15 +155,17 @@ class PlayerIdentifier:
             raise InvalidPlayerIdentifierError("No valid identifier provided")
 
 
-@dataclass()
+@dataclass
 class PlayerItem:
     @staticmethod
     def _namespace() -> str:
         raise NotImplementedError
 
 
-@dataclass()
+@dataclass
 class PlayerTrophy(PlayerItem):
+    __slots__ = ("id", "name", "color")
+
     id: int
     name: str
     color: str
@@ -149,44 +175,52 @@ class PlayerTrophy(PlayerItem):
         return "trophies"
 
 
-@dataclass()
+@dataclass
 class PlayerIcon(PlayerItem):
+    __slots__ = ("id", "name", "description", "genre")
+
     id: int
     name: str
-    description: Union[str, None] = None
-    genre: Union[str, None] = None
+    description: Union[str, None]
+    genre: Union[str, None]
 
     @staticmethod
     def _namespace():
         return "icons"
 
 
-@dataclass()
+@dataclass
 class PlayerNamePlate(PlayerItem):
+    __slots__ = ("id", "name", "description", "genre")
+
     id: int
     name: str
-    description: Union[str, None] = None
-    genre: Union[str, None] = None
+    description: Union[str, None]
+    genre: Union[str, None]
 
     @staticmethod
     def _namespace():
         return "nameplates"
 
 
-@dataclass()
+@dataclass
 class PlayerFrame(PlayerItem):
+    __slots__ = ("id", "name", "description", "genre")
+
     id: int
     name: str
-    description: Union[str, None] = None
-    genre: Union[str, None] = None
+    description: Union[str, None]
+    genre: Union[str, None]
 
     @staticmethod
     def _namespace():
         return "frames"
 
 
-@dataclass()
+@dataclass
 class PlayerPartner(PlayerItem):
+    __slots__ = ("id", "name")
+
     id: int
     name: str
 
@@ -195,8 +229,10 @@ class PlayerPartner(PlayerItem):
         return "partners"
 
 
-@dataclass()
+@dataclass
 class PlayerChara(PlayerItem):
+    __slots__ = ("id", "name")
+
     id: int
     name: str
 
@@ -205,29 +241,37 @@ class PlayerChara(PlayerItem):
         return "charas"
 
 
-@dataclass()
+@dataclass
 class PlayerRegion:
+    __slots__ = ("region_id", "region_name", "play_count", "created_at")
+
     region_id: int
     region_name: str
     play_count: int
     created_at: datetime
 
 
-@dataclass()
+@dataclass
 class Player:
+    __slots__ = ("identifier", "name", "rating")
+
     name: str
     rating: int
 
 
-@dataclass()
+@dataclass
 class DivingFishPlayer(Player):
+    __slots__ = ("nickname", "plate", "additional_rating")
+
     nickname: str
     plate: str
     additional_rating: int
 
 
-@dataclass()
+@dataclass
 class LXNSPlayer(Player):
+    __slots__ = ("friend_code", "course_rank", "class_rank", "star", "frame", "icon", "trophy", "name_plate", "upload_time")
+
     friend_code: int
     course_rank: int
     class_rank: int
@@ -239,16 +283,20 @@ class LXNSPlayer(Player):
     upload_time: str
 
 
-@dataclass()
+@dataclass
 class ArcadePlayer(Player):
+    __slots__ = ("is_login", "icon", "trophy", "name_plate")
+
     is_login: bool
     icon: Union[PlayerIcon, None]
     trophy: Union[PlayerTrophy, None]
     name_plate: Union[PlayerNamePlate, None]
 
 
-@dataclass()
+@dataclass
 class AreaCharacter:
+    __slots__ = ("id", "name", "illustrator", "description1", "description2", "team", "props")
+
     name: str
     illustrator: str
     description1: str
@@ -257,8 +305,10 @@ class AreaCharacter:
     props: dict[str, str]
 
 
-@dataclass()
+@dataclass
 class AreaSong:
+    __slots__ = ("id", "title", "artist", "description", "illustrator", "movie")
+
     id: Union[int, None]
     title: str
     artist: str
@@ -267,8 +317,10 @@ class AreaSong:
     movie: Union[str, None]
 
 
-@dataclass()
+@dataclass
 class Area:
+    __slots__ = ("id", "name", "comment", "description", "video_id", "characters", "songs")
+
     id: str
     name: str
     comment: str
@@ -278,8 +330,10 @@ class Area:
     songs: list[AreaSong]
 
 
-@dataclass()
+@dataclass
 class Score:
+    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type")
+
     id: int
     level: str
     level_index: LevelIndex
@@ -334,8 +388,10 @@ class Score:
         return self
 
 
-@dataclass()
+@dataclass
 class PlateObject:
+    __slots__ = ("song", "levels", "scores")
+
     song: Song
     levels: set[LevelIndex]
     scores: list[Score]

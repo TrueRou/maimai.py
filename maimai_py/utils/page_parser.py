@@ -7,7 +7,7 @@ from lxml import etree
 link_dx_score = [372, 522, 942, 924, 1425]
 
 
-@dataclass()
+@dataclass
 class HTMLScore:
     __slots__ = ["title", "level", "level_index", "type", "achievements", "dx_score", "rate", "fc", "fs", "ds"]
     title: str

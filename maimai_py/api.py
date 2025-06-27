@@ -1,4 +1,5 @@
 import asyncio
+import dataclasses
 from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Any, Callable, Literal, Union
@@ -25,6 +26,7 @@ PlateAttrs = Literal["remained", "cleared", "played", "all"]
 @dataclass
 class ScoreExtend(Score):
     __slots__ = ["title", "level_value", "level_dx_score"]
+
     title: str
     level_value: float
     level_dx_score: int
@@ -33,6 +35,7 @@ class ScoreExtend(Score):
 @dataclass
 class PlayerBests:
     __slots__ = ["rating", "rating_b35", "rating_b15", "scores_b35", "scores_b15"]
+
     rating: int
     rating_b35: int
     rating_b15: int
@@ -43,6 +46,7 @@ class PlayerBests:
 @dataclass
 class PlayerSong:
     __slots__ = ["song", "scores"]
+
     song: Song
     scores: list[Score]
 
@@ -74,20 +78,10 @@ def get_filters(functions: dict[Any, Callable[..., bool]]):
 async def ser_score(score: Score, songs: dict[int, Song]) -> Union[ScoreExtend, None]:
     if (song := songs.get(score.id)) and (diff := song.get_difficulty(score.type, score.level_index)):
         return ScoreExtend(
-            id=score.id,
+            **dataclasses.asdict(score),
             title=song.title,
-            level=score.level,
-            level_index=score.level_index,
             level_value=diff.level_value,
             level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
-            achievements=score.achievements,
-            fc=score.fc,
-            fs=score.fs,
-            dx_score=score.dx_score,
-            dx_rating=score.dx_rating,
-            play_count=score.play_count,
-            rate=score.rate,
-            type=score.type,
         )
 
 
