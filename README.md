@@ -77,3 +77,7 @@ maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP
 我们的客户端支持 Windows, Linux, 请根据您的系统下载对应的版本.
 
 客户端 Swagger 文档请查看: https://openapi.maimai.turou.fun/.
+
+## 贡献
+
+如果您想要贡献代码, 请阅读 [CONTRIBUTING.md](https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md)

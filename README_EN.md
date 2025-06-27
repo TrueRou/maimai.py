@@ -77,3 +77,7 @@ The client is compiled using Nuitka, please download it from the [Releases](http
 Our client supports Windows and Linux, please download the corresponding version according to your system.
 
 For the client API documentation, please see: https://openapi.maimai.turou.fun/.
+
+## Contributing
+
+If you want to contribute code, please read [CONTRIBUTING.md](https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md)
