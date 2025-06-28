@@ -20,9 +20,9 @@ async def test_scores_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lx
     assert my_scores.rating == bests_fallback.rating
     assert len(bests_fallback.scores) <= 50
 
-    song, scores = await maimai.minfo(1231, PlayerIdentifier(friend_code=664994421382429), provider=lxns)
-    assert song is not None
-    assert all(score.id == song.id for score in scores)
+    preview = await maimai.minfo(1231, PlayerIdentifier(friend_code=664994421382429), provider=lxns)
+    assert preview is not None
+    assert all(score.id == preview.song.id for score in preview.scores)
 
     for song, diff, score in await my_scores.get_scores():
         assert song.id == score.id and diff.type == score.type and diff.level_index == score.level_index
@@ -39,9 +39,9 @@ async def test_scores_fetching_divingfish(maimai: MaimaiClient, divingfish: Divi
     assert my_scores.rating == bests.rating
     assert len(bests.scores) <= 50
 
-    song, scores = await maimai.minfo(1231, PlayerIdentifier(username="turou"), provider=divingfish)
-    assert song is not None
-    assert all(score.id == song.id for score in scores)
+    preview = await maimai.minfo(1231, PlayerIdentifier(username="turou"), provider=divingfish)
+    assert preview is not None
+    assert all(score.id == preview.song.id for score in preview.scores)
 
 
 @pytest.mark.asyncio(scope="session")

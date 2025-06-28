@@ -431,3 +431,11 @@ class PlateObject:
     song: Song
     levels: set[LevelIndex]
     scores: list[Score]
+
+
+@dataclass
+class SongPreview:
+    __slots__ = ("song", "scores")
+
+    song: Song
+    scores: list[Score]
