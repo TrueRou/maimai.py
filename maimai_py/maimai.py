@@ -3,7 +3,7 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, Generic, Iterator, Literal, Type, TypeVar
+from typing import Any, Generic, Iterable, Literal, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -170,7 +170,7 @@ class MaimaiSongs:
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         return await self._client._cache.multi_get(song_ids, namespace="songs")
 
-    async def get_batch(self, ids: list[int]) -> list[Song]:
+    async def get_batch(self, ids: Iterable[int]) -> list[Song]:
         """Get songs by their IDs.
 
         Args:
@@ -340,7 +340,6 @@ class MaimaiPlates:
 
         Only 舞 and 霸 plates require ReMASTER levels, others don't.
         """
-
         return self._version not in ["舞", "霸"]
 
     def _get_levels(self, song: Song) -> set[LevelIndex]:
@@ -551,27 +550,54 @@ class MaimaiScores:
         new_scores = MaimaiScores(self._client)
         return await new_scores.configure(list(scores_unique.values()))
 
+    async def get_scores(self) -> list[tuple[Song, SongDifficulty, Score]]:
+        """Get all scores with their corresponding songs.
+
+        This method will return a list of tuples, each containing a song, its corresponding difficulty, and the score.
+
+        If the song or difficulty is not found, the whole tuple will be excluded from the result.
+
+        Returns:
+            A list of tuples, each containing (song, difficulty, score).
+        """
+        result = []
+        songs = await self._client.songs()
+        required_songs = await songs.get_batch(set(score.id for score in self.scores))
+        required_songs_dict = {song.id: song for song in required_songs if song is not None}
+        for score in self.scores:
+            song = required_songs_dict.get(score.id, None)
+            diff = song.get_difficulty(score.type, score.level_index) if song else None
+            if score and song and diff:
+                result.append((song, diff, score))
+        return result
+
     def by_song(
-        self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
-    ) -> Iterator[Score]:
+        self,
+        song_id: int,
+        song_type: Union[SongType, _UnsetSentinel] = UNSET,
+        level_index: Union[LevelIndex, _UnsetSentinel] = UNSET,
+    ) -> list[Score]:
         """Get scores of the song on that type and level_index.
 
-        If song_type or level_index is not provided, all scores of the song will be returned.
+        If song_type or level_index is not provided, it won't be filtered by that attribute.
 
         Args:
             song_id: the ID of the song to get the scores by.
             song_type: the type of the song to get the scores by, defaults to None.
             level_index: the level index of the song to get the scores by, defaults to None.
         Returns:
-            an iterator of scores of the song, return an empty iterator if no score is found.
+            A list of scores that match the song ID, type and level index.
+            If no score is found, an empty list will be returned.
         """
-        return (
+        return [
             score
             for score in self.scores
-            if score.id == song_id and (song_type is UNSET or score.type == song_type) and (level_index is UNSET or score.level_index == level_index)
-        )
+            if score.id == song_id
+            and (score.type == song_type or isinstance(song_type, _UnsetSentinel))
+            and (score.level_index == level_index or isinstance(level_index, _UnsetSentinel))
+        ]
 
-    def filter(self, **kwargs) -> Iterator[Score]:
+    def filter(self, **kwargs) -> list[Score]:
         """Filter scores by their attributes.
 
         Make sure the attribute is of the score, and the value is of the same type. All conditions are connected by AND.
@@ -581,8 +607,7 @@ class MaimaiScores:
         Returns:
             an iterator of scores that match all the conditions, yields no items if no score is found.
         """
-
-        return (score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items()))
+        return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items() if value is not None)]
 
 
 class MaimaiAreas:
@@ -938,7 +963,6 @@ class MaimaiClient:
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
             ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
-        # songs = await MaimaiSongs._get_or_fetch(self._client)
         scores = await provider.get_scores_all(identifier, self)
         maimai_plates = MaimaiPlates(self)
         return await maimai_plates._configure(plate, scores)
@@ -999,7 +1023,6 @@ class MaimaiClient:
             FileNotFoundError: The item file is not found.
             httpx.HTTPError: Request failed due to network issues.
         """
-
         maimai_items = MaimaiItems[PlayerItemType](self, item._namespace())
         return await maimai_items._configure(provider)
 
@@ -1016,7 +1039,6 @@ class MaimaiClient:
         Raises:
             FileNotFoundError: The area file is not found.
         """
-
         maimai_areas = MaimaiAreas(self)
         return await maimai_areas._configure(lang, provider)
 
