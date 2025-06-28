@@ -38,7 +38,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
         achievement = float(score["achievement"]) / 10000
         if song := await songs.by_id(score["musicId"] % 10000):
-            if diff := song.get_difficulty(song_type, level_index):
+            if level_index and (diff := song.get_difficulty(song_type, level_index)):
                 fs_type = FSType(score["syncStatus"]) if 0 < score["syncStatus"] < 5 else None
                 fs_type = FSType.SYNC if score["syncStatus"] == 5 else fs_type
                 return Score(

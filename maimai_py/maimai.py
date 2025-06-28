@@ -126,7 +126,7 @@ class MaimaiSongs:
             version_task = asyncio.create_task(
                 self._client._cache.set(
                     "versions",
-                    {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.difficulties._get_children()},
+                    {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.get_difficulties()},
                     namespace="songs",
                 )
             )
@@ -142,13 +142,13 @@ class MaimaiSongs:
                     song.aliases = aliases
                 if curve_provider is not None:
                     if curves := curves_dict.get((song.id, SongType.DX), None):
-                        diffs = song.difficulties._get_children(SongType.DX)
+                        diffs = song.get_difficulties(SongType.DX)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
                     if curves := curves_dict.get((song.id, SongType.STANDARD), None):
-                        diffs = song.difficulties._get_children(SongType.STANDARD)
+                        diffs = song.get_difficulties(SongType.STANDARD)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
                     if curves := curves_dict.get((song.id, SongType.UTAGE), None):
-                        diffs = song.difficulties._get_children(SongType.UTAGE)
+                        diffs = song.get_difficulties(SongType.UTAGE)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
 
             song_task = asyncio.create_task(self._client._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs"))
@@ -344,7 +344,7 @@ class MaimaiPlates:
         return self._version not in ["舞", "霸"]
 
     def _get_levels(self, song: Song) -> set[LevelIndex]:
-        levels = set(diff.level_index for diff in song.difficulties._get_children(self._major_type))
+        levels = set(diff.level_index for diff in song.get_difficulties(self._major_type))
         if self.no_remaster and LevelIndex.ReMASTER in levels:
             levels.remove(LevelIndex.ReMASTER)
         return levels

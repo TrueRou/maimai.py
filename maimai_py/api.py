@@ -188,8 +188,8 @@ if find_spec("fastapi"):
                 provider: ISongProvider = Depends(dep_provider),
             ) -> list[Song]:
                 maimai_songs: MaimaiSongs = await self._client.songs(provider=provider)
-                type_func: Callable[[Song], bool] = lambda song: song.difficulties._get_children(type) != []  # type: ignore
-                level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.difficulties._get_children()])
+                type_func: Callable[[Song], bool] = lambda song: song.get_difficulties(type) != []  # type: ignore
+                level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.get_difficulties()])
                 versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
                 keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
                 songs = await maimai_songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)

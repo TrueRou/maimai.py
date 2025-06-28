@@ -23,13 +23,69 @@ class Song:
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def get_difficulty(self, type: SongType, level_index: Union[LevelIndex, None]) -> Union["SongDifficulty", None]:
+    def get_difficulty(self, type: SongType, level_index: LevelIndex) -> Union["SongDifficulty", None]:
+        """Get the exact difficulty of this song by type and level index.
+
+        Args:
+            type: The type of the song (DX, STANDARD, UTAGE).
+            level_index: The level index of the difficulty.
+        Returns:
+            The difficulty object if found, otherwise None.
+        """
         if type == SongType.DX:
             return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
         if type == SongType.STANDARD:
             return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
         if type == SongType.UTAGE:
             return next(iter(self.difficulties.utage), None)
+
+    def get_difficulties(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> Sequence["SongDifficulty"]:
+        """Get all difficulties of the song, optionally filtered by type.
+
+        Args:
+            song_type: The type of the song (DX, STANDARD, UTAGE). If UNSET, returns all types.
+        Returns:
+            A sequence of difficulties matching the specified type.
+        """
+        if isinstance(song_type, _UnsetSentinel):
+            return self.difficulties.standard + self.difficulties.dx + self.difficulties.utage
+        if song_type == SongType.DX:
+            return self.difficulties.dx
+        if song_type == SongType.STANDARD:
+            return self.difficulties.standard
+        if song_type == SongType.UTAGE:
+            return self.difficulties.utage
+
+    def get_divingfish_id(self, type: SongType, level_index: LevelIndex) -> int:
+        """Get the Diving Fish ID for a specific difficulty of this song.
+
+        Args:
+            type: The type of the song (DX, STANDARD, UTAGE).
+            level_index: The level index of the difficulty.
+        Returns:
+            The Diving Fish ID for the specified difficulty.
+        """
+        difficulty = self.get_difficulty(type, level_index)
+        if difficulty is None:
+            raise ValueError(f"No difficulty found for type {type} and level index {level_index}")
+        if difficulty.type == SongType.DX:
+            return self.id + 10000
+        if difficulty.type == SongType.UTAGE:
+            return self.id + 100000
+        return self.id
+
+    def get_divingfish_ids(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> set[int]:
+        """Get a set of Diving Fish IDs for all difficulties of this song.
+
+        Args:
+            song_type: The type of the song (DX, STANDARD, UTAGE). If UNSET, returns IDs for all types.
+        Returns:
+            A set of Diving Fish IDs for the specified type or all types if UNSET.
+        """
+        ids = set()
+        for difficulty in self.get_difficulties(song_type):
+            ids.add(self.get_divingfish_id(difficulty.type, difficulty.level_index))
+        return ids
 
 
 @dataclass
@@ -39,17 +95,6 @@ class SongDifficulties:
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
-
-    def _get_children(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> Sequence["SongDifficulty"]:
-        if song_type == UNSET:
-            return self.standard + self.dx + self.utage
-        return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
-
-    def _get_divingfish_ids(self, id: int) -> set[int]:
-        ids = set()
-        for difficulty in self._get_children():
-            ids.add(difficulty._get_divingfish_id(id))
-        return ids
 
 
 @dataclass
@@ -95,15 +140,6 @@ class SongDifficulty:
     touch_num: int
     break_num: int
     curve: Union[CurveObject, None]
-
-    def _get_divingfish_id(self, id: int) -> int:
-        if id < 0 or id > 9999:
-            raise ValueError("Invalid song ID")
-        if self.type == SongType.DX:
-            return id + 10000
-        elif self.type == SongType.UTAGE:
-            return id + 100000
-        return id
 
 
 @dataclass
@@ -332,7 +368,7 @@ class Area:
 
 @dataclass
 class Score:
-    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type")
+    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type", "song")
 
     id: int
     level: str
