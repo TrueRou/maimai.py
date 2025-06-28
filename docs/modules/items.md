@@ -39,7 +39,7 @@ async def get_all(self) -> list[PlayerItemType]:
         一个列表，包含所有收藏品。
     """
 
-async def get_batch(self, ids: list[int]) -> list[PlayerItemType]:
+async def get_batch(self, ids: Iterable[int]) -> list[PlayerItemType]:
     """通过ID列表获取收藏品。
 
     参数:

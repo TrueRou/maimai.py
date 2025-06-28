@@ -18,9 +18,12 @@
 
 额外方法:
 
-| 方法名                                 | 返回值           | 说明                   |
-|----------------------------------------|------------------|----------------------|
-| `get_difficulty(SongType, LevelIndex)` | `SongDifficulty` | 直接获取对应的谱面难度 |
+| 方法名                                    | 返回值                 | 说明                           |
+|-------------------------------------------|------------------------|------------------------------|
+| `get_difficulty(SongType, LevelIndex)`    | `SongDifficulty`       | 获取对应的谱面难度             |
+| `get_difficulties(SongType)`              | `list[SongDifficulty]` | 获取对应的谱面难度列表         |
+| `get_divingfish_id(SongType, LevelIndex)` | `int`                  | 获取歌曲对应难度的 水鱼ID      |
+| `get_divingfish_ids(SongType)`            | `set[int]`             | 获取歌曲对应类型的 水鱼ID 集合 |
 
 ## SongDifficulties
 

@@ -43,4 +43,4 @@ provider = ArcadeProvider(http_proxy="http://127.0.0.1:7890")
 
 ## 已知问题
 
-- [The server responded with a status of 200](https://github.com/TrueRou/maimai.py/issues/21)
+- [The server responded with a status of 200 (TitleServerBlockedError)](https://github.com/TrueRou/maimai.py/issues/21)

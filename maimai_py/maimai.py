@@ -54,7 +54,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         return await self._client._cache.multi_get(item_ids, namespace=self._namespace)
 
-    async def get_batch(self, ids: list[int]) -> list[PlayerItemType]:
+    async def get_batch(self, ids: Iterable[int]) -> list[PlayerItemType]:
         """Get items by their IDs.
 
         Args:
@@ -572,10 +572,7 @@ class MaimaiScores:
         return result
 
     def by_song(
-        self,
-        song_id: int,
-        song_type: Union[SongType, _UnsetSentinel] = UNSET,
-        level_index: Union[LevelIndex, _UnsetSentinel] = UNSET,
+        self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
     ) -> list[Score]:
         """Get scores of the song on that type and level_index.
 
@@ -649,7 +646,7 @@ class MaimaiAreas:
         assert area_ids is not None, "Areas not found in cache, please call configure() first."
         return await self._client._cache.multi_get(area_ids, namespace=f"areas_{self._lang}")
 
-    async def get_batch(self, ids: list[str]) -> list[Area]:
+    async def get_batch(self, ids: Iterable[str]) -> list[Area]:
         """Get areas by their IDs.
 
         Args:
