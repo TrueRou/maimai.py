@@ -24,16 +24,16 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
     maimai.ffi: https://pypi.org/project/maimai-ffi
     """
 
-    _http_proxy: Union[str, None] = None
+    _http_proxy: Optional[str] = None
 
-    def __init__(self, http_proxy: Union[str, None] = None):
+    def __init__(self, http_proxy: Optional[str] = None):
         self._http_proxy = http_proxy
 
     def _hash(self) -> str:
         return hashlib.md5(b"arcade").hexdigest()
 
     @staticmethod
-    async def _deser_score(score: dict, songs: "MaimaiSongs") -> Union[Score, None]:
+    async def _deser_score(score: dict, songs: "MaimaiSongs") -> Optional[Score]:
         song_type = SongType._from_id(score["musicId"])
         level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
         achievement = float(score["achievement"]) / 10000

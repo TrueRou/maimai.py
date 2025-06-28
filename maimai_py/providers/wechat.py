@@ -31,7 +31,7 @@ class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
         return hashlib.md5(b"wechat").hexdigest()
 
     @staticmethod
-    async def _deser_score(score: HTMLScore, songs: "MaimaiSongs") -> Union[Score, None]:
+    async def _deser_score(score: HTMLScore, songs: "MaimaiSongs") -> Optional[Score]:
         if song := await songs.by_title(score.title):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
             song_type = SongType.STANDARD if score.type == "SD" else SongType.DX if score.type == "DX" and not is_utage else SongType.UTAGE

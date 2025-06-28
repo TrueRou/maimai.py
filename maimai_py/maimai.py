@@ -3,7 +3,7 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, Generic, Iterable, Literal, Type, TypeVar
+from typing import Any, Generic, Iterable, Literal, Optional, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -50,7 +50,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         Returns:
             A list with all items in the cache, return an empty list if no item is found.
         """
-        item_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace=self._namespace)
+        item_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         return await self._client._cache.multi_get(item_ids, namespace=self._namespace)
 
@@ -64,7 +64,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         """
         return await self._client._cache.multi_get(ids, namespace=self._namespace)
 
-    async def by_id(self, id: int) -> Union[PlayerItemType, None]:
+    async def by_id(self, id: int) -> Optional[PlayerItemType]:
         """Get an item by its ID.
 
         Args:
@@ -166,7 +166,7 @@ class MaimaiSongs:
         Returns:
             A list of all songs in the cache, return an empty list if no song is found.
         """
-        song_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace="songs")
+        song_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         return await self._client._cache.multi_get(song_ids, namespace="songs")
 
@@ -180,7 +180,7 @@ class MaimaiSongs:
         """
         return await self._client._cache.multi_get(ids, namespace="songs")
 
-    async def by_id(self, id: int) -> Union[Song, None]:
+    async def by_id(self, id: int) -> Optional[Song]:
         """Get a song by its ID.
 
         Args:
@@ -190,7 +190,7 @@ class MaimaiSongs:
         """
         return await self._client._cache.get(id, namespace="songs")
 
-    async def by_title(self, title: str) -> Union[Song, None]:
+    async def by_title(self, title: str) -> Optional[Song]:
         """Get a song by its title.
 
         Args:
@@ -202,7 +202,7 @@ class MaimaiSongs:
         song_id = 383 if title == "Link(CoF)" else song_id
         return await self._client._cache.get(song_id, namespace="songs") if song_id else None
 
-    async def by_alias(self, alias: str) -> Union[Song, None]:
+    async def by_alias(self, alias: str) -> Optional[Song]:
         """Get song by one possible alias.
 
         Args:
@@ -645,7 +645,7 @@ class MaimaiAreas:
         Returns:
             A list of all areas in the cache, return an empty list if no area is found.
         """
-        area_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
+        area_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
         assert area_ids is not None, "Areas not found in cache, please call configure() first."
         return await self._client._cache.multi_get(area_ids, namespace=f"areas_{self._lang}")
 
@@ -659,7 +659,7 @@ class MaimaiAreas:
         """
         return await self._client._cache.multi_get(ids, namespace=f"areas_{self._lang}")
 
-    async def by_id(self, id: str) -> Union[Area, None]:
+    async def by_id(self, id: str) -> Optional[Area]:
         """Get an area by its ID.
 
         Args:
@@ -669,7 +669,7 @@ class MaimaiAreas:
         """
         return await self._client._cache.get(id, namespace=f"areas_{self._lang}")
 
-    async def by_name(self, name: str) -> Union[Area, None]:
+    async def by_name(self, name: str) -> Optional[Area]:
         """Get an area by its name, language-sensitive.
 
         Args:
@@ -855,7 +855,7 @@ class MaimaiClient:
         song: Union[Song, int, str],
         identifier: PlayerIdentifier,
         provider: IScoreProvider = LXNSProvider(),
-    ) -> tuple[Union[Song, None], list[Score]]:
+    ) -> tuple[Optional[Song], list[Score]]:
         """Fetch player's scores on the specific song.
 
         This method will return all scores of the player on the song.
