@@ -35,6 +35,15 @@ async def get_all(self) -> list[Area]:
         一个列表，包含所有区域。
     """
 
+async def get_batch(self, ids: Iterable[str]) -> list[Area]:
+    """通过ID批量获取区域。
+
+    参数:
+        ids: 区域的ID列表。
+    返回值:
+        一个列表，包含存在的区域，如果没有匹配的区域则返回空列表。
+    """
+
 async def by_id(self, id: str) -> Area | None:
     """通过ID获取区域。
 

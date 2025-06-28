@@ -88,7 +88,7 @@ class ICurveProvider(IProvider):
     """
 
     @abstractmethod
-    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[Union[CurveObject, None]]]:
+    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject]]:
         """@private"""
         raise NotImplementedError()
 

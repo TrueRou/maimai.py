@@ -36,6 +36,59 @@
 | `TitleServerBlockedError` | 舞萌 官方服务器拒绝了请求，可能是因为 IP 被过滤 |
 | `ArcadeIdentifierError`   | 舞萌 用户 ID 无效，或者用户未找到               |
 
+## maimai.wechat() 方法
+
+该方法用于通过 **微信服务号** 来获取玩家的 `PlayerIdentifier`。
+
+调用此方法时，如果不带任何参数，将获取到一个 URL，让玩家在启动代理的情况下访问URL，代理将请求转发至 mitmproxy。
+
+转发后，您的 mitmproxy 应该拦截到了来自 `tgk-wcaime.wahlap.com` 的响应，请使用拦截到的**响应中的参数**再次调用此方法。
+
+当提供**响应中的参数**（r、t、code、state）后，该方法将返回用户的 `PlayerIdentifier`。
+
+### 参数
+
+| 参数名 | 类型 | 默认值 | 说明                |
+|--------|------|--------|-------------------|
+| r      | -    | `None` | 请求中的 r 参数     |
+| t      | -    | `None` | 请求中的 t 参数     |
+| code   | -    | `None` | 请求中的 code 参数  |
+| state  | -    | `None` | 请求中的 state 参数 |
+
+### 返回值
+
+- 如果提供了所有参数，将返回 `PlayerIdentifier`。
+- 如果不提供参数，将返回一个 URL，玩家需要访问该URL，之后再进行下一步的操作。
+
+### 异常
+
+| 异常名称                  | 描述                       |
+|---------------------------|--------------------------|
+| `WechatTokenExpiredError` | 微信Token已过期，请重新授权 |
+| `httpx.HTTPError`         | 由于网络问题导致请求失败   |
+
+## maimai.qrcode() 方法
+
+从 **玩家二维码** 获取 `PlayerIdentifier`。
+
+该方法从舞萌机台的接口通过玩家二维码获取玩家userId，maimai.py 解析出的userId仅能在内部使用。
+
+### 参数
+
+| 参数名     | 类型          | 说明                                  |
+|------------|---------------|-------------------------------------|
+| qrcode     | `str`         | 玩家的 QR 码，应以 SGWCMAID 开始       |
+| http_proxy | `str \| None` | 代理地址，例如 `http://127.0.0.1:7890` |
+
+### 返回值
+
+- 玩家标识 `PlayerIdentifier`
+
+### 异常
+
+| 异常名称          | 描述                                              |
+|-------------------|-------------------------------------------------|
+| `AimeServerError` | 舞萌Aime服务器错误，可能是无效二维码或二维码已过期 |
 
 ## maimai.identifiers() 方法
 
@@ -64,35 +117,15 @@
 | `AimeServerError`         | 舞萌Aime服务器错误，可能是无效二维码或二维码已过期 |
 | `httpx.HTTPError`         | 由于网络问题导致请求失败                          |
 
-
-## maimai.wechat() 方法
-
-从华立微信公众号获取微信 OAuth URL。
-
-该方法获取用于授权的微信 URL，用户需通过微信访问该 URL 并配合 mitmproxy 拦截响应数据。
-
-### 参数
-
-此方法没有参数。
-
-### 返回值
-
-- `str` 获取玩家标识的 URL
-
 ### 使用说明
 
 1. 在用户的微信客户端中访问返回的 URL
 2. 使用已启用的 mitmproxy 拦截来自 tgk-wcaime.wahlap.com 的响应
 3. 使用拦截到的响应参数调用 `maimai.identifiers(provider=WechatProvider, code=...)` 方法获取玩家标识
 
-### 异常
-
-| 错误名称          | 描述                     |
-|-------------------|------------------------|
-| `httpx.HTTPError` | 由于网络问题导致请求失败 |
-
 ## API 文档
 
 - https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.players
-- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.identifiers
 - https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.wechat
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.qrcode
+- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.identifiers

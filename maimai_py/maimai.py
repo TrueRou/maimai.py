@@ -3,7 +3,7 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, Generic, Iterator, Literal, Type, TypeVar
+from typing import Any, Generic, Iterable, Literal, Optional, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -50,11 +50,11 @@ class MaimaiItems(Generic[PlayerItemType]):
         Returns:
             A list with all items in the cache, return an empty list if no item is found.
         """
-        item_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace=self._namespace)
+        item_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
         return await self._client._cache.multi_get(item_ids, namespace=self._namespace)
 
-    async def get_batch(self, ids: list[int]) -> list[PlayerItemType]:
+    async def get_batch(self, ids: Iterable[int]) -> list[PlayerItemType]:
         """Get items by their IDs.
 
         Args:
@@ -64,7 +64,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         """
         return await self._client._cache.multi_get(ids, namespace=self._namespace)
 
-    async def by_id(self, id: int) -> Union[PlayerItemType, None]:
+    async def by_id(self, id: int) -> Optional[PlayerItemType]:
         """Get an item by its ID.
 
         Args:
@@ -126,7 +126,7 @@ class MaimaiSongs:
             version_task = asyncio.create_task(
                 self._client._cache.set(
                     "versions",
-                    {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.difficulties._get_children()},
+                    {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.get_difficulties()},
                     namespace="songs",
                 )
             )
@@ -142,13 +142,13 @@ class MaimaiSongs:
                     song.aliases = aliases
                 if curve_provider is not None:
                     if curves := curves_dict.get((song.id, SongType.DX), None):
-                        diffs = song.difficulties._get_children(SongType.DX)
+                        diffs = song.get_difficulties(SongType.DX)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
                     if curves := curves_dict.get((song.id, SongType.STANDARD), None):
-                        diffs = song.difficulties._get_children(SongType.STANDARD)
+                        diffs = song.get_difficulties(SongType.STANDARD)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
                     if curves := curves_dict.get((song.id, SongType.UTAGE), None):
-                        diffs = song.difficulties._get_children(SongType.UTAGE)
+                        diffs = song.get_difficulties(SongType.UTAGE)
                         [diff.__setattr__("curve", curves[i]) for i, diff in enumerate(diffs) if i < len(curves)]
 
             song_task = asyncio.create_task(self._client._cache.multi_set(iter((song.id, song) for song in songs), namespace="songs"))
@@ -166,11 +166,11 @@ class MaimaiSongs:
         Returns:
             A list of all songs in the cache, return an empty list if no song is found.
         """
-        song_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace="songs")
+        song_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
         return await self._client._cache.multi_get(song_ids, namespace="songs")
 
-    async def get_batch(self, ids: list[int]) -> list[Song]:
+    async def get_batch(self, ids: Iterable[int]) -> list[Song]:
         """Get songs by their IDs.
 
         Args:
@@ -180,7 +180,7 @@ class MaimaiSongs:
         """
         return await self._client._cache.multi_get(ids, namespace="songs")
 
-    async def by_id(self, id: int) -> Union[Song, None]:
+    async def by_id(self, id: int) -> Optional[Song]:
         """Get a song by its ID.
 
         Args:
@@ -190,7 +190,7 @@ class MaimaiSongs:
         """
         return await self._client._cache.get(id, namespace="songs")
 
-    async def by_title(self, title: str) -> Union[Song, None]:
+    async def by_title(self, title: str) -> Optional[Song]:
         """Get a song by its title.
 
         Args:
@@ -202,7 +202,7 @@ class MaimaiSongs:
         song_id = 383 if title == "Link(CoF)" else song_id
         return await self._client._cache.get(song_id, namespace="songs") if song_id else None
 
-    async def by_alias(self, alias: str) -> Union[Song, None]:
+    async def by_alias(self, alias: str) -> Optional[Song]:
         """Get song by one possible alias.
 
         Args:
@@ -340,11 +340,10 @@ class MaimaiPlates:
 
         Only 舞 and 霸 plates require ReMASTER levels, others don't.
         """
-
         return self._version not in ["舞", "霸"]
 
     def _get_levels(self, song: Song) -> set[LevelIndex]:
-        levels = set(diff.level_index for diff in song.difficulties._get_children(self._major_type))
+        levels = set(diff.level_index for diff in song.get_difficulties(self._major_type))
         if self.no_remaster and LevelIndex.ReMASTER in levels:
             levels.remove(LevelIndex.ReMASTER)
         return levels
@@ -551,27 +550,51 @@ class MaimaiScores:
         new_scores = MaimaiScores(self._client)
         return await new_scores.configure(list(scores_unique.values()))
 
+    async def get_scores(self) -> list[tuple[Song, SongDifficulty, Score]]:
+        """Get all scores with their corresponding songs.
+
+        This method will return a list of tuples, each containing a song, its corresponding difficulty, and the score.
+
+        If the song or difficulty is not found, the whole tuple will be excluded from the result.
+
+        Returns:
+            A list of tuples, each containing (song, difficulty, score).
+        """
+        result = []
+        songs = await self._client.songs()
+        required_songs = await songs.get_batch(set(score.id for score in self.scores))
+        required_songs_dict = {song.id: song for song in required_songs if song is not None}
+        for score in self.scores:
+            song = required_songs_dict.get(score.id, None)
+            diff = song.get_difficulty(score.type, score.level_index) if song else None
+            if score and song and diff:
+                result.append((song, diff, score))
+        return result
+
     def by_song(
         self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
-    ) -> Iterator[Score]:
+    ) -> list[Score]:
         """Get scores of the song on that type and level_index.
 
-        If song_type or level_index is not provided, all scores of the song will be returned.
+        If song_type or level_index is not provided, it won't be filtered by that attribute.
 
         Args:
             song_id: the ID of the song to get the scores by.
             song_type: the type of the song to get the scores by, defaults to None.
             level_index: the level index of the song to get the scores by, defaults to None.
         Returns:
-            an iterator of scores of the song, return an empty iterator if no score is found.
+            A list of scores that match the song ID, type and level index.
+            If no score is found, an empty list will be returned.
         """
-        return (
+        return [
             score
             for score in self.scores
-            if score.id == song_id and (song_type is UNSET or score.type == song_type) and (level_index is UNSET or score.level_index == level_index)
-        )
+            if score.id == song_id
+            and (score.type == song_type or isinstance(song_type, _UnsetSentinel))
+            and (score.level_index == level_index or isinstance(level_index, _UnsetSentinel))
+        ]
 
-    def filter(self, **kwargs) -> Iterator[Score]:
+    def filter(self, **kwargs) -> list[Score]:
         """Filter scores by their attributes.
 
         Make sure the attribute is of the score, and the value is of the same type. All conditions are connected by AND.
@@ -581,8 +604,7 @@ class MaimaiScores:
         Returns:
             an iterator of scores that match all the conditions, yields no items if no score is found.
         """
-
-        return (score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items()))
+        return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items() if value is not None)]
 
 
 class MaimaiAreas:
@@ -620,11 +642,11 @@ class MaimaiAreas:
         Returns:
             A list of all areas in the cache, return an empty list if no area is found.
         """
-        area_ids: Union[list[int], None] = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
+        area_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
         assert area_ids is not None, "Areas not found in cache, please call configure() first."
         return await self._client._cache.multi_get(area_ids, namespace=f"areas_{self._lang}")
 
-    async def get_batch(self, ids: list[str]) -> list[Area]:
+    async def get_batch(self, ids: Iterable[str]) -> list[Area]:
         """Get areas by their IDs.
 
         Args:
@@ -634,7 +656,7 @@ class MaimaiAreas:
         """
         return await self._client._cache.multi_get(ids, namespace=f"areas_{self._lang}")
 
-    async def by_id(self, id: str) -> Union[Area, None]:
+    async def by_id(self, id: str) -> Optional[Area]:
         """Get an area by its ID.
 
         Args:
@@ -644,7 +666,7 @@ class MaimaiAreas:
         """
         return await self._client._cache.get(id, namespace=f"areas_{self._lang}")
 
-    async def by_name(self, name: str) -> Union[Area, None]:
+    async def by_name(self, name: str) -> Optional[Area]:
         """Get an area by its name, language-sensitive.
 
         Args:
@@ -759,7 +781,7 @@ class MaimaiClient:
         For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
-        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.aime()`.
+        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.qrcode()`.
         Credentials can be reused, since it won't expire, also, userId is encrypted, can't be used in any other cases outside the maimai.py
 
         For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.
@@ -798,7 +820,7 @@ class MaimaiClient:
         For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
-        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.aime()`.
+        For ArcadeProvider, PlayerIdentifier must have the `credentials` attribute, which is the player's encrypted userId, can be detrived from `maimai.qrcode()`.
         Credentials can be reused, since it won't expire, also, userId is encrypted, can't be used in any other cases outside the maimai.py
 
         For more information about the PlayerIdentifier of providers, please refer to the documentation of each provider.
@@ -830,7 +852,7 @@ class MaimaiClient:
         song: Union[Song, int, str],
         identifier: PlayerIdentifier,
         provider: IScoreProvider = LXNSProvider(),
-    ) -> tuple[Union[Song, None], list[Score]]:
+    ) -> tuple[Optional[Song], list[Score]]:
         """Fetch player's scores on the specific song.
 
         This method will return all scores of the player on the song.
@@ -938,27 +960,9 @@ class MaimaiClient:
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
             ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
-        # songs = await MaimaiSongs._get_or_fetch(self._client)
         scores = await provider.get_scores_all(identifier, self)
         maimai_plates = MaimaiPlates(self)
         return await maimai_plates._configure(plate, scores)
-
-    async def wechat(self) -> str:
-        """Get the wechat oauth url from the Wahlap Wechat OffiAccount.
-
-        Access the url in user's wechat client, then redirect the user to the URL with your mitmproxy enabled.
-
-        Your mitmproxy should intercept the response from tgk-wcaime.wahlap.com, which should contains t, r, code, and state parameters in the URL.
-
-        Then call `maimai.identifiers(provider=WechatProvider, code=...)` with the parameters from the intercepted response.
-
-        Returns:
-            The URL to get the identifier.
-        Raises:
-            httpx.HTTPError: Request failed due to network issues.
-        """
-        resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
-        return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
 
     async def identifiers(
         self,
@@ -967,7 +971,11 @@ class MaimaiClient:
     ) -> PlayerIdentifier:
         """Get the player identifier from the provider.
 
-        Player identifier is the encrypted userId, can't be used in any other cases outside the maimai.py.
+        This method is combination of `maimai.wechat()` and `maimai.qrcode()`, which will return the player identifier of the player.
+
+        For WechatProvider, code should be a dictionary with `r`, `t`, `code`, and `state` keys, or a string that contains the URL parameters.
+
+        For ArcadeProvider, code should be a string that begins with `SGWCMAID`, which is the QR code of the player.
 
         Available providers: `WechatProvider`, `ArcadeProvider`.
 
@@ -999,7 +1007,6 @@ class MaimaiClient:
             FileNotFoundError: The item file is not found.
             httpx.HTTPError: Request failed due to network issues.
         """
-
         maimai_items = MaimaiItems[PlayerItemType](self, item._namespace())
         return await maimai_items._configure(provider)
 
@@ -1016,9 +1023,57 @@ class MaimaiClient:
         Raises:
             FileNotFoundError: The area file is not found.
         """
-
         maimai_areas = MaimaiAreas(self)
         return await maimai_areas._configure(lang, provider)
+
+    async def wechat(
+        self,
+        r: Optional[str] = None,
+        t: Optional[str] = None,
+        code: Optional[str] = None,
+        state: Optional[str] = None,
+    ) -> Union[str, PlayerIdentifier]:
+        """Get the player identifier from the Wahlap Wechat OffiAccount.
+
+        Call the method with no parameters to get the URL, then redirect the user to the URL with your mitmproxy enabled.
+
+        Your mitmproxy should intercept the response from tgk-wcaime.wahlap.com, then call the method with the parameters from the intercepted response.
+
+        With the parameters from specific user's response, the method will return the user's player identifier.
+
+        Never cache or store the player identifier, as the cookies may expire at any time.
+
+        Args:
+            r: the r parameter from the request, defaults to None.
+            t: the t parameter from the request, defaults to None.
+            code: the code parameter from the request, defaults to None.
+            state: the state parameter from the request, defaults to None.
+        Returns:
+            The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
+        Raises:
+            WechatTokenExpiredError: Wechat token is expired, please re-authorize.
+            httpx.HTTPError: Request failed due to network issues.
+        """
+        if r is None or t is None or code is None or state is None:
+            resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")
+            return resp.headers["location"].replace("redirect_uri=https", "redirect_uri=http")
+        return await WechatProvider().get_identifier({"r": r, "t": t, "code": code, "state": state}, self)
+
+    async def qrcode(self, qrcode: str, http_proxy: Optional[str] = None) -> PlayerIdentifier:
+        """Get the player identifier from the Wahlap QR code.
+
+        Player identifier is the encrypted userId, can't be used in any other cases outside the maimai.py.
+
+        Args:
+            qrcode: the QR code of the player, should begin with SGWCMAID.
+            http_proxy: the http proxy to use for the request, defaults to None.
+        Returns:
+            The player identifier of the player.
+        Raises:
+            AimeServerError: Maimai Aime server error, may be invalid QR code or QR code has expired.
+        """
+        provider = ArcadeProvider(http_proxy=http_proxy)
+        return await provider.get_identifier(qrcode, self)
 
 
 class MaimaiClientMultithreading(MaimaiClient):

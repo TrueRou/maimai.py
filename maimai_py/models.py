@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, MutableMapping, Sequence, Union
+from typing import Any, MutableMapping, Optional, Sequence, Union
 
 from maimai_py.enums import *
 from maimai_py.exceptions import *
@@ -16,20 +16,76 @@ class Song:
     artist: str
     genre: Genre
     bpm: int
-    map: Union[str, None]
+    map: Optional[str]
     version: int
-    rights: Union[str, None]
-    aliases: Union[list[str], None]
+    rights: Optional[str]
+    aliases: Optional[list[str]]
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def get_difficulty(self, type: SongType, level_index: Union[LevelIndex, None]) -> Union["SongDifficulty", None]:
+    def get_difficulty(self, type: SongType, level_index: LevelIndex) -> Optional["SongDifficulty"]:
+        """Get the exact difficulty of this song by type and level index.
+
+        Args:
+            type: The type of the song (DX, STANDARD, UTAGE).
+            level_index: The level index of the difficulty.
+        Returns:
+            The difficulty object if found, otherwise None.
+        """
         if type == SongType.DX:
             return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
         if type == SongType.STANDARD:
             return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
         if type == SongType.UTAGE:
             return next(iter(self.difficulties.utage), None)
+
+    def get_difficulties(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> Sequence["SongDifficulty"]:
+        """Get all difficulties of the song, optionally filtered by type.
+
+        Args:
+            song_type: The type of the song (DX, STANDARD, UTAGE). If UNSET, returns all types.
+        Returns:
+            A sequence of difficulties matching the specified type.
+        """
+        if isinstance(song_type, _UnsetSentinel):
+            return self.difficulties.standard + self.difficulties.dx + self.difficulties.utage
+        if song_type == SongType.DX:
+            return self.difficulties.dx
+        if song_type == SongType.STANDARD:
+            return self.difficulties.standard
+        if song_type == SongType.UTAGE:
+            return self.difficulties.utage
+
+    def get_divingfish_id(self, type: SongType, level_index: LevelIndex) -> int:
+        """Get the Diving Fish ID for a specific difficulty of this song.
+
+        Args:
+            type: The type of the song (DX, STANDARD, UTAGE).
+            level_index: The level index of the difficulty.
+        Returns:
+            The Diving Fish ID for the specified difficulty.
+        """
+        difficulty = self.get_difficulty(type, level_index)
+        if difficulty is None:
+            raise ValueError(f"No difficulty found for type {type} and level index {level_index}")
+        if difficulty.type == SongType.DX:
+            return self.id + 10000
+        if difficulty.type == SongType.UTAGE:
+            return self.id + 100000
+        return self.id
+
+    def get_divingfish_ids(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> set[int]:
+        """Get a set of Diving Fish IDs for all difficulties of this song.
+
+        Args:
+            song_type: The type of the song (DX, STANDARD, UTAGE). If UNSET, returns IDs for all types.
+        Returns:
+            A set of Diving Fish IDs for the specified type or all types if UNSET.
+        """
+        ids = set()
+        for difficulty in self.get_difficulties(song_type):
+            ids.add(self.get_divingfish_id(difficulty.type, difficulty.level_index))
+        return ids
 
 
 @dataclass
@@ -39,17 +95,6 @@ class SongDifficulties:
     standard: list["SongDifficulty"]
     dx: list["SongDifficulty"]
     utage: list["SongDifficultyUtage"]
-
-    def _get_children(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> Sequence["SongDifficulty"]:
-        if song_type == UNSET:
-            return self.standard + self.dx + self.utage
-        return self.dx if song_type == SongType.DX else self.standard if song_type == SongType.STANDARD else self.utage
-
-    def _get_divingfish_ids(self, id: int) -> set[int]:
-        ids = set()
-        for difficulty in self._get_children():
-            ids.add(difficulty._get_divingfish_id(id))
-        return ids
 
 
 @dataclass
@@ -94,16 +139,7 @@ class SongDifficulty:
     slide_num: int
     touch_num: int
     break_num: int
-    curve: Union[CurveObject, None]
-
-    def _get_divingfish_id(self, id: int) -> int:
-        if id < 0 or id > 9999:
-            raise ValueError("Invalid song ID")
-        if self.type == SongType.DX:
-            return id + 10000
-        elif self.type == SongType.UTAGE:
-            return id + 100000
-        return id
+    curve: Optional[CurveObject]
 
 
 @dataclass
@@ -125,9 +161,9 @@ class SongAlias:
 
 @dataclass
 class PlayerIdentifier:
-    qq: Union[int, None] = None
-    username: Union[str, None] = None
-    friend_code: Union[int, None] = None
+    qq: Optional[int] = None
+    username: Optional[str] = None
+    friend_code: Optional[int] = None
     credentials: Union[str, MutableMapping[str, str], None] = None
 
     def __post_init__(self):
@@ -181,8 +217,8 @@ class PlayerIcon(PlayerItem):
 
     id: int
     name: str
-    description: Union[str, None]
-    genre: Union[str, None]
+    description: Optional[str]
+    genre: Optional[str]
 
     @staticmethod
     def _namespace():
@@ -195,8 +231,8 @@ class PlayerNamePlate(PlayerItem):
 
     id: int
     name: str
-    description: Union[str, None]
-    genre: Union[str, None]
+    description: Optional[str]
+    genre: Optional[str]
 
     @staticmethod
     def _namespace():
@@ -209,8 +245,8 @@ class PlayerFrame(PlayerItem):
 
     id: int
     name: str
-    description: Union[str, None]
-    genre: Union[str, None]
+    description: Optional[str]
+    genre: Optional[str]
 
     @staticmethod
     def _namespace():
@@ -276,10 +312,10 @@ class LXNSPlayer(Player):
     course_rank: int
     class_rank: int
     star: int
-    frame: Union[PlayerFrame, None]
-    icon: Union[PlayerIcon, None]
-    trophy: Union[PlayerTrophy, None]
-    name_plate: Union[PlayerNamePlate, None]
+    frame: Optional[PlayerFrame]
+    icon: Optional[PlayerIcon]
+    trophy: Optional[PlayerTrophy]
+    name_plate: Optional[PlayerNamePlate]
     upload_time: str
 
 
@@ -288,9 +324,9 @@ class ArcadePlayer(Player):
     __slots__ = ("is_login", "icon", "trophy", "name_plate")
 
     is_login: bool
-    icon: Union[PlayerIcon, None]
-    trophy: Union[PlayerTrophy, None]
-    name_plate: Union[PlayerNamePlate, None]
+    icon: Optional[PlayerIcon]
+    trophy: Optional[PlayerTrophy]
+    name_plate: Optional[PlayerNamePlate]
 
 
 @dataclass
@@ -309,12 +345,12 @@ class AreaCharacter:
 class AreaSong:
     __slots__ = ("id", "title", "artist", "description", "illustrator", "movie")
 
-    id: Union[int, None]
+    id: Optional[int]
     title: str
     artist: str
     description: str
-    illustrator: Union[str, None]
-    movie: Union[str, None]
+    illustrator: Optional[str]
+    movie: Optional[str]
 
 
 @dataclass
@@ -332,21 +368,21 @@ class Area:
 
 @dataclass
 class Score:
-    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type")
+    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type", "song")
 
     id: int
     level: str
     level_index: LevelIndex
-    achievements: Union[float, None]
-    fc: Union[FCType, None]
-    fs: Union[FSType, None]
-    dx_score: Union[int, None]
-    dx_rating: Union[float, None]
-    play_count: Union[int, None]
+    achievements: Optional[float]
+    fc: Optional[FCType]
+    fs: Optional[FSType]
+    dx_score: Optional[int]
+    dx_rating: Optional[float]
+    play_count: Optional[int]
     rate: RateType
     type: SongType
 
-    def _compare(self, other: Union["Score", None]) -> "Score":
+    def _compare(self, other: Optional["Score"]) -> "Score":
         if other is None:
             return self
         if self.dx_score != other.dx_score:  # larger value is better
@@ -367,7 +403,7 @@ class Score:
             return self if self_fs > other_fs else other
         return self  # we consider they are equal
 
-    def _join(self, other: Union["Score", None]) -> "Score":
+    def _join(self, other: Optional["Score"]) -> "Score":
         if other is not None:
             if self.level_index != other.level_index or self.type != other.type:
                 raise ValueError("Cannot join scores with different level indexes or types")

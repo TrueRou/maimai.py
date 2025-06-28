@@ -20,7 +20,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
     DivingFish: https://www.diving-fish.com/maimaidx/prober/
     """
 
-    developer_token: Union[str, None]
+    developer_token: Optional[str]
     """The developer token used to access the Diving Fish API."""
     base_url = "https://www.diving-fish.com/api/maimaidxprober/"
     """The base URL for the Diving Fish API."""
@@ -32,7 +32,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
             raise InvalidDeveloperTokenError("Developer token is not provided.")
         return {"developer-token": self.developer_token}
 
-    def __init__(self, developer_token: Union[str, None] = None):
+    def __init__(self, developer_token: Optional[str] = None):
         """Initializes the DivingFishProvider.
 
         Args:
@@ -103,7 +103,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         )
 
     @staticmethod
-    async def _ser_score(score: Score, songs: "MaimaiSongs") -> Union[dict, None]:
+    async def _ser_score(score: Score, songs: "MaimaiSongs") -> Optional[dict]:
         song_title = song.title if (song := await songs.by_id(score.id)) else None
         song_title = "Link(CoF)" if score.id == 383 else song_title
         if song_title is not None:
@@ -190,7 +190,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.post(
             self.base_url + "dev/player/record",
-            json={"music_id": list(song.difficulties._get_divingfish_ids(song.id)), **identifier._as_diving_fish()},
+            json={"music_id": list(song.get_divingfish_ids()), **identifier._as_diving_fish()},
             headers=self.headers,
         )
         resp_json: dict[str, dict] = self._check_response_player(resp)
@@ -212,7 +212,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         resp2 = await client._client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
         self._check_response_player(resp2)
 
-    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[Union[CurveObject, None]]]:
+    async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject]]:
         resp = await client._client.get(self.base_url + "chart_stats")
         resp.raise_for_status()
         return {

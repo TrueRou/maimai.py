@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Union
+from typing import Optional
 
 from lxml import etree
 
@@ -22,7 +22,7 @@ class HTMLScore:
     ds: int
 
 
-def get_data_from_div(div) -> Union[HTMLScore, None]:
+def get_data_from_div(div) -> Optional[HTMLScore]:
     form = div.find(".//form")
     if form is None:
         return None

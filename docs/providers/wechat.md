@@ -20,4 +20,4 @@
 
 ## 已知问题
 
-- WechatProvider 可能出现轻微内存泄露问题
+- WechatProvider 可能出现轻微内存泄露问题。

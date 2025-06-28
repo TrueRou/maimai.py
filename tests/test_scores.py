@@ -10,7 +10,7 @@ from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
 async def test_scores_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lxns_player: PlayerIdentifier):
     my_scores = await maimai.scores(lxns_player, provider=lxns)
     assert my_scores.rating_b35 > 10000
-    score = next(my_scores.by_song(1231, level_index=LevelIndex.MASTER))
+    score = my_scores.by_song(1231, level_index=LevelIndex.MASTER)[0]
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
 
     bests = await maimai.bests(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
@@ -24,12 +24,15 @@ async def test_scores_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lx
     assert song is not None
     assert all(score.id == song.id for score in scores)
 
+    for song, diff, score in await my_scores.get_scores():
+        assert song.id == score.id and diff.type == score.type and diff.level_index == score.level_index
+
 
 @pytest.mark.asyncio(scope="session")
 async def test_scores_fetching_divingfish(maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier):
     my_scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
     assert my_scores.rating_b35 > 10000
-    score = next(my_scores.by_song(1231, level_index=LevelIndex.MASTER))
+    score = my_scores.by_song(1231, level_index=LevelIndex.MASTER)[0]
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
 
     bests = await maimai.bests(divingfish_player, provider=divingfish)

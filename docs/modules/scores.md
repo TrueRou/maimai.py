@@ -98,22 +98,33 @@ async def get_distinct(self) -> "MaimaiScores":
         包含去重分数的新 `MaimaiScores` 对象。
     """
 
-def by_song(
-    self, song_id: int, song_type: SongType | _UnsetSentinel = UNSET, level_index: LevelIndex | _UnsetSentinel = UNSET
-) -> Iterator[Score]:
-    """获取指定歌曲、类型和难度的分数。
+async def get_scores(self) -> list[tuple[Song, SongDifficulty, Score]]:
+    """获取所有分数及其对应的歌曲信息。
 
-    如果未提供 song_type 或 level_index，将返回该歌曲的所有分数。
+    此方法将返回一个元组列表，每个元组包含一首歌曲、其对应的难度和分数。
+
+    如果找不到歌曲或难度，相应的元组将从结果中排除。
+
+    返回值:
+        一个元组列表，每个元组包含（歌曲、难度、分数）。
+    """
+
+def by_song(
+    self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
+) -> list[Score]:
+    """获取指定歌曲 ID、类型和难度等级的分数。
+
+    如果未提供 song_type 或 level_index，则不会按该属性进行过滤。
 
     参数:
         song_id: 要获取分数的歌曲 ID。
         song_type: 要获取分数的歌曲类型，默认为 None。
-        level_index: 要获取分数的难度索引，默认为 None。
+        level_index: 要获取分数的难度等级，默认为 None。
     返回值:
-        歌曲分数的迭代器，如果没有找到分数则返回空迭代器。
+        匹配歌曲 ID、类型和难度等级的分数列表。如果找不到分数，将返回空列表。
     """
 
-def filter(self, **kwargs) -> Iterator[Score]:
+def filter(self, **kwargs) -> list[Score]:
     """根据属性过滤分数。
 
     确保属性是分数对象的属性，且值的类型与属性类型一致。所有条件通过 AND 连接。
@@ -121,7 +132,7 @@ def filter(self, **kwargs) -> Iterator[Score]:
     参数:
         kwargs: 用于过滤分数的属性。
     返回值:
-        符合所有条件的分数迭代器，如果没有找到匹配的分数则不会产生任何项。
+        符合所有条件的分数列表。
     """
 ```
 
