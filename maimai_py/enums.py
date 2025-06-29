@@ -16,8 +16,7 @@ class Version(IntEnum):
     MAIMAI_MILK = 19000
     MAIMAI_MILK_PLUS = 19500
     MAIMAI_FINALE = 19900
-    MAIMAI_DX = 20000
-    MAIMAI_DX_PLUS = 20000
+    MAIMAI_DX = 20000  # 舞萌DX
     MAIMAI_DX_SPLASH = 21000  # 舞萌DX 2021
     MAIMAI_DX_UNIVERSE = 22000  # 舞萌DX 2022
     MAIMAI_DX_FESTIVAL = 23000  # 舞萌DX 2023
@@ -87,7 +86,7 @@ divingfish_to_version: dict[str, Version] = {
     "MiLK PLUS": Version.MAIMAI_MILK_PLUS,
     "maimai FiNALE": Version.MAIMAI_FINALE,
     "maimai でらっくす": Version.MAIMAI_DX,
-    "maimai でらっくす PLUS": Version.MAIMAI_DX_PLUS,
+    "maimai でらっくす PLUS": Version.MAIMAI_DX,
     "maimai でらっくす Splash": Version.MAIMAI_DX_SPLASH,
     "maimai でらっくす Splash PLUS": Version.MAIMAI_DX_SPLASH,
     "maimai でらっくす UNiVERSE": Version.MAIMAI_DX_UNIVERSE,

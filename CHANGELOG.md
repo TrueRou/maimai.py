@@ -7,6 +7,7 @@ Features:
   - 在静态数据类型中添加更多功能方法 -> [#28](https://github.com/TrueRou/maimai.py/issues/28)
 
 Bugfixes:
+  - 修复误以为国服存在 `maimai でらっくす PLUS` 的 20000 版本号问题
   - 使用 Arcade 数据源获取分数时有时会抛出 ValueError 异常 -> [#25](https://github.com/TrueRou/maimai.py/issues/25)
   - `maimai.bests()` 可能返回超过50个成绩 -> [#32](https://github.com/TrueRou/maimai.py/issues/32)
   - dataclasses 没有正确使用 __slots__ -> [02f6189](https://github.com/TrueRou/maimai.py/commit/02f61892144ff6ac7eea3181452c9aefd4514bc3)
