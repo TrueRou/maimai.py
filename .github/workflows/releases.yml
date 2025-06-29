@@ -7,6 +7,17 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
   workflow_dispatch:
 
+env:
+  IS_RC: ${{ startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'rc') }}
+  RELEASE_BODY: |
+    This is maimai.py's RESTful API client, which you can call maimai.py features via HTTP requests from any language.
+
+    It is built with [Nuitka](https://nuitka.net/) and supports both Linux and Windows platforms.
+
+    You can find the OpenAPI specification at https://openapi.maimai.turou.fun.
+
+    Refer to **CHANGELOG.md** for the latest changes.
+
 jobs:
   nuitka:
     strategy:
@@ -51,6 +62,8 @@ jobs:
         with:
           overwrite: true
           file: build/api.bin
+          prerelease: ${{ env.IS_RC }}
+          body: ${{ env.RELEASE_BODY }}
           asset_name: maimai.py-linux-amd64
 
       - name: 🚀 Release for Windows
@@ -59,6 +72,8 @@ jobs:
         with:
           overwrite: true
           file: build/api.exe
+          prerelease: ${{ env.IS_RC }}
+          body: ${{ env.RELEASE_BODY }}
           asset_name: maimai.py-windows-amd64.exe
   pypi:
     runs-on: ubuntu-latest
