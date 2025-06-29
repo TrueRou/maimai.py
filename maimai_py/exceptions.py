@@ -51,3 +51,6 @@ class PrivacyLimitationError(MaimaiPyError):
 
 class InvalidWechatTokenError(MaimaiPyError):
     """Wahlap Wechat OffiAccount token is invalid or expired."""
+
+
+WechatTokenExpiredError = InvalidWechatTokenError
