@@ -1,5 +1,6 @@
 import asyncio
 import dataclasses
+import os
 from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Any, Callable, Literal, Optional, Union
@@ -44,14 +45,6 @@ class PlayerBests:
     scores_b15: list[ScoreExtend]
 
 
-@dataclass
-class PlayerSong:
-    __slots__ = ["song", "scores"]
-
-    song: Song
-    scores: list[Score]
-
-
 def xstr(s: Optional[str]) -> str:
     return "" if s is None else str(s).lower()
 
@@ -91,7 +84,6 @@ async def ser_bests(maimai_scores: MaimaiScores, maimai_songs: MaimaiSongs) -> P
     songs: list[Song] = await maimai_songs.get_batch(song_ids) if len(song_ids) > 0 else []
     required_songs: dict[int, Song] = {song.id: song for song in songs}
 
-    # 替换 TaskGroup 为 asyncio.gather
     b35_tasks = [ser_score(score, required_songs) for score in maimai_scores.scores_b35]
     b15_tasks = [ser_score(score, required_songs) for score in maimai_scores.scores_b15]
 
@@ -371,9 +363,7 @@ if find_spec("fastapi"):
             ) -> Optional[PlayerSong]:
                 song_trait = id if id is not None else title if title is not None else keywords if keywords is not None else None
                 if song_trait is not None:
-                    song, scores = await self._client.minfo(song_trait, player, provider=provider)
-                    if song is not None:
-                        return PlayerSong(song, scores)
+                    return await self._client.minfo(song_trait, player, provider=provider)
 
             async def _get_identifiers(
                 code: str,
@@ -432,8 +422,8 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
 
         # override the default maimai.py client
         routes._client._cache = routes._client._cache if isinstance(redis_backend, _UnsetSentinel) else redis_backend
-        routes._lxns_token = lxns_token
-        routes._divingfish_token = divingfish_token
+        routes._lxns_token = lxns_token or os.environ.get("LXNS_DEVELOPER_TOKEN")
+        routes._divingfish_token = divingfish_token or os.environ.get("DIVINGFISH_DEVELOPER_TOKEN")
         routes._arcade_proxy = arcade_proxy
 
         @asgi_app.exception_handler(MaimaiPyError)

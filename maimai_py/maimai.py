@@ -852,7 +852,7 @@ class MaimaiClient:
         song: Union[Song, int, str],
         identifier: PlayerIdentifier,
         provider: IScoreProvider = LXNSProvider(),
-    ) -> Optional[SongPreview]:
+    ) -> Optional[PlayerSong]:
         """Fetch player's scores on the specific song.
 
         This method will return all scores of the player on the song.
@@ -887,7 +887,7 @@ class MaimaiClient:
             song = search_result if search_result is not None else song
         if isinstance(song, Song):
             scores = await provider.get_scores_one(identifier, song, self)
-            return SongPreview(song, scores)
+            return PlayerSong(song, scores)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.

@@ -434,8 +434,8 @@ class PlateObject:
 
 
 @dataclass
-class SongPreview:
-    __slots__ = ("song", "scores")
+class PlayerSong:
+    __slots__ = ["song", "scores"]
 
     song: Song
     scores: list[Score]
