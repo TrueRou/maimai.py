@@ -1,48 +1,14 @@
-import asyncio
-import dataclasses
 import os
-from dataclasses import dataclass
 from importlib.util import find_spec
 from typing import Annotated, Any, Callable, Literal, Optional, Union
 from urllib.parse import unquote, urlparse
 
-from maimai_py import ArcadeProvider, DivingFishProvider, LXNSProvider, MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs
+from maimai_py.maimai import MaimaiClient, MaimaiClientMultithreading, MaimaiPlates, MaimaiSongs, _UnsetSentinel
 from maimai_py.models import *
-from maimai_py.providers.base import (
-    IAreaProvider,
-    IItemListProvider,
-    IPlayerIdentifierProvider,
-    IPlayerProvider,
-    IProvider,
-    IRegionProvider,
-    IScoreProvider,
-    IScoreUpdateProvider,
-    ISongProvider,
-)
+from maimai_py.providers import *
 from maimai_py.providers.hybrid import HybridProvider
-from maimai_py.utils.sentinel import _UnsetSentinel
 
 PlateAttrs = Literal["remained", "cleared", "played", "all"]
-
-
-@dataclass
-class ScoreExtend(Score):
-    __slots__ = ["title", "level_value", "level_dx_score"]
-
-    title: str
-    level_value: float
-    level_dx_score: int
-
-
-@dataclass
-class PlayerBests:
-    __slots__ = ["rating", "rating_b35", "rating_b15", "scores_b35", "scores_b15"]
-
-    rating: int
-    rating_b35: int
-    rating_b15: int
-    scores_b35: list[ScoreExtend]
-    scores_b15: list[ScoreExtend]
 
 
 def xstr(s: Optional[str]) -> str:
@@ -67,38 +33,6 @@ def get_filters(functions: dict[Any, Callable[..., bool]]):
     union = [flag for cond, flag in functions.items() if cond is not None]
     filter = lambda obj: all([flag(obj) for flag in union])
     return filter
-
-
-async def ser_score(score: Score, songs: dict[int, Song]) -> Optional[ScoreExtend]:
-    if (song := songs.get(score.id)) and (diff := song.get_difficulty(score.type, score.level_index)):
-        return ScoreExtend(
-            **dataclasses.asdict(score),
-            title=song.title,
-            level_value=diff.level_value,
-            level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
-        )
-
-
-async def ser_bests(maimai_scores: MaimaiScores, maimai_songs: MaimaiSongs) -> PlayerBests:
-    song_ids = [score.id for score in maimai_scores.scores_b35 + maimai_scores.scores_b15]
-    songs: list[Song] = await maimai_songs.get_batch(song_ids) if len(song_ids) > 0 else []
-    required_songs: dict[int, Song] = {song.id: song for song in songs}
-
-    b35_tasks = [ser_score(score, required_songs) for score in maimai_scores.scores_b35]
-    b15_tasks = [ser_score(score, required_songs) for score in maimai_scores.scores_b15]
-
-    b35_results, b15_results = await asyncio.gather(asyncio.gather(*b35_tasks), asyncio.gather(*b15_tasks))
-
-    scores_b35 = [v for v in b35_results if v is not None]
-    scores_b15 = [v for v in b15_results if v is not None]
-
-    return PlayerBests(
-        rating=maimai_scores.rating,
-        rating_b35=maimai_scores.rating_b35,
-        rating_b15=maimai_scores.rating_b15,
-        scores_b35=scores_b35,
-        scores_b15=scores_b15,
-    )
 
 
 if find_spec("fastapi"):
@@ -314,7 +248,7 @@ if find_spec("fastapi"):
             async def _get_scores(
                 provider: IScoreProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
-            ) -> list[Score]:
+            ) -> list[ScoreExtend]:
                 scores = await self._client.scores(player, provider=provider)
                 return scores.scores
 
@@ -334,9 +268,8 @@ if find_spec("fastapi"):
                 provider: IScoreProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
             ) -> PlayerBests:
-                songs = await self._client.songs()
-                scores = await self._client.bests(player, provider=provider)
-                return await ser_bests(scores, songs)
+                maimai_scores = await self._client.bests(player, provider=provider)
+                return maimai_scores.get_player_bests()
 
             async def _post_scores(
                 scores: list[Score],
@@ -389,7 +322,7 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
 
     # prepare for ASGI app
     asgi_app = FastAPI(title="maimai.py API", description="The definitive python wrapper for MaimaiCN related development.")
-    routes = MaimaiRoutes(MaimaiClient())  # type: ignore
+    routes = MaimaiRoutes(MaimaiClientMultithreading())  # type: ignore
 
     # register routes and middlewares
     asgi_app.include_router(routes.get_router(routes._dep_hybrid, skip_base=False), tags=["base"])

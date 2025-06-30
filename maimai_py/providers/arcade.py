@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from maimai_ffi import arcade
 
 from maimai_py.models import *
-from maimai_py.models import PlayerIdentifier
 from maimai_py.utils import ScoreCoefficient
 
 from .base import IPlayerIdentifierProvider, IPlayerProvider, IRegionProvider, IScoreProvider

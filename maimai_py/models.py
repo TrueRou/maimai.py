@@ -425,6 +425,15 @@ class Score:
 
 
 @dataclass
+class ScoreExtend(Score):
+    __slots__ = ["title", "level_value", "level_dx_score"]
+
+    title: str
+    level_value: float
+    level_dx_score: int
+
+
+@dataclass
 class PlateObject:
     __slots__ = ("song", "levels", "scores")
 
@@ -439,3 +448,19 @@ class PlayerSong:
 
     song: Song
     scores: list[Score]
+
+
+@dataclass
+class PlayerBests:
+    __slots__ = ["rating", "rating_b35", "rating_b15", "scores_b35", "scores_b15"]
+
+    rating: int
+    rating_b35: int
+    rating_b15: int
+    scores_b35: list[ScoreExtend]
+    scores_b15: list[ScoreExtend]
+
+    @property
+    def scores(self) -> list[ScoreExtend]:
+        """Get all scores, including both B35 and B15."""
+        return self.scores_b35 + self.scores_b15

@@ -65,14 +65,14 @@
 
 ## MaimaiScores 对象
 
-| 字段         | 类型          | 说明                                                               |
-|--------------|---------------|------------------------------------------------------------------|
-| `scores`     | `list[Score]` | 玩家所有成绩，当 `ScoreKind.ALL` 时返回所有成绩，否则仅返回 B50 成绩 |
-| `scores_b35` | `list[Score]` | 玩家 B35 成绩                                                      |
-| `scores_b15` | `list[Score]` | 玩家 B15 成绩                                                      |
-| `rating`     | `int`         | 玩家 总 Rating                                                     |
-| `rating_b35` | `int`         | 玩家 B35 Rating                                                    |
-| `rating_b15` | `int`         | 玩家 B15 Rating                                                    |
+| 字段         | 类型                | 说明                                                               |
+|--------------|---------------------|------------------------------------------------------------------|
+| `scores`     | `list[ScoreExtend]` | 玩家所有成绩，当 `ScoreKind.ALL` 时返回所有成绩，否则仅返回 B50 成绩 |
+| `scores_b35` | `list[ScoreExtend]` | 玩家 B35 成绩                                                      |
+| `scores_b15` | `list[ScoreExtend]` | 玩家 B15 成绩                                                      |
+| `rating`     | `int`               | 玩家 总 Rating                                                     |
+| `rating_b35` | `int`               | 玩家 B35 Rating                                                    |
+| `rating_b15` | `int`               | 玩家 B15 Rating                                                    |
 
 ```python
 async def configure(self, scores: list[Score]) -> "MaimaiScores":
@@ -98,7 +98,7 @@ async def get_distinct(self) -> "MaimaiScores":
         包含去重分数的新 `MaimaiScores` 对象。
     """
 
-async def get_scores(self) -> list[tuple[Song, SongDifficulty, Score]]:
+async def get_mapping(self) -> list[tuple[Song, SongDifficulty, Score]]:
     """获取所有分数及其对应的歌曲信息。
 
     此方法将返回一个元组列表，每个元组包含一首歌曲、其对应的难度和分数。

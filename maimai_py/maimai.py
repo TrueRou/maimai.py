@@ -1,4 +1,5 @@
 import asyncio
+import dataclasses
 import hashlib
 import warnings
 from collections import defaultdict
@@ -483,11 +484,11 @@ class MaimaiPlates:
 class MaimaiScores:
     _client: "MaimaiClient"
 
-    scores: list[Score]
+    scores: list[ScoreExtend]
     """All scores of the player."""
-    scores_b35: list[Score]
+    scores_b35: list[ScoreExtend]
     """The b35 scores of the player."""
-    scores_b15: list[Score]
+    scores_b15: list[ScoreExtend]
     """The b15 scores of the player."""
     rating: int
     """The total rating of the player."""
@@ -509,67 +510,80 @@ class MaimaiScores:
         Returns:
             The MaimaiScores object with the scores initialized.
         """
-        scores_new: list[Score] = []
-        scores_old: list[Score] = []
-        await self._client.songs()  # ensure songs are cached
+        await self._client.songs()  # Ensure songs are configured.
+        song_diff_versions: dict[str, int] = await self._client._cache.get("versions", namespace="songs") or {}
+        self.scores, self.scores_b35, self.scores_b15 = [], [], []
 
+        # Remove duplicates from scores based on id, type and level_index.
         scores_unique: dict[str, Score] = {}
         for score in scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
 
-        song_diff_versions: dict[str, int] = await self._client._cache.get("versions", namespace="songs") or {}
-        for score in scores_unique.values():
+        # Extend scores and categorize them into b35 and b15 based on their versions.
+        for song, diff, score in await self.get_mapping(scores_unique.values()):
+            extended_score = ScoreExtend(
+                **dataclasses.asdict(score),
+                title=song.title,
+                level_value=diff.level_value,
+                level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
+            )
+            self.scores.append(extended_score)
             if score_version := song_diff_versions.get(f"{score.id} {score.type} {score.level_index}", None):
-                (scores_new if score_version >= current_version.value else scores_old).append(score)
+                (self.scores_b15 if score_version >= current_version.value else self.scores_b35).append(extended_score)
 
-        scores_old.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
-        scores_new.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
-        self.scores_b35 = scores_old[:35]
-        self.scores_b15 = scores_new[:15]
-        self.scores = self.scores_b35 + self.scores_b15 if b50_only else scores
+        # Sort scores by dx_rating, dx_score and achievements, and limit the number of scores.
+        self.scores_b35.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
+        self.scores_b15.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
+        self.scores_b35 = self.scores_b35[:35]
+        self.scores_b15 = self.scores_b15[:15]
+        self.scores = self.scores_b35 + self.scores_b15 if b50_only else self.scores
+
+        # Calculate the total rating.
         self.rating_b35 = int(sum((score.dx_rating or 0) for score in self.scores_b35))
         self.rating_b15 = int(sum((score.dx_rating or 0) for score in self.scores_b15))
         self.rating = self.rating_b35 + self.rating_b15
+
         return self
 
-    async def get_distinct(self) -> "MaimaiScores":
-        """Get the distinct scores.
-
-        Normally, player has more than one score for the same song and level, this method will return a new `MaimaiScores` object with the highest scores for each song and level.
-
-        This method won't modify the original scores object, it will return a new one.
-
-        Returns:
-            A new `MaimaiScores` object with the distinct scores.
-        """
-        scores_unique = {}
-        for score in self.scores:
-            score_key = f"{score.id} {score.type} {score.level_index}"
-            scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
-        new_scores = MaimaiScores(self._client)
-        return await new_scores.configure(list(scores_unique.values()))
-
-    async def get_scores(self) -> list[tuple[Song, SongDifficulty, Score]]:
+    async def get_mapping(self, override_scores: Union[Iterable[Score], _UnsetSentinel] = UNSET) -> list[tuple[Song, SongDifficulty, Score]]:
         """Get all scores with their corresponding songs.
 
         This method will return a list of tuples, each containing a song, its corresponding difficulty, and the score.
 
         If the song or difficulty is not found, the whole tuple will be excluded from the result.
 
+        Args:
+            override_scores: a list of scores to override the current instance scores, defaults to UNSET.
         Returns:
             A list of tuples, each containing (song, difficulty, score).
         """
-        result = []
-        songs = await self._client.songs()
-        required_songs = await songs.get_batch(set(score.id for score in self.scores))
+        result, self_scores = [], self.scores if isinstance(override_scores, _UnsetSentinel) else override_scores
+        maimai_songs = await self._client.songs()
+        required_songs = await maimai_songs.get_batch(set(score.id for score in self_scores))
         required_songs_dict = {song.id: song for song in required_songs if song is not None}
-        for score in self.scores:
+        for score in self_scores:
             song = required_songs_dict.get(score.id, None)
             diff = song.get_difficulty(score.type, score.level_index) if song else None
             if score and song and diff:
                 result.append((song, diff, score))
         return result
+
+    def get_player_bests(self) -> PlayerBests:
+        """Get the best scores of the player.
+
+        This method will return a PlayerBests object containing the best scores of the player, sorted by their dx_rating, dx_score and achievements.
+
+        Returns:
+            A PlayerBests object containing the best scores of the player.
+        """
+        return PlayerBests(
+            rating=self.rating,
+            rating_b35=self.rating_b35,
+            rating_b15=self.rating_b15,
+            scores_b35=self.scores_b35,
+            scores_b15=self.scores_b15,
+        )
 
     def by_song(
         self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
@@ -842,10 +856,9 @@ class MaimaiClient:
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
             ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
-        scores = await provider.get_scores_best(identifier, self)
-
         maimai_scores = MaimaiScores(self)
-        return await maimai_scores.configure(scores, b50_only=True)
+        best_scores = await provider.get_scores_best(identifier, self)
+        return await maimai_scores.configure(best_scores, b50_only=True)
 
     async def minfo(
         self,

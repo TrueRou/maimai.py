@@ -15,6 +15,7 @@ Bugfixes:
 **Breaking Changes**:
   - MaimaiScores 的 `by_song()`, `filter()` 直接返回列表，不再是迭代器
   - `maimai.minfo()` 现在返回一个结构化的 PlayerSong 对象，不再是元组
+  - `maimai_scores.get_distinct()` 被删除，因为它的功能已经被 `maimai_scores.configure()` 替代
 
 ## 1.3.0 (2025-06-19)
 
