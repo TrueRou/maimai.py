@@ -707,7 +707,7 @@ class MaimaiClient:
             warnings.warn(warn_message, stacklevel=2)
             return cls._instance
         orig = super(MaimaiClient, cls)
-        cls._instance = orig.__new__(cls, *args, **kwargs)
+        cls._instance = orig.__new__(cls)
         return cls._instance
 
     def __init__(
