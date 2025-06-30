@@ -1,7 +1,7 @@
 import dataclasses
 import hashlib
 from json import JSONDecodeError
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Generator, Iterable
 
 from httpx import HTTPStatusError, Response
 
@@ -196,7 +196,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         resp_json: dict[str, dict] = self._check_response_player(resp)
         return [s for scores in resp_json.values() for score in scores if (s := DivingFishProvider._deser_score(score))]
 
-    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
+    async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
         headers, cookies = None, None
         maimai_songs = await client.songs()
         if identifier.username and identifier.credentials:

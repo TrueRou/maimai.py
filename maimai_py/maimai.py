@@ -920,7 +920,7 @@ class MaimaiClient:
     async def updates(
         self,
         identifier: PlayerIdentifier,
-        scores: list[Score],
+        scores: Iterable[Score],
         provider: IScoreUpdateProvider = LXNSProvider(),
     ) -> None:
         """Update player's scores to the provider.

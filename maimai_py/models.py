@@ -164,7 +164,7 @@ class PlayerIdentifier:
     qq: Optional[int] = None
     username: Optional[str] = None
     friend_code: Optional[int] = None
-    credentials: Union[str, MutableMapping[str, str], None] = None
+    credentials: Union[str, MutableMapping[str, Any], None] = None
 
     def __post_init__(self):
         if self.qq is None and self.username is None and self.friend_code is None and self.credentials is None:

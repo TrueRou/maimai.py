@@ -4,7 +4,7 @@ import hashlib
 from functools import reduce
 from json import JSONDecodeError
 from operator import concat
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from httpx import HTTPStatusError, Response
 
@@ -257,7 +257,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         resp_data = [self._check_response_player(resp)["data"] for resp in resps]
         return [s for score in reduce(concat, resp_data) if (s := LXNSProvider._deser_score(score))]
 
-    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
+    async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
         maimai_songs = await client.songs()
         url, headers, _ = await self._build_player_request("scores", identifier, client)
         scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]}

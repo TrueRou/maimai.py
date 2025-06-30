@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from maimai_py.models import *
 
@@ -76,7 +76,7 @@ class IScoreUpdateProvider(IProvider):
     """
 
     @abstractmethod
-    async def update_scores(self, identifier: PlayerIdentifier, scores: list[Score], client: "MaimaiClient") -> None:
+    async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
         """@private"""
         raise NotImplementedError()
 
