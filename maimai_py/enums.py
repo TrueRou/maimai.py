@@ -1,6 +1,8 @@
 from enum import Enum, IntEnum
 from typing import Union
 
+from maimai_ffi.model import region_map
+
 
 class Version(IntEnum):
     MAIMAI = 10000
@@ -34,6 +36,8 @@ class Genre(Enum):
     オンゲキCHUNITHM = "オンゲキCHUNITHM"
     宴会場 = "宴会場"
 
+
+region_map: tuple[str, ...] = region_map
 
 all_versions = list(Version.__members__.values())
 """@private"""
