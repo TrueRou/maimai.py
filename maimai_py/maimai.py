@@ -528,6 +528,7 @@ class MaimaiScores:
                 level_value=diff.level_value,
                 level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
             )
+            extended_score.level = diff.level  # Ensure level is set correctly.
             self.scores.append(extended_score)
             if score_version := song_diff_versions.get(f"{score.id} {score.type} {score.level_index}", None):
                 (self.scores_b15 if score_version >= current_version.value else self.scores_b35).append(extended_score)
