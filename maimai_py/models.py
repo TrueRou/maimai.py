@@ -439,7 +439,7 @@ class PlateObject:
 
     song: Song
     levels: set[LevelIndex]
-    scores: list[Score]
+    scores: list[ScoreExtend]
 
 
 @dataclass
@@ -447,7 +447,7 @@ class PlayerSong:
     __slots__ = ["song", "scores"]
 
     song: Song
-    scores: list[Score]
+    scores: list[ScoreExtend]
 
 
 @dataclass

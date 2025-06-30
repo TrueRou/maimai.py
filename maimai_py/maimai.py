@@ -4,7 +4,7 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, Generic, Iterable, Literal, Optional, Type, TypeVar
+from typing import Any, AsyncGenerator, Generator, Generic, Iterable, Literal, Optional, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -14,6 +14,8 @@ from maimai_py.providers import *
 from maimai_py.utils import UNSET, _UnsetSentinel
 
 PlayerItemType = TypeVar("PlayerItemType", bound=PlayerItem)
+
+T = TypeVar("T", bound=Score)
 
 
 class MaimaiItems(Generic[PlayerItemType]):
@@ -284,20 +286,19 @@ class MaimaiSongs:
 
 class MaimaiPlates:
     _client: "MaimaiClient"
-    _maimai_songs: MaimaiSongs
 
     _kind: str  # The kind of the plate, e.g. "将", "神".
     _version: str  # The version of the plate, e.g. "真", "舞".
     _versions: set[Version] = set()  # The matched versions set of the plate.
     _matched_songs: list[Song] = []
-    _matched_scores: list[Score] = []
+    _matched_scores: list[ScoreExtend] = []
 
     def __init__(self, client: "MaimaiClient") -> None:
         """@private"""
         self._client = client
 
     async def _configure(self, plate: str, scores: list[Score]) -> "MaimaiPlates":
-        self._maimai_songs = await self._client.songs()
+        maimai_songs = await self._client.songs()
         self._version = plate_aliases.get(plate[0], plate[0])
         self._kind = plate_aliases.get(plate[1:], plate[1:])
 
@@ -327,8 +328,8 @@ class MaimaiPlates:
                 if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
                     if not (score.level_index == LevelIndex.ReMASTER and self.no_remaster):
                         versioned_joined_scores[score_key] = score._join(versioned_joined_scores.get(score_key, None))
+        self._matched_scores = await MaimaiScores._get_extended(versioned_joined_scores.values(), maimai_songs)
 
-        self._matched_scores = list(versioned_joined_scores.values())
         return self
 
     @cached_property
@@ -365,7 +366,7 @@ class MaimaiPlates:
         # Create PlateObject for each song with its levels and scores.
         results = {song.id: PlateObject(song=song, levels=self._get_levels(song), scores=grouped.get(song.id, [])) for song in self._matched_songs}
 
-        def extract(score: Score) -> None:
+        def extract(score: ScoreExtend) -> None:
             results[score.id].scores.remove(score)
             if score.level_index in results[score.id].levels:
                 results[score.id].levels.remove(score.level_index)
@@ -395,7 +396,7 @@ class MaimaiPlates:
         """
         results = {song.id: PlateObject(song=song, levels=set(), scores=[]) for song in self._matched_songs}
 
-        def insert(score: Score) -> None:
+        def insert(score: ScoreExtend) -> None:
             results[score.id].scores.append(score)
             results[score.id].levels.add(score.level_index)
 
@@ -510,7 +511,7 @@ class MaimaiScores:
         Returns:
             The MaimaiScores object with the scores initialized.
         """
-        await self._client.songs()  # Ensure songs are configured.
+        maimai_songs = await self._client.songs()  # Ensure songs are configured.
         song_diff_versions: dict[str, int] = await self._client._cache.get("versions", namespace="songs") or {}
         self.scores, self.scores_b35, self.scores_b15 = [], [], []
 
@@ -521,17 +522,10 @@ class MaimaiScores:
             scores_unique[score_key] = score._compare(scores_unique.get(score_key, None))
 
         # Extend scores and categorize them into b35 and b15 based on their versions.
-        for song, diff, score in await self.get_mapping(scores_unique.values()):
-            extended_score = ScoreExtend(
-                **dataclasses.asdict(score),
-                title=song.title,
-                level_value=diff.level_value,
-                level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
-            )
-            extended_score.level = diff.level  # Ensure level is set correctly.
-            self.scores.append(extended_score)
+        self.scores = await MaimaiScores._get_extended(scores_unique.values(), maimai_songs)
+        for score in self.scores:
             if score_version := song_diff_versions.get(f"{score.id} {score.type} {score.level_index}", None):
-                (self.scores_b15 if score_version >= current_version.value else self.scores_b35).append(extended_score)
+                (self.scores_b15 if score_version >= current_version.value else self.scores_b35).append(score)
 
         # Sort scores by dx_rating, dx_score and achievements, and limit the number of scores.
         self.scores_b35.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
@@ -547,7 +541,31 @@ class MaimaiScores:
 
         return self
 
-    async def get_mapping(self, override_scores: Union[Iterable[Score], _UnsetSentinel] = UNSET) -> list[tuple[Song, SongDifficulty, Score]]:
+    @staticmethod
+    async def _get_mapping(scores: Iterable[T], maimai_songs: MaimaiSongs) -> AsyncGenerator[tuple[Song, SongDifficulty, T], None]:
+        required_songs = await maimai_songs.get_batch(set(score.id for score in scores))
+        required_songs_dict = {song.id: song for song in required_songs if song is not None}
+        for score in scores:
+            song = required_songs_dict.get(score.id, None)
+            diff = song.get_difficulty(score.type, score.level_index) if song else None
+            if score and song and diff:
+                yield (song, diff, score)
+
+    @staticmethod
+    async def _get_extended(scores: Iterable[Score], maimai_songs: MaimaiSongs) -> list[ScoreExtend]:
+        extended_scores = []
+        async for song, diff, score in MaimaiScores._get_mapping(scores, maimai_songs):
+            extended_score = ScoreExtend(
+                **dataclasses.asdict(score),
+                title=song.title,
+                level_value=diff.level_value,
+                level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
+            )
+            extended_score.level = diff.level  # Ensure level is set correctly.
+            extended_scores.append(extended_score)
+        return extended_scores
+
+    async def get_mapping(self) -> list[tuple[Song, SongDifficulty, ScoreExtend]]:
         """Get all scores with their corresponding songs.
 
         This method will return a list of tuples, each containing a song, its corresponding difficulty, and the score.
@@ -559,15 +577,9 @@ class MaimaiScores:
         Returns:
             A list of tuples, each containing (song, difficulty, score).
         """
-        result, self_scores = [], self.scores if isinstance(override_scores, _UnsetSentinel) else override_scores
-        maimai_songs = await self._client.songs()
-        required_songs = await maimai_songs.get_batch(set(score.id for score in self_scores))
-        required_songs_dict = {song.id: song for song in required_songs if song is not None}
-        for score in self_scores:
-            song = required_songs_dict.get(score.id, None)
-            diff = song.get_difficulty(score.type, score.level_index) if song else None
-            if score and song and diff:
-                result.append((song, diff, score))
+        maimai_songs, result = await self._client.songs(), []
+        async for v in self._get_mapping(self.scores, maimai_songs):
+            result.append(v)
         return result
 
     def get_player_bests(self) -> PlayerBests:
@@ -588,7 +600,7 @@ class MaimaiScores:
 
     def by_song(
         self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
-    ) -> list[Score]:
+    ) -> list[ScoreExtend]:
         """Get scores of the song on that type and level_index.
 
         If song_type or level_index is not provided, it won't be filtered by that attribute.
@@ -892,7 +904,7 @@ class MaimaiClient:
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
             ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
-        maimai_songs = await self.songs()
+        maimai_songs, scores = await self.songs(), []
         if isinstance(song, str):
             search_result = await maimai_songs.by_keywords(song)
             song = search_result[0] if len(search_result) > 0 else song
@@ -901,7 +913,8 @@ class MaimaiClient:
             song = search_result if search_result is not None else song
         if isinstance(song, Song):
             scores = await provider.get_scores_one(identifier, song, self)
-            return PlayerSong(song, scores)
+            extended_scores = await MaimaiScores._get_extended(scores, maimai_songs)
+            return PlayerSong(song, extended_scores)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
