@@ -153,6 +153,8 @@ class SongDifficultyUtage(SongDifficulty):
 
 @dataclass
 class SongAlias:
+    """@private"""
+
     __slots__ = ("song_id", "aliases")
 
     song_id: int

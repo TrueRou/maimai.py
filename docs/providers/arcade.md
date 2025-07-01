@@ -1,12 +1,16 @@
 # ArcadeProvider
 
-从舞萌机台的接口通过玩家二维码获取玩家userId，进而获取分数信息
+来自舞萌机台的接口，通过玩家二维码获取玩家加密userId，进而获取分数等信息
 
-实现：IPlayerProvider, IScoreProvider, IRegionProvider, IAimeProvider
+实现：IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerIdentifierProvider
 
-源站：WahlapAimeServer、WahlapTitleServer
+源站：AimeServer、MaimaiTitleServer
 
 PyPi: https://pypi.org/project/maimai-ffi
+
+## PlayerIdentifier
+
+- 在获取成绩时，使用机台二维码：`PlayerIdentifier(credentials="EncryptedUserId")`，可以通过 `maimai.qrcode()` 方法获取。
 
 ## 关于开源
 

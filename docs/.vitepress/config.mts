@@ -22,20 +22,8 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: '介绍',
-        items: [
-          { text: '开始', link: '/get-started' },
-          { text: '例子', link: '/examples' },
-          { text: '客户端', link: '/client' }
-        ]
-      },
-      {
-        text: '概念',
-        items: [
-          { text: '核心概念', link: '/modules/concepts' },
-          { text: '数据模型', link: '/modules/models' },
-          { text: '缓存策略', link: '/modules/caches' }
-        ]
+        text: '开始',
+        link: '/get-started'
       },
       {
         text: '功能',
@@ -50,19 +38,29 @@ export default defineConfig({
         ]
       },
       {
+        text: '概念',
+        items: [
+          { text: '数据模型', link: '/concepts/models' },
+          { text: '缓存策略', link: '/concepts/caches' },
+          { text: '单元用例', link: '/concepts/examples' },
+          { text: 'RESTful 客户端', link: '/concepts/client' }
+        ]
+      },
+      {
         text: '数据源',
         items: [
           { text: 'DivingFish', link: '/providers/divingfish' },
           { text: 'LXNS', link: '/providers/lxns' },
           { text: 'Wechat', link: '/providers/wechat' },
-          { text: 'Arcade', link: '/providers/arcade' }
+          { text: 'Arcade', link: '/providers/arcade' },
+          { text: 'Local', link: '/providers/local' },
         ]
       },
       {
-        text: '开发',
+        text: '示例项目',
         items: [
-          { text: '参与开发', link: '/dev/participation' },
-          { text: '示例项目', link: '/dev/samples' },
+          { text: 'proxy_updater', link: '/samples/proxy_updater' },
+          { text: 'simple_prober', link: '/samples/simple_prober' },
         ]
       }
     ],
