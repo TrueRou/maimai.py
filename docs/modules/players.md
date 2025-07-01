@@ -2,130 +2,53 @@
 
 ## maimai.players() 方法
 
-从数据源获取玩家数据。
+如果你只需要获取玩家的基本信息（用户名，Rating等信息），可以使用 [`maimai.players()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.players) 方法。
 
-**支持的数据源**：`DivingFishProvider`、`LXNSProvider`、`ArcadeProvider`。
+针对不同的数据源，`maimai.py` 会返回不同类型的玩家对象，例如 `DivingFishPlayer`、`LXNSPlayer` 或 `ArcadePlayer`，但是他们都统一继承自 `Player` 类。
 
-### 参数
+### 示例代码
 
-| 参数名     | 类型               | 说明                                               |
-|------------|--------------------|--------------------------------------------------|
-| identifier | `PlayerIdentifier` | 玩家标识，例如 `PlayerIdentifier(username="turou")` |
-| provider   | `IPlayerProvider`  | 数据源，默认为 `LXNSProvider`                       |
+#### 从水鱼获取玩家信息
 
-### 返回值
+返回的 Player 对象是 [`DivingFishPlayer`](../concepts/models.md#divingfishplayer) 类型。
 
-`Player` 对象
+```python
+divingfish = DivingFishProvider(developer_token="your_developer_token")
+player = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish)
+print(f"玩家用户名: {player.username}, Rating: {player.rating}")
+```
 
-可强转为 `DivingFishPlayer` 或 `LXNSPlayer` 或 `ArcadePlayer` 对象
+#### 从 LXNS 获取玩家信息
 
-### 异常
+返回的 Player 对象是 [`LXNSPlayer`](../concepts/models.md#lxnsplayer) 类型。
 
-| 错误名称                       | 描述                                  |
-|--------------------------------|-------------------------------------|
-| `InvalidPlayerIdentifierError` | 数据源不支持该玩家标识，或者玩家未找到 |
-| `InvalidDeveloperTokenError`   | 未提供开发者令牌或令牌无效            |
-| `PrivacyLimitationError`       | 用户尚未同意第三方开发者访问数据      |
-| `httpx.HTTPError`              | 由于网络问题导致请求失败              |
+```python
+lxns = LXNSProvider(developer_token="your_developer_token")
+player = await maimai.players(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
+print(f"玩家用户名: {player.username}, Rating: {player.rating}, )
+```
 
-只有使用 `ArcadeProvider` 才可能触发的异常:
+#### 从 机台✨ 获取玩家信息
 
-| 错误名称                  | 描述                                           |
-|---------------------------|----------------------------------------------|
-| `TitleServerNetworkError` | 舞萌 官方服务器相关错误，可能是网络问题         |
-| `TitleServerBlockedError` | 舞萌 官方服务器拒绝了请求，可能是因为 IP 被过滤 |
-| `ArcadeIdentifierError`   | 舞萌 用户 ID 无效，或者用户未找到               |
+返回的 Player 对象是 [`ArcadePlayer`](../concepts/models.md#arcadeplayer) 类型。
 
-## maimai.wechat() 方法
+```python
+player = await maimai.players(PlayerIdentifier(credentials="EncryptedUserId"), provider=ArcadeProvider())
+print(f"玩家用户名: {player.username}, Rating: {player.rating}, 是否已登录: {player.is_login}")
+```
 
-该方法用于通过 **微信服务号** 来获取玩家的 `PlayerIdentifier`。
+### 注意事项
+- `maimai.players()` 方法可以接受多种类型的玩家标识符（`PlayerIdentifier`），请参考对应 Provider 的文档来了解如何正确提供。
+- 返回的玩家对象类型取决于所使用的数据源（如 `DivingFishProvider`、`LXNSProvider` 或 `ArcadeProvider`）。
+- 如果你需要获取更详细的玩家信息（如游玩地区、游玩成绩等），可以使用其他方法，如 `maimai.regions()` 或 `maimai.scores()`。
 
-调用此方法时，如果不带任何参数，将获取到一个 URL，让玩家在启动代理的情况下访问URL，代理将请求转发至 mitmproxy。
+## 你是否在找 PlayerIdentifier？
 
-转发后，您的 mitmproxy 应该拦截到了来自 `tgk-wcaime.wahlap.com` 的响应，请使用拦截到的**响应中的参数**再次调用此方法。
+本页面所指的 `Player` 是指玩家对象，而不是 `PlayerIdentifier`。如果你需要了解如何创建和使用 `PlayerIdentifier`，请参考 [开始 章节](../get-started.md#玩家标识)。
 
-当提供**响应中的参数**（r、t、code、state）后，该方法将返回用户的 `PlayerIdentifier`。
+如果你不清楚数据源应该如何提供 `PlayerIdentifier`，可以参考对应的数据源章节：
 
-### 参数
-
-| 参数名 | 类型 | 默认值 | 说明                |
-|--------|------|--------|-------------------|
-| r      | -    | `None` | 请求中的 r 参数     |
-| t      | -    | `None` | 请求中的 t 参数     |
-| code   | -    | `None` | 请求中的 code 参数  |
-| state  | -    | `None` | 请求中的 state 参数 |
-
-### 返回值
-
-- 如果提供了所有参数，将返回 `PlayerIdentifier`。
-- 如果不提供参数，将返回一个 URL，玩家需要访问该URL，之后再进行下一步的操作。
-
-### 异常
-
-| 异常名称                  | 描述                       |
-|---------------------------|--------------------------|
-| `WechatTokenExpiredError` | 微信Token已过期，请重新授权 |
-| `httpx.HTTPError`         | 由于网络问题导致请求失败   |
-
-## maimai.qrcode() 方法
-
-从 **玩家二维码** 获取 `PlayerIdentifier`。
-
-该方法从舞萌机台的接口通过玩家二维码获取玩家userId，maimai.py 解析出的userId仅能在内部使用。
-
-### 参数
-
-| 参数名     | 类型          | 说明                                  |
-|------------|---------------|-------------------------------------|
-| qrcode     | `str`         | 玩家的 QR 码，应以 SGWCMAID 开始       |
-| http_proxy | `str \| None` | 代理地址，例如 `http://127.0.0.1:7890` |
-
-### 返回值
-
-- 玩家标识 `PlayerIdentifier`
-
-### 异常
-
-| 异常名称          | 描述                                              |
-|-------------------|-------------------------------------------------|
-| `AimeServerError` | 舞萌Aime服务器错误，可能是无效二维码或二维码已过期 |
-
-## maimai.identifiers() 方法
-
-该方法用于从数据源获取玩家标识。
-
-玩家标识是加密的 userId，仅能在 maimai.py 内部使用。
-
-**支持的数据源**：`WechatProvider`、`ArcadeProvider`。
-
-### 参数
-
-| 参数名   | 类型                  | 说明                                                             |
-|----------|-----------------------|----------------------------------------------------------------|
-| code     | `str` 或 `dict`       | 获取玩家标识的代码，可以是字符串或包含 r、t、code 和 state 键的字典 |
-| provider | `IIdentifierProvider` | 数据源，默认为 `ArcadeProvider`                                   |
-
-### 返回值
-
-玩家标识 `PlayerIdentifier`
-
-### 异常
-
-| 错误名称                  | 描述                                              |
-|---------------------------|-------------------------------------------------|
-| `InvalidWechatTokenError` | 微信Token已过期，请重新授权                        |
-| `AimeServerError`         | 舞萌Aime服务器错误，可能是无效二维码或二维码已过期 |
-| `httpx.HTTPError`         | 由于网络问题导致请求失败                          |
-
-### 使用说明
-
-1. 在用户的微信客户端中访问返回的 URL
-2. 使用已启用的 mitmproxy 拦截来自 tgk-wcaime.wahlap.com 的响应
-3. 使用拦截到的响应参数调用 `maimai.identifiers(provider=WechatProvider, code=...)` 方法获取玩家标识
-
-## API 文档
-
-- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.players
-- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.wechat
-- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.qrcode
-- https://api.maimai.turou.fun/maimai_py.html#MaimaiClient.identifiers
+- [DivingFishProvider](../providers/divingfish.md)
+- [LXNSProvider](../providers/lxns.md)
+- [ArcadeProvider](../providers/arcade.md)
+- [WeChatProvider](../providers/wechat.md)

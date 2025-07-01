@@ -1,17 +1,8 @@
 # 开始
 
-maimai.py 是一个用于舞萌相关开发的工具库，封装了常用函数和模型，便于开发者调用。
+## 快速开始
 
-我们的关键功能与特性:
-
-- **模型通用**: 提供了基于MaimaiJP标准的数据模型，打破不同数据源之间术语混乱的屏障。
-- **功能全面**: 覆盖了爬取、查询、上传等多个功能。支持曲目、玩家、分数、牌子等数据。
-- **使用简单**: 例如 `maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)`
-- **高技术力**: 支持联动微信 OpenID 获取玩家分数, 解析分数HTML, 并上传至数据源。
-- **语言无界**：我们提供了基于RESTful范式的API接口，您可以使用任何语言来调用。
-- **机台支持✨**: 支持通过玩家二维码从机台获取玩家成绩，玩家ID全程加密，强大且安全
-
-## 使用方式
+安装方式:
 
 ```bash
 pip install maimai-py
@@ -23,29 +14,128 @@ pip install maimai-py
 pip install -U maimai-py
 ```
 
-## 示例
+## 什么是 maimai.py？
+
+maimai.py 是一个用于舞萌相关开发的 `Python` 工具库，封装了常用函数和模型，便于开发者调用。
+
+基于 **maimai でらっくす** 日服的标准数据模型，maimai.py 提供了一个通用的接口，旨在简化舞萌相关数据的获取、查询和上传。
+
+通过标准的数据模型，maimai.py 解决了不同数据源之间术语混乱的问题，使得开发者可以更专注于业务逻辑，而不是数据处理。
+
+下面是一个最基本的示例：
 
 ```python
 import asyncio
 from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, LXNSProvider, DivingFishProvider
 
-# 全局创建 MaimaiClient 实例
-maimai = MaimaiClient()
-divingfish = DivingFishProvider(developer_token="your_token_here")
+maimai = MaimaiClient() # 全局创建 MaimaiClient 实例
+divingfish_provider = DivingFishProvider(developer_token="your_token_here")
+lxns_provider = LXNSProvider(developer_token="your_token_here")
 
-async def quick_start():
-    # 获取所有歌曲及其元数据
-    songs: MaimaiSongs = await maimai.songs()
+async def main():
     # 获取水鱼查分器用户 turou 的分数
     scores: MaimaiScores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
-    # 获取水鱼查分器用户 turou 的舞将牌子信息
-    plates: MaimaiPlates = await maimai.plates(PlayerIdentifier(username="turou"), "舞将", provider=divingfish)
-
-    song = await songs.by_id(1231)  # 生命不詳 by 蜂屋ななし
-
-    print(f"歌曲 1231 是: {song.artist} - {song.title}")
-    print(f"TuRou 的 Rating 为: {scores.rating}, b15 中最高 Rating 为: {scores.scores_b15[0].dx_rating}")
-    print(f"TuRou 的 舞将 完成度: {await plates.count_cleared()}/{await plates.count_all()}")
-
-asyncio.run(quick_start())
+    # 将获取到的分数更新到落雪查分器账户 664994421382429
+    await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores.scores, provider=lxns)
 ```
+
+上面的示例展示了 maimai.py 的两个核心功能：
+
+- **查询与上传**：使用 `maimai.scores()` 方法从**源头数据源**获取分数，并使用 `maimai.updates()` 方法将分数更新到**目标数据源**。
+- **统一的数据模型**：即使水鱼和落雪的 Score 结构不同，使用 maimai.py 也可以轻松处理。
+
+你可能已经有了些疑问。先别急，在后续的文档中我们会详细介绍每一个细节。
+
+## 数据源
+
+上文的实例中，我们多次提到了**数据源**（Provider）的概念。数据源指示从何处获取数据或者更新数据。
+
+在 maimai.py 中，大多数方法都可以传入一个 `provider` 参数来指定数据源。
+
+下面是一个使用示例：
+
+```python
+from maimai_py import MaimaiClient, DivingFishProvider, MaimaiSongs, PlayerIdentifier
+
+client = MaimaiClient()
+divingfish_provider = DivingFishProvider(developer_token="your_token_here")
+
+async def main():
+    # 从水鱼查分器获取用户 turou 的玩家信息
+    player = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish_provider)
+    # 获取所有歌曲及其元数据 （因为未提供数据源，默认选择了落雪数据源来下载歌曲信息）
+    songs: MaimaiSongs = await maimai.songs()
+```
+
+::: info
+截止目前，我们已经支持水鱼、落雪、微信服务号、舞萌机台✨等数据源，支持向水鱼和落雪更新数据。
+
+通过从 舞萌机台✨ 数据源获取玩家成绩，然后更新到水鱼或落雪，您可以实现查分器的成绩同步。
+:::
+
+## 封装对象
+
+您可能注意到了上文的 `MaimaiSongs` 对象，与直接返回 `list[Song]` 相比，封装对象为您提供了一些方便的方法。
+
+例如，您可以直接调用 `by_title()`、`by_id()` 方法进行筛选，也可以通过 `get_all()` 获取整个歌曲列表。
+
+我们针对大多数数据都进行了封装（`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`），读者可以通过代码提示了解更多。
+
+## 缓存与异步
+
+由于封装对象的灵活性，我们设计了基于封装对象的缓存机制，从而避免多次请求歌曲信息等数据。
+
+在 maimai.py 中，许多数据（例如歌曲信息）支持缓存机制，默认情况下会直接保存在内存中，缓存 24 小时。
+
+缓存的读写依赖于单例模式的 `MaimaiClient` 实例，因此我们建议在全局范围内只创建一个 `MaimaiClient` 实例。
+
+```python
+from maimai_py import MaimaiClient, MaimaiSongs, MaimaiScores
+
+# ✅ 全局创建一个 MaimaiClient 实例, 避免缓存失效
+maimai = MaimaiClient()
+
+async def main():
+    songs: MaimaiSongs = await maimai.songs() # 填充缓存
+    songs: MaimaiSongs = await maimai.songs() # 命中缓存
+    scores: MaimaiScores = await maimai.scores(...) # 被动使用缓存
+```
+
+::: danger
+务必在全局只创建一个 `MaimaiClient` 实例，避免缓存失效。
+:::
+
+关于缓存机制与缓存刷新的更多细节，请查阅 [缓存策略](./caches.md) 章节。
+
+## 玩家标识
+
+在获取或上传玩家信息时，往往需要标识玩家的身份，我们使用 `PlayerIdentifier` 实例来作为标识符。
+
+`PlayerIdentifier` 是一个通用的概念，您需要根据使用场景传入合适的值，例如：
+
+- 落雪没有 `username` 这个概念，所以在使用落雪作为数据源时，传入 `username` 会抛出异常，应该使用 `friend_code`。
+- 在更新成绩时，使用水鱼用户名和密码：`PlayerIdentifier(username="Username", credentials="Password")`。
+- 在更新成绩时，使用水鱼Import-Token：`PlayerIdentifier(credentials="Import-Token")`。
+- 在更新 / 获取成绩时，使用落雪好友代码：`PlayerIdentifier(friend_code="")`
+- 使用机台作为数据源时，`credentials` 就是玩家加密后的userId，您可以保存并复用。
+
+::: info
+阅读对应 Provider 的章节可以了解更多关于如何使用 `PlayerIdentifier` 的信息。
+:::
+
+## 曲目ID
+
+在 maimai.py 中，同一首曲目的标准、DX 谱面、宴会谱面的 曲目ID 一致，不存在大于 10000 的 曲目ID（如有，均会对 10000 / 100000 取余处理）。
+
+例如，Oshama Scramble! 的标准、DX、宴会谱面的 曲目ID 均为 363。
+
+## 下一步
+
+至此，您已经了解了 maimai.py 的全部核心概念。
+
+- 如果您想要更进一步详细了解我们的功能：推荐阅读 **功能** 部分。
+- 如果您是经验丰富的开发者，想要了解更多细节：推荐阅读 [API文档](https://api.maimai.turou.fun/maimai_py)。
+- `Talk is cheap. Show me the code`：推荐阅读 [单元用例](./concepts/examples.md)。
+
+如果您希望通过其他语言调用 maimai.py 的功能，请参考 [RESTful 客户端](./concepts/client.md)。
+

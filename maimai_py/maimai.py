@@ -4,7 +4,7 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, AsyncGenerator, Generator, Generic, Iterable, Literal, Optional, Type, TypeVar
+from typing import Any, AsyncGenerator, Generic, Iterable, Literal, Optional, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient

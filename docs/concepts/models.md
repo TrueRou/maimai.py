@@ -1,5 +1,7 @@
 # 数据模型
 
+API 文档：https://api.maimai.turou.fun/maimai_py/models.html
+
 ## Song
 
 | 字段           | 类型                | 说明             |
@@ -20,8 +22,8 @@
 
 | 方法名                                    | 返回值                 | 说明                           |
 |-------------------------------------------|------------------------|------------------------------|
-| `get_difficulty(SongType, LevelIndex)`    | `SongDifficulty`       | 获取对应的谱面难度             |
-| `get_difficulties(SongType)`              | `list[SongDifficulty]` | 获取对应的谱面难度列表         |
+| `get_difficulty(SongType, LevelIndex)`    | `SongDifficulty`       | 获取对应的难度                 |
+| `get_difficulties(SongType)`              | `list[SongDifficulty]` | 获取对应的难度列表             |
 | `get_divingfish_id(SongType, LevelIndex)` | `int`                  | 获取歌曲对应难度的 水鱼ID      |
 | `get_divingfish_ids(SongType)`            | `set[int]`             | 获取歌曲对应类型的 水鱼ID 集合 |
 
@@ -74,12 +76,64 @@
 
 ## PlayerIdentifier
 
-| 字段          | 类型                     | 说明     |
-|---------------|--------------------------|---------|
-| `qq`          | `int \| None`            | QQ号     |
-| `username`    | `str \| None`            | 用户名   |
-| `friend_code` | `int \| None`            | 好友码   |
-| `credentials` | `str \| Cookies \| None` | 玩家凭据 |
+| 字段          | 类型                                      | 说明     |
+|---------------|-------------------------------------------|---------|
+| `qq`          | `int \| None`                             | QQ号     |
+| `username`    | `str \| None`                             | 用户名   |
+| `friend_code` | `int \| None`                             | 好友码   |
+| `credentials` | `str \| MutableMapping[str, Any] \| None` | 玩家凭据 |
+
+## Score
+
+| 字段           | 类型            | 说明              |
+|----------------|-----------------|-------------------|
+| `id`           | `int`           | 曲目ID            |
+| `level`        | `str`           | 难度标级，如 `14+` |
+| `level_index`  | `LevelIndex`    | 难度索引          |
+| `achievements` | `float \| None` | 达成率            |
+| `fc`           | `FCType`        | FULL COMBO 类型   |
+| `fs`           | `FSType`        | FULL SYNC 类型    |
+| `dx_score`     | `int \| None`   | DX分数            |
+| `dx_rating`    | `float \| None` | DX Rating         |
+| `play_count`   | `int \| None`   | 游玩次数          |
+| `rate`         | `RateType`      | 评级类型          |
+| `type`         | `SongType`      | 谱面类型          |
+
+## ScoreExtend
+
+继承自 `Score` 类。
+
+| 字段             | 类型         | 说明             |
+|------------------|--------------|----------------|
+| `title`          | `int`        | 曲目标题         |
+| `level_value`    | `LevelIndex` | 难度定数         |
+| `level_dx_score` | `LevelIndex` | 难度最大 DX 分数 |
+
+## PlateObject
+
+| 字段     | 类型                | 说明     |
+|----------|---------------------|--------|
+| `song`   | `Song`              | 歌曲     |
+| `levels` | `list[LevelIndex]`  | 关联难度 |
+| `scores` | `list[ScoreExtend]` | 成绩列表 |
+
+## PlayerSong
+
+| 字段     | 类型                | 说明     |
+|----------|---------------------|--------|
+| `song`   | `Song`              | 歌曲     |
+| `scores` | `list[ScoreExtend]` | 成绩列表 |
+
+## PlayerBests
+
+| 字段         | 类型                | 说明              |
+|--------------|---------------------|-----------------|
+| `rating`     | `int`               | 玩家 Rating       |
+| `rating_b35` | `int`               | 玩家 B35 Rating   |
+| `rating_b15` | `int`               | 玩家 B15 Rating   |
+| `scores`     | `list[ScoreExtend]` | 玩家 分数列表     |
+| `scores_b35` | `list[ScoreExtend]` | 玩家 B35 分数列表 |
+| `scores_b15` | `list[ScoreExtend]` | 玩家 B15 分数列表 |
 
 ## PlayerTrophy
 
@@ -91,25 +145,44 @@
 
 ## PlayerIcon
 
-| 字段    | 类型  | 说明     |
-|---------|-------|--------|
-| `id`    | `int` | 头像ID   |
-| `name`  | `str` | 头像名称 |
-| `genre` | `str` | 头像分类 |
+| 字段          | 类型          | 说明     |
+|---------------|---------------|--------|
+| `id`          | `int`         | 头像ID   |
+| `name`        | `str`         | 头像名称 |
+| `description` | `str \| None` | 头像描述 |
+| `genre`       | `str \| None` | 头像分类 |
 
 ## PlayerNamePlate
 
-| 字段   | 类型  | 说明       |
-|--------|-------|----------|
-| `id`   | `int` | 姓名框ID   |
-| `name` | `str` | 姓名框名称 |
+| 字段          | 类型          | 说明       |
+|---------------|---------------|----------|
+| `id`          | `int`         | 姓名框ID   |
+| `name`        | `str`         | 姓名框名称 |
+| `description` | `str \| None` | 姓名框描述 |
+| `genre`       | `str \| None` | 姓名框分类 |
 
 ## PlayerFrame
 
+| 字段          | 类型          | 说明     |
+|---------------|---------------|--------|
+| `id`          | `int`         | 背景ID   |
+| `name`        | `str`         | 背景名称 |
+| `description` | `str \| None` | 背景描述 |
+| `genre`       | `str \| None` | 背景分类 |
+
+## PlayerPartner
+
+| 字段   | 类型  | 说明         |
+|--------|-------|------------|
+| `id`   | `int` | 旅行伙伴ID   |
+| `name` | `str` | 旅行伙伴名称 |
+
+## PlayerChara
+
 | 字段   | 类型  | 说明     |
 |--------|-------|--------|
-| `id`   | `int` | 背景ID   |
-| `name` | `str` | 背景名称 |
+| `id`   | `int` | 角色ID   |
+| `name` | `str` | 角色名称 |
 
 ## Player
 
@@ -155,30 +228,6 @@
 | `icon`       | `int`  | 头像ID               |
 | `name_plate` | `int`  | 姓名框ID             |
 
-## Score
-
-| 字段           | 类型            | 说明              |
-|----------------|-----------------|-------------------|
-| `id`           | `int`           | 曲目ID            |
-| `level`        | `str`           | 难度标级，如 `14+` |
-| `level_index`  | `LevelIndex`    | 难度索引          |
-| `achievements` | `float \| None` | 达成率            |
-| `fc`           | `FCType`        | FULL COMBO 类型   |
-| `fs`           | `FSType`        | FULL SYNC 类型    |
-| `dx_score`     | `int \| None`   | DX分数            |
-| `dx_rating`    | `float \| None` | DX Rating         |
-| `play_count`   | `int \| None`   | 游玩次数          |
-| `rate`         | `RateType`      | 评级类型          |
-| `type`         | `SongType`      | 谱面类型          |
-
-## PlateObject
-
-| 字段     | 类型               | 说明     |
-|----------|--------------------|--------|
-| `song`   | `Song`             | 歌曲     |
-| `levels` | `list[LevelIndex]` | 关联难度 |
-| `scores` | `list[Score]`      | 成绩列表 |
-
 ## PlayerRegion
 
 | 字段          | 类型       | 说明           |
@@ -221,7 +270,3 @@
 | `video_id`    | `str`                 | 区域Youtube视频ID |
 | `characters`  | `list[AreaCharacter]` | 角色列表          |
 | `songs`       | `list[AreaSong]`      | 曲目列表          |
-
-## API 文档
-
-- https://api.maimai.turou.fun/maimai_py/models
