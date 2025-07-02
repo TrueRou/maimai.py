@@ -55,7 +55,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         """
         item_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace=self._namespace)
         assert item_ids is not None, f"Items not found in cache {self._namespace}, please call configure() first."
-        return await self._client._cache.multi_get(item_ids, namespace=self._namespace)
+        return await self._client._multi_get(item_ids, namespace=self._namespace)
 
     async def get_batch(self, ids: Iterable[int]) -> list[PlayerItemType]:
         """Get items by their IDs.
@@ -65,7 +65,7 @@ class MaimaiItems(Generic[PlayerItemType]):
         Returns:
             A list of items if they exist, otherwise return an empty list.
         """
-        return await self._client._cache.multi_get(ids, namespace=self._namespace)
+        return await self._client._multi_get(ids, namespace=self._namespace)
 
     async def by_id(self, id: int) -> Optional[PlayerItemType]:
         """Get an item by its ID.
@@ -171,7 +171,7 @@ class MaimaiSongs:
         """
         song_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace="songs")
         assert song_ids is not None, "Songs not found in cache, please call configure() first."
-        return await self._client._cache.multi_get(song_ids, namespace="songs")
+        return await self._client._multi_get(song_ids, namespace="songs")
 
     async def get_batch(self, ids: Iterable[int]) -> list[Song]:
         """Get songs by their IDs.
@@ -181,7 +181,7 @@ class MaimaiSongs:
         Returns:
             A list of songs if they exist, otherwise return an empty list.
         """
-        return await self._client._cache.multi_get(ids, namespace="songs")
+        return await self._client._multi_get(ids, namespace="songs")
 
     async def by_id(self, id: int) -> Optional[Song]:
         """Get a song by its ID.
@@ -319,7 +319,7 @@ class MaimaiPlates:
         for k, v in song_diff_versions.items():
             if any(v >= o.value and v < versions[i + 1].value for i, o in enumerate(versions[:-1])):
                 versioned_matched_songs.add(int(k.split(" ")[0]))
-        self._matched_songs = await self._client._cache.multi_get(list(versioned_matched_songs), namespace="songs")
+        self._matched_songs = await self._client._multi_get(list(versioned_matched_songs), namespace="songs")
 
         versioned_joined_scores: dict[str, Score] = {}
         for score in scores:
@@ -671,7 +671,7 @@ class MaimaiAreas:
         """
         area_ids: Optional[list[int]] = await self._client._cache.get("ids", namespace=f"areas_{self._lang}")
         assert area_ids is not None, "Areas not found in cache, please call configure() first."
-        return await self._client._cache.multi_get(area_ids, namespace=f"areas_{self._lang}")
+        return await self._client._multi_get(area_ids, namespace=f"areas_{self._lang}")
 
     async def get_batch(self, ids: Iterable[str]) -> list[Area]:
         """Get areas by their IDs.
@@ -681,7 +681,7 @@ class MaimaiAreas:
         Returns:
             A list of areas if they exist, otherwise return an empty list.
         """
-        return await self._client._cache.multi_get(ids, namespace=f"areas_{self._lang}")
+        return await self._client._multi_get(ids, namespace=f"areas_{self._lang}")
 
     async def by_id(self, id: str) -> Optional[Area]:
         """Get an area by its ID.
@@ -741,6 +741,12 @@ class MaimaiClient:
         self._client = AsyncClient(timeout=timeout, **kwargs)
         self._cache = SimpleMemoryCache() if isinstance(cache, _UnsetSentinel) else cache
         self._cache_ttl = cache_ttl
+
+    async def _multi_get(self, keys: Iterable[Any], namespace: Optional[str] = None) -> list[Any]:
+        keys_list = list(keys)
+        if len(keys_list) != 0:
+            return await self._cache.multi_get(keys_list, namespace=namespace)
+        return []
 
     async def songs(
         self,
