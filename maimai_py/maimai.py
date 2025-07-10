@@ -151,7 +151,7 @@ class MaimaiSongs:
                 cache_obj.set("ids", [song.id for song in songs], namespace="songs"),  # ids
                 cache_obj.multi_set(iter((song.id, song) for song in songs), namespace="songs"),  # songs
                 cache_obj.multi_set(iter((song.title, song.id) for song in songs), namespace="tracks"),  # titles
-                cache_obj.multi_set(iter((id, li) for id, ul in song_aliases.items() for li in ul), namespace="aliases"),  # aliases
+                cache_obj.multi_set(iter((li, id) for id, ul in song_aliases.items() for li in ul), namespace="aliases"),  # aliases
                 cache_obj.set(
                     "versions",
                     {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.get_difficulties()},
