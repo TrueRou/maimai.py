@@ -1,5 +1,14 @@
 # 更新日志
 
+## 1.3.2 (2025-07-10)
+
+Features:
+  - 完全重构文档 -> [#33](https://github.com/TrueRou/maimai.py/issues/33)
+
+Bugfixes:
+  - 修复使用 Redis 缓存时，初始化空成绩列表时抛出异常的问题
+  - 修复别名异常覆盖的问题 -> [#34](https://github.com/TrueRou/maimai.py/issues/34)
+
 ## 1.3.1 (2025-06-29)
 
 Features:
