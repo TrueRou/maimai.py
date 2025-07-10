@@ -1,6 +1,4 @@
-config.json
-proxy.yaml
-tests/secrets.py
+.DS_Store
 .vscode/
 
 # Vitepress

@@ -1,7 +1,7 @@
 import asyncio
 from mitmproxy.http import HTTPFlow, Response
 
-from examples.proxy_updater import updater
+from proxy_updater import updater
 
 prompt = "Your scores are currently being updated. Please wait for a moment.\n你的成绩正在更新中, 请稍等片刻."
 

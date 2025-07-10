@@ -8,21 +8,30 @@
 
 示例 proxy_updater 是利用代理和微信OAuth认证更新查分器的示例，类似于 bakapiano / UsagiPass 的方案。
 
-在第一次运行`python main.py`后，在目录中会生成`config.json`和`proxy.yaml`，分别对应项目的配置文件和代理的配置文件。
+1. 首先，您需要确保已经全局安装了 `poetry` 包管理工具：`pip install poetry`。
+2. 进入 `examples` 目录，然后运行 `poetry install` 来安装依赖。
+3. 接下来，您需要配置环境变量，请根据 `.env.example` 文件创建一个 `.env` 文件，并根据您的环境修改其中的配置。
+4. 最后，您可以运行 `poetry run python proxy_updater/main.py` 来启动代理服务器。
 
-您可以修改`config.json`和`proxy.yaml`中定义的IP和端口，以适应你的工作区环境。
+为了将流量导向代理服务器，您需要在您的设备上配置代理，下面是一个 Clash 代理配置示例：
 
-::: info
-`proxy.yaml` 是 **Clash** 的配置文件，可以导入到任何支持 Clash 配置的代理工具中
-:::
+```yaml
+mixed-port: 7890
+mode: rule
+log-level: info
 
-配置文件中，可以开启或关闭水鱼和落雪查分器的上传。水鱼查分器上传需提供账号密码、落雪需提供好友代码和开发者Token
+proxies:
+  - name: maimai.py
+    server: 127.0.0.1
+    port: 8080
+    type: http
+    
+rules:
+  - DOMAIN,tgk-wcaime.wahlap.com,maimai.py
+  - MATCH,DIRECT
+```
 
-::: tip
-水鱼查分器上传可以使用`Import-Token`，只需要将用户名留空，`credentials`填入`Import-Token`就可以了
-:::
-
-在修改配置文件后，重新启动程序，即可正常使用并测试示例项目
+根据实际环境修改服务器地址和绑定的端口号。
 
 ## 使用
 
