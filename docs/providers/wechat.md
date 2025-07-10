@@ -1,22 +1,26 @@
 # WechatProvider
 
-从舞萌服务号的舞萌DX页面，通过HTML解析获取分数信息。
+舞萌服务号的舞萌DX页面，通过HTML解析获取信息。
 
-实现：IScoreProvider
+实现：IScoreProvider, IPlayerIdentifierProvider
 
 源站：https://maimai.wahlap.com/maimai-mobile/
 
-## 如何使用
+## 如何提供 PlayerIdentifier
 
-使用 WechatProvider 需要配合代理，具体使用例子可以查看 [示例项目](../dev/samples.md) 部分。
+通过 [`maimai.wechat()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.wechat) 方法，您可以通过微信服务号来获取玩家的 PlayerIdentifier。
 
-## 实现原理
+调用此方法时，如果不带任何参数，将获取到一个 URL，让玩家在启动代理的情况下访问URL。
 
-原理参考了[Bakapiano方案](https://github.com/bakapiano/maimaidx-prober-proxy-updater)，这里引用Bakapiano的原话：
+这里的代理指的是中间人代理（如 mitmproxy），它会拦截微信服务号 tgk-wcaime.wahlap.com 的 OAuth2 认证请求。
 
-> 修改微信 OAuth2 认证中的 redirect_uri 链接，将 https://example.com 修改为 http://example.com 并通过 HTTP 代理截获。之后服务器通过认证信息获取舞萌 DX 成绩数据。理论上全平台支持，只要对应平台下的微信内置浏览器走全局 HTTP 代理
+在拦截的请求中，您可以获取到响应中的参数（r、t、code、state），这些参数是微信 OAuth2 认证的必要信息。
 
-我们提供 `maimai.wechat()` 方法，以及 `maimai.scores(wx_player, ScoreKind.ALL, WechatProvider())` 方法，将上述原理封装，方便开发者调用。
+再次调用 `maimai.wechat()` 方法时，您可以传入这些参数（r、t、code、state）来获取 PlayerIdentifier。
+
+::: info
+参考 [proxy_updater (示例项目)](../samples/proxy_updater.md) 部分，这是一个通过代理和微信 OAuth 认证更新查分器的示例。
+:::
 
 ## 已知问题
 

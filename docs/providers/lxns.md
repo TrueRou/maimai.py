@@ -8,21 +8,21 @@
 
 开发者交流群：991669419
 
-## PlayerIdentifier
+## 如何提供 PlayerIdentifier
 
-使用个人API密钥：`PlayerIdentitifer(credentials="API-Secret")`，将使用个人API。
+- 使用个人API密钥：`PlayerIdentifier(credentials="API-Secret")`，将使用个人API。
+- 使用好友代码：`PlayerIdentifier(friend_code="123456789")`，将使用开发者API。
+- 使用QQ号：`PlayerIdentifier(qq="123456789")`，将使用开发者API。
 
-使用好友代码：`PlayerIdentitifer(friend_code="")`，将使用开发者API。
+::: warning
+注意：获取单个成绩（`maimai.minfo(...)`）时，目前仅支持开发者API。
+:::
 
-使用QQ号：`PlayerIdentitifer(qq="")`，将使用开发者API。
-
-## 关于开发者Token
+## 关于开发者API
 
 申请开发者Token：https://maimai.lxns.net/developer
 
 在使用开发者API时，必须提供 `developer_token` 参数。
-
-建议始终提供落雪的开发者Token，落雪的大部分操作都需要开发者Token。
 
 ## 已知问题
 

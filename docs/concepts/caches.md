@@ -43,7 +43,7 @@ maimai.py 的缓存遵循生存周期，默认的生存周期为24小时，您�
 
 然而，我们不推荐您主动调用 `clear` 方法，如果您在开发Web应用，这可能会导致没有关闭的连接无法找到缓存资源。
 
-## 关于Redis
+## 关于 Redis
 
 maimai.py 的缓存默认使用内存缓存，如果您需要使用 Redis 缓存，可以通过 `MaimaiClient` 的 `cache` 参数来使用 Redis 。
 
@@ -64,8 +64,8 @@ asyncio.run(quick_start())
 如果您正在开发Web应用，我们建议您用类似下面的方式来使用 maimai.py：
 
 ```python
-from fastapi import FastAPI
 import asyncio
+from fastapi import FastAPI
 from maimai import MaimaiClient, DivingFishProvider
 
 app = FastAPI()
@@ -73,11 +73,12 @@ maimai = MaimaiClient()
 
 @app.get("/songs/list", response_model=list[Song])
 async def get_songs():
-    return await maimai.songs() # 这里会从缓存中按需加载数据，不会造成额外的请求和性能损失
+    maimai_songs = await maimai.songs() # 这里会从缓存中按需加载数据，不会造成额外的请求和性能损失
+    return maimai_songs.get_all()
 ```
 
 创建 `MaimaiSongs` 不会引入额外的性能损失，因为所有的曲目信息都已经被缓存，并且只有在需要的时候才会被加载。
 
 ::: info
-关于 Web 应用的更多信息，请参考我们的内置 Web 实现 [api.py](https://github.com/TrueRou/maimai.py/blob/main/maimai_py/api.py)
+关于 Web 应用的更多信息，请参考我们的 [RESTful 客户端](./client.md) 章节
 :::
