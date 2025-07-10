@@ -152,16 +152,6 @@ class SongDifficultyUtage(SongDifficulty):
 
 
 @dataclass
-class SongAlias:
-    """@private"""
-
-    __slots__ = ("song_id", "aliases")
-
-    song_id: int
-    aliases: list[str]
-
-
-@dataclass
 class PlayerIdentifier:
     qq: Optional[int] = None
     username: Optional[str] = None

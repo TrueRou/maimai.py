@@ -267,10 +267,10 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         if not resp_json["success"] and resp_json["code"] == 400:
             raise ValueError(resp_json["message"])
 
-    async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
+    async def get_aliases(self, client: "MaimaiClient") -> dict[int, list[str]]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/alias/list")
         resp.raise_for_status()
-        return [SongAlias(song_id=item["song_id"], aliases=item["aliases"]) for item in resp.json()["aliases"]]
+        return {item["song_id"]: item["aliases"] for item in resp.json()["aliases"]}
 
     async def get_icons(self, client: "MaimaiClient") -> dict[int, PlayerIcon]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/icon/list")

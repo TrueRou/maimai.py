@@ -31,7 +31,7 @@ class IAliasProvider(IProvider):
     """
 
     @abstractmethod
-    async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
+    async def get_aliases(self, client: "MaimaiClient") -> dict[int, list[str]]:
         """@private"""
         raise NotImplementedError()
 

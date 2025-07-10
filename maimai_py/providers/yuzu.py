@@ -1,3 +1,4 @@
+from collections import defaultdict
 import hashlib
 from json import JSONDecodeError
 from typing import TYPE_CHECKING
@@ -5,7 +6,6 @@ from typing import TYPE_CHECKING
 from httpx import HTTPStatusError, Response
 
 from maimai_py.exceptions import InvalidJsonError, MaimaiPyError
-from maimai_py.models import SongAlias
 
 from .base import IAliasProvider
 
@@ -38,7 +38,10 @@ class YuzuProvider(IAliasProvider):
         except HTTPStatusError as exc:
             raise MaimaiPyError(exc) from exc
 
-    async def get_aliases(self, client: "MaimaiClient") -> list[SongAlias]:
+    async def get_aliases(self, client: "MaimaiClient") -> dict[int, list[str]]:
         resp = await client._client.get(self.base_url + "maimaidx/maimaidxalias")
         resp_json = self._check_response(resp)
-        return [SongAlias(song_id=item["SongID"] % 10000, aliases=item["Alias"]) for item in resp_json["content"]]
+        grouped = defaultdict(list)
+        for item in resp_json["content"]:
+            grouped[item["SongID"] % 10000].append(item["Alias"])
+        return grouped
