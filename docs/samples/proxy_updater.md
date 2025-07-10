@@ -9,9 +9,10 @@
 示例 proxy_updater 是利用代理和微信OAuth认证更新查分器的示例，类似于 bakapiano / UsagiPass 的方案。
 
 1. 首先，您需要确保已经全局安装了 `poetry` 包管理工具：`pip install poetry`。
-2. 进入 `examples` 目录，然后运行 `poetry install` 来安装依赖。
-3. 接下来，您需要配置环境变量，请根据 `.env.example` 文件创建一个 `.env` 文件，并根据您的环境修改其中的配置。
-4. 最后，您可以运行 `poetry run python proxy_updater/main.py` 来启动代理服务器。
+2. 先安装外层的依赖库, 在项目根目录下运行 `poetry install` 来安装根依赖。
+3. 再进入 `examples` 目录，然后再次运行 `poetry install` 来安装子依赖。
+4. 接下来，您需要配置环境变量，请根据 `.env.example` 文件创建一个 `.env` 文件，并根据您的环境修改其中的配置。
+5. 最后，您可以运行 `poetry run python proxy_updater/main.py` 来启动代理服务器。
 
 为了将流量导向代理服务器，您需要在您的设备上配置代理，下面是一个 Clash 代理配置示例：
 
