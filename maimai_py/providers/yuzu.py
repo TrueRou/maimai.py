@@ -43,5 +43,5 @@ class YuzuProvider(IAliasProvider):
         resp_json = self._check_response(resp)
         grouped = defaultdict(list)
         for item in resp_json["content"]:
-            grouped[item["SongID"] % 10000].append(item["Alias"])
+            grouped[item["SongID"] % 10000].extend(item["Alias"])
         return grouped
