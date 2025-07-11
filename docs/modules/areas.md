@@ -14,27 +14,26 @@
 
 参考 [Area 模型](../concepts/models.md#area)，可以了解具体数据结构。
 
-### 示例代码
-
-#### 通过 ID 获取区域
-
-```python
-areas = await client.areas()
-heaven4 = await areas.by_id("heaven4")
-print(heaven4.name) # 天界ちほー4
-print(heaven4.description) # ……この身は穢れ、もう天界には戻れない。
-```
-
-#### 遍历所有区域
-
-```python
-areas = await client.areas()
-all_areas = [area.name for area in await areas.get_all()]
-print(all_areas) # ['天界ちほー1', '天界ちほー2', '天界ちほー3', '天界ちほー4', ...]
-```
-
-### 补充说明
-
+::: info
 `maimai.areas()` 方法可以提供 `lang` 参数来指定语言，默认为 `jp` （日语），可选值包括：(`jp`, `zh`)。
 
 目前的区域数据来自于本地 JSON 文件，如果您希望更新或贡献区域数据，请参考 [CONTRIBUTING.md](https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md)
+:::
+
+### 通过 ID 获取区域
+
+```python
+areas = await maimai.areas()
+heaven4 = await areas.by_id("heaven4")
+assert heaven4 is not None
+print(heaven4.name)  # 天界ちほー4
+print(heaven4.description)  # ……この身は穢れ、もう天界には戻れない。
+```
+
+### 遍历所有区域
+
+```python
+areas = await maimai.areas()
+all_areas = [area.name for area in await areas.get_all()]
+print(all_areas) # ['天界ちほー1', '天界ちほー2', '天界ちほー3', '天界ちほー4', ...]
+```

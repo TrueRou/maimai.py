@@ -12,21 +12,19 @@
 
 **支持的收藏品**：`PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`。
 
-### 示例代码
-
-#### 遍历所有搭档
+### 遍历所有搭档
 
 ```python
-items = await client.items(PlayerPartner)
+items = await maimai.items(PlayerPartner)
 all_icons = [icon.name for icon in await items.get_all()]
 print(all_icons)  # ['でらっくま', '乙姫', ...]
 ```
 
-#### 返回头像和对应图片链接
+### 返回头像和对应图片链接
 
 ```python
 resource_base = "https://assets2.lxns.net/maimai/icon/"
-items = await client.items(PlayerPartner)
+items = await maimai.items(PlayerPartner)
 partner_images = {partner.name: resource_base + f"{partner.id}.png" for partner in await items.get_all()}
 print(partner_images)  # {'デフォルト': 'https://assets2.lxns.net/maimai/icon/1.png', ...}
 ```

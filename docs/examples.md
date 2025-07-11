@@ -1,8 +1,8 @@
-# 单元用例
+# 例子
 
 所有的例子完全摘抄自 [maimai.py 单元测试](https://github.com/TrueRou/maimai.py/tree/main/tests)，仅推荐有经验的开发者阅读。
 
-如果您阅读下面的内容有困难，建议先阅读 [开始](../get-started.md) 章节，然后进入 **功能** 章节阅读。
+如果您阅读下面的内容有困难，建议先阅读 [开始 章节](./get-started.md)。
 
 ## conftest.py
 

@@ -23,57 +23,58 @@
 
 很容易想到的，`maimai.plates()` 是 `maimai.scores()` 的一个特例，专门用于处理牌子相关的成绩查询，对于 Provider 和 PlayerIdentifier 的处理方式与 `maimai.scores()` 类似，参考 [分数 章节](./scores.md) 了解更多细节。
 
-### 示例代码
-
-#### 获取桃将完成度
+### 获取桃将完成度
 
 ```python
-my_plate = await client.plates(PlayerIdentifier(friend_code=664994421382429), "桃将", provider=lxns)
+my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), "桃将", provider=lxns)
 cleared_num = await my_plate.count_cleared()
 remained_num = await my_plate.count_remained()
 percentage = cleared_num / (cleared_num + remained_num) * 100
 print(f"桃将完成度: {percentage:.2f}%，已完成 {cleared_num} 难度，剩余 {remained_num} 难度")
 ```
 
-#### 获取舞将剩余的所有成绩
+### 获取舞将剩余的所有成绩
 
 ```python
-my_plate = await client.plates(PlayerIdentifier(friend_code=664994421382429), "舞将", provider=lxns)
+my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), "舞将", provider=lxns)
 remained_obj = await my_plate.get_remained()
 for plate_obj in remained_obj:
-    print(f"歌曲: {plate_obj.song.name}")
+    print(f"歌曲: {plate_obj.song.title}")
     for score in plate_obj.scores:
-        print(f"  - 难度: {score.level_index}, 分数: {score.score}, 等级: {score.grade}")
+        print(f"  - 难度: {score.level_index}, 分数: {score.rate.name}")
 ```
 
-#### 绘制牌子完成情况图表
+### 绘制牌子完成情况图表
 
 ```python
 async def draw_plate_completion(plate: MaimaiPlates):
     import matplotlib.pyplot as plt
+
+    plt.rcParams["font.family"] = ["Hei", "Arial", "Helvetica", "Times New Roman"]
 
     # 获取已完成和剩余的成绩
     cleared = await plate.get_cleared()
     remained = await plate.get_remained()
 
     # 准备数据
-    song_names = [obj.song.name for obj in cleared + remained]
-    cleared_levels = [max(score.level_index for score in obj.scores if score.is_cleared) for obj in cleared]
-    remained_levels = [max(score.level_index for score in obj.scores if not score.is_cleared) for obj in remained]
+    cleared_names = [obj.song.title for obj in cleared]
+    cleared_levels = [sum(score.level_index.value for score in obj.scores) for obj in cleared]
+    remained_names = [obj.song.title for obj in remained]
+    remained_levels = [sum(score.level_index.value for score in obj.scores) for obj in remained]
 
     # 绘制图表
-    plt.bar(song_names, cleared_levels, label='已完成', color='green')
-    plt.bar(song_names, remained_levels, label='剩余', color='red', bottom=cleared_levels)
+    plt.bar(cleared_names, cleared_levels, label="已完成", color="green")
+    plt.bar(remained_names, remained_levels, label="剩余", color="red", bottom=cleared_levels)
 
-    plt.xlabel('歌曲')
-    plt.ylabel('难度等级')
-    plt.title(f"{plate.plate} 完成情况")
+    plt.xlabel("歌曲")
+    plt.ylabel("难度等级")
+    plt.title(f"桃将 完成情况")
     plt.legend()
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
 
-my_plate = await client.plates(PlayerIdentifier(friend_code=664994421382429), "桃将", provider=lxns)
+my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), "桃将", provider=lxns)
 await draw_plate_completion(my_plate)
 ```
 

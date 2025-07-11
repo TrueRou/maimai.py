@@ -1,8 +1,6 @@
 # 数据模型
 
-API 文档：https://api.maimai.turou.fun/maimai_py/models.html
-
-## Song
+## [Song](https://api.maimai.turou.fun/maimai_py/models.html#Song)
 
 | 字段           | 类型                | 说明             |
 |----------------|---------------------|----------------|
@@ -27,7 +25,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `get_divingfish_id(SongType, LevelIndex)` | `int`                  | 获取歌曲对应难度的 水鱼ID      |
 | `get_divingfish_ids(SongType)`            | `set[int]`             | 获取歌曲对应类型的 水鱼ID 集合 |
 
-## SongDifficulties
+## [SongDifficulties](https://api.maimai.turou.fun/maimai_py/models.html#SongDifficulties)
 
 | 字段       | 类型                        | 说明                   |
 |------------|-----------------------------|----------------------|
@@ -35,7 +33,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `dx`       | `list[SongDifficulty]`      | 曲目 DX 谱面难度列表   |
 | `utage`    | `list[SongDifficultyUtage]` | 宴会场曲目谱面难度列表 |
 
-## SongDifficulty
+## [SongDifficulty](https://api.maimai.turou.fun/maimai_py/models.html#SongDifficulty)
 
 | 字段            | 类型                   | 说明              |
 |-----------------|------------------------|-----------------|
@@ -52,7 +50,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `break_num`     | `int`                  | BREAK 物量        |
 | `curve`         | `CurveObject \| None ` | 相对难度数据      |
 
-## SongDifficultyUtage
+## [SongDifficultyUtage](https://api.maimai.turou.fun/maimai_py/models.html#SongDifficultyUtage)
 
 继承自 `SongDifficulty` 类。
 
@@ -62,7 +60,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `description` | `str`  | 宴谱描述                 |
 | `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
 
-## CurveObject
+## [CurveObject](https://api.maimai.turou.fun/maimai_py/models.html#CurveObject)
 
 | 字段                 | 类型                  | 说明                     |
 |----------------------|-----------------------|------------------------|
@@ -74,7 +72,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `rate_sample_size`   | `dict[RateType, int]` | 不同 `RateType` 样本数量 |
 | `fc_sample_size`     | `dict[FCType, int]`   | 不同 `FCType` 样本数量   |
 
-## PlayerIdentifier
+## [PlayerIdentifier](https://api.maimai.turou.fun/maimai_py/models.html#PlayerIdentifier)
 
 | 字段          | 类型                                      | 说明     |
 |---------------|-------------------------------------------|---------|
@@ -83,7 +81,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `friend_code` | `int \| None`                             | 好友码   |
 | `credentials` | `str \| MutableMapping[str, Any] \| None` | 玩家凭据 |
 
-## Score
+## [Score](https://api.maimai.turou.fun/maimai_py/models.html#Score)
 
 | 字段           | 类型            | 说明              |
 |----------------|-----------------|-------------------|
@@ -99,7 +97,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `rate`         | `RateType`      | 评级类型          |
 | `type`         | `SongType`      | 谱面类型          |
 
-## ScoreExtend
+## [ScoreExtend](https://api.maimai.turou.fun/maimai_py/models.html#ScoreExtend)
 
 继承自 `Score` 类。
 
@@ -109,7 +107,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `level_value`    | `LevelIndex` | 难度定数         |
 | `level_dx_score` | `LevelIndex` | 难度最大 DX 分数 |
 
-## PlateObject
+## [PlateObject](https://api.maimai.turou.fun/maimai_py/models.html#PlateObject)
 
 | 字段     | 类型                | 说明     |
 |----------|---------------------|--------|
@@ -117,14 +115,14 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `levels` | `list[LevelIndex]`  | 关联难度 |
 | `scores` | `list[ScoreExtend]` | 成绩列表 |
 
-## PlayerSong
+## [PlayerSong](https://api.maimai.turou.fun/maimai_py/models.html#PlayerSong)
 
 | 字段     | 类型                | 说明     |
 |----------|---------------------|--------|
 | `song`   | `Song`              | 歌曲     |
 | `scores` | `list[ScoreExtend]` | 成绩列表 |
 
-## PlayerBests
+## [PlayerBests](https://api.maimai.turou.fun/maimai_py/models.html#PlayerBests)
 
 | 字段         | 类型                | 说明              |
 |--------------|---------------------|-----------------|
@@ -135,7 +133,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `scores_b35` | `list[ScoreExtend]` | 玩家 B35 分数列表 |
 | `scores_b15` | `list[ScoreExtend]` | 玩家 B15 分数列表 |
 
-## PlayerTrophy
+## [PlayerTrophy](https://api.maimai.turou.fun/maimai_py/models.html#PlayerTrophy)
 
 | 字段    | 类型  | 说明     |
 |---------|-------|--------|
@@ -143,7 +141,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `name`  | `str` | 称号名称 |
 | `color` | `str` | 称号颜色 |
 
-## PlayerIcon
+## [PlayerIcon](https://api.maimai.turou.fun/maimai_py/models.html#PlayerIcon)
 
 | 字段          | 类型          | 说明     |
 |---------------|---------------|--------|
@@ -152,7 +150,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `description` | `str \| None` | 头像描述 |
 | `genre`       | `str \| None` | 头像分类 |
 
-## PlayerNamePlate
+## [PlayerNamePlate](https://api.maimai.turou.fun/maimai_py/models.html#PlayerNamePlate)
 
 | 字段          | 类型          | 说明       |
 |---------------|---------------|----------|
@@ -161,7 +159,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `description` | `str \| None` | 姓名框描述 |
 | `genre`       | `str \| None` | 姓名框分类 |
 
-## PlayerFrame
+## [PlayerFrame](https://api.maimai.turou.fun/maimai_py/models.html#PlayerFrame)
 
 | 字段          | 类型          | 说明     |
 |---------------|---------------|--------|
@@ -170,28 +168,28 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `description` | `str \| None` | 背景描述 |
 | `genre`       | `str \| None` | 背景分类 |
 
-## PlayerPartner
+## [PlayerPartner](https://api.maimai.turou.fun/maimai_py/models.html#PlayerPartner)
 
 | 字段   | 类型  | 说明         |
 |--------|-------|------------|
 | `id`   | `int` | 旅行伙伴ID   |
 | `name` | `str` | 旅行伙伴名称 |
 
-## PlayerChara
+## [PlayerChara](https://api.maimai.turou.fun/maimai_py/models.html#PlayerChara)
 
 | 字段   | 类型  | 说明     |
 |--------|-------|--------|
 | `id`   | `int` | 角色ID   |
 | `name` | `str` | 角色名称 |
 
-## Player
+## [Player](https://api.maimai.turou.fun/maimai_py/models.html#Player)
 
 | 字段     | 类型  | 说明       |
 |----------|-------|----------|
 | `name`   | `str` | 玩家名称   |
 | `rating` | `int` | 玩家Rating |
 
-## DivingFishPlayer
+## [DivingFishPlayer](https://api.maimai.turou.fun/maimai_py/models.html#DivingFishPlayer)
 
 继承自 `Player` 类。
 
@@ -201,7 +199,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `plate`             | `str` | 玩家牌子 |
 | `additional_rating` | `int` |          |
 
-## LXNSPlayer
+## [LXNSPlayer](https://api.maimai.turou.fun/maimai_py/models.html#LXNSPlayer)
 
 继承自 `Player` 类。
 
@@ -217,7 +215,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `name_plate`  | `PlayerNamePlate \| None` | 姓名框                  |
 | `upload_time` | `str`                     | 玩家被同步时的 UTC 时间 |
 
-## ArcadePlayer
+## [ArcadePlayer](https://api.maimai.turou.fun/maimai_py/models.html#ArcadePlayer)
 
 继承自 `Player` 类。
 
@@ -228,7 +226,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `icon`       | `int`  | 头像ID               |
 | `name_plate` | `int`  | 姓名框ID             |
 
-## PlayerRegion
+## [PlayerRegion](https://api.maimai.turou.fun/maimai_py/models.html#PlayerRegion)
 
 | 字段          | 类型       | 说明           |
 |---------------|------------|--------------|
@@ -237,7 +235,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `play_count`  | `int`      | 游玩次数       |
 | `created_at`  | `datetime` | 第一次游玩时间 |
 
-## AreaCharacter
+## [AreaCharacter](https://api.maimai.turou.fun/maimai_py/models.html#AreaCharacter)
 
 | 字段           | 类型             | 说明             |
 |----------------|------------------|----------------|
@@ -248,7 +246,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `team`         | `str`            | 角色队伍         |
 | `props`        | `dict[str, str]` | 角色属性         |
 
-## AreaSong
+## [AreaSong](https://api.maimai.turou.fun/maimai_py/models.html#AreaSong)
 
 | 字段          | 类型          | 说明     |
 |---------------|---------------|--------|
@@ -259,7 +257,7 @@ API 文档：https://api.maimai.turou.fun/maimai_py/models.html
 | `illustrator` | `str \| None` | 插画师   |
 | `movie`       | `str \| None` | 视频来源 |
 
-## Area
+## [Area](https://api.maimai.turou.fun/maimai_py/models.html#Area)
 
 | 字段          | 类型                  | 说明              |
 |---------------|-----------------------|-----------------|

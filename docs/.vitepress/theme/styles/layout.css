@@ -1,9 +1,3 @@
-@media (min-width: 1440px) {
-  .VPDoc.has-aside .content-container {
-    max-width: 928px !important;
-  }
-}
-
 .VPNavBar {
   background-color: var(--vp-nav-bg-color);
 }

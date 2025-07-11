@@ -4,13 +4,11 @@
 
 通过 [`maimai.songs()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.songs) 方法可以获取曲目的封装对象，以 `MaimaiSongs` 的形式返回。
 
-调用后，默认会从 LXNSProvider 数据源获取歌曲，并且从 YuzuProvider 数据源获取别名数据。如果您需要拟合难度数据，可以通过 `curve_provider` 参数传入一个实现了 `ICurveProvider` 接口的对象，默认只有 `DivingFishProvider` 提供了相对难度曲线数据。
+调用后，默认会从 LXNSProvider 获取歌曲，并且从 YuzuProvider 获取别名。如果您需要拟合难度，可以通过 `curve_provider` 参数传入一个实现了 `ICurveProvider` 接口的对象，默认只有 `DivingFishProvider` 提供了相对难度曲线数据。
 
 阅读 [MaimaiSongs 定义](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiSongs)，可以了解通过各种条件筛选曲目、获取单个曲目、遍历曲目等方法。
 
-### 示例代码
-
-#### 通过 ID 或者别名获取曲目
+### 通过 ID 或者别名获取曲目
 
 很容易想到的，maimai.py 的单个曲目可能包含 SD、DX、宴会等不同版本的谱面，maimai.py 通过 `Song` 对象来封装这些曲目。
 
@@ -32,7 +30,7 @@ print(song2.id == song1.id)  # 输出: True
 如果您对此有疑问，请参考 [开始 章节](../get-started.md#曲目id)。
 :::
 
-在上述例子中，通过 `song.difficulties` 可以获取 `SongDifficulties` 对象，包含了所有谱面的难度信息。通过 `song.difficulties.dx` 可以获取 DX 谱面的难度列表（Easy, Normal, Hard, Expert, Master等）。
+在上述例子中，通过 `song.difficulties` 可以获取 `SongDifficulties` 对象，包含了所有谱面的难度信息。例如： `song.difficulties.dx` 是 DX 谱面的难度列表。
 
 这种封装方式可能对您动态的获取曲目难度造成困扰，所以我们为 [`Song`](../concepts/models.md#song) 对象提供了一些工具方法：
 

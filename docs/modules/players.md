@@ -6,41 +6,34 @@
 
 针对不同的数据源，`maimai.py` 会返回不同类型的玩家对象，例如 `DivingFishPlayer`、`LXNSPlayer` 或 `ArcadePlayer`，但是他们都统一继承自 `Player` 类。
 
-### 示例代码
-
-#### 从水鱼获取玩家信息
+### 从水鱼获取玩家信息
 
 返回的 Player 对象是 [`DivingFishPlayer`](../concepts/models.md#divingfishplayer) 类型。
 
 ```python
 divingfish = DivingFishProvider(developer_token="your_developer_token")
 player = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish)
-print(f"玩家用户名: {player.username}, Rating: {player.rating}")
+print(f"玩家用户名: {player.name}, Rating: {player.rating}")
 ```
 
-#### 从 LXNS 获取玩家信息
+### 从 LXNS 获取玩家信息
 
 返回的 Player 对象是 [`LXNSPlayer`](../concepts/models.md#lxnsplayer) 类型。
 
 ```python
 lxns = LXNSProvider(developer_token="your_developer_token")
 player = await maimai.players(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
-print(f"玩家用户名: {player.username}, Rating: {player.rating}, )
+print(f"玩家用户名: {player.name}, Rating: {player.rating}, 称号: {player.trophy}")
 ```
 
-#### 从 机台✨ 获取玩家信息
+### 从 机台✨ 获取玩家信息
 
 返回的 Player 对象是 [`ArcadePlayer`](../concepts/models.md#arcadeplayer) 类型。
 
 ```python
 player = await maimai.players(PlayerIdentifier(credentials="EncryptedUserId"), provider=ArcadeProvider())
-print(f"玩家用户名: {player.username}, Rating: {player.rating}, 是否已登录: {player.is_login}")
+print(f"玩家用户名: {player.name}, Rating: {player.rating}, 是否已登录: {player.is_login}")
 ```
-
-### 注意事项
-- `maimai.players()` 方法可以接受多种类型的玩家标识符（`PlayerIdentifier`），请参考对应 Provider 的文档来了解如何正确提供。
-- 返回的玩家对象类型取决于所使用的数据源（如 `DivingFishProvider`、`LXNSProvider` 或 `ArcadeProvider`）。
-- 如果你需要获取更详细的玩家信息（如游玩地区、游玩成绩等），可以使用其他方法，如 `maimai.regions()` 或 `maimai.scores()`。
 
 ## 你是否在找 PlayerIdentifier？
 

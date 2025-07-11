@@ -10,7 +10,7 @@
 
 `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`
 
-# 关于跑图区域
+## 关于跑图区域
 
 本地数据源提供了一些跑图区域的数据，提供日语原版的区域名称和中文翻译。
 

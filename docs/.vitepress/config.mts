@@ -8,7 +8,14 @@ export default defineConfig({
     nav: [
       { text: '主页', link: '/' },
       { text: '指南', link: '/get-started' },
-      { text: 'API', link: 'https://api.maimai.turou.fun/' }
+      { text: 'API', link: 'https://api.maimai.turou.fun/' },
+      {
+        text: '关于', items: [
+          { text: '更新日志', link: '/changelog' },
+          { text: '行为规范', link: 'https://github.com/TrueRou/maimai.py/blob/main/.github/CODE_OF_CONDUCT.md' },
+          { text: '贡献指南', link: 'https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md' },
+        ]
+      }
     ],
 
     search: {
@@ -22,8 +29,19 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: '开始',
-        link: '/get-started'
+        text: '简介',
+        items: [
+          { text: '开始', link: '/get-started' },
+          { text: '例子', link: '/examples' },
+        ]
+      },
+      {
+        text: '概念',
+        items: [
+          { text: '数据模型', link: '/concepts/models' },
+          { text: '缓存策略', link: '/concepts/caches' },
+          { text: 'RESTful 客户端', link: '/concepts/client' }
+        ]
       },
       {
         text: '功能',
@@ -35,15 +53,6 @@ export default defineConfig({
           { text: '区域', link: '/modules/areas' },
           { text: '收藏品', link: '/modules/items' },
           { text: '游玩地区', link: '/modules/regions' },
-        ]
-      },
-      {
-        text: '概念',
-        items: [
-          { text: '数据模型', link: '/concepts/models' },
-          { text: '缓存策略', link: '/concepts/caches' },
-          { text: '单元用例', link: '/concepts/examples' },
-          { text: 'RESTful 客户端', link: '/concepts/client' }
         ]
       },
       {
@@ -62,10 +71,6 @@ export default defineConfig({
           { text: 'proxy_updater', link: '/samples/proxy_updater' },
           { text: 'simple_prober', link: '/samples/simple_prober' },
         ]
-      },
-      {
-        text: '更新日志',
-        link: '/changelog'
       }
     ],
 
