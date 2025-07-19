@@ -141,6 +141,10 @@ class SongDifficulty:
     break_num: int
     curve: Optional[CurveObject]
 
+    @property
+    def level_dx_score(self) -> int:
+        return (self.tap_num + self.hold_num + self.slide_num + self.break_num + self.touch_num) * 3
+
 
 @dataclass
 class SongDifficultyUtage(SongDifficulty):
