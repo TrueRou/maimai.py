@@ -2,7 +2,9 @@ import hashlib
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from httpcore import NetworkError, TimeoutException
 from maimai_ffi import arcade
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.utils import ScoreCoefficient
@@ -54,6 +56,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
                     type=song_type,
                 )
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> ArcadePlayer:
         maimai_icons = await client.items(PlayerIcon)
         maimai_trophies = await client.items(PlayerTrophy)
@@ -70,6 +73,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
             )
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()
         if identifier.credentials and isinstance(identifier.credentials, str):
@@ -77,6 +81,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
             return [s for score in resp_list if (s := await ArcadeProvider._deser_score(score, maimai_songs))]
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
     async def get_regions(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[PlayerRegion]:
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp_dict = await arcade.get_user_region(identifier.credentials.encode(), http_proxy=self._http_proxy)
@@ -91,6 +96,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
             ]
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type((TimeoutException, NetworkError)), reraise=True)
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         resp_bytes: bytes = await arcade.get_uid_encrypted(str(code), http_proxy=self._http_proxy)
         return PlayerIdentifier(credentials=resp_bytes.decode())

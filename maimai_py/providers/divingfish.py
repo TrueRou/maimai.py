@@ -3,7 +3,8 @@ import hashlib
 from json import JSONDecodeError
 from typing import TYPE_CHECKING, Generator, Iterable
 
-from httpx import HTTPStatusError, Response
+from httpx import HTTPStatusError, RequestError, Response
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier, Score, Song
@@ -152,6 +153,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         except HTTPStatusError as exc:
             raise MaimaiPyError(exc) from exc
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         resp = await client._client.get(self.base_url + "music_data")
         resp.raise_for_status()
@@ -166,6 +168,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
             difficulties.extend(DivingFishProvider._deser_diffs(song))
         return list(unique_songs.values())
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> DivingFishPlayer:
         resp = await client._client.post(self.base_url + "query/player", json=identifier._as_diving_fish())
         resp_json = self._check_response_player(resp)
@@ -177,16 +180,19 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
             additional_rating=resp_json["additional_rating"],
         )
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
         resp_json = self._check_response_player(resp)
         return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.post(self.base_url + "query/player", json={"b50": True, **identifier._as_diving_fish()})
         resp_json = self._check_response_player(resp)
         return [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"] + resp_json["charts"]["dx"]]
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
         resp = await client._client.post(
             self.base_url + "dev/player/record",
@@ -196,6 +202,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         resp_json: dict[str, dict] = self._check_response_player(resp)
         return [s for scores in resp_json.values() for score in scores if (s := DivingFishProvider._deser_score(score))]
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
         headers, cookies = None, None
         maimai_songs = await client.songs()
@@ -212,6 +219,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         resp2 = await client._client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
         self._check_response_player(resp2)
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_curves(self, client: "MaimaiClient") -> dict[tuple[int, SongType], list[CurveObject]]:
         resp = await client._client.get(self.base_url + "chart_stats")
         resp.raise_for_status()

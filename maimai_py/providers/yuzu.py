@@ -1,9 +1,10 @@
-from collections import defaultdict
 import hashlib
+from collections import defaultdict
 from json import JSONDecodeError
 from typing import TYPE_CHECKING
 
-from httpx import HTTPStatusError, Response
+from httpx import HTTPStatusError, RequestError, Response
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.exceptions import InvalidJsonError, MaimaiPyError
 
@@ -38,6 +39,7 @@ class YuzuProvider(IAliasProvider):
         except HTTPStatusError as exc:
             raise MaimaiPyError(exc) from exc
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_aliases(self, client: "MaimaiClient") -> dict[int, list[str]]:
         resp = await client._client.get(self.base_url + "maimaidx/maimaidxalias")
         resp_json = self._check_response(resp)

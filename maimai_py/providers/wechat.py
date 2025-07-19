@@ -5,7 +5,8 @@ import operator
 import random
 from typing import TYPE_CHECKING
 
-from httpx import Cookies
+from httpx import Cookies, RequestError
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier
@@ -52,6 +53,7 @@ class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
                     type=song_type,
                 )
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def _crawl_scores_diff(self, client: "MaimaiClient", diff: int, cookies: Cookies, maimai_songs: "MaimaiSongs") -> list[Score]:
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)

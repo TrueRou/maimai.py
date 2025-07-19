@@ -770,7 +770,7 @@ class MaimaiClient:
         Returns:
             A wrapper of the song list, for easier access and filtering.
         Raises:
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         """
         songs = MaimaiSongs(self)
         return await songs._configure(provider, alias_provider, curve_provider)
@@ -795,7 +795,7 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
@@ -831,7 +831,7 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
@@ -870,7 +870,7 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
@@ -906,7 +906,7 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
@@ -965,7 +965,7 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found, or the import token / password is invalid.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         """
         await provider.update_scores(identifier, scores, self)
 
@@ -990,7 +990,7 @@ class MaimaiClient:
             InvalidPlateError: Provided version or plate is invalid.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
             TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
@@ -1023,7 +1023,7 @@ class MaimaiClient:
         Raises:
             InvalidWechatTokenError: Wechat token is expired, please re-authorize.
             AimeServerError: Maimai Aime server error, may be invalid QR code or QR code has expired.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         """
         if isinstance(provider, _UnsetSentinel):
             provider = ArcadeProvider()
@@ -1041,7 +1041,7 @@ class MaimaiClient:
             A wrapper of the item list, for easier access and filtering.
         Raises:
             FileNotFoundError: The item file is not found.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         """
         maimai_items = MaimaiItems[PlayerItemType](self, item._namespace())
         return await maimai_items._configure(provider)
@@ -1088,7 +1088,7 @@ class MaimaiClient:
             The player identifier if all parameters are provided, otherwise return the URL to get the identifier.
         Raises:
             WechatTokenExpiredError: Wechat token is expired, please re-authorize.
-            httpx.HTTPError: Request failed due to network issues.
+            httpx.RequestError: Request failed due to network issues.
         """
         if r is None or t is None or code is None or state is None:
             resp = await self._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx")

@@ -6,7 +6,8 @@ from json import JSONDecodeError
 from operator import concat
 from typing import TYPE_CHECKING, Iterable
 
-from httpx import HTTPStatusError, Response
+from httpx import HTTPStatusError, RequestError, Response
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier, Score, Song
@@ -181,6 +182,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         except HTTPStatusError as exc:
             raise MaimaiPyError(exc) from exc
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_songs(self, client: "MaimaiClient") -> list[Song]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/song/list?notes=true")
         resp.raise_for_status()
@@ -196,6 +198,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
             difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty) for difficulty in song["difficulties"].get("utage", []))
         return list(unique_songs.values())
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> LXNSPlayer:
         maimai_frames = await client.items(PlayerFrame)
         maimai_icons = await client.items(PlayerIcon)
@@ -218,6 +221,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
             upload_time=resp_data["upload_time"],
         )
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         url, headers, use_user_api = await self._build_player_request("scores", identifier, client)
         resp = await client._client.get(url, headers=headers)
@@ -229,6 +233,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
             scores.extend(await self.get_scores_best(identifier, client))
         return scores
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         if identifier.friend_code is None:
             return await self.get_scores_all(identifier, client)
@@ -238,6 +243,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         resp_data = self._check_response_player(resp)["data"]
         return [s for score in resp_data["standard"] + resp_data["dx"] if (s := LXNSProvider._deser_score(score))]
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
         await self._ensure_friend_code(client, identifier)
         request_tasks, create_task = [], lambda type: asyncio.create_task(
@@ -257,6 +263,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         resp_data = [self._check_response_player(resp)["data"] for resp in resps]
         return [s for score in reduce(concat, resp_data) if (s := LXNSProvider._deser_score(score))]
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
         maimai_songs = await client.songs()
         url, headers, _ = await self._build_player_request("scores", identifier, client)
@@ -267,21 +274,25 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         if not resp_json["success"] and resp_json["code"] == 400:
             raise ValueError(resp_json["message"])
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_aliases(self, client: "MaimaiClient") -> dict[int, list[str]]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/alias/list")
         resp.raise_for_status()
         return {item["song_id"]: item["aliases"] for item in resp.json()["aliases"]}
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_icons(self, client: "MaimaiClient") -> dict[int, PlayerIcon]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/icon/list")
         resp.raise_for_status()
         return {item["id"]: LXNSProvider._deser_item(item, PlayerIcon) for item in resp.json()["icons"]}
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_nameplates(self, client: "MaimaiClient") -> dict[int, PlayerNamePlate]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/plate/list")
         resp.raise_for_status()
         return {item["id"]: LXNSProvider._deser_item(item, PlayerNamePlate) for item in resp.json()["plates"]}
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_frames(self, client: "MaimaiClient") -> dict[int, PlayerFrame]:
         resp = await client._client.get(self.base_url + "api/v0/maimai/frame/list")
         resp.raise_for_status()
