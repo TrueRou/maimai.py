@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.3.3 (2025-07-19)
+
+Features:
+  - MaimaiRoutes 支持指定 `with_curves` 参数
+
 ## 1.3.2 (2025-07-10)
 
 Features:

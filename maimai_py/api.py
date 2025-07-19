@@ -42,6 +42,7 @@ if find_spec("fastapi"):
 
     class MaimaiRoutes:
         _client: MaimaiClient
+        _with_curves: bool
 
         _lxns_token: Optional[str] = None
         _divingfish_token: Optional[str] = None
@@ -53,11 +54,13 @@ if find_spec("fastapi"):
             lxns_token: Optional[str] = None,
             divingfish_token: Optional[str] = None,
             arcade_proxy: Optional[str] = None,
+            with_curves: bool = False,
         ):
             self._client = client
             self._lxns_token = lxns_token
             self._divingfish_token = divingfish_token
             self._arcade_proxy = arcade_proxy
+            self._with_curves = with_curves
 
         def _dep_lxns_player(self, credentials: Optional[str] = None, friend_code: Optional[int] = None, qq: Optional[int] = None):
             return PlayerIdentifier(credentials=credentials, qq=qq, friend_code=friend_code)
@@ -113,7 +116,8 @@ if find_spec("fastapi"):
                 page_size: int = Query(100, ge=1),
                 provider: ISongProvider = Depends(dep_provider),
             ) -> list[Song]:
-                maimai_songs: MaimaiSongs = await self._client.songs(provider=provider)
+                curve_provider = DivingFishProvider(developer_token=self._divingfish_token) if self._with_curves else None
+                maimai_songs: MaimaiSongs = await self._client.songs(provider=provider, curve_provider=curve_provider)
                 type_func: Callable[[Song], bool] = lambda song: song.get_difficulties(type) != []  # type: ignore
                 level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.get_difficulties()])
                 versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
@@ -334,9 +338,10 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
         port: Annotated[int, typer.Option(help="The port number to bind to.")] = 8000,
         redis: Annotated[Optional[str], typer.Option(help="Redis server address, for example: redis://localhost:6379/0.")] = None,
-        lxns_token: Annotated[Optional[str], typer.Option(help="LXNS token for LXNS API.")] = None,
-        divingfish_token: Annotated[Optional[str], typer.Option(help="Diving Fish token for Diving Fish API.")] = None,
+        lxns_token: Annotated[Optional[str], typer.Option(help="LXNS developer token for LXNS API.")] = None,
+        divingfish_token: Annotated[Optional[str], typer.Option(help="DivingFish developer token for DivingFish API.")] = None,
         arcade_proxy: Annotated[Optional[str], typer.Option(help="HTTP proxy for Arcade API.")] = None,
+        with_curves: Annotated[bool, typer.Option(help="Whether to fetch curves from Divingfish.")] = True,
     ):
         # prepare for redis cache backend
         redis_backend = UNSET
@@ -358,6 +363,7 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         routes._lxns_token = lxns_token or os.environ.get("LXNS_DEVELOPER_TOKEN")
         routes._divingfish_token = divingfish_token or os.environ.get("DIVINGFISH_DEVELOPER_TOKEN")
         routes._arcade_proxy = arcade_proxy
+        routes._with_curves = with_curves
 
         @asgi_app.exception_handler(MaimaiPyError)
         async def exception_handler(request: Request, exc: MaimaiPyError):
