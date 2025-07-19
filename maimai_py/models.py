@@ -158,9 +158,8 @@ class PlayerIdentifier:
     friend_code: Optional[int] = None
     credentials: Union[str, MutableMapping[str, Any], None] = None
 
-    def __post_init__(self):
-        if self.qq is None and self.username is None and self.friend_code is None and self.credentials is None:
-            raise InvalidPlayerIdentifierError("At least one of the following must be provided: qq, username, friend_code, credentials")
+    def _is_empty(self) -> bool:
+        return self.qq is None and self.username is None and self.friend_code is None and self.credentials is None
 
     def _as_diving_fish(self) -> dict[str, Any]:
         if self.qq:

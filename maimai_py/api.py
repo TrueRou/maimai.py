@@ -299,8 +299,9 @@ if find_spec("fastapi"):
                 player: PlayerIdentifier = Depends(dep_player),
             ) -> Optional[PlayerSong]:
                 song_trait = id if id is not None else title if title is not None else keywords if keywords is not None else None
+                identifier = None if player._is_empty() else player
                 if song_trait is not None:
-                    return await self._client.minfo(song_trait, player, provider=provider)
+                    return await self._client.minfo(song_trait, identifier, provider=provider)
 
             async def _get_identifiers(
                 code: str,
@@ -341,7 +342,7 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         lxns_token: Annotated[Optional[str], typer.Option(help="LXNS developer token for LXNS API.")] = None,
         divingfish_token: Annotated[Optional[str], typer.Option(help="DivingFish developer token for DivingFish API.")] = None,
         arcade_proxy: Annotated[Optional[str], typer.Option(help="HTTP proxy for Arcade API.")] = None,
-        with_curves: Annotated[bool, typer.Option(help="Whether to fetch curves from Divingfish.")] = True,
+        with_curves: Annotated[bool, typer.Option(help="Whether to fetch curves from Divingfish.")] = False,
     ):
         # prepare for redis cache backend
         redis_backend = UNSET

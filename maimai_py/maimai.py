@@ -883,7 +883,7 @@ class MaimaiClient:
     async def minfo(
         self,
         song: Union[Song, int, str],
-        identifier: PlayerIdentifier,
+        identifier: Optional[PlayerIdentifier],
         provider: IScoreProvider = LXNSProvider(),
     ) -> Optional[PlayerSong]:
         """Fetch player's scores on the specific song.
@@ -899,8 +899,9 @@ class MaimaiClient:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(friend_code=664994421382429)`.
             provider: the data source to fetch the player and scores from, defaults to `LXNSProvider`.
         Returns:
-            A tuple of the song and the scores of the player on the song. If the song is not found, the song will be None and scores will be an empty list.
-            If the song is found, the song will be a `Song` object and scores will be a list of `Score` objects.
+            A wrapper of the song and the scores, with full song model, and matched player scores.
+            If the identifier is not provided, the song will be returned as is, without scores.
+            If the song is not found, None will be returned.
         Raises:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
@@ -919,8 +920,10 @@ class MaimaiClient:
             search_result = await maimai_songs.by_id(song)
             song = search_result if search_result is not None else song
         if isinstance(song, Song):
-            scores = await provider.get_scores_one(identifier, song, self)
-            extended_scores = await MaimaiScores._get_extended(scores, maimai_songs)
+            extended_scores = []
+            if identifier is not None:
+                scores = await provider.get_scores_one(identifier, song, self)
+                extended_scores = await MaimaiScores._get_extended(scores, maimai_songs)
             return PlayerSong(song, extended_scores)
 
     async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
