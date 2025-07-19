@@ -5,6 +5,7 @@
 Features:
   - MaimaiRoutes 支持指定 `with_curves` 参数
   - 允许 `maimai.minfo()` 方法可空提供 `PlayerIdentifier` 参数
+  - 当请求超时发生时进行重试 -> [#23](https://github.com/TrueRou/maimai.py/issues/23)
 
 ## 1.3.2 (2025-07-10)
 
