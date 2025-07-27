@@ -1,7 +1,10 @@
 import os
 from importlib.util import find_spec
+from logging import warning
 from typing import Annotated, Any, Callable, Literal, Optional, Union
 from urllib.parse import unquote, urlparse
+
+from pydantic import PydanticUndefinedAnnotation
 
 from maimai_py.maimai import MaimaiClient, MaimaiClientMultithreading, MaimaiPlates, MaimaiSongs, _UnsetSentinel
 from maimai_py.models import *
@@ -313,7 +316,14 @@ if find_spec("fastapi"):
             players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo, _get_identifiers]
 
             all = players + (bases if not skip_base else [])
-            [try_add_route(func, router, dep_provider) for func in all]
+            try:
+                [try_add_route(func, router, dep_provider) for func in all]
+            except PydanticUndefinedAnnotation:
+                warning(
+                    "Current pydantic version does not support maimai.py API annotations"
+                    "MaimaiRoutes may not work properly."
+                    "Please upgrade pydantic to 2.7+."
+                )
 
             return router
 
