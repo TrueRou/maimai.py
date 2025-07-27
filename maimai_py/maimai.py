@@ -264,10 +264,26 @@ class MaimaiSongs:
         Args:
             keywords: the keywords to match the songs.
         Returns:
-            an async generator yielding songs that match the keywords.
+            a list of songs that match the keywords, case-insensitive.
         """
-        cond = lambda song: keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower()
-        return [song for song in await self.get_all() if cond(song)]
+        exact_matches = []
+        fuzzy_matches = []
+
+        # Process all songs in a single pass
+        for song in await self.get_all():
+            # Check for exact matches
+            if (
+                keywords.lower() == song.title.lower()
+                or keywords.lower() == song.artist.lower()
+                or any(keywords.lower() == alias.lower() for alias in (song.aliases or []))
+            ):
+                exact_matches.append(song)
+            # Check for fuzzy matches
+            elif keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower():
+                fuzzy_matches.append(song)
+
+        # Return exact matches if found, otherwise return fuzzy matches
+        return exact_matches + fuzzy_matches if exact_matches else fuzzy_matches
 
     async def filter(self, **kwargs) -> list[Song]:
         """Filter songs by their attributes.
@@ -277,7 +293,7 @@ class MaimaiSongs:
         Args:
             kwargs: the attributes to filter the songs by.
         Returns:
-            an async generator yielding songs that match all the conditions.
+            a list of songs that match all the conditions.
         """
         cond = lambda song: all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)
         return [song for song in await self.get_all() if cond(song)]
