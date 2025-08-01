@@ -1,3 +1,4 @@
+import logging
 import os
 from importlib.util import find_spec
 from logging import warning
@@ -386,6 +387,13 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         @asgi_app.get("/", include_in_schema=False)
         async def root():
             return {"message": "Hello, maimai.py! Check /docs for more information."}
+
+        @asgi_app.on_event("startup")
+        async def startup_event():
+            if routes._with_curves:
+                curve_provider = DivingFishProvider(developer_token=routes._divingfish_token)
+                logging.info("with_curves is enabled, pre-fetching curves from DivingFish.")
+                await routes._client.songs(provider=HybridProvider(), curve_provider=curve_provider)
 
         # run the ASGI app with uvicorn
         uvicorn.run(asgi_app, host=host, port=port)
