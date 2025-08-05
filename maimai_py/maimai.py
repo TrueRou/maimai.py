@@ -931,6 +931,9 @@ class MaimaiClient:
             ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         maimai_songs, scores = await self.songs(), []
+        if isinstance(song, str) and song.isdecimal():
+            search_result = await maimai_songs.by_id(int(song))
+            song = search_result if search_result is not None else song
         if isinstance(song, str):
             search_result = await maimai_songs.by_keywords(song)
             song = search_result[0] if len(search_result) > 0 else song

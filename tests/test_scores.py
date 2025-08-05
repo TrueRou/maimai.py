@@ -39,7 +39,7 @@ async def test_scores_fetching_divingfish(maimai: MaimaiClient, divingfish: Divi
     assert my_scores.rating == bests.rating
     assert len(bests.scores_b15) <= 15
 
-    preview = await maimai.minfo(1231, PlayerIdentifier(username="turou"), provider=divingfish)
+    preview = await maimai.minfo("1231", PlayerIdentifier(username="turou"), provider=divingfish)
     assert preview is not None
     assert all(score.id == preview.song.id for score in preview.scores)
 
