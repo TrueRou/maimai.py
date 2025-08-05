@@ -23,31 +23,31 @@ async def test_update_chain(maimai: MaimaiClient):
 
     await maimai.updates_chain(
         source=[
-            (MockProvider(), PlayerIdentifier(username="source1")),
-            (MockProvider(), PlayerIdentifier(username="source2")),
-            (MockProvider(), None),
+            (MockProvider(), PlayerIdentifier(username="source1"), {}),
+            (MockProvider(), PlayerIdentifier(username="source2"), {}),
+            (MockProvider(), None, {}),
         ],
         target=[
-            (MockProvider(), PlayerIdentifier(username="target1")),
-            (MockProvider(), PlayerIdentifier(username="target2")),
-            (MockProvider(), None),
+            (MockProvider(), PlayerIdentifier(username="target1"), {}),
+            (MockProvider(), PlayerIdentifier(username="target2"), {}),
+            (MockProvider(), None, {}),
         ],
-        source_callback=lambda sp, ms, err: globals().update(callback_counter=callback_counter + 1),
-        target_callback=lambda tp, ls, err: globals().update(callback_counter=callback_counter + 2),
+        source_callback=lambda ms, err, kwargs: globals().update(callback_counter=callback_counter + 1),
+        target_callback=lambda ls, err, kwargs: globals().update(callback_counter=callback_counter + 2),
     )
 
     assert source_counter == 1 and target_counter == 2 and callback_counter == 5
 
     await maimai.updates_chain(
         source=[
-            (MockProvider(), PlayerIdentifier(username="source1")),
-            (MockProvider(), PlayerIdentifier(username="source2")),
-            (MockProvider(), None),
+            (MockProvider(), PlayerIdentifier(username="source1"), {}),
+            (MockProvider(), PlayerIdentifier(username="source2"), {}),
+            (MockProvider(), None, {}),
         ],
         target=[
-            (MockProvider(), PlayerIdentifier(username="target1")),
-            (MockProvider(), PlayerIdentifier(username="target2")),
-            (MockProvider(), None),
+            (MockProvider(), PlayerIdentifier(username="target1"), {}),
+            (MockProvider(), PlayerIdentifier(username="target2"), {}),
+            (MockProvider(), None, {}),
         ],
         source_callback=lambda sp, ms, err: globals().update(callback_counter=callback_counter + 1),
         target_callback=lambda tp, ls, err: globals().update(callback_counter=callback_counter + 2),

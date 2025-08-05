@@ -570,14 +570,16 @@ class MaimaiScores:
     async def _get_extended(scores: Iterable[Score], maimai_songs: MaimaiSongs) -> list[ScoreExtend]:
         extended_scores = []
         async for song, diff, score in MaimaiScores._get_mapping(scores, maimai_songs):
-            extended_score = ScoreExtend(
-                **dataclasses.asdict(score),
-                title=song.title,
-                level_value=diff.level_value,
-                level_dx_score=(diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
+            extended_dict = dataclasses.asdict(score)
+            extended_dict.update(
+                {
+                    "level": diff.level,  # Ensure level is set correctly.
+                    "title": song.title,
+                    "level_value": diff.level_value,
+                    "level_dx_score": (diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
+                }
             )
-            extended_score.level = diff.level  # Ensure level is set correctly.
-            extended_scores.append(extended_score)
+            extended_scores.append(ScoreExtend(**extended_dict))
         return extended_scores
 
     async def get_mapping(self) -> list[tuple[Song, SongDifficulty, ScoreExtend]]:
@@ -1129,21 +1131,23 @@ class MaimaiClient:
 
     async def updates_chain(
         self,
-        source: list[tuple[IScoreProvider, Optional[PlayerIdentifier]]],
-        target: list[tuple[IScoreUpdateProvider, Optional[PlayerIdentifier]]],
+        source: list[tuple[IScoreProvider, Optional[PlayerIdentifier], dict[str, Any]]],
+        target: list[tuple[IScoreUpdateProvider, Optional[PlayerIdentifier], dict[str, Any]]],
         source_mode: Literal["fallback", "parallel"] = "fallback",
         target_mode: Literal["fallback", "parallel"] = "parallel",
-        source_callback: Optional[Callable[[IScoreProvider, MaimaiScores, Optional[BaseException]], None]] = None,
-        target_callback: Optional[Callable[[IScoreUpdateProvider, list[Score], Optional[BaseException]], None]] = None,
+        source_callback: Optional[Callable[[MaimaiScores, Optional[BaseException], dict[str, Any]], None]] = None,
+        target_callback: Optional[Callable[[MaimaiScores, Optional[BaseException], dict[str, Any]], None]] = None,
     ) -> None:
         """Chain updates from source providers to target providers.
 
         This method will fetch scores from the source providers, merge them, and then update the target providers with the merged scores.
 
+        The dict in source and target tuples can contain any additional context that will be passed to the callbacks.
+
         Args:
-            source: a list of tuples, each containing a source provider and an optional player identifier.
+            source: a list of tuples, each containing a source provider, an optional player identifier, and additional context.
                 If the identifier is None, the provider will be ignored.
-            target: a list of tuples, each containing a target provider and an optional player identifier.
+            target: a list of tuples, each containing a target provider, an optional player identifier, and additional context.
                 If the identifier is None, the provider will be ignored.
             source_mode: how to handle source tasks, either "fallback" (default) or "parallel".
                 In "fallback" mode, only the first successful source pair will be scheduled.
@@ -1161,12 +1165,12 @@ class MaimaiClient:
         source_tasks, target_tasks = [], []
 
         # Fetch scores from the source providers.
-        for sp, identifier in source:
-            if identifier is not None:
+        for sp, ident, kwargs in source:
+            if ident is not None:
                 if source_mode == "parallel" or (source_mode == "fallback" and len(source_tasks) == 0):
-                    source_task = asyncio.create_task(self.scores(identifier, sp))
+                    source_task = asyncio.create_task(self.scores(ident, sp))
                     if source_callback is not None:
-                        source_task.add_done_callback(lambda t: source_callback(sp, t.result(), t.exception()))
+                        source_task.add_done_callback(lambda t, k=kwargs: source_callback(t.result(), t.exception(), k))
                     source_tasks.append(source_task)
         source_gather_results = await asyncio.gather(*source_tasks, return_exceptions=True)
         maimai_scores_list = [result for result in source_gather_results if isinstance(result, MaimaiScores)]
@@ -1178,14 +1182,15 @@ class MaimaiClient:
                 score_key = f"{score.id} {score.type} {score.level_index}"
                 scores_unique[score_key] = score._join(scores_unique.get(score_key, None))
         merged_scores = list(scores_unique.values())
+        merged_maimai_scores = await MaimaiScores(self).configure(list(scores_unique.values()))
 
         # Update scores to the target providers.
-        for tp, identifier in target:
-            if identifier is not None:
+        for tp, ident, kwargs in target:
+            if ident is not None:
                 if target_mode == "parallel" or (target_mode == "fallback" and len(target_tasks) == 0):
-                    target_task = asyncio.create_task(self.updates(identifier, merged_scores, tp))
+                    target_task = asyncio.create_task(self.updates(ident, merged_scores, tp))
                     if target_callback is not None:
-                        target_task.add_done_callback(lambda t: target_callback(tp, merged_scores, t.exception()))
+                        target_task.add_done_callback(lambda t, k=kwargs: target_callback(merged_maimai_scores, t.exception(), k))
                     target_tasks.append(target_task)
         await asyncio.gather(*target_tasks, return_exceptions=True)
 
