@@ -4,7 +4,7 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, AsyncGenerator, Generic, Iterable, Literal, Optional, Type, TypeVar
+from typing import Any, AsyncGenerator, Callable, Generic, Iterable, Literal, Optional, Type, TypeVar
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -1126,6 +1126,68 @@ class MaimaiClient:
         """
         provider = ArcadeProvider(http_proxy=http_proxy)
         return await provider.get_identifier(qrcode, self)
+
+    async def updates_chain(
+        self,
+        source: list[tuple[IScoreProvider, Optional[PlayerIdentifier]]],
+        target: list[tuple[IScoreUpdateProvider, Optional[PlayerIdentifier]]],
+        source_mode: Literal["fallback", "parallel"] = "fallback",
+        target_mode: Literal["fallback", "parallel"] = "parallel",
+        source_callback: Optional[Callable[[IScoreProvider, MaimaiScores, Optional[BaseException]], None]] = None,
+        target_callback: Optional[Callable[[IScoreUpdateProvider, list[Score], Optional[BaseException]], None]] = None,
+    ) -> None:
+        """Chain updates from source providers to target providers.
+
+        This method will fetch scores from the source providers, merge them, and then update the target providers with the merged scores.
+
+        Args:
+            source: a list of tuples, each containing a source provider and an optional player identifier.
+                If the identifier is None, the provider will be ignored.
+            target: a list of tuples, each containing a target provider and an optional player identifier.
+                If the identifier is None, the provider will be ignored.
+            source_mode: how to handle source tasks, either "fallback" (default) or "parallel".
+                In "fallback" mode, only the first successful source pair will be scheduled.
+                In "parallel" mode, all source pairs will be scheduled.
+            target_mode: how to handle target tasks, either "fallback" or "parallel" (default).
+                In "fallback" mode, only the first successful target pair will be scheduled.
+                In "parallel" mode, all target pairs will be scheduled.
+            source_callback: an optional callback function that will be called with the source provider,
+                callback with provider, fetched scores and any exception that occurred during fetching.
+            target_callback: an optional callback function that will be called with the target provider,
+                callback with provider, merged scores and any exception that occurred during updating.
+        Returns:
+            Nothing, failures will notify by callbacks.
+        """
+        source_tasks, target_tasks = [], []
+
+        # Fetch scores from the source providers.
+        for sp, identifier in source:
+            if identifier is not None:
+                if source_mode == "parallel" or (source_mode == "fallback" and len(source_tasks) == 0):
+                    source_task = asyncio.create_task(self.scores(identifier, sp))
+                    if source_callback is not None:
+                        source_task.add_done_callback(lambda t: source_callback(sp, t.result(), t.exception()))
+                    source_tasks.append(source_task)
+        source_gather_results = await asyncio.gather(*source_tasks, return_exceptions=True)
+        maimai_scores_list = [result for result in source_gather_results if isinstance(result, MaimaiScores)]
+
+        # Merge scores from all maimai_scores instances.
+        scores_unique: dict[str, Score] = {}
+        for maimai_scores in maimai_scores_list:
+            for score in maimai_scores.scores:
+                score_key = f"{score.id} {score.type} {score.level_index}"
+                scores_unique[score_key] = score._join(scores_unique.get(score_key, None))
+        merged_scores = list(scores_unique.values())
+
+        # Update scores to the target providers.
+        for tp, identifier in target:
+            if identifier is not None:
+                if target_mode == "parallel" or (target_mode == "fallback" and len(target_tasks) == 0):
+                    target_task = asyncio.create_task(self.updates(identifier, merged_scores, tp))
+                    if target_callback is not None:
+                        target_task.add_done_callback(lambda t: target_callback(tp, merged_scores, t.exception()))
+                    target_tasks.append(target_task)
+        await asyncio.gather(*target_tasks, return_exceptions=True)
 
 
 class MaimaiClientMultithreading(MaimaiClient):
