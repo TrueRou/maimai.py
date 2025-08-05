@@ -157,3 +157,92 @@ async def main():
 借由类似的操作，您可以实现一套完整的数据源机制，进而享受 maimai.py 提供的各种接口，甚至包含使用 MaimaiRoutes 直接创建对应的路由。
 
 更多信息请参考 [集成 FastAPI 路由](../concepts/client.md#集成-fastapi-路由)。
+
+## maimai.updates_chain() 方法
+
+通过 [`maimai.updates_chain()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.updates_chain) 方法可以实现从多个数据源获取成绩，并将合并后的成绩更新到多个目标数据源。这个方法特别适合需要将成绩从一个平台同步到另一个平台的场景，例如从机台数据同步到落雪或水鱼查分器。
+
+### 链式更新的基本用法
+
+```python
+await maimai.updates_chain(
+    source=[
+        (ArcadeProvider(), PlayerIdentifier(credentials="arcade_credentials"), {}),
+        (DivingFishProvider(), PlayerIdentifier(username="your_username"), {}),
+    ],
+    target=[
+        (LXNSProvider(), PlayerIdentifier(friend_code=123456789), {}),
+    ]
+)
+```
+
+在上面的例子中，maimai.py 会尝试从机台和水鱼查分器获取成绩，然后将合并后的成绩更新到落雪查分器。
+
+### 源模式与目标模式
+
+`updates_chain` 方法支持两种模式来处理源和目标：
+
+- `fallback`：当前一个成功时，不会处理后续项。适合当你有多个备选数据源，但只需要一个成功的情况。
+- `parallel`：并行处理所有项。适合当你想从多个数据源获取数据并合并的情况。
+
+默认情况下，源使用 `fallback` 模式，目标使用 `parallel` 模式。
+
+```python
+await maimai.updates_chain(
+    source=[...],
+    target=[...],
+    source_mode="fallback",  # 将数据源按顺序获取，直到成功
+    target_mode="parallel"   # 将数据更新到所有目标
+)
+```
+
+### 使用回调函数
+
+`updates_chain` 方法支持为源和目标提供回调函数，用于处理成功或失败的情况：
+
+```python
+def source_callback(scores: MaimaiScores, err: Optional[BaseException], context: dict) -> None:
+    if err:
+        print(f"从源获取数据失败: {err}")
+    else:
+        print(f"从源获取数据成功，共 {len(scores.scores)} 条成绩，Rating: {scores.rating}")
+
+def target_callback(scores: MaimaiScores, err: Optional[BaseException], context: dict) -> None:
+    if err:
+        print(f"更新到目标失败: {err}")
+    else:
+        print(f"更新到目标成功，共 {len(scores.scores)} 条成绩")
+
+await maimai.updates_chain(
+    source=[...],
+    target=[...],
+    source_callback=source_callback,
+    target_callback=target_callback
+)
+```
+
+回调函数接收三个参数：
+- `scores`：获取或更新的成绩对象
+- `err`：如果发生错误，则为异常对象，否则为 `None`
+- `context`：传递给 `source` 或 `target` 列表中的第三个元素的字典
+
+### 实际应用场景
+
+这个方法特别适合需要将成绩从一个平台同步到另一个平台的场景，例如：
+
+```python
+# 从机台获取成绩并更新到水鱼和落雪查分器
+await maimai.updates_chain(
+    source=[
+        (ArcadeProvider(), PlayerIdentifier(credentials=arcade_credentials), {"name": "机台数据"}),
+    ],
+    target=[
+        (DivingFishProvider(developer_token="your_token"), PlayerIdentifier(username="your_username"), {"name": "水鱼查分器"}),
+        (LXNSProvider(developer_token="your_token"), PlayerIdentifier(friend_code=123456789), {"name": "落雪查分器"}),
+    ],
+    source_callback=lambda scores, err, ctx: print(f"从{ctx['name']}获取成绩: {'成功' if not err else f'失败 {err}'}"),
+    target_callback=lambda scores, err, ctx: print(f"更新到{ctx['name']}: {'成功' if not err else f'失败 {err}'}")
+)
+```
+
+通过这种方式，您可以轻松地实现多平台间的成绩同步，同时获得详细的同步过程反馈。

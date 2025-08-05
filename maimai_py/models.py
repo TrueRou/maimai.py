@@ -416,6 +416,9 @@ class Score:
             if self.rate != other.rate:
                 selected_value = min(self.rate.value, other.rate.value)
                 self.rate = RateType(selected_value)
+            if self.play_count != other.play_count:
+                selected_value = max(self.play_count or 0, other.play_count or 0)
+                self.play_count = selected_value
         return self
 
 
