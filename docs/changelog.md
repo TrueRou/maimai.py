@@ -4,6 +4,7 @@
 
 Features:
   - 添加 `maimai.updates_chain()` 方法来支持链式更新
+  - 支持 `maimai.minfo()` 方法使用歌曲ID作为关键词搜索
 
 ## 1.3.4 (2025-08-01)
 
