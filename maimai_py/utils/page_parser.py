@@ -153,7 +153,7 @@ def wmdx_html2score(html: str) -> list[HTMLScore]:
     return results
 
 
-def wmdx_html2player(html: str) -> Optional[HTMLPlayer]:
+def wmdx_html2player(html: str) -> HTMLPlayer:
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
@@ -165,7 +165,6 @@ def wmdx_html2player(html: str) -> Optional[HTMLPlayer]:
     trophy_elements = root.xpath("//div[contains(@class, 'trophy_inner_block') and contains(@class, 'f_13')]")
     star_elements = root.xpath("//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]")
 
-    # Initialize values
     player_name = ""
     friend_code = 0
     rating = 0
@@ -184,29 +183,24 @@ def wmdx_html2player(html: str) -> Optional[HTMLPlayer]:
 
     if rating_elements:
         rating_text = rating_elements[0].text.strip() if rating_elements[0].text else ""
-        rating_numeric = re.sub(r'\D', '', rating_text)
+        rating_numeric = re.sub(r"\D", "", rating_text)
         if rating_numeric:
             rating = int(rating_numeric)
 
     if trophy_elements:
-        # Get the trophy_inner_block element
         trophy_inner = trophy_elements[0]
-        
-        # Find the span element inside for trophy text
+
         span_elements = trophy_inner.xpath(".//span")
         if span_elements:
             trophy_text = span_elements[0].text.strip() if span_elements[0].text else ""
         elif trophy_inner.text:
-            # Fallback to direct text if no span found
             trophy_text = trophy_inner.text.strip()
-        
-        # Find the parent trophy_block to get rarity
+
         trophy_block = trophy_inner.getparent()
         trophy_rarity = "Normal"  # Default rarity
-        
+
         if trophy_block is not None:
             trophy_class = trophy_block.get("class", "")
-            # Extract rarity from class (e.g., "trophy_block trophy_Gold p_3 t_c f_0")
             rarity_keywords = ["Rainbow", "Gold", "Silver", "Bronze", "Normal"]
             for rarity in rarity_keywords:
                 if f"trophy_{rarity}" in trophy_class:
@@ -214,28 +208,15 @@ def wmdx_html2player(html: str) -> Optional[HTMLPlayer]:
                     break
 
     if star_elements:
-        # Extract text content from the star element (e.g., "×112")
         star_text = star_elements[0].text.strip() if star_elements[0].text else ""
-        # Look for numbers after "×" symbol or just extract all numbers
-        star_match = re.search(r'×?(\d+)', star_text)
+        star_match = re.search(r"×?(\d+)", star_text)
         if star_match:
             star = int(star_match.group(1))
         else:
-            # Fallback: extract any numbers from the text
-            star_numeric = re.sub(r'\D', '', star_text)
+            star_numeric = re.sub(r"\D", "", star_text)
             if star_numeric:
                 star = int(star_numeric)
 
     del parser, root
-    
-    # Return HTMLPlayer if we have any meaningful data
-    if player_name or friend_code or rating or trophy_text or star:
-        return HTMLPlayer(
-            name=player_name, 
-            friend_code=friend_code, 
-            rating=rating,
-            trophy_text=trophy_text, 
-            trophy_rarity=trophy_rarity, 
-            star=star
-        )
-    return None
+
+    return HTMLPlayer(name=player_name, friend_code=friend_code, rating=rating, trophy_text=trophy_text, trophy_rarity=trophy_rarity, star=star)
