@@ -83,47 +83,35 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> WahlapPlayer:
         """Get player information from the Wahlap friend code page.
-        
+
         Args:
             identifier: PlayerIdentifier with valid Wahlap cookies
             client: MaimaiClient instance
-            
+
         Returns:
             WahlapPlayer object containing name, rating, friend_code, trophy, and star
-            
+
         Raises:
             InvalidPlayerIdentifierError: If cookies are invalid or missing
         """
         if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch player information")
-        
+
         # Add random delay to avoid being detected as bot
         await asyncio.sleep(random.randint(0, 300) / 1000)
-        
+
         # Fetch the friend code page
-        resp = await client._client.get(
-            "https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", 
-            cookies=identifier.credentials
-        )
-        
+        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", cookies=identifier.credentials)
+
         # Parse the HTML to extract player information
         if player := wmdx_html2player(str(resp.text)):
-            # Create Trophy object if trophy information exists
             trophy = None
-            if player.trophy_text:
-                trophy = Trophy(
-                    text=player.trophy_text,
-                    rarity=player.trophy_rarity or "Normal"
-                )
-            
-            return WahlapPlayer(
-                name=player.name,
-                rating=player.rating,
-                friend_code=player.friend_code,
-                trophy=trophy,
-                star=player.star
-            )
-        
+            trophies = await client.items(PlayerTrophy)
+            filtered_trophies = await trophies.filter(name=player.trophy_text)
+            if len(filtered_trophies) > 0:
+                trophy = filtered_trophies[0]
+            return WahlapPlayer(name=player.name, rating=player.rating, friend_code=player.friend_code, trophy=trophy, star=player.star)
+
         raise InvalidPlayerIdentifierError("Failed to parse player information from Wahlap page")
 
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:

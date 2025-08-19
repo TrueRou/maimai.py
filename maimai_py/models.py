@@ -326,19 +326,11 @@ class ArcadePlayer(Player):
 
 
 @dataclass
-class Trophy:
-    """Trophy information with text and rarity"""
-    __slots__ = ("text", "rarity")
-    text: str
-    rarity: str  # 稀有度用字符串表示
-
-
-@dataclass
 class WahlapPlayer(Player):
     __slots__ = ("friend_code", "trophy", "star")
 
     friend_code: int
-    trophy: Optional[Trophy]
+    trophy: Optional[PlayerTrophy]
     star: int
 
 
