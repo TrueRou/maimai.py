@@ -1,19 +1,21 @@
 import asyncio
 import os
 import traceback
+import typing
 
 from httpx import ConnectError, ReadTimeout
 
 from maimai_py import DivingFishProvider, LXNSProvider, MaimaiClient, PlayerIdentifier, WechatProvider
 from maimai_py.exceptions import InvalidPlayerIdentifierError, InvalidWechatTokenError, PrivacyLimitationError
+from maimai_py.maimai import MaimaiClientMultithreading
+from maimai_py.models import WechatPlayer
 
-maimai = MaimaiClient(timeout=60)
 diving_provider = DivingFishProvider()
 lxns_provider = LXNSProvider()
 
 
 async def generate_url():
-    threaded_maimai = MaimaiClient(timeout=60)
+    threaded_maimai = MaimaiClientMultithreading(timeout=300)
     url = await threaded_maimai.wechat()
     print(f"\033[32mPlease visit the following URL in Wechat to authorize: \033[0m")
     print(url)
@@ -21,6 +23,7 @@ async def generate_url():
 
 async def update_prober(r: str, t: str, code: str, state: str):
     try:
+        maimai = MaimaiClient(timeout=300)
         print("\033[32mProber updating was triggered.\033[0m")
         # fetch the player's scores from Wahlap Wechat OffiAccount
         wx_player = await maimai.wechat(r, t, code, state)
@@ -28,6 +31,9 @@ async def update_prober(r: str, t: str, code: str, state: str):
         print("\033[32mPlayer fetched successfully.\033[0m")
         scores = await maimai.scores(wx_player, WechatProvider())
         print("\033[32mScores fetched successfully.\033[0m")
+        # print player information as debug message
+        player = typing.cast(WechatPlayer, await maimai.players(wx_player, WechatProvider()))
+        print(player)
         # establish the tasks of updating the prober according to the configuration
         update_tasks = []
         if token := os.getenv("DIVINGFISH_IMPORT_TOKEN"):
