@@ -800,9 +800,9 @@ class MaimaiClient:
     ) -> Player:
         """Fetch player data from the provider.
 
-        Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`.
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`, `WechatProvider`.
 
-        Possible returns: `DivingFishPlayer`, `LXNSPlayer`, `ArcadePlayer`.
+        Possible returns: `DivingFishPlayer`, `LXNSPlayer`, `ArcadePlayer`, `WahlapPlayer`.
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(username="turou")`.

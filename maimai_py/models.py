@@ -325,6 +325,13 @@ class ArcadePlayer(Player):
 
 
 @dataclass
+class WahlapPlayer(Player):
+    __slots__ = ("friend_code",)
+
+    friend_code: int
+
+
+@dataclass
 class AreaCharacter:
     __slots__ = ("id", "name", "illustrator", "description1", "description2", "team", "props")
 

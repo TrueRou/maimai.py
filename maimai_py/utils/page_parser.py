@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 
 from lxml import etree
 
@@ -20,6 +20,13 @@ class HTMLScore:
     fc: str
     fs: str
     ds: int
+
+
+@dataclass
+class HTMLPlayer:
+    __slots__ = ["name", "friend_code"]
+    name: str
+    friend_code: int
 
 
 def get_data_from_div(div) -> Optional[HTMLScore]:
@@ -126,19 +133,61 @@ def get_data_from_div(div) -> Optional[HTMLScore]:
         return None
 
 
-def wmdx_html2json(html: str) -> list[HTMLScore]:
+def wmdx_html2json(html: str) -> Union[list[HTMLScore], Optional[HTMLPlayer]]:
+    """Parse HTML content from maimai wahlap pages.
+    
+    This function can parse two types of pages:
+    1. Score pages: Returns list[HTMLScore] with game scores
+    2. Friend code page: Returns HTMLPlayer with player info, or None if parsing fails
+    
+    Args:
+        html: HTML content from maimai wahlap pages
+        
+    Returns:
+        list[HTMLScore] for score pages, HTMLPlayer for friend code page, or None if parsing fails
+    """
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
-    # Find all divs with class "w_450 m_15 p_r f_0"
+    # First, try to parse as player information (friend code page)
+    name_elements = root.xpath("//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]")
+    friend_code_elements = root.xpath("//div[contains(@class, 'see_through_block') and contains(@class, 'm_t_5') and contains(@class, 'm_b_5') and contains(@class, 'p_5') and contains(@class, 't_c') and contains(@class, 'f_15')]")
+    
+    if name_elements or friend_code_elements:
+        # This appears to be a friend code page
+        try:
+            player_name = ""
+            if name_elements:
+                player_name = name_elements[0].text.strip() if name_elements[0].text else ""
+            
+            friend_code = 0
+            if friend_code_elements:
+                friend_code_text = friend_code_elements[0].text.strip() if friend_code_elements[0].text else ""
+                friend_code_numeric = re.sub(r'\D', '', friend_code_text)
+                if friend_code_numeric:
+                    friend_code = int(friend_code_numeric)
+            
+            if player_name or friend_code:
+                del parser, root
+                return HTMLPlayer(name=player_name, friend_code=friend_code)
+                
+        except Exception:
+            pass  # Fall through to score parsing
+
+    # Try to parse as score page
     divs = root.xpath("//div[contains(@class, 'w_450') and contains(@class, 'm_15') and contains(@class, 'p_r') and contains(@class, 'f_0')]")
+    
+    if divs:
+        # This appears to be a score page
+        results = []
+        for div in divs:
+            score = get_data_from_div(div)
+            if score is not None:
+                results.append(score)
+        
+        del parser, root, divs
+        return results
 
-    results = []
-    for div in divs:
-        score = get_data_from_div(div)
-        if score is not None:
-            results.append(score)
-
-    del parser, root, divs
-
-    return results
+    # Clean up and return None if no valid data found
+    del parser, root
+    return None

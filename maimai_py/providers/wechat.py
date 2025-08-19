@@ -10,15 +10,15 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier
-from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2json
+from maimai_py.utils import HTMLScore, HTMLPlayer, ScoreCoefficient, wmdx_html2json
 
-from .base import IPlayerIdentifierProvider, IScoreProvider
+from .base import IPlayerIdentifierProvider, IPlayerProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
+class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider):
     """The provider that fetches data from the Wahlap Wechat OffiAccount.
 
     PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
@@ -57,8 +57,15 @@ class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
     async def _crawl_scores_diff(self, client: "MaimaiClient", diff: int, cookies: Cookies, maimai_songs: "MaimaiSongs") -> list[Score]:
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
-        scores: list[HTMLScore] = wmdx_html2json(str(resp1.text))
-        return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]
+        parsed_result = wmdx_html2json(str(resp1.text))
+        
+        # Ensure we got a list of HTMLScore (score page), not HTMLPlayer (friend code page)
+        if isinstance(parsed_result, list):
+            scores: list[HTMLScore] = parsed_result
+            return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]
+        else:
+            # This shouldn't happen for score pages, but return empty list as fallback
+            return []
 
     async def _crawl_scores(self, client: "MaimaiClient", cookies: Cookies, maimai_songs: "MaimaiSongs") -> Sequence[Score]:
         tasks = [asyncio.create_task(self._crawl_scores_diff(client, diff, cookies, maimai_songs)) for diff in [0, 1, 2, 3, 4]]
@@ -71,6 +78,50 @@ class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
         scores = await self._crawl_scores(client, identifier.credentials, maimai_songs)
         return list(scores)
+
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
+    async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> WahlapPlayer:
+        """Get player information from the Wahlap Wechat friend code page.
+        
+        Args:
+            identifier: PlayerIdentifier with valid Wechat cookies
+            client: MaimaiClient instance
+            
+        Returns:
+            WahlapPlayer object containing name and friend_code
+            
+        Raises:
+            InvalidPlayerIdentifierError: If cookies are invalid or missing
+        """
+        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
+            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch player information")
+        
+        # Add random delay to avoid being detected as bot
+        await asyncio.sleep(random.randint(0, 300) / 1000)
+        
+        # Fetch the friend code page
+        resp = await client._client.get(
+            "https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", 
+            cookies=identifier.credentials
+        )
+        
+        # Parse the HTML to extract player information
+        parsed_result = wmdx_html2json(str(resp.text))
+        
+        # Check if the result is HTMLPlayer (friend code page) or list[HTMLScore] (score page)
+        if isinstance(parsed_result, HTMLPlayer):
+            player_info = parsed_result
+        else:
+            player_info = None
+        
+        if not player_info:
+            raise InvalidPlayerIdentifierError("Failed to parse player information from Wahlap page")
+        
+        return WahlapPlayer(
+            name=player_info.name,
+            rating=0,  # Rating is not available on the friend code page
+            friend_code=player_info.friend_code
+        )
 
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         if isinstance(code, dict) and all([code.get("r"), code.get("t"), code.get("code"), code.get("state")]):
