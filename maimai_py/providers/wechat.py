@@ -10,7 +10,8 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier
-from maimai_py.utils import HTMLScore, HTMLPlayer, ScoreCoefficient, wmdx_html2json
+from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2score
+from maimai_py.utils.page_parser import wmdx_html2player
 
 from .base import IPlayerIdentifierProvider, IPlayerProvider, IScoreProvider
 
@@ -57,8 +58,8 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
     async def _crawl_scores_diff(self, client: "MaimaiClient", diff: int, cookies: Cookies, maimai_songs: "MaimaiSongs") -> list[Score]:
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
-        parsed_result = wmdx_html2json(str(resp1.text))
-        
+        parsed_result = wmdx_html2score(str(resp1.text))
+
         # Ensure we got a list of HTMLScore (score page), not HTMLPlayer (friend code page)
         if isinstance(parsed_result, list):
             scores: list[HTMLScore] = parsed_result
@@ -106,32 +107,24 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
         )
         
         # Parse the HTML to extract player information
-        parsed_result = wmdx_html2json(str(resp.text))
-        
-        # Check if the result is HTMLPlayer (friend code page) or list[HTMLScore] (score page)
-        if isinstance(parsed_result, HTMLPlayer):
-            player_info = parsed_result
-        else:
-            player_info = None
-        
-        if not player_info:
-            raise InvalidPlayerIdentifierError("Failed to parse player information from Wahlap page")
-        
-        # Create Trophy object if trophy information exists
-        trophy = None
-        if player_info.trophy_text:
-            trophy = Trophy(
-                text=player_info.trophy_text,
-                rarity=player_info.trophy_rarity or "Normal"
+        if player := wmdx_html2player(str(resp.text)):
+            # Create Trophy object if trophy information exists
+            trophy = None
+            if player.trophy_text:
+                trophy = Trophy(
+                    text=player.trophy_text,
+                    rarity=player.trophy_rarity or "Normal"
+                )
+            
+            return WahlapPlayer(
+                name=player.name,
+                rating=player.rating,
+                friend_code=player.friend_code,
+                trophy=trophy,
+                star=player.star
             )
         
-        return WahlapPlayer(
-            name=player_info.name,
-            rating=player_info.rating,  # Now available from the parsed HTML
-            friend_code=player_info.friend_code,
-            trophy=trophy,  # Convert HTMLTrophy to Trophy
-            star=player_info.star  # New star field
-        )
+        raise InvalidPlayerIdentifierError("Failed to parse player information from Wahlap page")
 
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         if isinstance(code, dict) and all([code.get("r"), code.get("t"), code.get("code"), code.get("state")]):

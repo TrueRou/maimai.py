@@ -137,113 +137,105 @@ def get_data_from_div(div) -> Optional[HTMLScore]:
         return None
 
 
-def wmdx_html2json(html: str) -> Union[list[HTMLScore], Optional[HTMLPlayer]]:
-    """Parse HTML content from maimai wahlap pages.
-    
-    This function can parse two types of pages:
-    1. Score pages: Returns list[HTMLScore] with game scores
-    2. Friend code page: Returns HTMLPlayer with player info, or None if parsing fails
-    
-    Args:
-        html: HTML content from maimai wahlap pages
-        
-    Returns:
-        list[HTMLScore] for score pages, HTMLPlayer for friend code page, or None if parsing fails
-    """
+def wmdx_html2score(html: str) -> list[HTMLScore]:
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
-    # First, try to parse as player information (friend code page)
+    divs = root.xpath("//div[contains(@class, 'w_450') and contains(@class, 'm_15') and contains(@class, 'p_r') and contains(@class, 'f_0')]")
+
+    results = []
+    for div in divs:
+        score = get_data_from_div(div)
+        if score is not None:
+            results.append(score)
+
+    del parser, root, divs
+    return results
+
+
+def wmdx_html2player(html: str) -> Optional[HTMLPlayer]:
+    parser = etree.HTMLParser()
+    root = etree.fromstring(html, parser)
+
     name_elements = root.xpath("//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]")
-    friend_code_elements = root.xpath("//div[contains(@class, 'see_through_block') and contains(@class, 'm_t_5') and contains(@class, 'm_b_5') and contains(@class, 'p_5') and contains(@class, 't_c') and contains(@class, 'f_15')]")
+    friend_code_elements = root.xpath(
+        "//div[contains(@class, 'see_through_block') and contains(@class, 'm_t_5') and contains(@class, 'm_b_5') and contains(@class, 'p_5') and contains(@class, 't_c') and contains(@class, 'f_15')]"
+    )
     rating_elements = root.xpath("//div[contains(@class, 'rating_block')]")
     trophy_elements = root.xpath("//div[contains(@class, 'trophy_inner_block') and contains(@class, 'f_13')]")
     star_elements = root.xpath("//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]")
-    
-    if name_elements or friend_code_elements or rating_elements or trophy_elements or star_elements:
-        # This appears to be a friend code page
-        try:
-            player_name = ""
-            if name_elements:
-                player_name = name_elements[0].text.strip() if name_elements[0].text else ""
-            
-            friend_code = 0
-            if friend_code_elements:
-                friend_code_text = friend_code_elements[0].text.strip() if friend_code_elements[0].text else ""
-                friend_code_numeric = re.sub(r'\D', '', friend_code_text)
-                if friend_code_numeric:
-                    friend_code = int(friend_code_numeric)
-            
-            rating = 0
-            if rating_elements:
-                rating_text = rating_elements[0].text.strip() if rating_elements[0].text else ""
-                rating_numeric = re.sub(r'\D', '', rating_text)
-                if rating_numeric:
-                    rating = int(rating_numeric)
-            
-            trophy_text = None
-            trophy_rarity = None
-            if trophy_elements:
-                # Get the trophy_inner_block element
-                trophy_inner = trophy_elements[0]
-                
-                # Find the span element inside for trophy text
-                span_elements = trophy_inner.xpath(".//span")
-                if span_elements:
-                    trophy_text = span_elements[0].text.strip() if span_elements[0].text else ""
-                elif trophy_inner.text:
-                    # Fallback to direct text if no span found
-                    trophy_text = trophy_inner.text.strip()
-                
-                # Find the parent trophy_block to get rarity
-                trophy_block = trophy_inner.getparent()
-                trophy_rarity = "Normal"  # Default rarity
-                
-                if trophy_block is not None:
-                    trophy_class = trophy_block.get("class", "")
-                    # Extract rarity from class (e.g., "trophy_block trophy_Gold p_3 t_c f_0")
-                    rarity_keywords = ["Rainbow", "Gold", "Silver", "Bronze", "Normal"]
-                    for rarity in rarity_keywords:
-                        if f"trophy_{rarity}" in trophy_class:
-                            trophy_rarity = rarity
-                            break
-            
-            star = 0
-            if star_elements:
-                # Extract text content from the star element (e.g., "×112")
-                star_text = star_elements[0].text.strip() if star_elements[0].text else ""
-                # Look for numbers after "×" symbol or just extract all numbers
-                star_match = re.search(r'×?(\d+)', star_text)
-                if star_match:
-                    star = int(star_match.group(1))
-                else:
-                    # Fallback: extract any numbers from the text
-                    star_numeric = re.sub(r'\D', '', star_text)
-                    if star_numeric:
-                        star = int(star_numeric)
-            
-            if player_name or friend_code or rating or trophy_text or star:
-                del parser, root
-                return HTMLPlayer(name=player_name, friend_code=friend_code, rating=rating, 
-                                trophy_text=trophy_text, trophy_rarity=trophy_rarity, star=star)
-                
-        except Exception:
-            pass  # Fall through to score parsing
 
-    # Try to parse as score page
-    divs = root.xpath("//div[contains(@class, 'w_450') and contains(@class, 'm_15') and contains(@class, 'p_r') and contains(@class, 'f_0')]")
-    
-    if divs:
-        # This appears to be a score page
-        results = []
-        for div in divs:
-            score = get_data_from_div(div)
-            if score is not None:
-                results.append(score)
+    # Initialize values
+    player_name = ""
+    friend_code = 0
+    rating = 0
+    trophy_text = None
+    trophy_rarity = None
+    star = 0
+
+    if name_elements:
+        player_name = name_elements[0].text.strip() if name_elements[0].text else ""
+
+    if friend_code_elements:
+        friend_code_text = friend_code_elements[0].text.strip() if friend_code_elements[0].text else ""
+        friend_code_numeric = re.sub(r"\D", "", friend_code_text)
+        if friend_code_numeric:
+            friend_code = int(friend_code_numeric)
+
+    if rating_elements:
+        rating_text = rating_elements[0].text.strip() if rating_elements[0].text else ""
+        rating_numeric = re.sub(r'\D', '', rating_text)
+        if rating_numeric:
+            rating = int(rating_numeric)
+
+    if trophy_elements:
+        # Get the trophy_inner_block element
+        trophy_inner = trophy_elements[0]
         
-        del parser, root, divs
-        return results
+        # Find the span element inside for trophy text
+        span_elements = trophy_inner.xpath(".//span")
+        if span_elements:
+            trophy_text = span_elements[0].text.strip() if span_elements[0].text else ""
+        elif trophy_inner.text:
+            # Fallback to direct text if no span found
+            trophy_text = trophy_inner.text.strip()
+        
+        # Find the parent trophy_block to get rarity
+        trophy_block = trophy_inner.getparent()
+        trophy_rarity = "Normal"  # Default rarity
+        
+        if trophy_block is not None:
+            trophy_class = trophy_block.get("class", "")
+            # Extract rarity from class (e.g., "trophy_block trophy_Gold p_3 t_c f_0")
+            rarity_keywords = ["Rainbow", "Gold", "Silver", "Bronze", "Normal"]
+            for rarity in rarity_keywords:
+                if f"trophy_{rarity}" in trophy_class:
+                    trophy_rarity = rarity
+                    break
 
-    # Clean up and return None if no valid data found
+    if star_elements:
+        # Extract text content from the star element (e.g., "×112")
+        star_text = star_elements[0].text.strip() if star_elements[0].text else ""
+        # Look for numbers after "×" symbol or just extract all numbers
+        star_match = re.search(r'×?(\d+)', star_text)
+        if star_match:
+            star = int(star_match.group(1))
+        else:
+            # Fallback: extract any numbers from the text
+            star_numeric = re.sub(r'\D', '', star_text)
+            if star_numeric:
+                star = int(star_numeric)
+
     del parser, root
+    
+    # Return HTMLPlayer if we have any meaningful data
+    if player_name or friend_code or rating or trophy_text or star:
+        return HTMLPlayer(
+            name=player_name, 
+            friend_code=friend_code, 
+            rating=rating,
+            trophy_text=trophy_text, 
+            trophy_rarity=trophy_rarity, 
+            star=star
+        )
     return None
