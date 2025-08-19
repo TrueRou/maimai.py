@@ -24,9 +24,13 @@ class HTMLScore:
 
 @dataclass
 class HTMLPlayer:
-    __slots__ = ["name", "friend_code"]
+    __slots__ = ["name", "friend_code", "rating", "trophy_text", "trophy_rarity", "star"]
     name: str
     friend_code: int
+    rating: int
+    trophy_text: Optional[str]  # 称号文本
+    trophy_rarity: Optional[str]  # 称号稀有度，直接用字符串
+    star: int
 
 
 def get_data_from_div(div) -> Optional[HTMLScore]:
@@ -152,8 +156,11 @@ def wmdx_html2json(html: str) -> Union[list[HTMLScore], Optional[HTMLPlayer]]:
     # First, try to parse as player information (friend code page)
     name_elements = root.xpath("//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]")
     friend_code_elements = root.xpath("//div[contains(@class, 'see_through_block') and contains(@class, 'm_t_5') and contains(@class, 'm_b_5') and contains(@class, 'p_5') and contains(@class, 't_c') and contains(@class, 'f_15')]")
+    rating_elements = root.xpath("//div[contains(@class, 'rating_block')]")
+    trophy_elements = root.xpath("//div[contains(@class, 'trophy_inner_block') and contains(@class, 'f_13')]")
+    star_elements = root.xpath("//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]")
     
-    if name_elements or friend_code_elements:
+    if name_elements or friend_code_elements or rating_elements or trophy_elements or star_elements:
         # This appears to be a friend code page
         try:
             player_name = ""
@@ -167,9 +174,58 @@ def wmdx_html2json(html: str) -> Union[list[HTMLScore], Optional[HTMLPlayer]]:
                 if friend_code_numeric:
                     friend_code = int(friend_code_numeric)
             
-            if player_name or friend_code:
+            rating = 0
+            if rating_elements:
+                rating_text = rating_elements[0].text.strip() if rating_elements[0].text else ""
+                rating_numeric = re.sub(r'\D', '', rating_text)
+                if rating_numeric:
+                    rating = int(rating_numeric)
+            
+            trophy_text = None
+            trophy_rarity = None
+            if trophy_elements:
+                # Get the trophy_inner_block element
+                trophy_inner = trophy_elements[0]
+                
+                # Find the span element inside for trophy text
+                span_elements = trophy_inner.xpath(".//span")
+                if span_elements:
+                    trophy_text = span_elements[0].text.strip() if span_elements[0].text else ""
+                elif trophy_inner.text:
+                    # Fallback to direct text if no span found
+                    trophy_text = trophy_inner.text.strip()
+                
+                # Find the parent trophy_block to get rarity
+                trophy_block = trophy_inner.getparent()
+                trophy_rarity = "Normal"  # Default rarity
+                
+                if trophy_block is not None:
+                    trophy_class = trophy_block.get("class", "")
+                    # Extract rarity from class (e.g., "trophy_block trophy_Gold p_3 t_c f_0")
+                    rarity_keywords = ["Rainbow", "Gold", "Silver", "Bronze", "Normal"]
+                    for rarity in rarity_keywords:
+                        if f"trophy_{rarity}" in trophy_class:
+                            trophy_rarity = rarity
+                            break
+            
+            star = 0
+            if star_elements:
+                # Extract text content from the star element (e.g., "×112")
+                star_text = star_elements[0].text.strip() if star_elements[0].text else ""
+                # Look for numbers after "×" symbol or just extract all numbers
+                star_match = re.search(r'×?(\d+)', star_text)
+                if star_match:
+                    star = int(star_match.group(1))
+                else:
+                    # Fallback: extract any numbers from the text
+                    star_numeric = re.sub(r'\D', '', star_text)
+                    if star_numeric:
+                        star = int(star_numeric)
+            
+            if player_name or friend_code or rating or trophy_text or star:
                 del parser, root
-                return HTMLPlayer(name=player_name, friend_code=friend_code)
+                return HTMLPlayer(name=player_name, friend_code=friend_code, rating=rating, 
+                                trophy_text=trophy_text, trophy_rarity=trophy_rarity, star=star)
                 
         except Exception:
             pass  # Fall through to score parsing

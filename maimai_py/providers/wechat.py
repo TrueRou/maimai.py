@@ -81,14 +81,14 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> WahlapPlayer:
-        """Get player information from the Wahlap Wechat friend code page.
+        """Get player information from the Wahlap friend code page.
         
         Args:
-            identifier: PlayerIdentifier with valid Wechat cookies
+            identifier: PlayerIdentifier with valid Wahlap cookies
             client: MaimaiClient instance
             
         Returns:
-            WahlapPlayer object containing name and friend_code
+            WahlapPlayer object containing name, rating, friend_code, trophy, and star
             
         Raises:
             InvalidPlayerIdentifierError: If cookies are invalid or missing
@@ -117,10 +117,20 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
         if not player_info:
             raise InvalidPlayerIdentifierError("Failed to parse player information from Wahlap page")
         
+        # Create Trophy object if trophy information exists
+        trophy = None
+        if player_info.trophy_text:
+            trophy = Trophy(
+                text=player_info.trophy_text,
+                rarity=player_info.trophy_rarity or "Normal"
+            )
+        
         return WahlapPlayer(
             name=player_info.name,
-            rating=0,  # Rating is not available on the friend code page
-            friend_code=player_info.friend_code
+            rating=player_info.rating,  # Now available from the parsed HTML
+            friend_code=player_info.friend_code,
+            trophy=trophy,  # Convert HTMLTrophy to Trophy
+            star=player_info.star  # New star field
         )
 
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:

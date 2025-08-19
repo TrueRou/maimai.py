@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Any, MutableMapping, Optional, Sequence, Union
 
 from maimai_py.enums import *
@@ -325,10 +326,20 @@ class ArcadePlayer(Player):
 
 
 @dataclass
+class Trophy:
+    """Trophy information with text and rarity"""
+    __slots__ = ("text", "rarity")
+    text: str
+    rarity: str  # 稀有度用字符串表示
+
+
+@dataclass
 class WahlapPlayer(Player):
-    __slots__ = ("friend_code",)
+    __slots__ = ("friend_code", "trophy", "star")
 
     friend_code: int
+    trophy: Optional[Trophy]
+    star: int
 
 
 @dataclass
