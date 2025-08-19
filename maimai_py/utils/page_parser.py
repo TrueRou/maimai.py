@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional
 
 from lxml import etree
 
@@ -217,6 +217,6 @@ def wmdx_html2player(html: str) -> HTMLPlayer:
             if star_numeric:
                 star = int(star_numeric)
 
-    del parser, root
+    del parser, root, name_elements, friend_code_elements, rating_elements, trophy_elements, star_elements
 
     return HTMLPlayer(name=player_name, friend_code=friend_code, rating=rating, trophy_text=trophy_text, trophy_rarity=trophy_rarity, star=star)
