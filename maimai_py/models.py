@@ -326,7 +326,7 @@ class ArcadePlayer(Player):
 
 
 @dataclass
-class WahlapPlayer(Player):
+class WechatPlayer(Player):
     __slots__ = ("friend_code", "trophy", "star")
 
     friend_code: int

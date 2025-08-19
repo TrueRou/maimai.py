@@ -802,7 +802,7 @@ class MaimaiClient:
 
         Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`, `WechatProvider`.
 
-        Possible returns: `DivingFishPlayer`, `LXNSPlayer`, `ArcadePlayer`, `WahlapPlayer`.
+        Possible returns: `DivingFishPlayer`, `LXNSPlayer`, `ArcadePlayer`, `WechatPlayer`.
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(username="turou")`.
