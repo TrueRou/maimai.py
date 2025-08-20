@@ -329,8 +329,9 @@ class WechatPlayer(Player):
     __slots__ = ("friend_code", "trophy", "star")
 
     friend_code: int
-    trophy: Optional[PlayerTrophy]
     star: int
+    trophy: Optional[PlayerTrophy]
+    token: Optional[str]
 
 
 @dataclass

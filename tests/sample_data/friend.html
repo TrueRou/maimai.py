@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+    <script>
+        var baseW = 768;
+        var iOSW = 0;
+        var ua = navigator.userAgent.toLowerCase();
+        var isiOS = (ua.indexOf("iphone") > -1) || (ua.indexOf("ipod") > -1) || (ua.indexOf("ipad") > -1);
+        if (isiOS) {
+            iOSW = document.documentElement.clientWidth;
+        }
+        window.addEventListener("resize", updateMetaViewport, false);
+        window.addEventListener("orientationchange", updateMetaViewport, false);
+        var ev = document.createEvent("UIEvent");
+        ev.initEvent("resize", true, true)
+        window.dispatchEvent(ev);
+        function updateMetaViewport() {
+            var viewportContent;
+            var w = window.outerWidth;
+            if (isiOS) {
+                w = iOSW;
+            }
+            if (w < baseW) {
+                viewportContent = "width=480,initial-scale=" + w / 480 + ",user-scalable=yes,shrink-to-fit=no";
+            } else {
+                viewportContent = "width=device-width,initial-scale=1.0,user-scalable=yes,shrink-to-fit=no";
+            }
+            document.querySelector("meta[name='viewport']").setAttribute("content", viewportContent);
+        }
+    </script>
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8; IE=EmulateIE9" />
+    <meta http-equiv="Pragma" CONTENT="no-cache">
+    <meta http-equiv="Cache-Control" CONTENT="no-cache">
+    <meta http-equiv="Expires" CONTENT="-1">
+    <meta name="robots" content="INDEX, FOLLOW" />
+    <meta name="author" content="(C) SEGA">
+    <meta name="copyright" content="&copy;SEGA">
+    <meta name="description" content="此网页可浏览SEGA(世嘉)音乐机台「舞萌DX」的个人游戏记录。">
+    <meta name="keywords" content="舞萌DX,maimai DX,maimai deluxe,sega" />
+    <meta name="theme-color" content="#51bcf3">
+    <meta name="mkd" content="">
+
+    <title>舞萌DX－好友－</title>
+    <link rel="stylesheet" href="https://maimai.wahlap.com/maimai-mobile/css/modaal.min.css" />
+    <link rel="stylesheet" href="https://maimai.wahlap.com/maimai-mobile/css/common.css?ver=1.50?20250117" />
+    <link rel="stylesheet" href="https://maimai.wahlap.com/maimai-mobile/css/unique.css?ver=1.50?20250117" />
+    <link rel="apple-touch-icon-precomposed" href="https://maimai.wahlap.com/maimai-mobile/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="https://maimai.wahlap.com/maimai-mobile/apple-touch-icon.png">
+    <!--
+ここに百度統計のスクリプト追加予定
+-->
+</head>
+
+<body oncontextmenu="return false;">
+    <div class="wrapper t_c">
+        <div class="spmenu_toggle"></div>
+        <nav class="spmenu_navigation" style="display:none">
+            <img src="https://maimai.wahlap.com/maimai-mobile/img/menu_title.png" class="w_320 m_t_20" />
+            <div class="container p_10 f_0">
+                <div class="p_5">
+                    <div class="d_ib col2"><a href="https://maimai.wahlap.com/maimai-mobile/home/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/menu_home.png" class="w_112" /></a>
+                    </div>
+                    <div class="d_ib col2"><a href="https://maimai.wahlap.com/maimai-mobile/playerData/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/menu_playerdata.png"
+                                class="w_112" /></a></div>
+                </div>
+                <div class="p_5">
+                    <div class="d_ib col2"><a href="https://maimai.wahlap.com/maimai-mobile/friend/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/menu_friend.png" class="w_112" /></a>
+                    </div>
+                    <div class="d_ib col2"><a href="https://maimai.wahlap.com/maimai-mobile/shop/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/menu_shop.png" class="w_112" /></a>
+                    </div>
+                </div>
+                <div class="p_5">
+                    <div class="d_ib col2"><a href="https://maimai.wahlap.com/maimai-mobile/record/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/menu_record.png" class="w_112" /></a>
+                    </div>
+                    <div class="d_ib col2"><a href="https://maimai.wahlap.com/maimai-mobile/map/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/menu_map.png?ver=1.50"
+                                class="w_112" /></a></div>
+                </div>
+                <div class="p_5 p_b_10">
+                    <div class="d_ib col2"><a href="https://maimai.wahlap.com/maimai-mobile/collection/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/menu_collection.png"
+                                class="w_112" /></a></div>
+                    <!--
+-->
+                </div>
+            </div>
+        </nav>
+        <a href="https://maimai.wahlap.com/maimai-mobile/home/"><img
+                src="https://maimai.wahlap.com/maimai-mobile/img/logo.png" class="logo p_5" /></a>
+        <a href="https://maimai.wahlap.com/maimai-mobile/home/userOption/" class="setting"><img
+                src="https://maimai.wahlap.com/maimai-mobile/img/btn_setting.png" /></a>
+    </div>
+    <div class="wrapper main_wrapper t_c">
+        <header class="f_0">
+            <div class="f_0">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 480 10"
+                    preserveAspectRatio="none" style="height:10px">
+                    <path
+                        d="M0,10 v-5 q5,5 10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 v5 Z"
+                        fill="#7ed3ff"></path>
+                </svg>
+                <div class="menu">
+                    <a href="https://maimai.wahlap.com/maimai-mobile/home/" class="d_ib col4 p_4"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/menu_home.png?ver=1.50"
+                            class="w_112" /></a>
+                    <a href="https://maimai.wahlap.com/maimai-mobile/playerData/" class="d_ib col4 p_4"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/menu_playerdata.png?ver=1.50"
+                            class="w_112" /></a>
+                    <a href="https://maimai.wahlap.com/maimai-mobile/friend/" class="d_ib col4 p_4"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/menu_friend_on.png?ver=1.50"
+                            class="w_112" /></a>
+                    <a href="https://maimai.wahlap.com/maimai-mobile/shop/" class="d_ib col4 p_4"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/menu_shop.png?ver=1.50"
+                            class="w_112" /></a>
+                </div>
+                <div class="menu">
+                    <a href="https://maimai.wahlap.com/maimai-mobile/record/" class="d_ib col4 p_4"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/menu_record.png?ver=1.50"
+                            class="w_112" /></a>
+                    <a href="https://maimai.wahlap.com/maimai-mobile/map/" class="d_ib col4 p_4"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/menu_map.png?ver=1.50" class="w_112" /></a>
+                    <a href="https://maimai.wahlap.com/maimai-mobile/collection/" class="d_ib col4 p_4"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/menu_collection.png?ver=1.50"
+                            class="w_112" /></a>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 480 10"
+                    preserveAspectRatio="none" style="height:10px">
+                    <path
+                        d="M0,0 v5 q5,5 10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 v-5 Z"
+                        fill="#7ed3ff"></path>
+                </svg>
+            </div>
+        </header>
+
+        <div class="m_t_5 m_b_10 p_r t_l f_0">
+            <a href="https://maimai.wahlap.com/maimai-mobile/friend/" class="p_r d_ib">
+                <img src="https://maimai.wahlap.com/maimai-mobile/img/menu_sub_friend_list.png" class="w_96">
+                <img src="https://maimai.wahlap.com/maimai-mobile/img/icon_on.png" class="submenu_selected" /> </a>
+            <a href="https://maimai.wahlap.com/maimai-mobile/friend/search/" class="p_r d_ib">
+                <img src="https://maimai.wahlap.com/maimai-mobile/img/menu_sub_friend_search.png" class="w_96">
+            </a>
+            <a href="https://maimai.wahlap.com/maimai-mobile/friend/matching/" class="p_r d_ib">
+                <img src="https://maimai.wahlap.com/maimai-mobile/img/menu_sub_friend_match.png" class="w_96">
+            </a>
+            <a href="https://maimai.wahlap.com/maimai-mobile/friend/invite/" class="p_r d_ib">
+                <img src="https://maimai.wahlap.com/maimai-mobile/img/menu_sub_friend_invite.png" class="w_96">
+            </a>
+            <a href="https://maimai.wahlap.com/maimai-mobile/friend/accept/" class="p_r d_ib">
+                <img src="https://maimai.wahlap.com/maimai-mobile/img/menu_sub_friend_accept.png" class="w_96">
+            </a>
+        </div>
+
+        <img src="https://maimai.wahlap.com/maimai-mobile/img/title_friend.png" class="title m_10" />
+        <div class="m_15 m_t_0 m_b_0">
+            <table class="collapse f_0">
+                <tr>
+                    <td>
+                        <div class="basic_block m_3 p_3 f_11 l_h_10">好友数<br>1/100</div>
+                    </td>
+                    <td>
+                        <div class="basic_block m_3 p_3 f_11 l_h_10">喜爱的好友数<br>0/20</div>
+                    </td>
+                    <td class="t_r v_b"><a href="https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/btn_friend_code.png" class="h_55"></a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="see_through_block p_r m_15 m_t_5 p_10 t_l f_0">
+            <div class="basic_block p_10 f_0">
+                <img loading="lazy" src="https://maimai.wahlap.com/maimai-mobile/img/Icon/0316a7342a390497.png"
+                    class="w_112 f_l" />
+                <div class="p_l_10 f_l">
+                    <div class="trophy_block trophy_Gold p_3 t_c f_0">
+                        <div class="trophy_inner_block f_13">
+                            <span>MAiTECH NINJA</span>
+                        </div>
+                    </div>
+                    <div class="m_b_5">
+                        <form action="https://maimai.wahlap.com/maimai-mobile/friend/friendDetail/" method="get"
+                            accept-charset="utf-8" class="f_l f_0 p_a">
+                            <input type="hidden" name="idx" value="77581639114514" />
+                            <button type="submit" class="f_0">
+                                <div class="name_block t_l f_l f_16 underline">maimai1</div>
+                            </button>
+                        </form>
+                        <div class="f_r t_r f_0">
+                            <div class="p_r p_3">
+                                <img src="https://maimai.wahlap.com/maimai-mobile/img/rating_base_rainbow.png?ver=1.50"
+                                    class="h_30 f_r" />
+                                <div class="rating_block">15000</div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <img src="https://maimai.wahlap.com/maimai-mobile/img/line_01.png" class="user_data_block_line" />
+                    <div class="clearfix"></div>
+                    <img src="https://maimai.wahlap.com/maimai-mobile/img/course/course_rank_13KOI1uBwE.png"
+                        class="h_35 f_l" />
+                    <img src="https://maimai.wahlap.com/maimai-mobile/img/class/class_rank_s_06IjZSkULI.png"
+                        class="p_l_10 h_35 f_l">
+                    <div class="p_l_10 f_l f_14"><img src="https://maimai.wahlap.com/maimai-mobile/img/icon_star.png"
+                            class="h_30 m_3 v_m" />×666</div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="friend_comment_block break f_12">
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="t_r m_t_5">
+                <form action="https://maimai.wahlap.com/maimai-mobile/friend/friendGenreVs/" method="get"
+                    accept-charset="utf-8" class="d_ib">
+                    <input type="hidden" name="idx" value="77581639114514" />
+                    <button type="submit" class="f_0"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/btn_friend_vs.png" class="h_40" /></button>
+                </form>
+                <form action="https://maimai.wahlap.com/maimai-mobile/friend/favoriteOn/" method="post"
+                    accept-charset="utf-8" class="d_ib p_l_5">
+                    <input type="hidden" name="idx" value="77581639114514" />
+                    <input type="hidden" name="token" value="68e3c66bbaa21db851782d0fa6c12e52" />
+                    <button type="submit" class="f_0"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/btn_favorite_on.png" class="h_40"></button>
+                </form>
+            </div>
+        </div>
+        <div class="see_through_block p_r m_15 m_t_5 p_10 t_l f_0">
+            <div class="basic_block p_10 f_0">
+                <img loading="lazy" src="https://maimai.wahlap.com/maimai-mobile/img/Icon/0316a7342a390497.png"
+                    class="w_112 f_l" />
+                <div class="p_l_10 f_l">
+                    <div class="trophy_block trophy_Gold p_3 t_c f_0">
+                        <div class="trophy_inner_block f_13">
+                            <span>MAiTECH NINJA</span>
+                        </div>
+                    </div>
+                    <div class="m_b_5">
+                        <form action="https://maimai.wahlap.com/maimai-mobile/friend/friendDetail/" method="get"
+                            accept-charset="utf-8" class="f_l f_0 p_a">
+                            <input type="hidden" name="idx" value="77581639114514" />
+                            <button type="submit" class="f_0">
+                                <div class="name_block t_l f_l f_16 underline">maimai2</div>
+                            </button>
+                        </form>
+                        <div class="f_r t_r f_0">
+                            <div class="p_r p_3">
+                                <img src="https://maimai.wahlap.com/maimai-mobile/img/rating_base_rainbow.png?ver=1.50"
+                                    class="h_30 f_r" />
+                                <div class="rating_block">15000</div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <img src="https://maimai.wahlap.com/maimai-mobile/img/line_01.png" class="user_data_block_line" />
+                    <div class="clearfix"></div>
+                    <img src="https://maimai.wahlap.com/maimai-mobile/img/course/course_rank_13KOI1uBwE.png"
+                        class="h_35 f_l" />
+                    <img src="https://maimai.wahlap.com/maimai-mobile/img/class/class_rank_s_06IjZSkULI.png"
+                        class="p_l_10 h_35 f_l">
+                    <div class="p_l_10 f_l f_14"><img src="https://maimai.wahlap.com/maimai-mobile/img/icon_star.png"
+                            class="h_30 m_3 v_m" />×666</div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="friend_comment_block break f_12">
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="t_r m_t_5">
+                <form action="https://maimai.wahlap.com/maimai-mobile/friend/friendGenreVs/" method="get"
+                    accept-charset="utf-8" class="d_ib">
+                    <input type="hidden" name="idx" value="77581639114514" />
+                    <button type="submit" class="f_0"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/btn_friend_vs.png" class="h_40" /></button>
+                </form>
+                <form action="https://maimai.wahlap.com/maimai-mobile/friend/favoriteOn/" method="post"
+                    accept-charset="utf-8" class="d_ib p_l_5">
+                    <input type="hidden" name="idx" value="77581639114514" />
+                    <input type="hidden" name="token" value="68e3c66bbaa21db851782d0fa6c12e52" />
+                    <button type="submit" class="f_0"><img
+                            src="https://maimai.wahlap.com/maimai-mobile/img/btn_favorite_on.png" class="h_40"></button>
+                </form>
+            </div>
+        </div>
+        <img src="https://maimai.wahlap.com/maimai-mobile/img/line_02.png" class="w_450" />
+        <div class="gray_img">
+            <img src="https://maimai.wahlap.com/maimai-mobile/img/btn_first.png" class="h_45" />
+            <img src="https://maimai.wahlap.com/maimai-mobile/img/btn_prev.png" class="h_45" />
+            <div class="p_10 d_ib v_t white">1/1</div>
+            <img src="https://maimai.wahlap.com/maimai-mobile/img/btn_next.png" class="h_45" />
+            <img src="https://maimai.wahlap.com/maimai-mobile/img/btn_last.png" class="h_45" />
+        </div>
+
+        <footer class="f_0">
+            <div class="footer_marquee">
+                <div class="footer w_480">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                        viewBox="0 0 480 50" preserveAspectRatio="none" style="height:50px">
+                        <path
+                            d="M0,0 v25 q5,5 10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 t10,0 v-25 Z"
+                            fill="#7cbc29"></path>
+                    </svg>
+                    <div class="m_15 m_t_0 f_13">
+                        <div class="m_5"><a href="https://maimai.wahlap.com/maimai-mobile/termsOfService/"
+                                target="_blank" class="white" rel="noopener">使用条款</a></div>
+                        <div class="m_5"><a href="https://maimai.wahlap.com/maimai-mobile/sitePolicy/" target="_blank"
+                                class="white" rel="noopener">使用须知</a></div>
+                        <div class="m_5"><a href="https://www.segafave.co.jp/en/privacy/" target="_blank" class="white"
+                                rel="noopener">私隐政策</a></div>
+                    </div>
+                    <img src="https://maimai.wahlap.com/maimai-mobile/img/line_02.png" class="w_430 m_b_10" />
+                    <div class="f_l m_15 m_l_30 p_l_10">
+                        <a href="http://sega.jp" target="_blank" rel="noopener"><img
+                                src="https://maimai.wahlap.com/maimai-mobile/img/logo_sega.png" /></a>
+                        <div class="f_15 p_5">© SEGA</div>
+                    </div>
+                    <div class="m_15">
+                        <img src="https://maimai.wahlap.com/maimai-mobile/img/logo_wahlap.png" /></a>
+                        <div class="f_11 p_3"><a href="http://www.miitbeian.gov.cn"
+                                style="text-decoration:none; color: #fff" target="_blank"
+                                rel="noopener">粤ICP备05005783号</a></div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <img id="page-top" src="https://maimai.wahlap.com/maimai-mobile/img/btn_page_top.png" class="pointer">
+    <img id="page-bottom" src="https://maimai.wahlap.com/maimai-mobile/img/btn_page_bottom.png" class="pointer">
+    <script src="https://maimai.wahlap.com/maimai-mobile/js/jquery-3.3.1.min.js"></script>
+    <script src="https://maimai.wahlap.com/maimai-mobile/js/modaal.min.js"></script>
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-136087881-2', 'auto');
+        ga('send', 'pageview');
+
+        var scrollPoint = $('.scroll_point').length;
+        $('#page-top').click(function () {
+            if (scrollPoint > 0) {
+                var fromPos = Math.floor($(window).scrollTop());
+                var toPos = 0;
+                $(".scroll_point").each(function () {
+                    var targetPos = Math.floor($(this).offset().top);
+                    if (location.pathname.split('/').pop() == "updateMusic") {
+                        targetPos = targetPos - 284;
+                    }
+                    if (fromPos > targetPos) {
+                        toPos = targetPos;
+                    } else {
+                        return false;
+                    }
+                });
+                $('body,html').animate({ scrollTop: toPos }, 500);
+            } else {
+                $('body,html').animate({ scrollTop: 0 }, 500);
+            }
+            return false;
+        });
+        $('#page-bottom').click(function () {
+            if (scrollPoint > 0) {
+                var fromPos = Math.floor($(window).scrollTop()) + 3;
+                var toPos = Math.floor($(document).height());
+                $(".scroll_point").each(function () {
+                    var targetPos = Math.floor($(this).offset().top);
+                    if (location.pathname.split('/').pop() == "updateMusic") {
+                        targetPos = targetPos - 284;
+                    }
+                    if (fromPos < targetPos) {
+                        toPos = targetPos;
+                        return false;
+                    }
+                });
+                $('body,html').animate({ scrollTop: toPos }, 500);
+            } else {
+                $('body,html').animate({ scrollTop: $(document).height() }, 500);
+            }
+            return false;
+        });
+        function fadeOutPageBtn() {
+            $('#page-top').fadeOut(1500).animate({ duration: 'slow', easing: 'linear' });
+            $('#page-bottom').fadeOut(1500).animate({ duration: 'slow', easing: 'linear' });
+        }
+        var spmenu_toggle = $('.spmenu_toggle');
+        var spmenu_navigation = $('.spmenu_navigation');
+        spmenu_toggle.click(function () {
+            $(this).toggleClass('active');
+            if ($(this).hasClass('active')) {
+                spmenu_navigation.addClass('active');
+            } else {
+                spmenu_navigation.removeClass('active');
+            }
+        });
+        spmenu_navigation.click(function () {
+            spmenu_toggle.removeClass('active');
+            $(this).removeClass('active');
+        });
+        var timeLimit = 3 * 1000;
+        var timerId = setTimeout(fadeOutPageBtn, timeLimit);
+        $(window).scroll(function () {
+            if (!spmenu_navigation.is(':visible')) spmenu_navigation.css('display', 'block');
+            if (!$('#page-top').is(':visible')) $('#page-top').fadeIn();
+            if (!$('#page-bottom').is(':visible')) $('#page-bottom').fadeIn();
+            clearTimeout(timerId);
+            timerId = setTimeout(fadeOutPageBtn, timeLimit);
+            var visible = spmenu_toggle.is(':visible');
+            if ($(this).scrollTop() > 250) {
+                if (!visible)
+                    spmenu_toggle.fadeIn().animate({ 'right': '5px' }, { duration: 500, queue: false });
+            } else {
+                if (visible) {
+                    spmenu_toggle.fadeOut().animate({ 'right': '-100%' }, { duration: 500, queue: false });
+                    if (spmenu_toggle.hasClass('active')) {
+                        spmenu_toggle.removeClass('active');
+                        spmenu_navigation.removeClass('active');
+                    }
+                }
+            }
+        });
+    </script>
+    <script src="https://maimai.wahlap.com/maimai-mobile/js/jquery.marquee.js"></script>
+    <script>
+        $(function () {
+            // 許容幅
+            var widthMax = 258;
+            $('.trophy_inner_block').each(function () {
+                var span = $(this).children('span');
+                var textWidth = span.innerWidth();
+                if (textWidth > widthMax) {
+                    $(span).marquee();
+                }
+            });
+        });
+        $('form').submit(function () {
+            if ($(this).prop('method') == "get") return true;
+            var btn = $(this).children('button');
+            if (btn.prop('disabled')) return false;
+            btn.prop('disabled', true);
+        });
+        $('[name=idx]').keypress(function (e) {
+            if (e.which == 13) {
+                $('form [name=type]').remove();
+                $('<input>', { type: 'hidden', name: 'type', value: 0 }).appendTo('form');
+                $(this).parents('form').submit();
+            }
+        });
+        var itemHeights = [];
+        var returnHeight;
+        $('.grad-item').each(function () {
+            var thisHeight = $(this).height();
+            itemHeights.push(thisHeight);
+            $(this).addClass('is-hide');
+            returnHeight = $(this).height();
+        });
+        $('.grad-trigger').click(function () {
+            if (!$(this).hasClass('is-show')) {
+                var index = $(this).index('.grad-trigger');
+                var addHeight = itemHeights[index];
+                $(this).addClass('is-show').next().animate({ height: addHeight }, 500).removeClass('is-hide');
+            } else {
+                $(this).removeClass('is-show').next().animate({ height: returnHeight }, 500).addClass('is-hide');
+            }
+        });
+    </script>
+</body>
+
+</html>

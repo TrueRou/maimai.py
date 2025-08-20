@@ -220,3 +220,77 @@ def wmdx_html2player(html: str) -> HTMLPlayer:
     del parser, root, name_elements, friend_code_elements, rating_elements, trophy_elements, star_elements
 
     return HTMLPlayer(name=player_name, friend_code=friend_code, rating=rating, trophy_text=trophy_text, trophy_rarity=trophy_rarity, star=star)
+
+
+def wmdx_html2players(html: str) -> list[HTMLPlayer]:
+    parser = etree.HTMLParser()
+    root = etree.fromstring(html, parser)
+
+    friend_divs = root.xpath(
+        "//div[contains(@class, 'see_through_block') and contains(@class, 'p_r') and contains(@class, 'm_15') and contains(@class, 'm_t_5') and contains(@class, 'p_10') and contains(@class, 't_l') and contains(@class, 'f_0')]"
+    )
+
+    players = []
+    for div in friend_divs:
+        name_elements = div.xpath(".//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]")
+        friend_code_elements = div.xpath(".//input[@name='idx']")
+        rating_elements = div.xpath(".//div[contains(@class, 'rating_block')]")
+        trophy_elements = div.xpath(".//div[contains(@class, 'trophy_inner_block') and contains(@class, 'f_13')]")
+        star_elements = div.xpath(".//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]")
+
+        player_name = ""
+        friend_code = 0
+        rating = 0
+        trophy_text = None
+        trophy_rarity = None
+        star = 0
+
+        if name_elements:
+            player_name = name_elements[0].text.strip() if name_elements[0].text else ""
+
+        if friend_code_elements:
+            friend_code_text = friend_code_elements[0].get("value", "")
+            if friend_code_text:
+                friend_code = int(friend_code_text)
+
+        if rating_elements:
+            rating_text = rating_elements[0].text.strip() if rating_elements[0].text else ""
+            rating_numeric = re.sub(r"\D", "", rating_text)
+            if rating_numeric:
+                rating = int(rating_numeric)
+
+        if trophy_elements:
+            trophy_inner = trophy_elements[0]
+
+            span_elements = trophy_inner.xpath(".//span")
+            if span_elements:
+                trophy_text = span_elements[0].text.strip() if span_elements[0].text else ""
+            elif trophy_inner.text:
+                trophy_text = trophy_inner.text.strip()
+
+            trophy_block = trophy_inner.getparent()
+            trophy_rarity = "Normal"  # Default rarity
+
+            if trophy_block is not None:
+                trophy_class = trophy_block.get("class", "")
+                rarity_keywords = ["Rainbow", "Gold", "Silver", "Bronze", "Normal"]
+                for rarity in rarity_keywords:
+                    if f"trophy_{rarity}" in trophy_class:
+                        trophy_rarity = rarity
+                        break
+
+        if star_elements:
+            star_text = star_elements[0].text.strip() if star_elements[0].text else ""
+            star_match = re.search(r"×?(\d+)", star_text)
+            if star_match:
+                star = int(star_match.group(1))
+            else:
+                star_numeric = re.sub(r"\D", "", star_text)
+                if star_numeric:
+                    star = int(star_numeric)
+
+        player = HTMLPlayer(name=player_name, friend_code=friend_code, rating=rating, trophy_text=trophy_text, trophy_rarity=trophy_rarity, star=star)
+        players.append(player)
+
+    del parser, root, friend_divs
+    return players

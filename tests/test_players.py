@@ -3,7 +3,7 @@ import pytest
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import PlayerIdentifier
 from maimai_py.providers import DivingFishProvider, LXNSProvider
-from maimai_py.utils.page_parser import wmdx_html2player
+from maimai_py.utils.page_parser import wmdx_html2player, wmdx_html2players
 
 
 @pytest.mark.asyncio(scope="session")
@@ -29,6 +29,12 @@ async def test_players_fetching_wechat(maimai: MaimaiClient, divingfish: DivingF
         assert html_player.friend_code == 386587586148257
         assert html_player.name == "Ｃｉａ～（・ω"
         assert html_player.trophy_text == "だけど僕はmaimaiでらっくすを始めた"
+
+    with open("./tests/sample_data/friend.html", "r", encoding="utf-8") as file:
+        html_players = wmdx_html2players(file.read())
+        assert len(html_players) == 2
+        assert html_players[0].name == "maimai1"
+        assert html_players[1].name == "maimai2"
 
 
 if __name__ == "__main__":

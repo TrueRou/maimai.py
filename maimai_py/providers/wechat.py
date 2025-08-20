@@ -9,9 +9,8 @@ from httpx import Cookies, RequestError
 from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
-from maimai_py.models import PlayerIdentifier
 from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2score
-from maimai_py.utils.page_parser import wmdx_html2player
+from maimai_py.utils.page_parser import wmdx_html2player, wmdx_html2players
 
 from .base import IPlayerIdentifierProvider, IPlayerProvider, IScoreProvider
 
@@ -84,10 +83,12 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
             name=player.name,
             rating=player.rating,
             friend_code=player.friend_code,
-            trophy=trophy[0] if (trophy := await trophies.filter(name=player.trophy_text)) else None,
             star=player.star,
+            trophy=trophy[0] if (trophy := await trophies.filter(name=player.trophy_text)) else None,
+            token=None,
         )
 
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         if isinstance(code, dict) and all([code.get("r"), code.get("t"), code.get("code"), code.get("state")]):
             headers = {
@@ -102,3 +103,29 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
             else:
                 raise InvalidWechatTokenError("Invalid or expired Wechat token")
         raise InvalidWechatTokenError("Invalid Wechat token format, expected a dict with 'r', 't', 'code', and 'state' keys")
+
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
+    async def get_friends(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[WechatPlayer]:
+        raise NotImplementedError()
+
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
+    async def set_rival_on(self, identifier: PlayerIdentifier, rival: WechatPlayer, client: "MaimaiClient") -> None:
+        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
+            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to set rival status")
+        resp = await client._client.post(
+            "https://maimai.wahlap.com/maimai-mobile/friend/rivalOn/",
+            cookies=identifier.credentials,
+            data={"idx": rival.friend_code, "token": rival.token},
+        )
+        resp.raise_for_status()
+
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
+    async def set_rival_off(self, identifier: PlayerIdentifier, rival: WechatPlayer, client: "MaimaiClient") -> None:
+        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
+            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to set rival status")
+        resp = await client._client.post(
+            "https://maimai.wahlap.com/maimai-mobile/friend/rivalOff/",
+            cookies=identifier.credentials,
+            data={"idx": rival.friend_code, "token": rival.token},
+        )
+        resp.raise_for_status()
