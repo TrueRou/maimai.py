@@ -26,9 +26,9 @@ proxies:
     server: 127.0.0.1
     port: 8080
     type: http
-    
+
 rules:
-  - DOMAIN,tgk-wcaime.wahlap.com,maimai.py
+  - AND,((DOMAIN,tgk-wcaime.wahlap.com),(DST-PORT,80)),maimai.py
   - MATCH,DIRECT
 ```
 

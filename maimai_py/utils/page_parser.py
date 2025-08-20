@@ -22,6 +22,17 @@ class HTMLScore:
     ds: int
 
 
+@dataclass
+class HTMLPlayer:
+    __slots__ = ["name", "friend_code", "rating", "trophy_text", "trophy_rarity", "star"]
+    name: str
+    friend_code: int
+    rating: int
+    trophy_text: Optional[str]  # 称号文本
+    trophy_rarity: Optional[str]  # 称号稀有度，直接用字符串
+    star: int
+
+
 def get_data_from_div(div) -> Optional[HTMLScore]:
     form = div.find(".//form")
     if form is None:
@@ -126,11 +137,10 @@ def get_data_from_div(div) -> Optional[HTMLScore]:
         return None
 
 
-def wmdx_html2json(html: str) -> list[HTMLScore]:
+def wmdx_html2score(html: str) -> list[HTMLScore]:
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
-    # Find all divs with class "w_450 m_15 p_r f_0"
     divs = root.xpath("//div[contains(@class, 'w_450') and contains(@class, 'm_15') and contains(@class, 'p_r') and contains(@class, 'f_0')]")
 
     results = []
@@ -140,5 +150,73 @@ def wmdx_html2json(html: str) -> list[HTMLScore]:
             results.append(score)
 
     del parser, root, divs
-
     return results
+
+
+def wmdx_html2player(html: str) -> HTMLPlayer:
+    parser = etree.HTMLParser()
+    root = etree.fromstring(html, parser)
+
+    name_elements = root.xpath("//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]")
+    friend_code_elements = root.xpath(
+        "//div[contains(@class, 'see_through_block') and contains(@class, 'm_t_5') and contains(@class, 'm_b_5') and contains(@class, 'p_5') and contains(@class, 't_c') and contains(@class, 'f_15')]"
+    )
+    rating_elements = root.xpath("//div[contains(@class, 'rating_block')]")
+    trophy_elements = root.xpath("//div[contains(@class, 'trophy_inner_block') and contains(@class, 'f_13')]")
+    star_elements = root.xpath("//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]")
+
+    player_name = ""
+    friend_code = 0
+    rating = 0
+    trophy_text = None
+    trophy_rarity = None
+    star = 0
+
+    if name_elements:
+        player_name = name_elements[0].text.strip() if name_elements[0].text else ""
+
+    if friend_code_elements:
+        friend_code_text = friend_code_elements[0].text.strip() if friend_code_elements[0].text else ""
+        friend_code_numeric = re.sub(r"\D", "", friend_code_text)
+        if friend_code_numeric:
+            friend_code = int(friend_code_numeric)
+
+    if rating_elements:
+        rating_text = rating_elements[0].text.strip() if rating_elements[0].text else ""
+        rating_numeric = re.sub(r"\D", "", rating_text)
+        if rating_numeric:
+            rating = int(rating_numeric)
+
+    if trophy_elements:
+        trophy_inner = trophy_elements[0]
+
+        span_elements = trophy_inner.xpath(".//span")
+        if span_elements:
+            trophy_text = span_elements[0].text.strip() if span_elements[0].text else ""
+        elif trophy_inner.text:
+            trophy_text = trophy_inner.text.strip()
+
+        trophy_block = trophy_inner.getparent()
+        trophy_rarity = "Normal"  # Default rarity
+
+        if trophy_block is not None:
+            trophy_class = trophy_block.get("class", "")
+            rarity_keywords = ["Rainbow", "Gold", "Silver", "Bronze", "Normal"]
+            for rarity in rarity_keywords:
+                if f"trophy_{rarity}" in trophy_class:
+                    trophy_rarity = rarity
+                    break
+
+    if star_elements:
+        star_text = star_elements[0].text.strip() if star_elements[0].text else ""
+        star_match = re.search(r"×?(\d+)", star_text)
+        if star_match:
+            star = int(star_match.group(1))
+        else:
+            star_numeric = re.sub(r"\D", "", star_text)
+            if star_numeric:
+                star = int(star_numeric)
+
+    del parser, root, name_elements, friend_code_elements, rating_elements, trophy_elements, star_elements
+
+    return HTMLPlayer(name=player_name, friend_code=friend_code, rating=rating, trophy_text=trophy_text, trophy_rarity=trophy_rarity, star=star)

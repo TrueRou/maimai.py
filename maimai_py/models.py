@@ -325,6 +325,15 @@ class ArcadePlayer(Player):
 
 
 @dataclass
+class WechatPlayer(Player):
+    __slots__ = ("friend_code", "trophy", "star")
+
+    friend_code: int
+    trophy: Optional[PlayerTrophy]
+    star: int
+
+
+@dataclass
 class AreaCharacter:
     __slots__ = ("id", "name", "illustrator", "description1", "description2", "team", "props")
 

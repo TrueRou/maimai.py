@@ -10,15 +10,16 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier
-from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2json
+from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2score
+from maimai_py.utils.page_parser import wmdx_html2player
 
-from .base import IPlayerIdentifierProvider, IScoreProvider
+from .base import IPlayerIdentifierProvider, IPlayerProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
+class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider):
     """The provider that fetches data from the Wahlap Wechat OffiAccount.
 
     PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
@@ -57,7 +58,7 @@ class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
     async def _crawl_scores_diff(self, client: "MaimaiClient", diff: int, cookies: Cookies, maimai_songs: "MaimaiSongs") -> list[Score]:
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
         resp1 = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
-        scores: list[HTMLScore] = wmdx_html2json(str(resp1.text))
+        scores = wmdx_html2score(str(resp1.text))
         return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]
 
     async def _crawl_scores(self, client: "MaimaiClient", cookies: Cookies, maimai_songs: "MaimaiSongs") -> Sequence[Score]:
@@ -71,6 +72,21 @@ class WechatProvider(IScoreProvider, IPlayerIdentifierProvider):
             raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
         scores = await self._crawl_scores(client, identifier.credentials, maimai_songs)
         return list(scores)
+
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
+    async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> WechatPlayer:
+        trophies = await client.items(PlayerTrophy)
+        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
+            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch player information")
+        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", cookies=identifier.credentials)
+        player = wmdx_html2player(str(resp.text))
+        return WechatPlayer(
+            name=player.name,
+            rating=player.rating,
+            friend_code=player.friend_code,
+            trophy=trophy[0] if (trophy := await trophies.filter(name=player.trophy_text)) else None,
+            star=player.star,
+        )
 
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         if isinstance(code, dict) and all([code.get("r"), code.get("t"), code.get("code"), code.get("state")]):
