@@ -1,5 +1,15 @@
 # 更新日志
 
+## 1.3.6 (2025-08-22)
+
+Features:
+  - WechatProvider 现支持 获取好友 和 设置对手 的功能
+  - WechatProvider 现支持 IPlayerProvider 接口 -> [#36](https://github.com/TrueRou/maimai.py/pull/36)
+  - LXNSProvider 现支持 使用OAuth认证的个人API密钥 来访问接口
+
+Bugfixes:
+  - 修复 LXNSProvider 在获取单个成绩、最佳成绩时无法使用个人API密钥
+
 ## 1.3.5 (2025-08-05)
 
 Features:

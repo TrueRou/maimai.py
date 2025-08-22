@@ -1,6 +1,7 @@
 import asyncio
 import dataclasses
 import hashlib
+import re
 from functools import reduce
 from json import JSONDecodeError
 from operator import concat
@@ -16,6 +17,8 @@ from .base import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProv
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
+
+is_jwt = re.compile(r"^[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+$")
 
 
 class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, IAliasProvider, IItemListProvider):
@@ -61,7 +64,10 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
             # user-level API takes the precedence: If personal token provided, use it first
             assert isinstance(identifier.credentials, str)
             entrypoint = f"api/v0/user/maimai/player/{path}"
-            headers = {"X-User-Token": identifier.credentials}
+            if is_jwt.match(identifier.credentials) is not None:
+                headers = {"Authorization": f"Bearer {identifier.credentials}"}
+            else:
+                headers = {"X-User-Token": identifier.credentials}
         else:
             await self._ensure_friend_code(client, identifier)
             entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/{path}"
@@ -235,33 +241,28 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        if identifier.friend_code is None:
-            return await self.get_scores_all(identifier, client)
-        await self._ensure_friend_code(client, identifier)
-        entrypoint = f"api/v0/maimai/player/{identifier.friend_code}/bests"
-        resp = await client._client.get(self.base_url + entrypoint, headers=self.headers)
+        url, headers, _ = await self._build_player_request("bests", identifier, client)
+        resp = await client._client.get(url, headers=headers)
         resp_data = self._check_response_player(resp)["data"]
         return [s for score in resp_data["standard"] + resp_data["dx"] if (s := LXNSProvider._deser_score(score))]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
-        await self._ensure_friend_code(client, identifier)
-        request_tasks, create_task = [], lambda type: asyncio.create_task(
-            client._client.get(
-                self.base_url + f"api/v0/maimai/player/{identifier.friend_code}/bests",
-                params={"song_id": song.id if type != SongType.UTAGE else song.id + 100000, "song_type": type.value},
-                headers=self.headers,
-            )
-        )
+        async def get_scores_for_type(type: SongType) -> list[Score]:
+            url, headers, _ = await self._build_player_request("bests", identifier, client)
+            params = {"song_id": song.id if type != SongType.UTAGE else song.id + 100000, "song_type": type.value}
+            resp = await client._client.get(url, params=params, headers=headers)
+            resp_data = self._check_response_player(resp)["data"]
+            return [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
+
+        results, _ = [], await self._ensure_friend_code(client, identifier)
         if len(song.difficulties.standard) > 0:
-            request_tasks.append(create_task(SongType.STANDARD))
+            results.append(asyncio.create_task(get_scores_for_type(SongType.STANDARD)))
         if len(song.difficulties.dx) > 0:
-            request_tasks.append(create_task(SongType.DX))
+            results.append(asyncio.create_task(get_scores_for_type(SongType.DX)))
         if len(song.difficulties.utage) > 0:
-            request_tasks.append(create_task(SongType.UTAGE))
-        resps = await asyncio.gather(*request_tasks)
-        resp_data = [self._check_response_player(resp)["data"] for resp in resps]
-        return [s for score in reduce(concat, resp_data) if (s := LXNSProvider._deser_score(score))]
+            results.append(asyncio.create_task(get_scores_for_type(SongType.UTAGE)))
+        return [score for score in reduce(concat, await asyncio.gather(*results))]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
@@ -269,10 +270,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         url, headers, _ = await self._build_player_request("scores", identifier, client)
         scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]}
         resp = await client._client.post(url, headers=headers, json=scores_dict)
-        resp.raise_for_status()
-        resp_json = resp.json()
-        if not resp_json["success"] and resp_json["code"] == 400:
-            raise ValueError(resp_json["message"])
+        self._check_response_player(resp)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_aliases(self, client: "MaimaiClient") -> dict[int, list[str]]:

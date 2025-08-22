@@ -14,10 +14,6 @@
 - 使用好友代码：`PlayerIdentifier(friend_code="123456789")`，将使用开发者API。
 - 使用QQ号：`PlayerIdentifier(qq="123456789")`，将使用开发者API。
 
-::: warning
-注意：获取单个成绩（`maimai.minfo(...)`）时，目前仅支持开发者API。
-:::
-
 ## 关于开发者API
 
 申请开发者Token：https://maimai.lxns.net/developer

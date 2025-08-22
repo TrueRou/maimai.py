@@ -2,7 +2,7 @@
 
 舞萌服务号的舞萌DX页面，通过HTML解析获取信息。
 
-实现：IScoreProvider, IPlayerIdentifierProvider
+实现：IScoreProvider, IPlayerIdentifierProvider, IPlayerProvider
 
 源站：https://maimai.wahlap.com/maimai-mobile/
 
@@ -21,6 +21,19 @@
 ::: info
 参考 [proxy_updater (示例项目)](../samples/proxy_updater.md) 部分，这是一个通过代理和微信 OAuth 认证更新查分器的示例。
 :::
+
+## 关于 Rival (对手)
+
+通过 NET 的隐藏接口，您可以修改到玩家的对手信息。
+
+```python
+wechat = WechatProvider()
+identifier = await maimai.wechat(r="r", t="t", code="code", state="state")
+friends = await wechat.get_friends(identifier, maimai) # 需要主动传入 MaimaiClient 实例
+await wechat.set_rival_on(identifier, friends[0], maimai) # 设置第一个好友为对手
+```
+
+鉴于接口原因，我们无法查询玩家已有的对手信息，只能开启和关闭对手。
 
 ## 已知问题
 
