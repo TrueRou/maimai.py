@@ -31,9 +31,11 @@ async def test_players_fetching_wechat(maimai: MaimaiClient, divingfish: DivingF
         assert html_player.trophy_text == "だけど僕はmaimaiでらっくすを始めた"
 
     with open("./tests/sample_data/friend.html", "r", encoding="utf-8") as file:
-        html_players = wmdx_html2players(file.read())
+        friend_num, html_players = wmdx_html2players(file.read())
+        assert friend_num == 1
         assert len(html_players) == 2
         assert html_players[0].name == "maimai1"
+        assert html_players[0].token == "68e3c66bbaa21db851782d0fa6c12e52"
         assert html_players[1].name == "maimai2"
 
 

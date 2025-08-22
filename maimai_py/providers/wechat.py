@@ -106,7 +106,27 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_friends(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[WechatPlayer]:
-        raise NotImplementedError()
+        trophies = await client.items(PlayerTrophy)
+        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
+            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch friends")
+        # Prefetch the first page of friends, in order to get the total number of friends
+        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/", cookies=identifier.credentials)
+        friend_num, players = wmdx_html2players(str(resp.text))
+        # Fetch all friends by iterating through pages, 10 friends per page
+        for page in range(2, (friend_num // 10) + 2):
+            resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/friend/pages/?idx={page}", cookies=identifier.credentials)
+            players.extend(wmdx_html2players(str(resp.text))[1])
+        return [
+            WechatPlayer(
+                name=player.name,
+                rating=player.rating,
+                friend_code=player.friend_code,
+                star=player.star,
+                token=player.token,
+                trophy=trophy[0] if (trophy := await trophies.filter(name=player.trophy_text)) else None,
+            )
+            for player in players
+        ]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def set_rival_on(self, identifier: PlayerIdentifier, rival: WechatPlayer, client: "MaimaiClient") -> None:
