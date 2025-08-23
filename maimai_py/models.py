@@ -284,7 +284,7 @@ class PlayerRegion:
 
 @dataclass
 class Player:
-    __slots__ = ("identifier", "name", "rating")
+    __slots__ = ("name", "rating")
 
     name: str
     rating: int
@@ -326,7 +326,7 @@ class ArcadePlayer(Player):
 
 @dataclass
 class WechatPlayer(Player):
-    __slots__ = ("friend_code", "trophy", "star")
+    __slots__ = ("friend_code", "trophy", "star", "token")
 
     friend_code: int
     star: int
