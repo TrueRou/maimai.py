@@ -180,6 +180,7 @@ class MaimaiSongs:
         Returns:
             A list of songs if they exist, otherwise return an empty list.
         """
+        ids = [id % 10000 for id in ids]
         return await self._client._multi_get(ids, namespace="songs")
 
     async def by_id(self, id: int) -> Optional[Song]:
@@ -190,7 +191,7 @@ class MaimaiSongs:
         Returns:
             the song if it exists, otherwise return None.
         """
-        return await self._client._cache.get(id, namespace="songs")
+        return await self._client._cache.get(id % 10000, namespace="songs")
 
     async def by_title(self, title: str) -> Optional[Song]:
         """Get a song by its title.
@@ -539,8 +540,12 @@ class MaimaiScores:
         # Extend scores and categorize them into b35 and b15 based on their versions.
         self.scores = await MaimaiScores._get_extended(scores_unique.values(), maimai_songs)
         for score in self.scores:
-            if score_version := song_diff_versions.get(f"{score.id} {score.type} {score.level_index}", None):
-                (self.scores_b15 if score_version >= current_version.value else self.scores_b35).append(score)
+            # Only STANDARD and DX scores counts for b15 and b35.
+            if score.type in [SongType.STANDARD, SongType.DX]:
+                # Find the version of the song, and decide whether it is b35 or b15.
+                diff_key = f"{score.id} {score.type} {score.level_index}"
+                if score_version := song_diff_versions.get(diff_key, None):
+                    (self.scores_b15 if score_version >= current_version.value else self.scores_b35).append(score)
 
         # Sort scores by dx_rating, dx_score and achievements, and limit the number of scores.
         self.scores_b35.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
@@ -558,12 +563,15 @@ class MaimaiScores:
 
     @staticmethod
     async def _get_mapping(scores: Iterable[T], maimai_songs: MaimaiSongs) -> AsyncGenerator[tuple[Song, SongDifficulty, T], None]:
-        required_songs = await maimai_songs.get_batch(set(score.id for score in scores))
+        # Get all required songs in batch to reduce the number of requests.
+        purified_ids = set(score.id % 10000 for score in scores)
+        required_songs = await maimai_songs.get_batch(purified_ids)
         required_songs_dict = {song.id: song for song in required_songs if song is not None}
+
         for score in scores:
-            song = required_songs_dict.get(score.id, None)
-            diff = song.get_difficulty(score.type, score.level_index) if song else None
-            if score and song and diff:
+            song = required_songs_dict.get(score.id % 10000, None)
+            level_index = score.level_index if score.type != SongType.UTAGE else score.id
+            if song and (diff := song.get_difficulty(score.type, level_index)):
                 yield (song, diff, score)
 
     @staticmethod
@@ -589,8 +597,6 @@ class MaimaiScores:
 
         If the song or difficulty is not found, the whole tuple will be excluded from the result.
 
-        Args:
-            override_scores: a list of scores to override the current instance scores, defaults to UNSET.
         Returns:
             A list of tuples, each containing (song, difficulty, score).
         """

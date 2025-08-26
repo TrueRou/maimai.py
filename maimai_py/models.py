@@ -1,3 +1,4 @@
+import typing
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, MutableMapping, Optional, Sequence, Union
@@ -23,12 +24,12 @@ class Song:
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def get_difficulty(self, type: SongType, level_index: LevelIndex) -> Optional["SongDifficulty"]:
+    def get_difficulty(self, type: SongType, level_index: LevelIndex | int) -> Optional["SongDifficulty"]:
         """Get the exact difficulty of this song by type and level index.
 
         Args:
             type: The type of the song (DX, STANDARD, UTAGE).
-            level_index: The level index of the difficulty.
+            level_index: The level index of the difficulty, or diff_id for UTAGE type.
         Returns:
             The difficulty object if found, otherwise None.
         """
@@ -37,7 +38,12 @@ class Song:
         if type == SongType.STANDARD:
             return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
         if type == SongType.UTAGE:
-            return next(iter(self.difficulties.utage), None)
+            iterator = (
+                (d for d in self.difficulties.utage if getattr(d, "diff_id") == level_index)
+                if not isinstance(level_index, LevelIndex)
+                else iter(self.difficulties.utage)
+            )
+            return next(iterator, None)
 
     def get_difficulties(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> Sequence["SongDifficulty"]:
         """Get all difficulties of the song, optionally filtered by type.
@@ -56,31 +62,32 @@ class Song:
         if song_type == SongType.UTAGE:
             return self.difficulties.utage
 
-    def get_divingfish_id(self, type: SongType, level_index: LevelIndex) -> int:
-        """Get the Diving Fish ID for a specific difficulty of this song.
+    def get_divingfish_id(self, type: SongType, level_index: LevelIndex | int) -> int:
+        """Get the Divingfish ID for a specific difficulty of this song.
 
         Args:
             type: The type of the song (DX, STANDARD, UTAGE).
-            level_index: The level index of the difficulty.
+            level_index: The level index of the difficulty, or diff_id for UTAGE type.
         Returns:
-            The Diving Fish ID for the specified difficulty.
+            The Divingfish ID for the specified difficulty.
         """
-        difficulty = self.get_difficulty(type, level_index)
-        if difficulty is None:
-            raise ValueError(f"No difficulty found for type {type} and level index {level_index}")
-        if difficulty.type == SongType.DX:
-            return self.id + 10000
-        if difficulty.type == SongType.UTAGE:
-            return self.id + 100000
-        return self.id
+        if diff := self.get_difficulty(type, level_index):
+            if diff.type == SongType.STANDARD:
+                return self.id
+            if diff.type == SongType.DX:
+                return self.id + 10000
+            if diff.type == SongType.UTAGE:
+                diff = typing.cast(SongDifficultyUtage, diff)
+                return diff.diff_id
+        raise ValueError(f"No difficulty found for type {type} and level index {level_index}")
 
     def get_divingfish_ids(self, song_type: Union[SongType, _UnsetSentinel] = UNSET) -> set[int]:
-        """Get a set of Diving Fish IDs for all difficulties of this song.
+        """Get a set of Divingfish IDs for all difficulties of this song.
 
         Args:
             song_type: The type of the song (DX, STANDARD, UTAGE). If UNSET, returns IDs for all types.
         Returns:
-            A set of Diving Fish IDs for the specified type or all types if UNSET.
+            A set of Divingfish IDs for the specified type or all types if UNSET.
         """
         ids = set()
         for difficulty in self.get_difficulties(song_type):
@@ -148,10 +155,11 @@ class SongDifficulty:
 
 @dataclass
 class SongDifficultyUtage(SongDifficulty):
-    __slots__ = ("kanji", "description", "is_buddy")
+    __slots__ = ("kanji", "description", "diff_id", "is_buddy")
 
     kanji: str
     description: str
+    diff_id: int
     is_buddy: bool
 
 

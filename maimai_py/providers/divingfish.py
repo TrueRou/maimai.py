@@ -1,5 +1,5 @@
-import dataclasses
 import hashlib
+import typing
 from json import JSONDecodeError
 from typing import TYPE_CHECKING, Generator, Iterable
 
@@ -62,35 +62,49 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
 
     @staticmethod
     def _deser_diffs(song: dict) -> Generator[SongDifficulty, None, None]:
-        song_type = SongType._from_id(song["id"])
-        for idx, chart in enumerate(song["charts"]):
-            song_diff = SongDifficulty(
+        song_id, song_type = int(song["id"]), SongType._from_id(song["id"])
+        if song_type == SongType.STANDARD or song_type == SongType.DX:
+            for idx, chart in enumerate(song["charts"]):
+                yield SongDifficulty(
+                    type=song_type,
+                    level=song["level"][idx],
+                    level_value=song["ds"][idx],
+                    level_index=LevelIndex(idx),
+                    note_designer=chart["charter"],
+                    version=divingfish_to_version[song["basic_info"]["from"]].value,
+                    tap_num=chart["notes"][0],
+                    hold_num=chart["notes"][1],
+                    slide_num=chart["notes"][2],
+                    touch_num=chart["notes"][3] if song_type == SongType.DX else 0,
+                    break_num=chart["notes"][4] if song_type == SongType.DX else chart["notes"][3],
+                    curve=None,
+                )
+        elif song_type == SongType.UTAGE and len(song["charts"]) > 0:
+            first_diff = song["charts"][0]
+            second_diff = song["charts"][1] if len(song["charts"]) > 1 else None
+            yield SongDifficultyUtage(
+                diff_id=song_id,
+                kanji=song["basic_info"]["title"][1:2],
+                description="LET'S PARTY!",
+                is_buddy=len(song["charts"]) == 2,
                 type=song_type,
-                level=song["level"][idx],
-                level_value=song["ds"][idx],
-                level_index=LevelIndex(idx),
-                note_designer=chart["charter"],
+                level=song["level"][0],
+                level_value=song["ds"][0],
+                level_index=LevelIndex(0),
+                note_designer=first_diff["charter"],
                 version=divingfish_to_version[song["basic_info"]["from"]].value,
-                tap_num=chart["notes"][0],
-                hold_num=chart["notes"][1],
-                slide_num=chart["notes"][2],
-                touch_num=chart["notes"][3] if song_type == SongType.DX else 0,
-                break_num=chart["notes"][4] if song_type == SongType.DX else chart["notes"][3],
+                tap_num=first_diff["notes"][0] + (second_diff["notes"][0] if second_diff else 0),
+                hold_num=first_diff["notes"][1] + (second_diff["notes"][1] if second_diff else 0),
+                slide_num=first_diff["notes"][2] + (second_diff["notes"][2] if second_diff else 0),
+                touch_num=first_diff["notes"][3] + (second_diff["notes"][3] if second_diff else 0),
+                break_num=first_diff["notes"][4] + (second_diff["notes"][4] if second_diff else 0),
                 curve=None,
             )
-            if song_type == SongType.UTAGE:
-                song_diff = SongDifficultyUtage(
-                    **dataclasses.asdict(song_diff),
-                    kanji=song["basic_info"]["title"][1:2],
-                    description="LET'S PARTY!",
-                    is_buddy=False,
-                )
-            yield song_diff
 
     @staticmethod
     def _deser_score(score: dict) -> Score:
         return Score(
-            id=score["song_id"] % 10000,
+            id=score["song_id"] if score["song_id"] > 100000 else score["song_id"] % 10000,
             level=score["level"],
             level_index=LevelIndex(score["level_index"]),
             achievements=score["achievements"],
@@ -105,20 +119,18 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
 
     @staticmethod
     async def _ser_score(score: Score, songs: "MaimaiSongs") -> Optional[dict]:
-        song_title = song.title if (song := await songs.by_id(score.id)) else None
-        song_title = "Link(CoF)" if score.id == 383 else song_title
-        if song_title is not None:
+        if song := await songs.by_id(score.id % 10000):
+            song_title = "Link(CoF)" if score.id == 383 else song.title
+            if score.type == SongType.UTAGE and (diff := song.get_difficulty(score.type, score.id)):
+                diff = typing.cast(SongDifficultyUtage, diff)
+                song_title = f"[{diff.kanji}]{song_title}"
             return {
-                "song_id": score.type._to_id(score.id),
                 "title": song_title,
-                "level": score.level,
                 "level_index": score.level_index.value,
                 "achievements": score.achievements,
                 "fc": score.fc.name.lower() if score.fc else None,
                 "fs": score.fs.name.lower() if score.fs else None,
                 "dxScore": score.dx_score,
-                "ra": score.dx_rating,
-                "rate": score.rate.name.lower(),
                 "type": score.type._to_abbr(),
             }
 
@@ -158,15 +170,15 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         resp = await client._client.get(self.base_url + "music_data")
         resp.raise_for_status()
         resp_json = resp.json()
-        unique_songs: dict[int, Song] = {}
+        songs_unique: dict[int, Song] = {}
         for song in resp_json:
-            unique_key = int(song["id"]) % 10000
+            song_key = int(song["id"]) % 10000
             song_type: SongType = SongType._from_id(song["id"])
-            if unique_key not in unique_songs:
-                unique_songs[unique_key] = DivingFishProvider._deser_song(song)
-            difficulties: list[SongDifficulty] = unique_songs[unique_key].difficulties.__getattribute__(song_type.value)
+            if song_key not in songs_unique:
+                songs_unique[song_key] = DivingFishProvider._deser_song(song)
+            difficulties: list[SongDifficulty] = songs_unique[song_key].difficulties.__getattribute__(song_type.value)
             difficulties.extend(DivingFishProvider._deser_diffs(song))
-        return list(unique_songs.values())
+        return list(songs_unique.values())
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> DivingFishPlayer:

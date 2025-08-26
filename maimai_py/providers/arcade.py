@@ -35,15 +35,15 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
 
     @staticmethod
     async def _deser_score(score: dict, songs: "MaimaiSongs") -> Optional[Score]:
-        song_type = SongType._from_id(score["musicId"])
-        level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else None
-        achievement = float(score["achievement"]) / 10000
         if song := await songs.by_id(score["musicId"] % 10000):
-            if level_index and (diff := song.get_difficulty(song_type, level_index)):
+            song_type = SongType._from_id(score["musicId"])
+            level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else score["musicId"]
+            achievement = float(score["achievement"]) / 10000
+            if diff := song.get_difficulty(song_type, level_index):
                 fs_type = FSType(score["syncStatus"]) if 0 < score["syncStatus"] < 5 else None
                 fs_type = FSType.SYNC if score["syncStatus"] == 5 else fs_type
                 return Score(
-                    id=song.id,
+                    id=score["musicId"] if score["musicId"] > 100000 else score["musicId"] % 10000,
                     level=diff.level,
                     level_index=diff.level_index,
                     achievements=achievement,
@@ -78,7 +78,8 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
         maimai_songs = await client.songs()
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp_list = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
-            return [s for score in resp_list if (s := await ArcadeProvider._deser_score(score, maimai_songs))]
+            v = [s for score in resp_list if (s := await ArcadeProvider._deser_score(score, maimai_songs))]
+            return v
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)

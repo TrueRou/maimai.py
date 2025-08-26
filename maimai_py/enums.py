@@ -211,9 +211,5 @@ class SongType(Enum):
         id = int(id)
         return SongType.UTAGE if id > 100000 else SongType.DX if id > 10000 else SongType.STANDARD
 
-    def _to_id(self, id: Union[int, str]) -> int:
-        id = int(id)
-        return id if self == SongType.STANDARD else id + 10000 if self == SongType.DX else id + 100000
-
     def _to_abbr(self) -> str:
         return "SD" if self == SongType.STANDARD else "DX" if self else "UTAGE"

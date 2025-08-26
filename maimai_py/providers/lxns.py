@@ -16,7 +16,7 @@ from maimai_py.models import PlayerIdentifier, Score, Song
 from .base import IAliasProvider, IItemListProvider, IPlayerProvider, IScoreProvider, IScoreUpdateProvider, ISongProvider
 
 if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiClient, MaimaiSongs
+    from maimai_py.maimai import MaimaiClient
 
 is_jwt = re.compile(r"^[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+$")
 
@@ -126,9 +126,10 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         )
 
     @staticmethod
-    def _deser_diff_utage(difficulty: dict) -> SongDifficultyUtage:
+    def _deser_diff_utage(difficulty: dict, diff_id: int) -> SongDifficultyUtage:
         return SongDifficultyUtage(
             **dataclasses.asdict(LXNSProvider._deser_diff(difficulty)),
+            diff_id=diff_id,
             kanji=difficulty["kanji"],
             description=difficulty["description"],
             is_buddy=difficulty["is_buddy"],
@@ -151,22 +152,16 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         )
 
     @staticmethod
-    async def _ser_score(score: Score, songs: "MaimaiSongs") -> Optional[dict]:
-        song_title = song.title if (song := await songs.by_id(score.id)) else None
-        if song_title is not None:
-            return {
-                "id": score.id,
-                "song_name": song_title,
-                "level": score.level,
-                "level_index": score.level_index.value,
-                "achievements": score.achievements,
-                "fc": score.fc.name.lower() if score.fc else None,
-                "fs": score.fs.name.lower() if score.fs else None,
-                "dx_score": score.dx_score,
-                "dx_rating": score.dx_rating,
-                "rate": score.rate.name.lower(),
-                "type": score.type.name.lower(),
-            }
+    async def _ser_score(score: Score) -> Optional[dict]:
+        return {
+            "id": score.id,
+            "level_index": score.level_index.value,
+            "achievements": score.achievements,
+            "fc": score.fc.name.lower() if score.fc else None,
+            "fs": score.fs.name.lower() if score.fs else None,
+            "dx_score": score.dx_score,
+            "type": score.type.name.lower(),
+        }
 
     def _check_response_player(self, resp: Response) -> dict:
         try:
@@ -193,16 +188,16 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
         resp = await client._client.get(self.base_url + "api/v0/maimai/song/list?notes=true")
         resp.raise_for_status()
         resp_json = resp.json()
-        unique_songs: dict[int, Song] = {}
+        songs_unique: dict[int, Song] = {}
         for song in resp_json["songs"]:
-            unique_key = int(song["id"]) % 10000
-            if unique_key not in unique_songs:
-                unique_songs[unique_key] = LXNSProvider._deser_song(song)
-            difficulties = unique_songs[unique_key].difficulties
+            lxns_id, song_key = int(song["id"]), int(song["id"]) % 10000
+            if song_key not in songs_unique:
+                songs_unique[song_key] = LXNSProvider._deser_song(song)
+            difficulties = songs_unique[song_key].difficulties
             difficulties.standard.extend(LXNSProvider._deser_diff(difficulty) for difficulty in song["difficulties"].get("standard", []))
             difficulties.dx.extend(LXNSProvider._deser_diff(difficulty) for difficulty in song["difficulties"].get("dx", []))
-            difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty) for difficulty in song["difficulties"].get("utage", []))
-        return list(unique_songs.values())
+            difficulties.utage.extend(LXNSProvider._deser_diff_utage(difficulty, lxns_id) for difficulty in song["difficulties"].get("utage", []))
+        return list(songs_unique.values())
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> LXNSPlayer:
@@ -248,27 +243,31 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
-        async def get_scores_for_type(type: SongType) -> list[Score]:
+        async def get_scores(song_id: int, type: SongType) -> list[Score]:
             url, headers, _ = await self._build_player_request("bests", identifier, client)
-            params = {"song_id": song.id if type != SongType.UTAGE else song.id + 100000, "song_type": type.value}
+            params = {"song_id": song_id, "song_type": type.value}
             resp = await client._client.get(url, params=params, headers=headers)
             resp_data = self._check_response_player(resp)["data"]
             return [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
 
         results, _ = [], await self._ensure_friend_code(client, identifier)
+        # handle for STANDARD and DX types
         if len(song.difficulties.standard) > 0:
-            results.append(asyncio.create_task(get_scores_for_type(SongType.STANDARD)))
+            results.append(asyncio.create_task(get_scores(song.id, SongType.STANDARD)))
         if len(song.difficulties.dx) > 0:
-            results.append(asyncio.create_task(get_scores_for_type(SongType.DX)))
+            results.append(asyncio.create_task(get_scores(song.id, SongType.DX)))
+
+        # handle for UTAGE type, which uses diff_id instead of song_id
         if len(song.difficulties.utage) > 0:
-            results.append(asyncio.create_task(get_scores_for_type(SongType.UTAGE)))
+            for diff in song.get_difficulties(SongType.UTAGE):
+                diff = typing.cast(SongDifficultyUtage, diff)
+                results.append(asyncio.create_task(get_scores(diff.diff_id, SongType.UTAGE)))
         return [score for score in reduce(concat, await asyncio.gather(*results))]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
-        maimai_songs = await client.songs()
         url, headers, _ = await self._build_player_request("scores", identifier, client)
-        scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]}
+        scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score))]}
         resp = await client._client.post(url, headers=headers, json=scores_dict)
         self._check_response_player(resp)
 

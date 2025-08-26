@@ -18,12 +18,12 @@
 
 额外方法:
 
-| 方法名                                    | 返回值                 | 说明                           |
-|-------------------------------------------|------------------------|------------------------------|
-| `get_difficulty(SongType, LevelIndex)`    | `SongDifficulty`       | 获取对应的难度                 |
-| `get_difficulties(SongType)`              | `list[SongDifficulty]` | 获取对应的难度列表             |
-| `get_divingfish_id(SongType, LevelIndex)` | `int`                  | 获取歌曲对应难度的 水鱼ID      |
-| `get_divingfish_ids(SongType)`            | `set[int]`             | 获取歌曲对应类型的 水鱼ID 集合 |
+| 方法名                                           | 返回值                 | 说明                           |
+|--------------------------------------------------|------------------------|------------------------------|
+| `get_difficulty(SongType, LevelIndex \| int)`    | `SongDifficulty`       | 获取对应的难度                 |
+| `get_difficulties(SongType)`                     | `list[SongDifficulty]` | 获取对应的难度列表             |
+| `get_divingfish_id(SongType, LevelIndex \| int)` | `int`                  | 获取歌曲对应难度的 水鱼ID      |
+| `get_divingfish_ids(SongType)`                   | `set[int]`             | 获取歌曲对应类型的 水鱼ID 集合 |
 
 ## [SongDifficulties](https://api.maimai.turou.fun/maimai_py/models.html#SongDifficulties)
 
@@ -59,6 +59,7 @@
 |---------------|--------|------------------------|
 | `kanji`       | `str`  | 宴铺前缀，如 `协`，`狂`    |
 | `description` | `str`  | 宴谱描述                 |
+| `diff_id`     | `int`  | 宴谱难度 ID              |
 | `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
 
 ## [CurveObject](https://api.maimai.turou.fun/maimai_py/models.html#CurveObject)
@@ -86,7 +87,7 @@
 
 | 字段           | 类型            | 说明              |
 |----------------|-----------------|-------------------|
-| `id`           | `int`           | 曲目ID            |
+| `id`           | `int`           | 成绩ID            |
 | `level`        | `str`           | 难度标级，如 `14+` |
 | `level_index`  | `LevelIndex`    | 难度索引          |
 | `achievements` | `float \| None` | 达成率            |
