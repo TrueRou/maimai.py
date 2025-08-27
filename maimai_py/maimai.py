@@ -4,7 +4,7 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, AsyncGenerator, Callable, Generic, Iterable, Literal, Optional, Type, TypeVar
+from typing import Any, AsyncGenerator, Callable, Generic, Iterable, Literal, Optional, Type, TypeVar, Union, overload
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -798,6 +798,18 @@ class MaimaiClient:
         """
         songs = MaimaiSongs(self)
         return await songs._configure(provider, alias_provider, curve_provider)
+
+    @overload
+    async def players(self, identifier: PlayerIdentifier, provider: DivingFishProvider) -> DivingFishPlayer: ...
+
+    @overload
+    async def players(self, identifier: PlayerIdentifier, provider: LXNSProvider) -> LXNSPlayer: ...
+
+    @overload
+    async def players(self, identifier: PlayerIdentifier, provider: ArcadeProvider) -> ArcadePlayer: ...
+
+    @overload
+    async def players(self, identifier: PlayerIdentifier, provider: WechatProvider) -> WechatPlayer: ...
 
     async def players(
         self,
