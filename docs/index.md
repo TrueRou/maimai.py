@@ -1,11 +1,12 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+title: 舞萌相关开发的最佳 Python 工具库
 
 hero:
   name: "maimai.py"
-  text: "舞萌相关开发的最佳Python工具库"
-  tagline: 用于国服舞萌相关开发的最佳Python工具库。支持水鱼、落雪、机台等数据源。支持曲目、玩家、分数、牌子等各类信息的查询。
+  text: "舞萌相关开发的最佳 Python 工具库"
+  tagline: 用于国服舞萌相关开发的最佳 Python 工具库。支持水鱼、落雪、微信等数据源。支持曲目、玩家、分数、牌子等各类信息的查询。
   image:
     src: https://s2.loli.net/2024/12/23/jOngPm1bECdSw5N.png
   actions:
@@ -21,7 +22,7 @@ hero:
 
 features:
   - title: 统一模型
-    details: 提供了基于日服舞萌标准的数据模型和接口。另外，我们还提供了基于RESTful范式的客户端，您可以使用任何语言来调用。
+    details: 提供了基于日服舞萌标准的数据模型和接口。另外，我们还提供了基于 RESTful 范式的客户端，你可以使用任何语言来调用。
   - title: 查询信息
     details: 支持从数据源查询歌曲、谱面、玩家信息、分数、Rating、姓名框、牌子进度、旅行区域、收藏品。
   - title: 上传数据

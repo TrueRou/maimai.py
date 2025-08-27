@@ -2,19 +2,19 @@
 
 **proxy_updater** 是针对 `maimai.wechat()` 和 `WechatProvider()` 的示例程序。
 
-示例中提供了一个通过 `mitmproxy` 代理来更新玩家分数的脚本，允许用户通过微信 OAuth 认证来更新查分器数据，这种方式类似于 [Bakapiano方案](https://github.com/bakapiano/maimaidx-prober-proxy-updater)，是无风险的更新方式。
+示例中提供了一个通过 `mitmproxy` 代理来更新玩家分数的脚本，允许用户通过微信 OAuth 认证来更新查分器数据，这种方式类似于 [Bakapiano 方案](https://github.com/bakapiano/maimaidx-prober-proxy-updater)，是无风险的更新方式。
 
 ## 配置
 
-示例 proxy_updater 是利用代理和微信OAuth认证更新查分器的示例，类似于 bakapiano / UsagiPass 的方案。
+示例 proxy_updater 是利用代理和微信 OAuth 认证更新查分器的示例，类似于 bakapiano / UsagiPass 的方案。
 
-1. 首先，您需要确保已经全局安装了 `poetry` 包管理工具：`pip install poetry`。
+1. 首先，你需要确保已经全局安装了 `poetry` 包管理工具：`pip install poetry`。
 2. 先安装外层的依赖库, 在项目根目录下运行 `poetry install` 来安装根依赖。
 3. 再进入 `examples` 目录，然后再次运行 `poetry install` 来安装子依赖。
-4. 接下来，您需要配置环境变量，请根据 `.env.example` 文件创建一个 `.env` 文件，并根据您的环境修改其中的配置。
-5. 最后，您可以运行 `poetry run python proxy_updater/main.py` 来启动代理服务器。
+4. 接下来，你需要配置环境变量，请根据 `.env.example` 文件创建一个 `.env` 文件，并根据你的环境修改其中的配置。
+5. 最后，你可以运行 `poetry run python proxy_updater/main.py` 来启动代理服务器。
 
-为了将流量导向代理服务器，您需要在您的设备上配置代理，下面是一个 Clash 代理配置示例：
+为了将流量导向代理服务器，你需要在你的设备上配置代理，下面是一个 Clash 代理配置示例：
 
 ```yaml
 mixed-port: 7890
@@ -36,17 +36,17 @@ rules:
 
 ## 使用
 
-程序启动后，会提示点击回车键来生成一个`Wechat URL`，用户点击回车后，程序会生成一个微信验证链接。
+程序启动后，会提示点击回车键来生成一个 `Wechat URL`，用户点击回车后，程序会生成一个微信验证链接。
 
 将链接复制到**运行了代理**的设备的微信中打开，即可开始进行导入过程。
 
 ::: tip
-由于微信验证机制，验证链接的失效速度很快，一旦失效可以在CLI看到错误信息，只需重新生成即可。
+由于微信验证机制，验证链接的失效速度很快，一旦失效可以在 CLI 看到错误信息，只需重新生成即可。
 :::
 
 ## 原理
 
-原理参考了[Bakapiano方案](https://github.com/bakapiano/maimaidx-prober-proxy-updater)，这里引用Bakapiano的原话：
+原理参考了 [Bakapiano 方案](https://github.com/bakapiano/maimaidx-prober-proxy-updater)，这里引用 Bakapiano 的原话：
 
 > 修改微信 OAuth2 认证中的 redirect_uri 链接，将 https://example.com 修改为 http://example.com 并通过 HTTP 代理截获。之后服务器通过认证信息获取舞萌 DX 成绩数据。理论上全平台支持，只要对应平台下的微信内置浏览器走全局 HTTP 代理
 

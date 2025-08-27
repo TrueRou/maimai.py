@@ -1,12 +1,12 @@
 # 开始
 
-安装方式:
+安装方式：
 
 ```bash
 pip install maimai-py
 ```
 
-升级方式:
+升级方式：
 
 ```bash
 pip install -U maimai-py
@@ -68,14 +68,14 @@ async def main():
 ::: info
 截止目前，我们已经支持水鱼、落雪、微信服务号、机台✨等数据源，支持向水鱼和落雪更新数据。
 
-通过从 机台✨ 数据源获取玩家成绩，然后更新到水鱼或落雪，您可以实现查分器的成绩同步。
+通过从 **机台✨** 数据源获取玩家成绩，然后更新到水鱼或落雪，你可以实现查分器的成绩同步。
 :::
 
 ## 封装对象
 
-您可能注意到了上文的 `MaimaiSongs` 对象，与直接返回 `list[Song]` 相比，封装对象为您提供了一些方便的方法。
+你可能注意到了上文的 `MaimaiSongs` 对象，与直接返回 `list[Song]` 相比，封装对象为你提供了一些方便的方法。
 
-例如，您可以直接调用 `by_title()`、`by_id()` 方法进行筛选，也可以通过 `get_all()` 获取整个歌曲列表。
+例如，你可以直接调用 `by_title()`、`by_id()` 方法进行筛选，也可以通过 `get_all()` 获取整个歌曲列表。
 
 我们针对大多数数据都进行了封装（`MaimaiSongs`, `MaimaiScores`, `MaimaiPlates`），读者可以通过代码提示了解更多。
 
@@ -103,40 +103,40 @@ async def main():
 务必在全局只创建一个 `MaimaiClient` 实例，避免缓存失效。
 :::
 
-关于缓存机制与缓存刷新的更多细节，请查阅 [缓存策略](./concepts/caches.md) 章节。
+关于缓存机制与缓存刷新的更多细节，请查阅[缓存策略](./concepts/caches.md)章节。
 
 ## 玩家标识
 
 在获取或上传玩家信息时，往往需要标识玩家的身份，我们使用 `PlayerIdentifier` 实例来作为标识符。
 
-`PlayerIdentifier` 是一个通用的概念，您需要根据使用场景传入合适的值，阅读对应 Provider 的章节可以了解更多关于如何使用 `PlayerIdentifier` 的信息：
+`PlayerIdentifier` 是一个通用的概念，你需要根据使用场景传入合适的值，阅读对应 Provider 的章节可以了解更多关于如何使用 `PlayerIdentifier` 的信息：
 
 - [DivingFishProvider](./providers/divingfish.md)
 - [LXNSProvider](./providers/lxns.md)
 - [ArcadeProvider](./providers/arcade.md)
 - [WeChatProvider](./providers/wechat.md)
 
-## 曲目ID
+## 曲目 ID
 
-在 maimai.py 中，同一首曲目的标准、DX 谱面、宴会谱面的 曲目ID 一致，不存在大于 10000 的 曲目ID（如有，均会对 10000 / 100000 取余处理）。
-宴会场**成绩**为例外，宴会场 成绩ID 可能会大于 100000。
+在 maimai.py 中，同一首曲目的标准、DX 谱面、宴会谱面的**曲目 ID** 一致，不存在大于 10000 的曲目 ID（如有，均会对 10000 / 100000 取余处理）。
+宴会场**成绩**为例外，宴会场**成绩 ID** 可能会大于 100000。
 
 例如，针对 Oshama Scramble! 而言：
 
-- 标准、DX、宴会谱面的 曲目ID 均为 363
-- 标准、DX、宴会成绩的 成绩ID 分别为 363、363、100363。
+- 标准、DX、宴会谱面的 曲目 ID 均为 363
+- 标准、DX、宴会成绩的 成绩 ID 分别为 363、363、100363。
 
-> 通常来说，你不需要关心 **成绩ID**，因为 maimai.py 在大多数场景下基于 **曲目ID**。
+> 通常来说，你不需要关心**成绩 ID**，因为 maimai.py 在大多数场景下基于**曲目 ID**。
 > 
-> 如果您需要将成绩关联到曲目，可以直接使用 [`scores.get_mapping()`](./modules/scores.md#遍历成绩对象) 方法。
+> 如果你需要将成绩关联到曲目，可以直接使用 [`scores.get_mapping()`](./modules/scores.md#遍历成绩对象) 方法。
 
 ## 下一步
 
-至此，您已经了解了 maimai.py 的全部核心概念。
+至此，你已经了解了 maimai.py 的全部核心概念。
 
-- 如果您想要更进一步详细了解我们的功能：推荐阅读 [功能 章节](./modules/songs.md)。
-- 如果您是经验丰富的开发者，想要了解更多细节：推荐阅读 [API文档](https://api.maimai.turou.fun/maimai_py)。
-- `Talk is cheap. Show me the code`：推荐阅读 [例子 章节](.//examples.md)。
+- 如果你想要更进一步详细了解我们的功能：推荐阅读[功能章节](./modules/songs.md)。
+- 如果你是经验丰富的开发者，想要了解更多细节：推荐阅读 [API 文档](https://api.maimai.turou.fun/maimai_py)。
+- `Talk is cheap. Show me the code`：推荐阅读[例子章节](.//examples.md)。
 
-如果您希望通过其他语言调用 maimai.py 的功能，请参考 [RESTful 客户端](./concepts/client.md)。
+如果你希望通过其他语言调用 maimai.py 的功能，请参考 [RESTful 客户端](./concepts/client.md)。
 
