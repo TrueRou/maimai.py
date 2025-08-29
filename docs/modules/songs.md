@@ -4,7 +4,7 @@
 
 通过 [`maimai.songs()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.songs) 方法可以获取曲目的封装对象，以 `MaimaiSongs` 的形式返回。
 
-调用后，默认会从 LXNSProvider 获取歌曲，并且从 YuzuProvider 获取别名。如果您需要拟合难度，可以通过 `curve_provider` 参数传入一个实现了 `ICurveProvider` 接口的对象，默认只有 `DivingFishProvider` 提供了相对难度曲线数据。
+调用后，默认会从 LXNSProvider 获取歌曲，并且从 YuzuProvider 获取别名。如果你需要拟合难度，可以通过 `curve_provider` 参数传入一个实现了 `ICurveProvider` 接口的对象，默认只有 `DivingFishProvider` 提供了相对难度曲线数据。
 
 阅读 [MaimaiSongs 定义](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiSongs)，可以了解通过各种条件筛选曲目、获取单个曲目、遍历曲目等方法。
 
@@ -25,23 +25,23 @@ print(song2.id == song1.id)  # 输出: True
 ```
 
 ::: warning
-同样的，曲目 ID 遵循：同一首曲目的标准、DX 谱面、宴会谱面的 曲目ID 一致，不存在大于 10000 的 曲目ID（如有，均会对 10000 / 100000 取余处理）。
+同样的，曲目 ID 遵循：同一首曲目的标准、DX 谱面、宴会谱面的 曲目 ID 一致，不存在大于 10000 的 曲目 ID（如有，均会对 10000 / 100000 取余处理）。
 
-如果您对此有疑问，请参考 [开始 章节](../get-started.md#曲目id)。
+如果你对此有疑问，请参考 [开始 章节](../get-started.md#曲目id)。
 :::
 
 在上述例子中，通过 `song.difficulties` 可以获取 `SongDifficulties` 对象，包含了所有谱面的难度信息。例如： `song.difficulties.dx` 是 DX 谱面的难度列表。
 
-这种封装方式可能对您动态的获取曲目难度造成困扰，所以我们为 [`Song`](../concepts/models.md#song) 对象提供了一些工具方法：
+这种封装方式可能对你动态的获取曲目难度造成困扰，所以我们为 [`Song`](../concepts/models.md#song) 对象提供了一些工具方法：
 
 | 方法名                                    | 返回值                 | 说明                           |
 |-------------------------------------------|------------------------|------------------------------|
 | `get_difficulty(SongType, LevelIndex)`    | `SongDifficulty`       | 获取对应的难度                 |
 | `get_difficulties(SongType)`              | `list[SongDifficulty]` | 获取对应的难度列表             |
-| `get_divingfish_id(SongType, LevelIndex)` | `int`                  | 获取歌曲对应难度的 水鱼ID      |
-| `get_divingfish_ids(SongType)`            | `set[int]`             | 获取歌曲对应类型的 水鱼ID 集合 |
+| `get_divingfish_id(SongType, LevelIndex)` | `int`                  | 获取歌曲对应难度的 水鱼 ID      |
+| `get_divingfish_ids(SongType)`            | `set[int]`             | 获取歌曲对应类型的 水鱼 ID 集合 |
 
-通过工具方法，您可以轻松获取曲目的难度信息，如果需要的话，还可以解析为对应的水鱼ID。
+通过工具方法，你可以轻松获取曲目的难度信息，如果需要的话，还可以解析为对应的水鱼 ID。
 
 ## MaimaiSongs 对象
 
@@ -52,7 +52,7 @@ async def get_all(self) -> list[Song]:
     """
     获取所有歌曲，以列表返回。
 
-    此方法将遍历缓存中的所有歌曲，并逐一生成每首歌曲。除非您确实需要遍历所有歌曲，否则应使用 `by_id` 或 `filter` 方法代替。
+    此方法将遍历缓存中的所有歌曲，并逐一生成每首歌曲。除非你确实需要遍历所有歌曲，否则应使用 `by_id` 或 `filter` 方法代替。
 
     返回值:
         一个列表，包含缓存中的所有歌曲。

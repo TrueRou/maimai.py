@@ -1,26 +1,26 @@
 # RESTful 客户端
 
-如果您希望通过其他语言调用 maimai.py 的功能，或者希望在自己的项目中集成 maimai.py 的特性，我们提供了一个 RESTful API 客户端。
+如果你希望通过其他语言调用 maimai.py 的功能，或者希望在自己的项目中集成 maimai.py 的特性，我们提供了一个 RESTful API 客户端。
 
-maimai.py 的 RESTful 客户端是基于 [FastAPI](https://fastapi.tiangolo.com/) 实现的，提供了一个简单易用的 HTTP 接口，您可以通过 HTTP 请求来调用 maimai.py 的功能。
+maimai.py 的 RESTful 客户端是基于 [FastAPI](https://fastapi.tiangolo.com/) 实现的，提供了一个简单易用的 HTTP 接口，你可以通过 HTTP 请求来调用 maimai.py 的功能。
 
 ## 使用 RESTful 客户端
 
-通过将 FastAPI 程序打包为二进制文件，我们提供了一个独立的客户端，您可以在本地运行它，并通过 HTTP 请求来调用 maimai.py 的功能。
+通过将 FastAPI 程序打包为二进制文件，我们提供了一个独立的客户端，你可以在本地运行它，并通过 HTTP 请求来调用 maimai.py 的功能。
 
 客户端使用 Nuitka 编译，请在 [Releases](https://github.com/TrueRou/maimai.py/releases) 页面下载。
 
-我们的客户端支持 Windows 和 Linux，请根据您的系统下载对应的版本。执行 `maimai.py-platform-amd64 --help` 可以查看帮助信息。
+我们的客户端支持 Windows 和 Linux，请根据你的系统下载对应的版本。执行 `maimai.py-platform-amd64 --help` 可以查看帮助信息。
 
 ![](https://imgur.com/nZGyDvf.png)
 
-待客户端运行后，您可以通过 HTTP 请求来调用 maimai.py 的功能，您可以通过访问 `http://127.0.0.1:8000/docs` 来查看文档和测试功能。
+待客户端运行后，你可以通过 HTTP 请求来调用 maimai.py 的功能，你可以通过访问 `http://127.0.0.1:8000/docs` 来查看文档和测试功能。
 
-另外，我们也提供了可以在线预览的API文档，您可以通过 [这里](https://openapi.maimai.turou.fun/) 查看。
+另外，我们也提供了可以在线预览的 API 文档，你可以通过 [这里](https://openapi.maimai.turou.fun/) 查看。
 
 ## 集成 FastAPI 路由
 
-如果您希望在自己的 FastAPI 项目中集成 maimai.py，您可以通过以下方式来创建 maimai.py 风格的路由。
+如果你希望在自己的 FastAPI 项目中集成 maimai.py，你可以通过以下方式来创建 maimai.py 风格的路由。
 
 ```python
 from fastapi import FastAPI
@@ -36,7 +36,7 @@ app.include_router(routes.get_router(routes._dep_divingfish, routes._dep_divingf
 ```
 
 ::: info
-阅读 [simple_prober (示例项目)](../samples/simple_prober.md) 了解更多
+阅读 [simple_prober（示例项目）](../samples/simple_prober.md) 了解更多
 :::
 
 ## 调用示例

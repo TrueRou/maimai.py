@@ -5,16 +5,16 @@
 在 maimai.py 中，我们提供了获取玩家所有成绩、BEST50 成绩的方法，以及更新玩家成绩到指定数据源的功能。
 
 ::: info
-与查分器相似，我们仅能查询到您在曲目游玩的最终成绩，而无法查询到您在游玩过程中每个阶段的成绩。
+与查分器相似，我们仅能查询到你在曲目游玩的最终成绩，而无法查询到你在游玩过程中每个阶段的成绩。
 
-例如：针对 Oshama Scramble! 的 DX MASTER 谱面，如果您先后达成了 100.0000% FC 和 100.5000% 非 FC 成绩，**maimai.py 将返回 100.5000% FC 的成绩。**
+例如：针对 Oshama Scramble! 的 DX MASTER 谱面，如果你先后达成了 100.0000% FC 和 100.5000% 非 FC 成绩，**maimai.py 将返回 100.5000% FC 的成绩。**
 :::
 
 ## maimai.scores() 方法
 
 调用 [`maimai.scores()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.scores) 方法可以获取对应玩家在指定数据源的**所有成绩**，以 [`MaimaiScores`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiScores) 的形式返回。
 
-MaimaiScores 封装了多个方法，您可以通过这些方法获取玩家的 b35/b15 成绩，遍历所有成绩，计算总 Rating 等：
+MaimaiScores 封装了多个方法，你可以通过这些方法获取玩家的 b35/b15 成绩，遍历所有成绩，计算总 Rating 等：
 
 | 字段 / 方法             | 类型 / 返回值                              | 说明                                   |
 |-------------------------|--------------------------------------------|--------------------------------------|
@@ -57,40 +57,40 @@ for song, diff, score in await my_scores.get_mapping():
     print(f"曲目: {song.title}, 难度: {diff.type}, 等级: {score.rate}, 达成度: {score.achievements}")
 ```
 
-结合下文的 `maimai.bests()` 方法，您可以轻松获取玩家的 BEST50 成绩，并使用 Pillow 等库生成成绩预览图。
+结合下文的 `maimai.bests()` 方法，你可以轻松获取玩家的 BEST50 成绩，并使用 Pillow 等库生成成绩预览图。
 
 ::: info
-如果您不需要携带关联的元数据，可以直接使用 `my_scores.scores` 来获取成绩列表。
+如果你不需要携带关联的元数据，可以直接使用 `my_scores.scores` 来获取成绩列表。
 
 在使用 `maimai.updates()` 方法更新查分器时，就可以直接传入 `my_scores.scores` 列表。
 :::
 
 ## maimai.bests() 方法
 
-上文的 `maimai.scores()` 方法可以获取玩家的所有成绩，但如果您只关心玩家的 BEST50 成绩，可以使用 [`maimai.bests()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.bests) 方法。
+上文的 `maimai.scores()` 方法可以获取玩家的所有成绩，但如果你只关心玩家的 BEST50 成绩，可以使用 [`maimai.bests()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.bests) 方法。
 
 使用 `maimai.bests()` 方法只会获取必要的成绩资源，尽量节约请求时间。同样的，返回值也是一个 [`MaimaiScores`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiScores) 对象，但只包含玩家的 50 个成绩。
 
 ::: info
-如果您查询的数据源没有原生提供 BEST50 成绩的接口，maimai.py 会获取所有成绩并自动筛选出 BEST50 成绩。
+如果你查询的数据源没有原生提供 BEST50 成绩的接口，maimai.py 会获取所有成绩并自动筛选出 BEST50 成绩。
 :::
 
 ## maimai.minfo() 方法
 
-您可能使用过机器人来查询单个曲目的成绩，类似于 `/minfo 牛奶` 的命令。延续这种用法，maimai.py 提供了 [`maimai.minfo()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.minfo) 方法来查询单个曲目及其关联的成绩。
+你可能使用过机器人来查询单个曲目的成绩，类似于 `/minfo 牛奶` 的命令。延续这种用法，maimai.py 提供了 [`maimai.minfo()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.minfo) 方法来查询单个曲目及其关联的成绩。
 
 使用 `maimai.minfo()` 方法只会获取必要的成绩资源，尽量节约请求时间。返回值是一个 [`PlayerSong`](../concepts/models.md#playersong) 对象，包含了曲目的信息和玩家的成绩列表。
 
 传入的 `song` 参数可以是曲目的 ID、曲目对象、或者是曲目关键词（如曲目名称、别名、艺术家等）。如果传入的是关键词，maimai.py 会自动查询匹配的曲目并返回第一个结果。
 
 ::: info
-如果您查询的数据源没有原生提供单曲成绩的接口，maimai.py 会获取所有成绩并自动筛选出对应曲目的成绩。
+如果你查询的数据源没有原生提供单曲成绩的接口，maimai.py 会获取所有成绩并自动筛选出对应曲目的成绩。
 :::
 
 ::: warning
 同样的，曲目 ID 遵循：同一首曲目的标准、DX 谱面、宴会谱面的 曲目ID 一致，不存在大于 10000 的 曲目ID（如有，均会对 10000 / 100000 取余处理）。
 
-如果您对此有疑问，请参考 [开始 章节](../get-started.md#曲目id)。
+如果你对此有疑问，请参考 [开始 章节](../get-started.md#曲目id)。
 :::
 
 ## maimai.updates() 方法
@@ -110,7 +110,7 @@ asyncio.gather(
 
 ### 从 数据库🚀 获取成绩并更新查分器
 
-借由 [数据源](../get-started.md#数据源) 机制，您可以创建自己的数据源实现，然后从 maimai.py 的规范化接口中获益。
+借由 [数据源](../get-started.md#数据源) 机制，你可以创建自己的数据源实现，然后从 maimai.py 的规范化接口中获益。
 
 下面是来自 [UsagiCard](https://uc.turou.fun/) 的示例代码，展示了如何从本地数据库获取成绩并更新到查分器。
 
@@ -151,10 +151,10 @@ async def main():
 ```
 
 ::: info
-示例中的 `score.as_mpy()` 方法是将**数据库**的成绩对象转换为 maimai.py 的规范化 `Score` 对象。您可以根据自己的数据模型实现类似的方法。
+示例中的 `score.as_mpy()` 方法是将**数据库**的成绩对象转换为 maimai.py 的规范化 `Score` 对象。你可以根据自己的数据模型实现类似的方法。
 :::
 
-借由类似的操作，您可以实现一套完整的数据源机制，进而享受 maimai.py 提供的各种接口，甚至包含使用 MaimaiRoutes 直接创建对应的路由。
+借由类似的操作，你可以实现一套完整的数据源机制，进而享受 maimai.py 提供的各种接口，甚至包含使用 MaimaiRoutes 直接创建对应的路由。
 
 更多信息请参考 [集成 FastAPI 路由](../concepts/client.md#集成-fastapi-路由)。
 
@@ -245,4 +245,4 @@ await maimai.updates_chain(
 )
 ```
 
-通过这种方式，您可以轻松地实现多平台间的成绩同步，同时获得详细的同步过程反馈。
+通过这种方式，你可以轻松地实现多平台间的成绩同步，同时获得详细的同步过程反馈。

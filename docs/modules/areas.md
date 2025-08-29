@@ -17,7 +17,7 @@
 ::: info
 `maimai.areas()` 方法可以提供 `lang` 参数来指定语言，默认为 `jp` （日语），可选值包括：(`jp`, `zh`)。
 
-目前的区域数据来自于本地 JSON 文件，如果您希望更新或贡献区域数据，请参考 [CONTRIBUTING.md](https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md)
+目前的区域数据来自于本地 JSON 文件，如果你希望更新或贡献区域数据，请参考 [CONTRIBUTING.md](https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md)
 :::
 
 ### 通过 ID 获取区域

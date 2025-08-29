@@ -22,8 +22,8 @@
 |--------------------------------------------------|------------------------|------------------------------|
 | `get_difficulty(SongType, LevelIndex \| int)`    | `SongDifficulty`       | 获取对应的难度                 |
 | `get_difficulties(SongType)`                     | `list[SongDifficulty]` | 获取对应的难度列表             |
-| `get_divingfish_id(SongType, LevelIndex \| int)` | `int`                  | 获取歌曲对应难度的 水鱼ID      |
-| `get_divingfish_ids(SongType)`                   | `set[int]`             | 获取歌曲对应类型的 水鱼ID 集合 |
+| `get_divingfish_id(SongType, LevelIndex \| int)` | `int`                  | 获取歌曲对应难度的 水鱼 ID      |
+| `get_divingfish_ids(SongType)`                   | `set[int]`             | 获取歌曲对应类型的 水鱼 ID 集合 |
 
 ## [SongDifficulties](https://api.maimai.turou.fun/maimai_py/models.html#SongDifficulties)
 
@@ -60,7 +60,7 @@
 | `kanji`       | `str`  | 宴铺前缀，如 `协`，`狂`    |
 | `description` | `str`  | 宴谱描述                 |
 | `diff_id`     | `int`  | 宴谱难度 ID              |
-| `is_buddy`    | `bool` | 是否为 BUDDY (双人) 谱面 |
+| `is_buddy`    | `bool` | 是否为 BUDDY（双人）谱面 |
 
 ## [CurveObject](https://api.maimai.turou.fun/maimai_py/models.html#CurveObject)
 
@@ -70,7 +70,7 @@
 | `fit_level_value`    | `float`               | 拟合难度定数             |
 | `avg_achievements`   | `float`               | 平均达成率               |
 | `stdev_achievements` | `float`               | 达成率标准差             |
-| `avg_dx_score`       | `float`               | 平均DX分数               |
+| `avg_dx_score`       | `float`               | 平均 DX 分数               |
 | `rate_sample_size`   | `dict[RateType, int]` | 不同 `RateType` 样本数量 |
 | `fc_sample_size`     | `dict[FCType, int]`   | 不同 `FCType` 样本数量   |
 
@@ -78,7 +78,7 @@
 
 | 字段          | 类型                                      | 说明     |
 |---------------|-------------------------------------------|---------|
-| `qq`          | `int \| None`                             | QQ号     |
+| `qq`          | `int \| None`                             | QQ 号     |
 | `username`    | `str \| None`                             | 用户名   |
 | `friend_code` | `int \| None`                             | 好友码   |
 | `credentials` | `str \| MutableMapping[str, Any] \| None` | 玩家凭据 |
@@ -87,13 +87,13 @@
 
 | 字段           | 类型            | 说明              |
 |----------------|-----------------|-------------------|
-| `id`           | `int`           | 成绩ID            |
+| `id`           | `int`           | 成绩 ID            |
 | `level`        | `str`           | 难度标级，如 `14+` |
 | `level_index`  | `LevelIndex`    | 难度索引          |
 | `achievements` | `float \| None` | 达成率            |
 | `fc`           | `FCType`        | FULL COMBO 类型   |
 | `fs`           | `FSType`        | FULL SYNC 类型    |
-| `dx_score`     | `int \| None`   | DX分数            |
+| `dx_score`     | `int \| None`   | DX 分数            |
 | `dx_rating`    | `float \| None` | DX Rating         |
 | `play_count`   | `int \| None`   | 游玩次数          |
 | `rate`         | `RateType`      | 评级类型          |
@@ -139,7 +139,7 @@
 
 | 字段    | 类型  | 说明     |
 |---------|-------|--------|
-| `id`    | `int` | 称号ID   |
+| `id`    | `int` | 称号 ID   |
 | `name`  | `str` | 称号名称 |
 | `color` | `str` | 称号颜色 |
 
@@ -147,7 +147,7 @@
 
 | 字段          | 类型          | 说明     |
 |---------------|---------------|--------|
-| `id`          | `int`         | 头像ID   |
+| `id`          | `int`         | 头像 ID   |
 | `name`        | `str`         | 头像名称 |
 | `description` | `str \| None` | 头像描述 |
 | `genre`       | `str \| None` | 头像分类 |
@@ -156,7 +156,7 @@
 
 | 字段          | 类型          | 说明       |
 |---------------|---------------|----------|
-| `id`          | `int`         | 姓名框ID   |
+| `id`          | `int`         | 姓名框 ID   |
 | `name`        | `str`         | 姓名框名称 |
 | `description` | `str \| None` | 姓名框描述 |
 | `genre`       | `str \| None` | 姓名框分类 |
@@ -165,7 +165,7 @@
 
 | 字段          | 类型          | 说明     |
 |---------------|---------------|--------|
-| `id`          | `int`         | 背景ID   |
+| `id`          | `int`         | 背景 ID   |
 | `name`        | `str`         | 背景名称 |
 | `description` | `str \| None` | 背景描述 |
 | `genre`       | `str \| None` | 背景分类 |
@@ -174,14 +174,14 @@
 
 | 字段   | 类型  | 说明         |
 |--------|-------|------------|
-| `id`   | `int` | 旅行伙伴ID   |
+| `id`   | `int` | 旅行伙伴 ID   |
 | `name` | `str` | 旅行伙伴名称 |
 
 ## [PlayerChara](https://api.maimai.turou.fun/maimai_py/models.html#PlayerChara)
 
 | 字段   | 类型  | 说明     |
 |--------|-------|--------|
-| `id`   | `int` | 角色ID   |
+| `id`   | `int` | 角色 ID   |
 | `name` | `str` | 角色名称 |
 
 ## [Player](https://api.maimai.turou.fun/maimai_py/models.html#Player)
@@ -224,15 +224,15 @@
 | 额外字段     | 类型   | 说明                 |
 |--------------|--------|--------------------|
 | `is_login`   | `bool` | 玩家目前是否已经登录 |
-| `trophy`     | `int`  | 玩家称号ID           |
-| `icon`       | `int`  | 头像ID               |
-| `name_plate` | `int`  | 姓名框ID             |
+| `trophy`     | `int`  | 玩家称号 ID           |
+| `icon`       | `int`  | 头像 ID               |
+| `name_plate` | `int`  | 姓名框 ID             |
 
 ## [PlayerRegion](https://api.maimai.turou.fun/maimai_py/models.html#PlayerRegion)
 
 | 字段          | 类型       | 说明           |
 |---------------|------------|--------------|
-| `region_id`   | `int`      | 地区ID         |
+| `region_id`   | `int`      | 地区 ID         |
 | `region_name` | `str`      | 地区名称       |
 | `play_count`  | `int`      | 游玩次数       |
 | `created_at`  | `datetime` | 第一次游玩时间 |
@@ -267,6 +267,6 @@
 | `name`        | `str`                 | 区域名称          |
 | `comment`     | `str`                 | 区域评论          |
 | `description` | `str`                 | 区域描述          |
-| `video_id`    | `str`                 | 区域Youtube视频ID |
+| `video_id`    | `str`                 | 区域 Youtube 视频 ID |
 | `characters`  | `list[AreaCharacter]` | 角色列表          |
 | `songs`       | `list[AreaSong]`      | 曲目列表          |

@@ -18,7 +18,7 @@
 这些 `get` 方法的返回值是一个列表，包含了 `PlateObject` 对象，每个对象代表一首歌曲及其相关成绩和难度，具体结构可以参考 [PlateObject 模型](../concepts/models.md#plateobject)。
 
 ::: info
-**注意**：如果您想要获取广义的姓名框NamePlate，请使用 `maimai.items(PlayerNamePlate)` 方法。
+**注意**：如果你想要获取广义的姓名框 NamePlate，请使用 `maimai.items(PlayerNamePlate)` 方法。
 :::
 
 很容易想到的，`maimai.plates()` 是 `maimai.scores()` 的一个特例，专门用于处理牌子相关的成绩查询，对于 Provider 和 PlayerIdentifier 的处理方式与 `maimai.scores()` 类似，参考 [分数 章节](./scores.md) 了解更多细节。
