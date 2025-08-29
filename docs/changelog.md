@@ -5,14 +5,17 @@
 Features:
   - WechatProvider 现支持 获取好友 和 设置对手 的功能
   - WechatProvider 现支持 IPlayerProvider 接口 -> [#36](https://github.com/TrueRou/maimai.py/pull/36)
-  - LXNSProvider 现支持 使用OAuth认证的个人API密钥 来访问接口
-
-Bugfixes:
-  - 修复宴会场谱面无法正确获取、更新的问题
-  - 修复包含多个宴会场谱面的曲目不容易区分和识别的问题
+  - LXNSProvider 现支持 使用OAuth认证 来访问接口
 
 Bugfixes:
   - 修复 LXNSProvider 在获取单个成绩、最佳成绩时无法使用个人API密钥
+  - 修复宴会场谱面无法正确获取、更新的问题
+  - 修复包含多个宴会场谱面的曲目不容易区分和识别的问题
+  - 修复 maimai.players() 类型提示不清晰的问题 -> [#37](https://github.com/TrueRou/maimai.py/issues/37)
+
+**Breaking Changes**:
+  - 为了正确支持宴会场谱面，Score.id 可能超出100000。如果您直接使用 Score.id 匹配 Song.id，可能会导致错误。
+  - 如果您使用 MaimaiSongs.by_id() 或者 MaimaiScores.get_mapping()，则完全不受影响。
 
 ## 1.3.5 (2025-08-05)
 
