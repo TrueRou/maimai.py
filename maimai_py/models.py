@@ -344,7 +344,7 @@ class WechatPlayer(Player):
 
 @dataclass
 class AreaCharacter:
-    __slots__ = ("id", "name", "illustrator", "description1", "description2", "team", "props")
+    __slots__ = ("name", "illustrator", "description1", "description2", "team", "props")
 
     name: str
     illustrator: str
@@ -381,7 +381,7 @@ class Area:
 
 @dataclass
 class Score:
-    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type", "song")
+    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type")
 
     id: int
     level: str
