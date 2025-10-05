@@ -10,7 +10,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from maimai_py.models import *
 from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2score
-from maimai_py.utils.page_parser import wmdx_html2player, wmdx_html2players
+from maimai_py.utils.page_parser import wmdx_html2player, wmdx_html2players, wmdx_html2record
 
 from .base import IPlayerIdentifierProvider, IPlayerProvider, IRecordProvider, IScoreProvider
 
@@ -49,7 +49,7 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
                     dx_score=score.dx_score,
                     dx_rating=rating,
                     play_count=None,
-                    play_time=None,
+                    play_time=score.play_time,
                     rate=RateType[score.rate.upper()],
                     type=song_type,
                 )
@@ -153,4 +153,9 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_records(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        return []
+        maimai_songs = await client.songs()  # Ensure songs are loaded in cache
+        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
+            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
+        resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/", cookies=identifier.credentials)
+        scores = wmdx_html2record(str(resp.text))
+        return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]

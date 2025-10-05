@@ -4,6 +4,7 @@ from maimai_py.enums import LevelIndex
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import Player, PlayerIdentifier
 from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
+from maimai_py.utils.page_parser import wmdx_html2record
 
 
 @pytest.mark.asyncio(scope="session")
@@ -77,6 +78,14 @@ async def test_scores_updating_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lx
 async def test_scores_updating_divingfish(maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier):
     scores = []
     await maimai.updates(divingfish_player, scores, provider=divingfish)
+
+
+@pytest.mark.asyncio(scope="session")
+async def test_scores_play_time_wechat():
+    with open("./tests/sample_data/record.html", "r", encoding="utf-8") as file:
+        html_scores = wmdx_html2record(file.read())
+        assert len(html_scores) > 0
+        assert all(score.play_time is not None for score in html_scores)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 from lxml import etree
@@ -9,13 +10,14 @@ link_dx_score = [372, 522, 942, 924, 1425]
 
 @dataclass
 class HTMLScore:
-    __slots__ = ["title", "level", "level_index", "type", "achievements", "dx_score", "rate", "fc", "fs", "ds"]
+    __slots__ = ["title", "level", "level_index", "type", "achievements", "dx_score", "play_time", "rate", "fc", "fs", "ds"]
     title: str
     level: str
     level_index: int
     type: str
     achievements: float
     dx_score: int
+    play_time: Optional[datetime]
     rate: str
     fc: str
     fs: str
@@ -129,6 +131,7 @@ def get_data_from_div(div) -> Optional[HTMLScore]:
                 type=type_,
                 achievements=achievements,
                 dx_score=dx_score,
+                play_time=None,
                 rate=rate,
                 fc=fc,
                 fs=fs,
@@ -152,6 +155,11 @@ def wmdx_html2score(html: str) -> list[HTMLScore]:
 
     del parser, root, divs
     return results
+
+
+def wmdx_html2record(html: str) -> list[HTMLScore]:
+    # TODO.. implement later
+    return []
 
 
 def _extract_player_info(
