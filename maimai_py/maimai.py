@@ -11,6 +11,7 @@ from httpx import AsyncClient
 
 from maimai_py.models import *
 from maimai_py.providers import *
+from maimai_py.providers.base import IRecordProvider
 from maimai_py.utils import UNSET, _UnsetSentinel
 
 PlayerItemType = TypeVar("PlayerItemType", bound=PlayerItem)
@@ -1100,6 +1101,28 @@ class MaimaiClient:
         """
         maimai_areas = MaimaiAreas(self)
         return await maimai_areas._configure(lang, provider)
+
+    async def records(self, identifier: PlayerIdentifier, provider: IRecordProvider = WechatProvider()) -> list[Score]:
+        """Fetch player's recent play records from the provider.
+
+        Usually used to fetch recent plays for play_time field, as most providers don't provide play_time field in scores.
+
+        Records are usually limited to the most recent plays from maimaiNET. If you want to fetch all scores, please use `maimai.scores()` method instead.
+
+        Available providers: `WechatProvider`.
+
+        Args:
+            identifier: the identifier of the player to fetch.
+            provider: the data source to fetch the player and records from, defaults to `WechatProvider`.
+        Returns:
+            A wrapper of the recent play records, with all the data fetched.
+        Raises:
+            InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
+            InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
+            PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            httpx.RequestError: Request failed due to network issues.
+        """
+        return await provider.get_records(identifier, self)
 
     async def wechat(
         self,

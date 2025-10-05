@@ -164,3 +164,15 @@ class IPlayerIdentifierProvider(IProvider):
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
         """@private"""
         raise NotImplementedError()
+
+
+class IRecordProvider(IProvider):
+    """The provider that fetches play records (histories) from a specific source.
+
+    Available providers: `WechatProvider`
+    """
+
+    @abstractmethod
+    async def get_records(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        """@private"""
+        raise NotImplementedError()

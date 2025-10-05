@@ -381,7 +381,7 @@ class Area:
 
 @dataclass
 class Score:
-    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "rate", "type")
+    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "play_time", "rate", "type")
 
     id: int
     level: str
@@ -392,6 +392,7 @@ class Score:
     dx_score: Optional[int]
     dx_rating: Optional[float]
     play_count: Optional[int]
+    play_time: Optional[datetime]
     rate: RateType
     type: SongType
 

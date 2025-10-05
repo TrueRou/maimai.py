@@ -113,6 +113,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
             dx_score=score["dxScore"],
             dx_rating=score["ra"],
             play_count=None,
+            play_time=None,
             rate=RateType[score["rate"].upper()],
             type=SongType._from_id(score["song_id"]),
         )

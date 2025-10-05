@@ -12,13 +12,13 @@ from maimai_py.models import *
 from maimai_py.utils import HTMLScore, ScoreCoefficient, wmdx_html2score
 from maimai_py.utils.page_parser import wmdx_html2player, wmdx_html2players
 
-from .base import IPlayerIdentifierProvider, IPlayerProvider, IScoreProvider
+from .base import IPlayerIdentifierProvider, IPlayerProvider, IRecordProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider):
+class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider, IRecordProvider):
     """The provider that fetches data from the Wahlap Wechat OffiAccount.
 
     PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
@@ -49,6 +49,7 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
                     dx_score=score.dx_score,
                     dx_rating=rating,
                     play_count=None,
+                    play_time=None,
                     rate=RateType[score.rate.upper()],
                     type=song_type,
                 )
@@ -149,3 +150,7 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider)
             data={"idx": rival.friend_code, "token": rival.token},
         )
         resp.raise_for_status()
+
+    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
+    async def get_records(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        return []

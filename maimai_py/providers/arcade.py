@@ -52,6 +52,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
                     dx_score=score["deluxscoreMax"],
                     dx_rating=ScoreCoefficient(achievement).ra(diff.level_value),
                     play_count=score["playCount"],
+                    play_time=None,
                     rate=RateType._from_achievement(achievement),
                     type=song_type,
                 )

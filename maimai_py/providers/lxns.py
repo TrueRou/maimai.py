@@ -147,6 +147,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
             dx_score=score["dx_score"] if "dx_score" in score else None,
             dx_rating=int(score["dx_rating"]) if "dx_rating" in score else None,
             play_count=None,
+            play_time=None,
             rate=RateType[score["rate"].upper()],
             type=SongType[score["type"].upper()],
         )
@@ -160,6 +161,7 @@ class LXNSProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreUpdateP
             "fc": score.fc.name.lower() if score.fc else None,
             "fs": score.fs.name.lower() if score.fs else None,
             "dx_score": score.dx_score,
+            "play_time": score.play_time.strftime("%Y-%m-%dT%H:%M:%SZ") if score.play_time else None,
             "type": score.type.name.lower(),
         }
 
