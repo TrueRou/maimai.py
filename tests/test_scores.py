@@ -112,6 +112,8 @@ async def test_records_play_time_wechat():
         html_scores = wmdx_html2record(file.read())
         assert len(html_scores) > 0
         assert all(score.play_time is not None for score in html_scores)
+        s = html_scores[0]
+        assert s.title == "Re:Unknown X" and s.achievements == 98.6484 and s.fc == "" and s.fs == "sync"
 
 
 if __name__ == "__main__":
