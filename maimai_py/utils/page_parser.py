@@ -113,7 +113,7 @@ def get_data_from_div(div) -> Optional[HTMLScore]:
         return None
 
 
-def get_score_from_elems(title_elem, level_elem, score_elem, icon_elems, level_index: int, type_: str) -> HTMLScore:
+def get_score_from_elems(title_elem, level_elem: Optional[list], score_elem, icon_elems, level_index: int, type_: str) -> HTMLScore:
     # Use `.xpath("string(.)")` to get innerText (including all children's text), rather than the text in the element itself.
     title = title_elem[0].xpath("string(.)") if title_elem else ""
     if title != "\u3000":  # Corner case for id 1422 (如月车站)
