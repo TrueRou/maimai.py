@@ -30,18 +30,21 @@ async def update_prober(r: str, t: str, code: str, state: str):
         assert isinstance(wx_player, PlayerIdentifier)
         print("\033[32mPlayer fetched successfully.\033[0m")
         scores = await maimai.scores(wx_player, WechatProvider())
+        records = await maimai.records(wx_player, WechatProvider())
         print("\033[32mScores fetched successfully.\033[0m")
         # print player information as debug message
         player = typing.cast(WechatPlayer, await maimai.players(wx_player, WechatProvider()))
-        print(player)
+        print(f"\033[32mPlayer: {player.name} ({player.rating})\033[0m")
         # establish the tasks of updating the prober according to the configuration
         update_tasks = []
         if token := os.getenv("DIVINGFISH_IMPORT_TOKEN"):
             task = asyncio.create_task(maimai.updates(PlayerIdentifier(credentials=token), scores.scores, DivingFishProvider()))
             update_tasks.append(task)
         if token := os.getenv("LXNS_PERSONAL_TOKEN"):
-            task = asyncio.create_task(maimai.updates(PlayerIdentifier(credentials=token), scores.scores, LXNSProvider()))
-            update_tasks.append(task)
+            task1 = asyncio.create_task(maimai.updates(PlayerIdentifier(credentials=token), records, LXNSProvider()))
+            task2 = asyncio.create_task(maimai.updates(PlayerIdentifier(credentials=token), scores.scores, LXNSProvider()))
+            update_tasks.append(task1)
+            update_tasks.append(task2)
         asyncio.gather(*update_tasks)
         print(f"\033[32mProber updated successfully.\033[0m")
     except (ConnectError, ReadTimeout) as e:
