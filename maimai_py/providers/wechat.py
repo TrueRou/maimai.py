@@ -37,13 +37,11 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
             song_type = SongType.STANDARD if score.type == "SD" else SongType.DX if score.type == "DX" and not is_utage else SongType.UTAGE
             level_index = LevelIndex(score.level_index)
-            # 受网页上的内容所限，wmdx_html2record返回的的HTMLScore中不包含level，此时应从歌曲数据库中获取。
-            level = score.level if score.level is not None else song.get_difficulty(song_type, level_index).level
             if diff := song.get_difficulty(song_type, level_index):
                 rating = ScoreCoefficient(score.achievements).ra(diff.level_value)
                 return Score(
                     id=song.id,
-                    level=level,
+                    level=diff.level,
                     level_index=level_index,
                     achievements=score.achievements,
                     fc=FCType[score.fc.upper()] if score.fc else None,

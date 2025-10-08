@@ -32,8 +32,8 @@ class HTMLPlayer:
     rating: int
     star: int
     token: Optional[str]
-    trophy_text: Optional[str]  # 称号文本
-    trophy_rarity: Optional[str]  # 称号稀有度，直接用字符串
+    trophy_text: Optional[str]
+    trophy_rarity: Optional[str]
 
 
 def get_level_index(src: str) -> int:
@@ -169,7 +169,7 @@ def get_data_from_record_div(div) -> Optional[HTMLScore]:
     main_class = re.match(r"playlog_(\w+)_container", main.get("class"))
     assert main_class is not None
     level_index = get_level_index(main_class.group(1))
-    
+
     play_time_str = top.xpath(".//div[contains(@class, 'sub_title')]/span[2]")[0].text
     play_time = datetime.strptime(play_time_str, "%Y/%m/%d %H:%M")
     type_src = main.xpath(".//img[contains(@class, 'playlog_music_kind_icon')]")[0].get("src")
@@ -180,7 +180,7 @@ def get_data_from_record_div(div) -> Optional[HTMLScore]:
     score_elem = main.xpath(".//div[contains(@class, 'playlog_achievement_txt')]") + main.xpath(".//div[contains(@class, 'playlog_score_block')]")
     achievement_elem = main.xpath(".//img[contains(@class, 'playlog_scorerank')]")
     icon_elems = main.xpath(".//img[contains(@class, 'h_35 m_5 f_l')]")[::-1] + achievement_elem
-    
+
     score = get_score_from_elems(title_elem, None, score_elem, icon_elems, level_index, type_)
     score.play_time = play_time
     return score
