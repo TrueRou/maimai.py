@@ -34,7 +34,3 @@ await wechat.set_rival_on(identifier, friends[0], maimai) # 设置第一个好�
 ```
 
 鉴于接口原因，我们无法查询玩家已有的对手信息，只能开启和关闭对手。
-
-## 已知问题
-
-- WechatProvider 可能出现轻微内存泄露问题。

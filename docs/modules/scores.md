@@ -17,7 +17,7 @@
 MaimaiScores 封装了多个方法，你可以通过这些方法获取玩家的 b35/b15 成绩，遍历所有成绩，计算总 Rating 等：
 
 | 字段 / 方法             | 类型 / 返回值                              | 说明                                   |
-|-------------------------|--------------------------------------------|--------------------------------------|
+|-------------------------|--------------------------------------------|----------------------------------------|
 | `scores`                | `list[ScoreExtend]`                        | 玩家所有成绩                           |
 | `scores_b35`            | `list[ScoreExtend]`                        | 玩家 B35 成绩                          |
 | `scores_b15`            | `list[ScoreExtend]`                        | 玩家 B15 成绩                          |
@@ -246,3 +246,55 @@ await maimai.updates_chain(
 ```
 
 通过这种方式，你可以轻松地实现多平台间的成绩同步，同时获得详细的同步过程反馈。
+
+## maimai.records() 方法
+
+上文提到，与查分器相似，我们仅能查询到你在曲目游玩的最终成绩，而无法查询到你在游玩过程中每个阶段的成绩。
+
+但是对于微信数据源来说，maimaiNET提供了查询**最近游玩记录**的页面，基于此页面，使得查询包含游玩时间的具体成绩成为可能。
+
+[`maimai.records()`](https://api.maimai.turou.fun/maimai_py/maimai.html#MaimaiClient.records) 方法旨在查询用户具体的游玩成绩，而不是最终经过合并后的最佳成绩。另外，还可以查询到对应成绩的游玩时间，便于上传落雪查分器。
+
+鉴于机台接口等限制，目前仅支持从微信公众号 maimaiNET 获取最近的游玩记录。
+
+### 从 微信服务号 获取带有时间的成绩并更新到落雪
+
+代码仅供参考，关于微信服务号数据源的更多信息，请参考 [WechatProvider](../providers/wechat.md)
+
+```python
+# 部分代码来自 UsagiPass 项目: https://github.com/TrueRou/UsagiPass
+
+async def crawl_async(cookies: Cookies, user: User, session: AsyncSession):
+    account = some_func(user)
+    scores = maimai_client.scores(PlayerIdentifier(credentials=cookies), provider=WechatProvider())
+    records = maimai_client.records(PlayerIdentifier(credentials=cookies), provider=WechatProvider())
+
+    # 先上传完整的成绩 (scores)，再获取游玩记录 (records)，上传游玩时间到落雪查分器
+    await maimai_client.updates(PlayerIdentifier(credentials=account.account_password), scores, LXNSProvider(lxns_developer_token))
+    await maimai_client.updates(PlayerIdentifier(credentials=account.account_password), records, LXNSProvider(lxns_developer_token))
+
+@router.get("/update/callback", response_model=list[CrawlerResult])
+async def update_prober_callback(
+    r: str,
+    t: str,
+    code: str,
+    state: str,
+    user: User = Depends(verify_user),
+    session: AsyncSession = Depends(require_session),
+):
+    params = {"r": r, "t": t, "code": code, "state": state}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+        "Host": "tgk-wcaime.wahlap.com",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    }
+    try:
+        resp = await httpx_client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=params, headers=headers)
+        if resp.status_code == 302 and resp.next_request:
+            resp = await httpx_client.get(resp.next_request.url, headers=headers)
+            results = await crawler.crawl_async(resp.cookies, user, session)
+            return results
+        raise HTTPException(status_code=400, detail="微信 OAuth 已过期或无效", headers={"WWW-Authenticate": "Bearer"})
+    except (ConnectError, ReadTimeout):
+        raise HTTPException(status_code=503, detail="无法连接到华立服务器", headers={"WWW-Authenticate": "Bearer"})
+```
