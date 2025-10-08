@@ -1,5 +1,15 @@
 # 更新日志
 
+## 1.3.7 (2025-10-08)
+
+Features:
+  - WechatProvider 现支持 获取游玩记录 -> [#41](https://github.com/TrueRou/maimai.py/issues/41)
+  - 更新四个区域中文翻译
+
+Bugfixes:
+  - 修复部分 slots 与 dataclass 接口不匹配的问题
+  - 修复宴会场谱面更改后，测试用例没有跟进的问题
+
 ## 1.3.6 (2025-08-22)
 
 Features:
