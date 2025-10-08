@@ -4,7 +4,7 @@ from maimai_py.enums import LevelIndex
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import Player, PlayerIdentifier
 from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
-from maimai_py.utils.page_parser import wmdx_html2record
+from maimai_py.utils.page_parser import wmdx_html2score, wmdx_html2record
 
 
 @pytest.mark.asyncio(scope="session")
@@ -81,11 +81,39 @@ async def test_scores_updating_divingfish(maimai: MaimaiClient, divingfish: Divi
 
 
 @pytest.mark.asyncio(scope="session")
-async def test_scores_play_time_wechat():
+async def test_scores_wechat():
+    with (open("./tests/sample_data/scores.html", "r", encoding="utf-8") as file):
+        html_scores = wmdx_html2score(file.read())
+        assert len(html_scores) == 8
+        
+        score1 = [s for s in html_scores if s.title == "花となれ"][0]
+        assert score1.achievements == 101.0000 and score1.fc == "app" and score1.fs == "sync" and score1.rate == "sssp"
+        assert score1.level == "8+" and score1.level_index == 2 and score1.type == "DX" and score1.dx_score == 752
+        score2 = [s for s in html_scores if s.title == "\u3000"][0] # corner case：如月车站
+        assert score2.achievements == 100.8750 and score2.fc == "ap" and score2.fs == "sync" and score2.rate == "sssp"
+        score3 = [s for s in html_scores if s.title == "シックスプラン"][0]
+        assert score3.achievements == 99.9338 and score3.fc == "fcp" and score3.fs == "fs" and score3.rate == "ssp"
+        score4 = [s for s in html_scores if s.title == "Cyaegha"][0]
+        assert score4.achievements == 97.0887 and score4.fc == "" and score4.fs == "" and score4.rate == "s"
+        score5 = [s for s in html_scores if s.title == "maimaiちゃんのテーマ"][0]
+        assert score5.achievements == 98.1502 and score5.fc == "fc" and score5.fs == "fsp" and score5.rate == "sp"
+        assert score5.type == "SD" and score5.dx_score == 557 and score5.level == "9" # 测一个标谱的type
+        score6 = [s for s in html_scores if s.title == "STARTLINER"][0]
+        assert score6.achievements == 100.1990 and score6.fc == "fcp" and score6.fs == "fdx" and score6.rate == "sss"
+        score7 = [s for s in html_scores if s.title == "Limits"][0]
+        assert score7.achievements == 99.3390 and score7.fc == "" and score7.fs == "sync" and score7.rate == "ss"
+        score8 = [s for s in html_scores if s.title == "ロストワンの号哭"][0]
+        assert score8.achievements == 90.4090 and score8.fc == "" and score8.fs == "sync" and score8.rate == "aa"
+
+
+@pytest.mark.asyncio(scope="session")
+async def test_records_play_time_wechat():
     with open("./tests/sample_data/record.html", "r", encoding="utf-8") as file:
         html_scores = wmdx_html2record(file.read())
         assert len(html_scores) > 0
         assert all(score.play_time is not None for score in html_scores)
+        s = html_scores[0]
+        assert s.title == "Re:Unknown X" and s.achievements == 98.6484 and s.fc == "" and s.fs == "sync"
 
 
 if __name__ == "__main__":

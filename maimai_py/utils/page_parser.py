@@ -32,8 +32,43 @@ class HTMLPlayer:
     rating: int
     star: int
     token: Optional[str]
-    trophy_text: Optional[str]  # 称号文本
-    trophy_rarity: Optional[str]  # 称号稀有度，直接用字符串
+    trophy_text: Optional[str]
+    trophy_rarity: Optional[str]
+
+
+def get_level_index(src: str) -> int:
+    if src.find("remaster") != -1:
+        return 4
+    elif src.find("master") != -1:
+        return 3
+    elif src.find("expert") != -1:
+        return 2
+    elif src.find("advanced") != -1:
+        return 1
+    elif src.find("basic") != -1:
+        return 0
+    else:
+        return -1
+
+
+def get_music_icon(src: str) -> str:
+    matched = re.search(r"((?:[dcbas]{1,3}|fc|ap|sync|fs|fdx)p?)(?:lus)?\.png", src)
+    return matched.group(1) if matched else ""
+
+
+def get_dx_score(element) -> tuple[int, int]:
+    elem_text = "".join(element.itertext())
+
+    parts = elem_text.strip().split("/")
+    if len(parts) != 2:
+        return (0, 0)
+
+    try:
+        score = int(parts[0].replace(" ", "").replace(",", ""))
+        full_score = int(parts[1].replace(" ", "").replace(",", ""))
+        return (score, full_score)
+    except (ValueError, IndexError):
+        return (0, 0)
 
 
 def get_data_from_div(div) -> Optional[HTMLScore]:
@@ -64,81 +99,52 @@ def get_data_from_div(div) -> Optional[HTMLScore]:
         else:
             type_ = "DX"  # Default
 
-    def get_level_index(src: str) -> int:
-        if src.find("remaster") != -1:
-            return 4
-        elif src.find("master") != -1:
-            return 3
-        elif src.find("expert") != -1:
-            return 2
-        elif src.find("advanced") != -1:
-            return 1
-        elif src.find("basic") != -1:
-            return 0
-        else:
-            return -1
-
-    def get_music_icon(src: str) -> str:
-        matched = re.search(r"music_icon_(.+?)\.png", src)
-        return matched.group(1) if matched and matched.group(1) != "back" else ""
-
-    def get_dx_score(element) -> tuple[int, int]:
-        elem_text = "".join(element.itertext())
-
-        parts = elem_text.strip().split("/")
-        if len(parts) != 2:
-            return (0, 0)
-
-        try:
-            score = int(parts[0].replace(" ", "").replace(",", ""))
-            full_score = int(parts[1].replace(" ", "").replace(",", ""))
-            return (score, full_score)
-        except (ValueError, IndexError):
-            return (0, 0)
-
     # Extract data from form elements
     try:
         title_elem = form.xpath(".//div[contains(@class, 'music_name_block')]")
         level_elem = form.xpath(".//div[contains(@class, 'music_lv_block')]")
         score_elem = form.xpath(".//div[contains(@class, 'music_score_block')]")
-
-        title = title_elem[0].text if title_elem else ""
-        if title != "\u3000":  # Corner case for id 1422 (如月车站)
-            title = title.strip()
-        level = level_elem[0].text.strip() if level_elem else ""
+        icon_elems = form.xpath(".//img[contains(@src, 'music_icon')]")
         level_index = get_level_index(img_src)
 
-        if len(score_elem) != 0:
-            achievements = float(score_elem[0].text.strip()[:-1]) if score_elem else 0.0
-            dx_score, full_dx_score = get_dx_score(score_elem[1] if score_elem else None)
-
-            # Find icon elements
-            icon_elems = form.xpath(".//img[contains(@src, 'music_icon')]")
-            fs = fc = rate = ""
-
-            if len(icon_elems) >= 3:
-                fs = get_music_icon(icon_elems[0].get("src", ""))
-                fc = get_music_icon(icon_elems[1].get("src", ""))
-                rate = get_music_icon(icon_elems[2].get("src", ""))
-
-            if title == "Link" and full_dx_score != link_dx_score[level_index]:
-                title = "Link(CoF)"
-
-            return HTMLScore(
-                title=title,
-                level=level,
-                level_index=level_index,
-                type=type_,
-                achievements=achievements,
-                dx_score=dx_score,
-                play_time=None,
-                rate=rate,
-                fc=fc,
-                fs=fs,
-                ds=0,
-            )
+        score = get_score_from_elems(title_elem, level_elem, score_elem, icon_elems, level_index, type_)
+        return score
     except (IndexError, AttributeError):
         return None
+
+
+def get_score_from_elems(title_elem, level_elem: Optional[list], score_elem, icon_elems, level_index: int, type_: str) -> HTMLScore:
+    # Use `.xpath("string(.)")` to get innerText (including all children's text), rather than the text in the element itself.
+    title = title_elem[0].xpath("string(.)") if title_elem else ""
+    if title != "\u3000":  # Corner case for id 1422 (如月车站)
+        title = title.strip()
+    level = level_elem[0].text.strip() if level_elem else ""
+
+    achievements = float(score_elem[0].xpath("string(.)").strip()[:-1]) if score_elem else 0.0
+    dx_score, full_dx_score = get_dx_score(score_elem[1] if score_elem else None)
+
+    fs = fc = rate = ""
+    if len(icon_elems) >= 3:
+        fs = get_music_icon(icon_elems[0].get("src", ""))
+        fc = get_music_icon(icon_elems[1].get("src", ""))
+        rate = get_music_icon(icon_elems[2].get("src", ""))
+
+    if title == "Link" and full_dx_score != link_dx_score[level_index]:
+        title = "Link(CoF)"
+
+    return HTMLScore(
+        title=title,
+        level=level,
+        level_index=level_index,
+        type=type_,
+        achievements=achievements,
+        dx_score=dx_score,
+        play_time=None,
+        rate=rate,
+        fc=fc,
+        fs=fs,
+        ds=0,
+    )
 
 
 def wmdx_html2score(html: str) -> list[HTMLScore]:
@@ -157,9 +163,43 @@ def wmdx_html2score(html: str) -> list[HTMLScore]:
     return results
 
 
+def get_data_from_record_div(div) -> Optional[HTMLScore]:
+    top, main = div.findall("./div")
+    assert top.get("class").find("playlog_top_container") != -1
+    main_class = re.match(r"playlog_(\w+)_container", main.get("class"))
+    assert main_class is not None
+    level_index = get_level_index(main_class.group(1))
+
+    play_time_str = top.xpath(".//div[contains(@class, 'sub_title')]/span[2]")[0].text
+    play_time = datetime.strptime(play_time_str, "%Y/%m/%d %H:%M")
+    type_src = main.xpath(".//img[contains(@class, 'playlog_music_kind_icon')]")[0].get("src")
+    matched = re.search(r"_(.*).png", type_src)
+    type_ = "SD" if matched and matched.group(1) == "standard" else "DX"
+
+    title_elem = main.xpath("./div[contains(@class, 'basic_block') and contains(@class, 'break')]")
+    score_elem = main.xpath(".//div[contains(@class, 'playlog_achievement_txt')]") + main.xpath(".//div[contains(@class, 'playlog_score_block')]")
+    achievement_elem = main.xpath(".//img[contains(@class, 'playlog_scorerank')]")
+    icon_elems = main.xpath(".//img[contains(@class, 'h_35 m_5 f_l')]")[::-1] + achievement_elem
+
+    score = get_score_from_elems(title_elem, None, score_elem, icon_elems, level_index, type_)
+    score.play_time = play_time
+    return score
+
+
 def wmdx_html2record(html: str) -> list[HTMLScore]:
-    # TODO.. implement later
-    return []
+    parser = etree.HTMLParser()
+    root = etree.fromstring(html, parser)
+
+    divs = root.xpath("//div[contains(@class, 't_l') and contains(@class, 'v_b') and contains(@class, 'p_10') and contains(@class, 'f_0')]")
+
+    results = []
+    for div in divs:
+        score = get_data_from_record_div(div)
+        if score is not None:
+            results.append(score)
+
+    del parser, root, divs
+    return results
 
 
 def _extract_player_info(
