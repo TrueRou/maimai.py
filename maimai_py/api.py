@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -6,14 +7,16 @@ from logging import warning
 from typing import Annotated, Any, Callable, Literal, Optional, Union
 from urllib.parse import unquote, urlparse
 
+from httpx import Cookies
 from pydantic import PydanticUndefinedAnnotation
 
-from maimai_py.maimai import MaimaiClient, MaimaiClientMultithreading, MaimaiPlates, MaimaiSongs, _UnsetSentinel
+from maimai_py.maimai import MaimaiClient, MaimaiClientMultithreading, MaimaiPlates, MaimaiScores, MaimaiSongs, _UnsetSentinel
 from maimai_py.models import *
 from maimai_py.providers import *
 from maimai_py.providers.hybrid import HybridProvider
 
 PlateAttrs = Literal["remained", "cleared", "played", "all"]
+Label = str
 
 
 def xstr(s: Optional[str]) -> str:
@@ -44,6 +47,50 @@ if find_spec("fastapi"):
     from fastapi import APIRouter, Depends, FastAPI, Query, Request
     from fastapi.openapi.utils import get_openapi
     from fastapi.responses import JSONResponse
+    from pydantic import BaseModel
+
+    class UpdatesChainRequest(BaseModel):
+        source: dict[Label, PlayerIdentifier]
+        target: dict[Label, PlayerIdentifier]
+
+        model_config = {
+            "json_schema_extra": {
+                "examples": [
+                    {
+                        "source": {"arcade": {"credentials": "userId"}},
+                        "target": {
+                            "divingfish": {"username": "username", "credentials": "password"},
+                            "lxns": {
+                                "friend_code": 114514,
+                            },
+                        },
+                    }
+                ]
+            }
+        }
+
+    class UpdatesChainResponse(BaseModel):
+        class ChainResult(BaseModel):
+            errors: Optional[str]
+            scores_num: int
+            scores_rating: int
+
+        source: dict[Label, ChainResult]
+        target: dict[Label, ChainResult]
+
+        model_config = {
+            "json_schema_extra": {
+                "examples": [
+                    {
+                        "source": {"arcade": {"errors": None, "scores_num": 34, "scores_rating": 5678}},
+                        "target": {
+                            "divingfish": {"errors": None, "scores_num": 34, "scores_rating": 5678},
+                            "lxns": {"errors": None, "scores_num": 34, "scores_rating": 5678},
+                        },
+                    }
+                ]
+            }
+        }
 
     class MaimaiRoutes:
         _client: MaimaiClient
@@ -76,6 +123,13 @@ if find_spec("fastapi"):
         def _dep_arcade_player(self, credentials: str):
             return PlayerIdentifier(credentials=credentials)
 
+        def _dep_wechat_player(
+            self,
+            t: str = Query(..., alias="_t", description="_t in cookies"),
+            user_id: str = Query(..., alias="userId", description="userId in cookies"),
+        ):
+            return PlayerIdentifier(credentials=Cookies({"_t": t, "userId": user_id}))
+
         def _dep_divingfish(self) -> IProvider:
             return DivingFishProvider(developer_token=self._divingfish_token)
 
@@ -85,10 +139,23 @@ if find_spec("fastapi"):
         def _dep_arcade(self) -> IProvider:
             return ArcadeProvider(http_proxy=self._arcade_proxy)
 
+        def _dep_wechat(self) -> IProvider:
+            return WechatProvider()
+
         def _dep_hybrid(self) -> IProvider:
             return HybridProvider()
 
         def get_router(self, dep_provider: Callable, dep_player: Optional[Callable] = None, skip_base: bool = True) -> APIRouter:
+            """Get a FastAPI APIRouter with routes for the specified provider and player dependencies.
+
+            Args:
+                dep_provider: A dependency function that returns an IProvider instance.
+                dep_player: A dependency function that returns a PlayerIdentifier instance. Defaults to None.
+                skip_base: Whether to skip base routes (songs, items, areas). Defaults to True.
+
+            Returns:
+                APIRouter: A FastAPI APIRouter with the specified routes.
+            """
             router = APIRouter()
 
             def try_add_route(func: Callable, router: APIRouter, dep_provider: Callable):
@@ -309,23 +376,101 @@ if find_spec("fastapi"):
                     return await self._client.minfo(song_trait, identifier, provider=provider)
 
             async def _get_identifiers(
-                code: str,
+                code: str = Query(..., description="code from wechat callback or SGWCMAID"),
+                r: Optional[str] = Query(None, description="r from wechat callback"),
+                t: Optional[str] = Query(None, description="t from wechat callback"),
+                state: Optional[str] = Query(None, description="state from wechat callback"),
                 provider: IPlayerIdentifierProvider = Depends(dep_provider),
             ) -> PlayerIdentifier:
-                return await self._client.identifiers(code, provider=provider)
+                if code.startswith("SGWCMAID") and isinstance(provider, ArcadeProvider):
+                    # direct use of SGWCMAID for ArcadeProvider
+                    return await self._client.identifiers(code, provider=provider)
+                elif all([r, t, state]) and isinstance(provider, WechatProvider):
+                    # use the full set of query parameters for WechatProvider
+                    params = {"r": r, "t": t, "code": code, "state": state}
+                    return await self._client.identifiers(params, provider=provider)
+                else:
+                    raise MaimaiPyError("Invalid parameters for the selected provider.")
 
             bases: list[Callable] = [_get_songs, _get_icons, _get_nameplates, _get_frames, _get_trophies, _get_charas, _get_partners, _get_areas]
             players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo, _get_identifiers]
 
-            all = players + (bases if not skip_base else [])
+            all_routes = players + (bases if not skip_base else [])
             try:
-                [try_add_route(func, router, dep_provider) for func in all]
+                [try_add_route(func, router, dep_provider) for func in all_routes]
             except PydanticUndefinedAnnotation:
                 warning(
                     "Current pydantic version does not support maimai.py API annotations"
                     "MaimaiRoutes may not work properly."
                     "Please upgrade pydantic to 2.7+."
                 )
+
+            return router
+
+        def get_updates_chain_route(
+            self,
+            source_deps: list[tuple[Label, Callable]],
+            target_deps: list[tuple[Label, Callable]],
+            source_mode: Literal["fallback", "parallel"] = "fallback",
+            target_mode: Literal["fallback", "parallel"] = "parallel",
+        ) -> APIRouter:
+            """Get a FastAPI APIRouter with a route for chaining updates from multiple sources to multiple targets.
+
+            Args:
+                source_deps: A list of tuples containing labels and dependency functions for source providers.
+                target_deps: A list of tuples containing labels and dependency functions for target providers.
+                source_mode: The mode for fetching from sources. Defaults to "fallback".
+                target_mode: The mode for updating to targets. Defaults to "parallel".
+
+            Returns:
+                APIRouter: A FastAPI APIRouter with the updates_chain route.
+            """
+            router = APIRouter()
+
+            available_sources: dict[Label, IScoreProvider] = {
+                label: dep_provider() for label, dep_provider in source_deps if isinstance(dep_provider(), IScoreProvider)
+            }
+            available_targets: dict[Label, IScoreUpdateProvider] = {
+                label: dep_provider() for label, dep_provider in target_deps if isinstance(dep_provider(), IScoreUpdateProvider)
+            }
+
+            async def _post_updates_chain(body: UpdatesChainRequest) -> UpdatesChainResponse:
+                source_results, target_results = {}, {}
+
+                def _callback(to: dict, scores: MaimaiScores, err: BaseException | None, kwargs: dict[str, Any]):
+                    to[kwargs.get("label")] = UpdatesChainResponse.ChainResult(
+                        errors=repr(err) if err is not None else None,
+                        scores_num=len(scores.scores),
+                        scores_rating=scores.rating,
+                    )
+
+                await self._client.updates_chain(
+                    [
+                        (available_sources[label], identifier, {"label": label})
+                        for label, identifier in body.source.items()
+                        if label in available_sources
+                    ],
+                    [
+                        (available_targets[label], identifier, {"label": label})
+                        for label, identifier in body.target.items()
+                        if label in available_targets
+                    ],
+                    source_mode=source_mode,
+                    target_mode=target_mode,
+                    source_callback=lambda scores, err, kwargs: _callback(source_results, scores, err, kwargs),
+                    target_callback=lambda scores, err, kwargs: _callback(target_results, scores, err, kwargs),
+                )
+
+                return UpdatesChainResponse(source=source_results, target=target_results)
+
+            router.add_api_route(
+                "/updates_chain",
+                _post_updates_chain,
+                name="post_updates_chain",
+                methods=["POST"],
+                response_model=UpdatesChainResponse,
+                description=f"Fetch scores from multiple sources and update to multiple targets.\n\nAvailable sources: {', '.join(available_sources.keys())}\n\nAvailable targets: {', '.join(available_targets.keys())}\n\nSource mode: {source_mode}, Target mode: {target_mode}",
+            )
 
             return router
 
@@ -352,7 +497,28 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     asgi_app.include_router(routes.get_router(routes._dep_hybrid, skip_base=False), tags=["base"])
     asgi_app.include_router(routes.get_router(routes._dep_divingfish, routes._dep_divingfish_player), prefix="/divingfish", tags=["divingfish"])
     asgi_app.include_router(routes.get_router(routes._dep_lxns, routes._dep_lxns_player), prefix="/lxns", tags=["lxns"])
+    asgi_app.include_router(routes.get_router(routes._dep_wechat, routes._dep_wechat_player), prefix="/wechat", tags=["wechat"])
     asgi_app.include_router(routes.get_router(routes._dep_arcade, routes._dep_arcade_player), prefix="/arcade", tags=["arcade"])
+
+    # chain updates route
+    asgi_app.include_router(
+        routes.get_updates_chain_route(
+            source_deps=[
+                ("divingfish", routes._dep_divingfish),
+                ("lxns", routes._dep_lxns),
+                ("wechat", routes._dep_wechat),
+                ("arcade", routes._dep_arcade),
+            ],
+            target_deps=[
+                ("divingfish", routes._dep_divingfish),
+                ("lxns", routes._dep_lxns),
+            ],
+            source_mode="fallback",
+            target_mode="parallel",
+        ),
+        prefix="/utils",
+        tags=["utils"],
+    )
 
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
@@ -386,10 +552,17 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         routes._with_curves = with_curves
 
         @asgi_app.exception_handler(MaimaiPyError)
-        async def exception_handler(request: Request, exc: MaimaiPyError):
+        async def exception_handler_mpy(request: Request, exc: MaimaiPyError):
             return JSONResponse(
                 status_code=400,
-                content={"message": f"Oops! There goes a maimai.py error {exc}.", "details": repr(exc)},
+                content={"message": f"Oops! There goes a maimai.py error: {exc}.", "details": repr(exc)},
+            )
+
+        @asgi_app.exception_handler(ArcadeError)
+        async def exception_handler_mffi(request: Request, exc: MaimaiPyError):
+            return JSONResponse(
+                status_code=400,
+                content={"message": f"Oops! There goes a maimai.ffi error: {exc}.", "details": repr(exc)},
             )
 
         @asgi_app.get("/", include_in_schema=False)

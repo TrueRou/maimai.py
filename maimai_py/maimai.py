@@ -812,6 +812,9 @@ class MaimaiClient:
     @overload
     async def players(self, identifier: PlayerIdentifier, provider: WechatProvider) -> WechatPlayer: ...
 
+    @overload
+    async def players(self, identifier: PlayerIdentifier, provider: IPlayerProvider) -> Player: ...
+
     async def players(
         self,
         identifier: PlayerIdentifier,

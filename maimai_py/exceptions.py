@@ -1,7 +1,8 @@
 from typing import Type
 
-from maimai_ffi.exceptions import AimeServerError, ArcadeIdentifierError, TitleServerBlockedError, TitleServerNetworkError
+from maimai_ffi.exceptions import AimeServerError, ArcadeError, ArcadeIdentifierError, TitleServerBlockedError, TitleServerNetworkError
 
+ArcadeError: Type[Exception]
 AimeServerError: Type[Exception]
 ArcadeIdentifierError: Type[Exception]
 TitleServerBlockedError: Type[Exception]
