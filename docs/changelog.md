@@ -5,6 +5,7 @@
 Features:
   - WechatProvider 现支持 获取游玩记录 -> [#41](https://github.com/TrueRou/maimai.py/issues/41)
   - 更新四个区域中文翻译
+  - RESTful Client 现支持 WechatProvider 和链式更新
 
 Bugfixes:
   - 修复部分 slots 与 dataclass 接口不匹配的问题
