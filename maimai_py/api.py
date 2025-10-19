@@ -427,14 +427,16 @@ if find_spec("fastapi"):
             """
             router = APIRouter()
 
-            available_sources: dict[Label, IScoreProvider] = {
-                label: dep_provider() for label, dep_provider in source_deps if isinstance(dep_provider(), IScoreProvider)
-            }
-            available_targets: dict[Label, IScoreUpdateProvider] = {
-                label: dep_provider() for label, dep_provider in target_deps if isinstance(dep_provider(), IScoreUpdateProvider)
-            }
+            available_sources_labels: set[Label] = {label for label, dep_provider in source_deps if isinstance(dep_provider(), IScoreProvider)}
+            available_targets_labels: set[Label] = {label for label, dep_provider in target_deps if isinstance(dep_provider(), IScoreUpdateProvider)}
 
             async def _post_updates_chain(body: UpdatesChainRequest) -> UpdatesChainResponse:
+                available_sources: dict[Label, IScoreProvider] = {
+                    label: dep_provider() for label, dep_provider in source_deps if isinstance(dep_provider(), IScoreProvider)
+                }
+                available_targets: dict[Label, IScoreUpdateProvider] = {
+                    label: dep_provider() for label, dep_provider in target_deps if isinstance(dep_provider(), IScoreUpdateProvider)
+                }
                 source_results, target_results = {}, {}
 
                 def _callback(to: dict, scores: MaimaiScores, err: BaseException | None, kwargs: dict[str, Any]):
@@ -469,7 +471,7 @@ if find_spec("fastapi"):
                 name="post_updates_chain",
                 methods=["POST"],
                 response_model=UpdatesChainResponse,
-                description=f"Fetch scores from multiple sources and update to multiple targets.\n\nAvailable sources: {', '.join(available_sources.keys())}\n\nAvailable targets: {', '.join(available_targets.keys())}\n\nSource mode: {source_mode}, Target mode: {target_mode}",
+                description=f"Fetch scores from multiple sources and update to multiple targets.\n\nAvailable sources: {', '.join(available_sources_labels)}\n\nAvailable targets: {', '.join(available_targets_labels)}\n\nSource mode: {source_mode}, Target mode: {target_mode}",
             )
 
             return router
