@@ -92,6 +92,9 @@ if find_spec("fastapi"):
             }
         }
 
+    class WechatOAuthResponse(BaseModel):
+        url: str
+
     class MaimaiRoutes:
         _client: MaimaiClient
         _with_curves: bool
@@ -125,8 +128,8 @@ if find_spec("fastapi"):
 
         def _dep_wechat_player(
             self,
-            t: str = Query(..., alias="_t", description="_t in cookies"),
-            user_id: str = Query(..., alias="userId", description="userId in cookies"),
+            t: str = Query(..., alias="_t", description="_t in returned credentials dict"),
+            user_id: str = Query(..., alias="userId", description="userId in returned credentials dict"),
         ):
             return PlayerIdentifier(credentials=Cookies({"_t": t, "userId": user_id}))
 
@@ -476,6 +479,30 @@ if find_spec("fastapi"):
 
             return router
 
+        def get_utils_route(self) -> APIRouter:
+            """Get a FastAPI APIRouter with routes for utility functions.
+
+            Returns:
+                APIRouter: A FastAPI APIRouter with utility routes.
+            """
+            router = APIRouter()
+
+            async def _get_wechat_oauth() -> WechatOAuthResponse:
+                auth_url = await self._client.wechat()
+                assert isinstance(auth_url, str)
+                return WechatOAuthResponse(url=auth_url)
+
+            router.add_api_route(
+                "/wechat_oauth",
+                _get_wechat_oauth,
+                name="get_wechat_oauth",
+                methods=["GET"],
+                response_model=WechatOAuthResponse,
+                description=f"Get wechat offiaccount oauth2 auth url with protocal modified redirect_url (https to http).",
+            )
+
+            return router
+
 
 if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     import typer
@@ -521,6 +548,9 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         prefix="/utils",
         tags=["utils"],
     )
+
+    # other utils routes
+    asgi_app.include_router(routes.get_utils_route(), prefix="/utils", tags=["utils"])
 
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
