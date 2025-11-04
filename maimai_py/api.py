@@ -479,11 +479,11 @@ if find_spec("fastapi"):
 
             return router
 
-        def get_utils_route(self) -> APIRouter:
-            """Get a FastAPI APIRouter with routes for utility functions.
+        def get_wechat_oauth_route(self) -> APIRouter:
+            """Get a FastAPI APIRouter with route for wechat oauth URL generation.
 
             Returns:
-                APIRouter: A FastAPI APIRouter with utility routes.
+                APIRouter: A FastAPI APIRouter with the wechat_oauth route.
             """
             router = APIRouter()
 
@@ -550,7 +550,7 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     )
 
     # other utils routes
-    asgi_app.include_router(routes.get_utils_route(), prefix="/utils", tags=["utils"])
+    asgi_app.include_router(routes.get_wechat_oauth_route(), prefix="/utils", tags=["utils"])
 
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
