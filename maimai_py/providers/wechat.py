@@ -32,6 +32,14 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
         return hashlib.md5(b"wechat").hexdigest()
 
     @staticmethod
+    def _ensure_cookies(identifier: PlayerIdentifier) -> Cookies:
+        if isinstance(identifier.credentials, dict):
+            return Cookies(identifier.credentials)
+        if isinstance(identifier.credentials, Cookies):
+            return identifier.credentials
+        raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch data")
+
+    @staticmethod
     async def _deser_score(score: HTMLScore, songs: "MaimaiSongs") -> Optional[Score]:
         if song := await songs.by_title(score.title):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
@@ -70,17 +78,13 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
 
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()  # Ensure songs are loaded in cache
-        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
-            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
-        scores = await self._crawl_scores(client, identifier.credentials, maimai_songs)
+        scores = await self._crawl_scores(client, self._ensure_cookies(identifier), maimai_songs)
         return list(scores)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> WechatPlayer:
         trophies = await client.items(PlayerTrophy)
-        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
-            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch player information")
-        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", cookies=identifier.credentials)
+        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", cookies=self._ensure_cookies(identifier))
         if resp.status_code == 302:
             raise InvalidPlayerIdentifierError("Failed to fetch player information, possibly due to invalid cookies or maintenance.")
         player = wmdx_html2player(str(resp.text))
@@ -112,16 +116,15 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_friends(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[WechatPlayer]:
         trophies = await client.items(PlayerTrophy)
-        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
-            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch friends")
+        cookies = self._ensure_cookies(identifier)
         # Prefetch the first page of friends, in order to get the total number of friends
-        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/", cookies=identifier.credentials)
+        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/", cookies=cookies)
         if resp.status_code == 302:
             raise InvalidPlayerIdentifierError("Failed to fetch friends, possibly due to invalid cookies or maintenance.")
         friend_num, players = wmdx_html2players(str(resp.text))
         # Fetch all friends by iterating through pages, 10 friends per page
         for page in range(2, (friend_num // 10) + 2):
-            resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/friend/pages/?idx={page}", cookies=identifier.credentials)
+            resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/friend/pages/?idx={page}", cookies=cookies)
             players.extend(wmdx_html2players(str(resp.text))[1])
         return [
             WechatPlayer(
@@ -137,22 +140,18 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def set_rival_on(self, identifier: PlayerIdentifier, rival: WechatPlayer, client: "MaimaiClient") -> None:
-        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
-            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to set rival status")
         resp = await client._client.post(
             "https://maimai.wahlap.com/maimai-mobile/friend/rivalOn/",
-            cookies=identifier.credentials,
+            cookies=self._ensure_cookies(identifier),
             data={"idx": rival.friend_code, "token": rival.token},
         )
         resp.raise_for_status()
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def set_rival_off(self, identifier: PlayerIdentifier, rival: WechatPlayer, client: "MaimaiClient") -> None:
-        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
-            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to set rival status")
         resp = await client._client.post(
             "https://maimai.wahlap.com/maimai-mobile/friend/rivalOff/",
-            cookies=identifier.credentials,
+            cookies=self._ensure_cookies(identifier),
             data={"idx": rival.friend_code, "token": rival.token},
         )
         resp.raise_for_status()
@@ -160,9 +159,7 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_records(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()  # Ensure songs are loaded in cache
-        if not identifier.credentials or not isinstance(identifier.credentials, Cookies):
-            raise InvalidPlayerIdentifierError("Wahlap wechat cookies are required to fetch scores")
-        resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/", cookies=identifier.credentials)
+        resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/", cookies=self._ensure_cookies(identifier))
         if resp.status_code == 302:
             raise InvalidPlayerIdentifierError("Failed to fetch records, possibly due to invalid cookies or maintenance.")
         scores = wmdx_html2record(str(resp.text))

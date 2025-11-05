@@ -1217,7 +1217,10 @@ class MaimaiClient:
                 if source_mode == "parallel" or (source_mode == "fallback" and len(source_tasks) == 0):
                     source_task = asyncio.create_task(self.scores(ident, sp))
                     if source_callback is not None:
-                        source_task.add_done_callback(lambda t, k=kwargs: source_callback(t.result(), t.exception(), k))
+                        empty_scores = await MaimaiScores(self).configure([])
+                        source_task.add_done_callback(
+                            lambda t, k=kwargs: source_callback(t.result() if not t.exception() else empty_scores, t.exception(), k)
+                        )
                     source_tasks.append(source_task)
         source_gather_results = await asyncio.gather(*source_tasks, return_exceptions=True)
         maimai_scores_list = [result for result in source_gather_results if isinstance(result, MaimaiScores)]
