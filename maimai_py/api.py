@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from contextlib import asynccontextmanager
+from dataclasses import asdict
 from importlib.util import find_spec
 from logging import warning
 from typing import Annotated, Any, Callable, Literal, Optional, Union
@@ -340,8 +341,9 @@ if find_spec("fastapi"):
             async def _get_players(
                 provider: IPlayerProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
-            ) -> Union[Player, DivingFishPlayer, LXNSPlayer, ArcadePlayer]:
-                return await self._client.players(player, provider=provider)
+            ) -> Union[Player, DivingFishPlayer, LXNSPlayer, ArcadePlayer | dict]:
+                player_obj = await self._client.players(player, provider=provider)
+                return asdict(player_obj)
 
             async def _get_bests(
                 provider: IScoreProvider = Depends(dep_provider),
