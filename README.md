@@ -5,6 +5,11 @@
 ![Python versions](https://img.shields.io/pypi/pyversions/maimai-py)
 [![en](https://img.shields.io/badge/README-en-red.svg)](https://github.com/TrueRou/maimai.py/blob/main/README_EN.md)
 
+![GitHub Repo stars](https://img.shields.io/github/stars/TrueRou/maimai.py)
+![GitHub forks](https://img.shields.io/github/forks/TrueRou/maimai.py)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/maimai.py)
+![GitCode stars](https://gitcode.com/TrueRou/maimai.py/star/badge.svg)
+
 <p align="center">
   <a href="https://maimai.turou.fun">
       <img src="https://s2.loli.net/2024/12/23/oXGnIBJS3Whd54p.png" alt="maimai.py" />
