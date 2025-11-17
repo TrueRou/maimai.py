@@ -341,7 +341,7 @@ if find_spec("fastapi"):
             async def _get_players(
                 provider: IPlayerProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
-            ) -> Union[Player, DivingFishPlayer, LXNSPlayer, ArcadePlayer | dict]:
+            ) -> Union[Player, DivingFishPlayer, LXNSPlayer, ArcadePlayer, WechatPlayer, dict]:
                 player_obj = await self._client.players(player, provider=provider)
                 return asdict(player_obj)
 
