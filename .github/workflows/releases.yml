@@ -51,9 +51,9 @@ jobs:
         with:
           name: ${{ runner.os }} Build
           path: |
-            build/*.exe
-            build/*.bin
-            build/*.app/**/*
+            build/api.exe
+            build/api.bin
+            build/api.app/Contents/MacOS/**/*
           include-hidden-files: true
 
       - name: 🚀 Release for Linux
