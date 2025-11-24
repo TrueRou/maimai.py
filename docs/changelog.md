@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.3.8 (2025-11-24)
+
+Bugfixes:
+  - RESTFUL get_players 缺少 WechatPlayer 类型
+  - PlayerItemType 泛型 TypeVar 使用错误 -> [#45](https://github.com/TrueRou/maimai.py/pull/45)
+
 ## 1.3.7 (2025-10-08)
 
 Features:
