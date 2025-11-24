@@ -35,7 +35,7 @@ class MaimaiItems(Generic[PlayerItemType]):
             if await cache_obj.get("provider", None, namespace=self._namespace) is not None:
                 return self
         # Really assign the unset provider to the default one.
-        provider = LXNSProvider() if PlayerItemType in [PlayerIcon, PlayerNamePlate, PlayerFrame] else LocalProvider()
+        provider = LXNSProvider() if self._namespace in ["icons", "nameplates", "frames"] else LocalProvider()
         # Check if the current provider hash is different from the previous one, which means we need to reconfigure.
         current_provider_hash = provider._hash()
         previous_provider_hash = await cache_obj.get("provider", "", namespace=self._namespace)
