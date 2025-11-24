@@ -22,7 +22,7 @@ jobs:
   nuitka:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     environment: releases
     steps:
@@ -53,7 +53,6 @@ jobs:
           path: |
             build/api.exe
             build/api.bin
-            build/api.app/Contents/MacOS/**/*
           include-hidden-files: true
 
       - name: 🚀 Release for Linux
