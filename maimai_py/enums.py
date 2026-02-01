@@ -26,6 +26,12 @@ class Version(IntEnum):
     MAIMAI_DX_PRISM = 25000  # 舞萌DX 2025
     MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
 
+    @staticmethod
+    def fromVersionNumber(num):
+        for v in reversed(Version.__members__.values()):
+            if num >= v.value: return v
+        return None
+
 
 class Genre(Enum):
     POPSアニメ = "POPSアニメ"
