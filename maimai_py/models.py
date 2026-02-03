@@ -500,11 +500,13 @@ class Score:
 
 @dataclass
 class ScoreExtend(Score):
-    __slots__ = ["title", "level_value", "level_dx_score"]
+    __slots__ = ["title", "level_value", "level_dx_score", "dx_star", "version"]
 
     title: str
     level_value: float
     level_dx_score: int
+    dx_star: Optional[int]
+    version: int
 
 
 @dataclass

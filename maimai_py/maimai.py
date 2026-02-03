@@ -647,17 +647,30 @@ class MaimaiScores:
                 yield (song, diff, score)
 
     @staticmethod
+    def _calcuate_dx_star(dx_score: int, max_dx_score: int) -> int:
+        THRESHOLD = [0.85, 0.90, 0.93, 0.95, 0.97]
+
+        percentage = dx_score / max_dx_score
+        for i, t in enumerate(THRESHOLD):
+            if percentage < t:
+                return i
+        return 5
+
+    @staticmethod
     async def _get_extended(scores: Iterable[Score], maimai_songs: MaimaiSongs) -> list[ScoreExtend]:
         extended_scores = []
         async for song, diff, score in MaimaiScores._get_mapping(scores, maimai_songs):
             extended_dict = dataclasses.asdict(score)
+            level_dx_score = (diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3
+            dx_star = MaimaiScores._calcuate_dx_star(score.dx_score, level_dx_score) if score.dx_score else None
             extended_dict.update(
                 {
                     "level": diff.level,  # Ensure level is set correctly.
                     "title": song.title,
+                    "dx_star": dx_star,
+                    "version": diff.version,
                     "level_value": diff.level_value,
-                    "level_dx_score": (diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num)
-                    * 3,
+                    "level_dx_score": level_dx_score,
                 }
             )
             extended_scores.append(ScoreExtend(**extended_dict))

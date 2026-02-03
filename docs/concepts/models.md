@@ -104,11 +104,13 @@
 
 继承自 `Score` 类。
 
-| 字段             | 类型         | 说明             |
-|------------------|--------------|------------------|
-| `title`          | `int`        | 曲目标题         |
-| `level_value`    | `LevelIndex` | 难度定数         |
-| `level_dx_score` | `LevelIndex` | 难度最大 DX 分数 |
+| 字段             | 类型          | 说明             |
+|------------------|---------------|------------------|
+| `title`          | `int`         | 曲目标题         |
+| `level_value`    | `LevelIndex`  | 难度定数         |
+| `level_dx_score` | `LevelIndex`  | 难度最大 DX 分数 |
+| `dx_star`        | `int \| None` | DX Star          |
+| `version`        | `int`         | 难度出现版本     |
 
 ## [PlateObject](https://api.maimai.turou.fun/maimai_py/models.html#PlateObject)
 
