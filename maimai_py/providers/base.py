@@ -76,7 +76,9 @@ class IScoreUpdateProvider(IProvider):
     """
 
     @abstractmethod
-    async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
+    async def update_scores(
+        self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient"
+    ) -> None:
         """@private"""
         raise NotImplementedError()
 

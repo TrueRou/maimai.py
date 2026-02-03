@@ -154,7 +154,11 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
                 raise InvalidPlayerIdentifierError(resp_json["message"])
             elif resp.status_code == 403:
                 raise PrivacyLimitationError(resp_json["message"])
-            elif "msg" in resp_json and resp_json["msg"] in ["请先联系水鱼申请开发者token", "开发者token有误", "开发者token被禁用"]:
+            elif "msg" in resp_json and resp_json["msg"] in [
+                "请先联系水鱼申请开发者token",
+                "开发者token有误",
+                "开发者token被禁用",
+            ]:
                 raise InvalidDeveloperTokenError(resp_json["msg"])
             elif "message" in resp_json and resp_json["message"] in ["导入token有误", "尚未登录", "会话过期"]:
                 raise InvalidPlayerIdentifierError(resp_json["message"])
@@ -196,17 +200,25 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         if identifier.credentials is not None and isinstance(identifier.credentials, str):
-            resp = await client._client.get(self.base_url + "player/records", headers={"Import-Token": identifier.credentials})
+            resp = await client._client.get(
+                self.base_url + "player/records", headers={"Import-Token": identifier.credentials}
+            )
         else:
-            resp = await client._client.get(self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers)
+            resp = await client._client.get(
+                self.base_url + "dev/player/records", params=identifier._as_diving_fish(), headers=self.headers
+            )
         resp_json = self._check_response_player(resp)
         return [s for score in resp_json["records"] if (s := DivingFishProvider._deser_score(score))]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        resp = await client._client.post(self.base_url + "query/player", json={"b50": True, **identifier._as_diving_fish()})
+        resp = await client._client.post(
+            self.base_url + "query/player", json={"b50": True, **identifier._as_diving_fish()}
+        )
         resp_json = self._check_response_player(resp)
-        return [DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"] + resp_json["charts"]["dx"]]
+        return [
+            DivingFishProvider._deser_score(score) for score in resp_json["charts"]["sd"] + resp_json["charts"]["dx"]
+        ]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
@@ -219,7 +231,9 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         return [s for scores in resp_json.values() for score in scores if (s := DivingFishProvider._deser_score(score))]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
-    async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient") -> None:
+    async def update_scores(
+        self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient"
+    ) -> None:
         headers, cookies = None, None
         maimai_songs = await client.songs()
         if identifier.username and identifier.credentials:
@@ -230,9 +244,13 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         elif not identifier.username and identifier.credentials and isinstance(identifier.credentials, str):
             headers = {"Import-Token": identifier.credentials}
         else:
-            raise InvalidPlayerIdentifierError("Either username and password or import token is required to deliver scores")
+            raise InvalidPlayerIdentifierError(
+                "Either username and password or import token is required to deliver scores"
+            )
         scores_json = [json for score in scores if (json := await DivingFishProvider._ser_score(score, maimai_songs))]
-        resp2 = await client._client.post(self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json)
+        resp2 = await client._client.post(
+            self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json
+        )
         self._check_response_player(resp2)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
@@ -240,6 +258,8 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         resp = await client._client.get(self.base_url + "chart_stats")
         resp.raise_for_status()
         return {
-            (int(idx) % 10000, SongType._from_id(int(idx))): ([DivingFishProvider._deser_curve(chart) for chart in charts if chart != {}])
+            (int(idx) % 10000, SongType._from_id(int(idx))): (
+                [DivingFishProvider._deser_curve(chart) for chart in charts if chart != {}]
+            )
             for idx, charts in (resp.json())["charts"].items()
         }

@@ -4,7 +4,7 @@ from maimai_py.enums import LevelIndex
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import Player, PlayerIdentifier
 from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
-from maimai_py.utils.page_parser import wmdx_html2score, wmdx_html2record
+from maimai_py.utils.page_parser import wmdx_html2record, wmdx_html2score
 
 
 @pytest.mark.asyncio(scope="session")
@@ -30,7 +30,9 @@ async def test_scores_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lx
 
 
 @pytest.mark.asyncio(scope="session")
-async def test_scores_fetching_divingfish(maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier):
+async def test_scores_fetching_divingfish(
+    maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier
+):
     my_scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
     assert my_scores.rating_b35 > 10000
     score = my_scores.by_song(1231, level_index=LevelIndex.MASTER)[0]
@@ -75,21 +77,23 @@ async def test_scores_updating_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lx
 
 
 @pytest.mark.asyncio(scope="session")
-async def test_scores_updating_divingfish(maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier):
+async def test_scores_updating_divingfish(
+    maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier
+):
     scores = []
     await maimai.updates(divingfish_player, scores, provider=divingfish)
 
 
 @pytest.mark.asyncio(scope="session")
 async def test_scores_wechat():
-    with (open("./tests/sample_data/scores.html", "r", encoding="utf-8") as file):
+    with open("./tests/sample_data/scores.html", "r", encoding="utf-8") as file:
         html_scores = wmdx_html2score(file.read())
         assert len(html_scores) == 8
-        
+
         score1 = [s for s in html_scores if s.title == "花となれ"][0]
         assert score1.achievements == 101.0000 and score1.fc == "app" and score1.fs == "sync" and score1.rate == "sssp"
         assert score1.level == "8+" and score1.level_index == 2 and score1.type == "DX" and score1.dx_score == 752
-        score2 = [s for s in html_scores if s.title == "\u3000"][0] # corner case：如月车站
+        score2 = [s for s in html_scores if s.title == "\u3000"][0]  # corner case：如月车站
         assert score2.achievements == 100.8750 and score2.fc == "ap" and score2.fs == "sync" and score2.rate == "sssp"
         score3 = [s for s in html_scores if s.title == "シックスプラン"][0]
         assert score3.achievements == 99.9338 and score3.fc == "fcp" and score3.fs == "fs" and score3.rate == "ssp"
@@ -97,7 +101,7 @@ async def test_scores_wechat():
         assert score4.achievements == 97.0887 and score4.fc == "" and score4.fs == "" and score4.rate == "s"
         score5 = [s for s in html_scores if s.title == "maimaiちゃんのテーマ"][0]
         assert score5.achievements == 98.1502 and score5.fc == "fc" and score5.fs == "fsp" and score5.rate == "sp"
-        assert score5.type == "SD" and score5.dx_score == 557 and score5.level == "9" # 测一个标谱的type
+        assert score5.type == "SD" and score5.dx_score == 557 and score5.level == "9"  # 测一个标谱的type
         score6 = [s for s in html_scores if s.title == "STARTLINER"][0]
         assert score6.achievements == 100.1990 and score6.fc == "fcp" and score6.fs == "fdx" and score6.rate == "sss"
         score7 = [s for s in html_scores if s.title == "Limits"][0]

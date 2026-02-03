@@ -54,13 +54,22 @@ class LocalProvider(IItemListProvider, IAreaProvider):
             raise ValueError(f"File {file_name} is not a list.")
 
     async def get_icons(self, client: "MaimaiClient") -> dict[int, PlayerIcon]:
-        return {int(k): PlayerIcon(id=int(k), name=v, description=None, genre=None) for k, v in self._read_file_dict("icons").items()}
+        return {
+            int(k): PlayerIcon(id=int(k), name=v, description=None, genre=None)
+            for k, v in self._read_file_dict("icons").items()
+        }
 
     async def get_nameplates(self, client: "MaimaiClient") -> dict[int, PlayerNamePlate]:
-        return {int(k): PlayerNamePlate(id=int(k), name=v, description=None, genre=None) for k, v in self._read_file_dict("nameplates").items()}
+        return {
+            int(k): PlayerNamePlate(id=int(k), name=v, description=None, genre=None)
+            for k, v in self._read_file_dict("nameplates").items()
+        }
 
     async def get_frames(self, client: "MaimaiClient") -> dict[int, PlayerFrame]:
-        return {int(k): PlayerFrame(id=int(k), name=v, description=None, genre=None) for k, v in self._read_file_dict("frames").items()}
+        return {
+            int(k): PlayerFrame(id=int(k), name=v, description=None, genre=None)
+            for k, v in self._read_file_dict("frames").items()
+        }
 
     async def get_partners(self, client: "MaimaiClient") -> dict[int, PlayerPartner]:
         return {int(k): PlayerPartner(id=int(k), name=v) for k, v in self._read_file_dict("partners").items()}
@@ -69,7 +78,10 @@ class LocalProvider(IItemListProvider, IAreaProvider):
         return {int(k): PlayerChara(id=int(k), name=v) for k, v in self._read_file_dict("charas").items()}
 
     async def get_trophies(self, client: "MaimaiClient") -> dict[int, PlayerTrophy]:
-        return {int(k): PlayerTrophy(id=int(k), name=v["title"], color=v["rareType"]) for k, v in self._read_file_dict("trophies").items()}
+        return {
+            int(k): PlayerTrophy(id=int(k), name=v["title"], color=v["rareType"])
+            for k, v in self._read_file_dict("trophies").items()
+        }
 
     async def get_areas(self, lang: str, client: "MaimaiClient") -> dict[str, Area]:
         maimai_songs = await client.songs()

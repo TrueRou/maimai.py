@@ -17,7 +17,7 @@ lxns_provider = LXNSProvider()
 async def generate_url():
     threaded_maimai = MaimaiClientMultithreading(timeout=300)
     url = await threaded_maimai.wechat()
-    print(f"\033[32mPlease visit the following URL in Wechat to authorize: \033[0m")
+    print("\033[32mPlease visit the following URL in Wechat to authorize: \033[0m")
     print(url)
 
 
@@ -38,19 +38,23 @@ async def update_prober(r: str, t: str, code: str, state: str):
         # establish the tasks of updating the prober according to the configuration
         update_tasks = []
         if token := os.getenv("DIVINGFISH_IMPORT_TOKEN"):
-            task = asyncio.create_task(maimai.updates(PlayerIdentifier(credentials=token), scores.scores, DivingFishProvider()))
+            task = asyncio.create_task(
+                maimai.updates(PlayerIdentifier(credentials=token), scores.scores, DivingFishProvider())
+            )
             update_tasks.append(task)
         if token := os.getenv("LXNS_PERSONAL_TOKEN"):
             task1 = asyncio.create_task(maimai.updates(PlayerIdentifier(credentials=token), records, LXNSProvider()))
-            task2 = asyncio.create_task(maimai.updates(PlayerIdentifier(credentials=token), scores.scores, LXNSProvider()))
+            task2 = asyncio.create_task(
+                maimai.updates(PlayerIdentifier(credentials=token), scores.scores, LXNSProvider())
+            )
             update_tasks.append(task1)
             update_tasks.append(task2)
         asyncio.gather(*update_tasks)
-        print(f"\033[32mProber updated successfully.\033[0m")
-    except (ConnectError, ReadTimeout) as e:
-        print(f"\033[31mConnection to the server timed out.\033[0m")
+        print("\033[32mProber updated successfully.\033[0m")
+    except (ConnectError, ReadTimeout):
+        print("\033[31mConnection to the server timed out.\033[0m")
     except (InvalidPlayerIdentifierError, PrivacyLimitationError, InvalidWechatTokenError) as e:
         print(f"\033[31m{e}.\033[0m")
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
-        print(f"\033[31mAn unexpected error occurred.\033[0m")
+        print("\033[31mAn unexpected error occurred.\033[0m")

@@ -1,4 +1,5 @@
 import asyncio
+
 from mitmproxy.http import HTTPFlow, Response
 
 from proxy_updater import updater
@@ -18,6 +19,11 @@ class WechatWahlapAddon:
         if flow.request.host in self.wahlap_hosts and flow.request.path.startswith("/wc_auth/oauth/callback/maimai-dx"):
             # prevent infinite loop if the server and client are both using the proxy (user is testing in the same machine)
             if not flow.request.headers.get("Flag", None):
-                r, t, code, state = flow.request.query["r"], flow.request.query["t"], flow.request.query["code"], flow.request.query["state"]
+                r, t, code, state = (
+                    flow.request.query["r"],
+                    flow.request.query["t"],
+                    flow.request.query["code"],
+                    flow.request.query["state"],
+                )
                 asyncio.ensure_future(updater.update_prober(r, t, code, state))
                 flow.response = Response.make(200, prompt.encode("gbk"), {"Content-Type": "text/plain"})

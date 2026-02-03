@@ -17,7 +17,9 @@ async def test_update_chain(maimai: MaimaiClient):
             source_counter += 1
             return []
 
-        async def update_scores(self, identifier: PlayerIdentifier, scores: Iterable[Score], client: MaimaiClient) -> None:
+        async def update_scores(
+            self, identifier: PlayerIdentifier, scores: Iterable[Score], client: MaimaiClient
+        ) -> None:
             global target_counter
             target_counter += 1
 

@@ -4,7 +4,19 @@ import hashlib
 import warnings
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, AsyncGenerator, Callable, Generic, Iterable, Literal, Optional, Type, TypeVar, Union, overload
+from typing import (
+    Any,
+    AsyncGenerator,
+    Callable,
+    Generic,
+    Iterable,
+    Literal,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
 
 from aiocache import BaseCache, SimpleMemoryCache
 from httpx import AsyncClient
@@ -43,7 +55,12 @@ class MaimaiItems(Generic[PlayerItemType]):
         if current_provider_hash != previous_provider_hash:
             val: dict[int, Any] = await getattr(provider, f"get_{self._namespace}")(self._client)
             await asyncio.gather(
-                cache_obj.set("provider", current_provider_hash, ttl=cache_ttl, namespace=self._namespace),  # provider
+                cache_obj.set(
+                    "provider",
+                    current_provider_hash,
+                    ttl=cache_ttl,
+                    namespace=self._namespace,
+                ),  # provider
                 cache_obj.set("ids", [key for key in val.keys()], namespace=self._namespace),  # ids
                 cache_obj.multi_set(val.items(), namespace=self._namespace),  # items
             )
@@ -91,7 +108,10 @@ class MaimaiItems(Generic[PlayerItemType]):
         Returns:
             an async generator yielding items that match all the conditions, yields no items if no item is found.
         """
-        cond = lambda item: all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)
+
+        def cond(item: PlayerItemType):
+            return all(getattr(item, key) == value for key, value in kwargs.items() if value is not None)
+
         return [item for item in await self.get_all() if cond(item)]
 
 
@@ -110,16 +130,26 @@ class MaimaiSongs:
     ) -> "MaimaiSongs":
         cache_obj, cache_ttl = self._client._cache, self._client._cache_ttl
         # Check if all providers are unset, which means we want to access the cache directly.
-        if isinstance(provider, _UnsetSentinel) and isinstance(alias_provider, _UnsetSentinel) and isinstance(curve_provider, _UnsetSentinel):
+        if (
+            isinstance(provider, _UnsetSentinel)
+            and isinstance(alias_provider, _UnsetSentinel)
+            and isinstance(curve_provider, _UnsetSentinel)
+        ):
             if await cache_obj.get("provider", None, namespace="songs") is not None:
                 return self
         # Really assign the unset providers to the default ones.
         provider = provider if not isinstance(provider, _UnsetSentinel) else LXNSProvider()
         alias_provider = alias_provider if not isinstance(alias_provider, _UnsetSentinel) else YuzuProvider()
-        curve_provider = curve_provider if not isinstance(curve_provider, _UnsetSentinel) else None  # Don't fetch curves if not provided.
+        curve_provider = (
+            curve_provider if not isinstance(curve_provider, _UnsetSentinel) else None
+        )  # Don't fetch curves if not provided.
         # Check if the current provider hash is different from the previous one, which means we need to reconfigure.
         current_provider_hash = hashlib.md5(
-            (provider._hash() + (alias_provider._hash() if alias_provider else "") + (curve_provider._hash() if curve_provider else "")).encode()
+            (
+                provider._hash()
+                + (alias_provider._hash() if alias_provider else "")
+                + (curve_provider._hash() if curve_provider else "")
+            ).encode()
         ).hexdigest()
         previous_provider_hash = await cache_obj.get("provider", "", namespace="songs")
         # If different or previous is empty, we need to reconfigure the songs.
@@ -152,10 +182,17 @@ class MaimaiSongs:
                 cache_obj.set("ids", [song.id for song in songs], namespace="songs"),  # ids
                 cache_obj.multi_set(iter((song.id, song) for song in songs), namespace="songs"),  # songs
                 cache_obj.multi_set(iter((song.title, song.id) for song in songs), namespace="tracks"),  # titles
-                cache_obj.multi_set(iter((li, id) for id, ul in song_aliases.items() for li in ul), namespace="aliases"),  # aliases
+                cache_obj.multi_set(
+                    iter((li, id) for id, ul in song_aliases.items() for li in ul),
+                    namespace="aliases",
+                ),  # aliases
                 cache_obj.set(
                     "versions",
-                    {f"{song.id} {diff.type} {diff.level_index}": diff.version for song in songs for diff in song.get_difficulties()},
+                    {
+                        f"{song.id} {diff.type} {diff.level_index}": diff.version
+                        for song in songs
+                        for diff in song.get_difficulties()
+                    },
                     namespace="songs",
                 ),  # versions
             )
@@ -257,7 +294,10 @@ class MaimaiSongs:
         Returns:
             an async generator yielding songs that match the versions.
         """
-        cond = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
+
+        def cond(song: Song):
+            return versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
+
         return [song for song in await self.get_all() if cond(song)]
 
     async def by_keywords(self, keywords: str) -> list[Song]:
@@ -281,7 +321,9 @@ class MaimaiSongs:
             ):
                 exact_matches.append(song)
             # Check for fuzzy matches
-            elif keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower():
+            elif (
+                keywords.lower() in f"{song.title} + {song.artist} + {''.join(a for a in (song.aliases or []))}".lower()
+            ):
                 fuzzy_matches.append(song)
 
         # Return exact matches if found, otherwise return fuzzy matches
@@ -297,7 +339,10 @@ class MaimaiSongs:
         Returns:
             a list of songs that match all the conditions.
         """
-        cond = lambda song: all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)
+
+        def cond(song: Song):
+            return all(getattr(song, key) == value for key, value in kwargs.items() if value is not None)
+
         return [song for song in await self.get_all() if cond(song)]
 
 
@@ -342,7 +387,10 @@ class MaimaiPlates:
         for score in scores:
             score_key = f"{score.id} {score.type} {score.level_index}"
             if score_version := song_diff_versions.get(score_key, None):
-                if any(score_version >= o.value and score_version < versions[i + 1].value for i, o in enumerate(versions[:-1])):
+                if any(
+                    score_version >= o.value and score_version < versions[i + 1].value
+                    for i, o in enumerate(versions[:-1])
+                ):
                     if not (score.level_index == LevelIndex.ReMASTER and self.no_remaster):
                         versioned_joined_scores[score_key] = score._join(versioned_joined_scores.get(score_key, None))
         self._matched_scores = await MaimaiScores._get_extended(versioned_joined_scores.values(), maimai_songs)
@@ -381,7 +429,14 @@ class MaimaiPlates:
         grouped = defaultdict(list)
         [grouped[score.id].append(score) for score in self._matched_scores]
         # Create PlateObject for each song with its levels and scores.
-        results = {song.id: PlateObject(song=song, levels=self._get_levels(song), scores=grouped.get(song.id, [])) for song in self._matched_songs}
+        results = {
+            song.id: PlateObject(
+                song=song,
+                levels=self._get_levels(song),
+                scores=grouped.get(song.id, []),
+            )
+            for song in self._matched_songs
+        }
 
         def extract(score: ScoreExtend) -> None:
             results[score.id].scores.remove(score)
@@ -549,8 +604,22 @@ class MaimaiScores:
                     (self.scores_b15 if score_version >= current_version.value else self.scores_b35).append(score)
 
         # Sort scores by dx_rating, dx_score and achievements, and limit the number of scores.
-        self.scores_b35.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
-        self.scores_b15.sort(key=lambda score: (score.dx_rating or 0, score.dx_score or 0, score.achievements or 0), reverse=True)
+        self.scores_b35.sort(
+            key=lambda score: (
+                score.dx_rating or 0,
+                score.dx_score or 0,
+                score.achievements or 0,
+            ),
+            reverse=True,
+        )
+        self.scores_b15.sort(
+            key=lambda score: (
+                score.dx_rating or 0,
+                score.dx_score or 0,
+                score.achievements or 0,
+            ),
+            reverse=True,
+        )
         self.scores_b35 = self.scores_b35[:35]
         self.scores_b15 = self.scores_b15[:15]
         self.scores = self.scores_b35 + self.scores_b15 if b50_only else self.scores
@@ -563,7 +632,9 @@ class MaimaiScores:
         return self
 
     @staticmethod
-    async def _get_mapping(scores: Iterable[T], maimai_songs: MaimaiSongs) -> AsyncGenerator[tuple[Song, SongDifficulty, T], None]:
+    async def _get_mapping(
+        scores: Iterable[T], maimai_songs: MaimaiSongs
+    ) -> AsyncGenerator[tuple[Song, SongDifficulty, T], None]:
         # Get all required songs in batch to reduce the number of requests.
         purified_ids = set(score.id % 10000 for score in scores)
         required_songs = await maimai_songs.get_batch(purified_ids)
@@ -585,7 +656,8 @@ class MaimaiScores:
                     "level": diff.level,  # Ensure level is set correctly.
                     "title": song.title,
                     "level_value": diff.level_value,
-                    "level_dx_score": (diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num) * 3,
+                    "level_dx_score": (diff.tap_num + diff.hold_num + diff.slide_num + diff.break_num + diff.touch_num)
+                    * 3,
                 }
             )
             extended_scores.append(ScoreExtend(**extended_dict))
@@ -623,7 +695,10 @@ class MaimaiScores:
         )
 
     def by_song(
-        self, song_id: int, song_type: Union[SongType, _UnsetSentinel] = UNSET, level_index: Union[LevelIndex, _UnsetSentinel] = UNSET
+        self,
+        song_id: int,
+        song_type: Union[SongType, _UnsetSentinel] = UNSET,
+        level_index: Union[LevelIndex, _UnsetSentinel] = UNSET,
     ) -> list[ScoreExtend]:
         """Get scores of the song on that type and level_index.
 
@@ -655,7 +730,11 @@ class MaimaiScores:
         Returns:
             an iterator of scores that match all the conditions, yields no items if no score is found.
         """
-        return [score for score in self.scores if all(getattr(score, key) == value for key, value in kwargs.items() if value is not None)]
+        return [
+            score
+            for score in self.scores
+            if all(getattr(score, key) == value for key, value in kwargs.items() if value is not None)
+        ]
 
 
 class MaimaiAreas:
@@ -682,7 +761,11 @@ class MaimaiAreas:
             areas = await provider.get_areas(lang, self._client)
             await asyncio.gather(
                 cache_obj.set("provider", hash(provider), ttl=cache_ttl, namespace=f"areas_{lang}"),  # provider
-                cache_obj.set("ids", [area.id for area in areas.values()], namespace=f"areas_{lang}"),  # ids
+                cache_obj.set(
+                    "ids",
+                    [area.id for area in areas.values()],
+                    namespace=f"areas_{lang}",
+                ),  # ids
                 cache_obj.multi_set(iter((k, v) for k, v in areas.items()), namespace=f"areas_{lang}"),  # areas
             )
         return self
@@ -969,7 +1052,9 @@ class MaimaiClient:
                 extended_scores = await MaimaiScores._get_extended(scores, maimai_songs)
             return PlayerSong(song, extended_scores)
 
-    async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()) -> list[PlayerRegion]:
+    async def regions(
+        self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()
+    ) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
 
         Args:
@@ -1072,7 +1157,11 @@ class MaimaiClient:
             provider = ArcadeProvider()
         return await provider.get_identifier(code, self)
 
-    async def items(self, item: Type[PlayerItemType], provider: Union[IItemListProvider, _UnsetSentinel] = UNSET) -> MaimaiItems[PlayerItemType]:
+    async def items(
+        self,
+        item: Type[PlayerItemType],
+        provider: Union[IItemListProvider, _UnsetSentinel] = UNSET,
+    ) -> MaimaiItems[PlayerItemType]:
         """Fetch maimai player items from the cache default provider.
 
         Available items: `PlayerIcon`, `PlayerNamePlate`, `PlayerFrame`, `PlayerTrophy`, `PlayerChara`, `PlayerPartner`.
@@ -1089,7 +1178,11 @@ class MaimaiClient:
         maimai_items = MaimaiItems[PlayerItemType](self, item._namespace())
         return await maimai_items._configure(provider)
 
-    async def areas(self, lang: Literal["ja", "zh"] = "ja", provider: IAreaProvider = LocalProvider()) -> MaimaiAreas:
+    async def areas(
+        self,
+        lang: Literal["ja", "zh"] = "ja",
+        provider: IAreaProvider = LocalProvider(),
+    ) -> MaimaiAreas:
         """Fetch maimai areas from the provider.
 
         Available providers: `LocalProvider`.
@@ -1219,7 +1312,11 @@ class MaimaiClient:
                     if source_callback is not None:
                         empty_scores = await MaimaiScores(self).configure([])
                         source_task.add_done_callback(
-                            lambda t, k=kwargs: source_callback(t.result() if not t.exception() else empty_scores, t.exception(), k)
+                            lambda t, k=kwargs: source_callback(
+                                t.result() if not t.exception() else empty_scores,
+                                t.exception(),
+                                k,
+                            )
                         )
                     source_tasks.append(source_task)
         source_gather_results = await asyncio.gather(*source_tasks, return_exceptions=True)
@@ -1240,7 +1337,9 @@ class MaimaiClient:
                 if target_mode == "parallel" or (target_mode == "fallback" and len(target_tasks) == 0):
                     target_task = asyncio.create_task(self.updates(ident, merged_scores, tp))
                     if target_callback is not None:
-                        target_task.add_done_callback(lambda t, k=kwargs: target_callback(merged_maimai_scores, t.exception(), k))
+                        target_task.add_done_callback(
+                            lambda t, k=kwargs: target_callback(merged_maimai_scores, t.exception(), k)
+                        )
                     target_tasks.append(target_task)
         await asyncio.gather(*target_tasks, return_exceptions=True)
 

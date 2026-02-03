@@ -1,6 +1,10 @@
 from typing import Type
 
-from maimai_ffi.exceptions import AimeServerError, ArcadeError, ArcadeIdentifierError, TitleServerBlockedError, TitleServerNetworkError
+from maimai_ffi.exceptions import AimeServerError as AimeServerError
+from maimai_ffi.exceptions import ArcadeError as ArcadeError
+from maimai_ffi.exceptions import ArcadeIdentifierError as ArcadeIdentifierError
+from maimai_ffi.exceptions import TitleServerBlockedError as TitleServerBlockedError
+from maimai_ffi.exceptions import TitleServerNetworkError as TitleServerNetworkError
 
 ArcadeError: Type[Exception]
 AimeServerError: Type[Exception]

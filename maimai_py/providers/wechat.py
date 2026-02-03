@@ -43,7 +43,13 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
     async def _deser_score(score: HTMLScore, songs: "MaimaiSongs") -> Optional[Score]:
         if song := await songs.by_title(score.title):
             is_utage = (len(song.difficulties.dx) + len(song.difficulties.standard)) == 0
-            song_type = SongType.STANDARD if score.type == "SD" else SongType.DX if score.type == "DX" and not is_utage else SongType.UTAGE
+            song_type = (
+                SongType.STANDARD
+                if score.type == "SD"
+                else SongType.DX
+                if score.type == "DX" and not is_utage
+                else SongType.UTAGE
+            )
             level_index = LevelIndex(score.level_index)
             if diff := song.get_difficulty(song_type, level_index):
                 rating = ScoreCoefficient(score.achievements).ra(diff.level_value)
@@ -63,16 +69,27 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
                 )
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
-    async def _crawl_scores_diff(self, client: "MaimaiClient", diff: int, cookies: Cookies, maimai_songs: "MaimaiSongs") -> list[Score]:
+    async def _crawl_scores_diff(
+        self, client: "MaimaiClient", diff: int, cookies: Cookies, maimai_songs: "MaimaiSongs"
+    ) -> list[Score]:
         await asyncio.sleep(random.randint(0, 300) / 1000)  # sleep for a random amount of time between 0 and 300ms
-        resp1 = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies)
+        resp1 = await client._client.get(
+            f"https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff={diff}", cookies=cookies
+        )
         if resp1.status_code == 302:
-            raise InvalidPlayerIdentifierError("Failed to fetch scores, possibly due to invalid cookies or maintenance.")
+            raise InvalidPlayerIdentifierError(
+                "Failed to fetch scores, possibly due to invalid cookies or maintenance."
+            )
         scores = wmdx_html2score(str(resp1.text))
         return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]
 
-    async def _crawl_scores(self, client: "MaimaiClient", cookies: Cookies, maimai_songs: "MaimaiSongs") -> Sequence[Score]:
-        tasks = [asyncio.create_task(self._crawl_scores_diff(client, diff, cookies, maimai_songs)) for diff in [0, 1, 2, 3, 4]]
+    async def _crawl_scores(
+        self, client: "MaimaiClient", cookies: Cookies, maimai_songs: "MaimaiSongs"
+    ) -> Sequence[Score]:
+        tasks = [
+            asyncio.create_task(self._crawl_scores_diff(client, diff, cookies, maimai_songs))
+            for diff in [0, 1, 2, 3, 4]
+        ]
         results = await asyncio.gather(*tasks)
         return functools.reduce(operator.concat, results, [])
 
@@ -84,9 +101,13 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> WechatPlayer:
         trophies = await client.items(PlayerTrophy)
-        resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", cookies=self._ensure_cookies(identifier))
+        resp = await client._client.get(
+            "https://maimai.wahlap.com/maimai-mobile/friend/userFriendCode/", cookies=self._ensure_cookies(identifier)
+        )
         if resp.status_code == 302:
-            raise InvalidPlayerIdentifierError("Failed to fetch player information, possibly due to invalid cookies or maintenance.")
+            raise InvalidPlayerIdentifierError(
+                "Failed to fetch player information, possibly due to invalid cookies or maintenance."
+            )
         player = wmdx_html2player(str(resp.text))
         return WechatPlayer(
             name=player.name,
@@ -105,13 +126,17 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
                 "Host": "tgk-wcaime.wahlap.com",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             }
-            resp = await client._client.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=code, headers=headers)
+            resp = await client._client.get(
+                "https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=code, headers=headers
+            )
             if resp.status_code == 302 and resp.next_request:
                 resp_next = await client._client.get(resp.next_request.url, headers=headers)
                 return PlayerIdentifier(credentials=dict(resp_next.cookies))
             else:
                 raise InvalidWechatTokenError("Invalid or expired Wechat token")
-        raise InvalidWechatTokenError("Invalid Wechat token format, expected a dict with 'r', 't', 'code', and 'state' keys")
+        raise InvalidWechatTokenError(
+            "Invalid Wechat token format, expected a dict with 'r', 't', 'code', and 'state' keys"
+        )
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_friends(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[WechatPlayer]:
@@ -120,11 +145,15 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
         # Prefetch the first page of friends, in order to get the total number of friends
         resp = await client._client.get("https://maimai.wahlap.com/maimai-mobile/friend/", cookies=cookies)
         if resp.status_code == 302:
-            raise InvalidPlayerIdentifierError("Failed to fetch friends, possibly due to invalid cookies or maintenance.")
+            raise InvalidPlayerIdentifierError(
+                "Failed to fetch friends, possibly due to invalid cookies or maintenance."
+            )
         friend_num, players = wmdx_html2players(str(resp.text))
         # Fetch all friends by iterating through pages, 10 friends per page
         for page in range(2, (friend_num // 10) + 2):
-            resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/friend/pages/?idx={page}", cookies=cookies)
+            resp = await client._client.get(
+                f"https://maimai.wahlap.com/maimai-mobile/friend/pages/?idx={page}", cookies=cookies
+            )
             players.extend(wmdx_html2players(str(resp.text))[1])
         return [
             WechatPlayer(
@@ -159,8 +188,12 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_records(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         maimai_songs = await client.songs()  # Ensure songs are loaded in cache
-        resp = await client._client.get(f"https://maimai.wahlap.com/maimai-mobile/record/", cookies=self._ensure_cookies(identifier))
+        resp = await client._client.get(
+            "https://maimai.wahlap.com/maimai-mobile/record/", cookies=self._ensure_cookies(identifier)
+        )
         if resp.status_code == 302:
-            raise InvalidPlayerIdentifierError("Failed to fetch records, possibly due to invalid cookies or maintenance.")
+            raise InvalidPlayerIdentifierError(
+                "Failed to fetch records, possibly due to invalid cookies or maintenance."
+            )
         scores = wmdx_html2record(str(resp.text))
         return [r for score in scores if (r := await WechatProvider._deser_score(score, maimai_songs))]

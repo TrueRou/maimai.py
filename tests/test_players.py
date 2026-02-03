@@ -16,13 +16,17 @@ async def test_players_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, l
 
 
 @pytest.mark.asyncio(scope="session")
-async def test_players_fetching_divingfish(maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier):
+async def test_players_fetching_divingfish(
+    maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier
+):
     player = await maimai.players(divingfish_player, provider=divingfish)
     assert player.rating > 10000
 
 
 @pytest.mark.asyncio(scope="session")
-async def test_players_fetching_wechat(maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier):
+async def test_players_fetching_wechat(
+    maimai: MaimaiClient, divingfish: DivingFishProvider, divingfish_player: PlayerIdentifier
+):
     with open("./tests/sample_data/user_friend_code.html", "r", encoding="utf-8") as file:
         html_player = wmdx_html2player(file.read())
         assert html_player.rating == 9459

@@ -10,7 +10,19 @@ from maimai_py.utils import UNSET, _UnsetSentinel
 
 @dataclass
 class Song:
-    __slots__ = ("id", "title", "artist", "genre", "bpm", "map", "version", "rights", "aliases", "disabled", "difficulties")
+    __slots__ = (
+        "id",
+        "title",
+        "artist",
+        "genre",
+        "bpm",
+        "map",
+        "version",
+        "rights",
+        "aliases",
+        "disabled",
+        "difficulties",
+    )
 
     id: int
     title: str
@@ -24,7 +36,7 @@ class Song:
     disabled: bool
     difficulties: "SongDifficulties"
 
-    def get_difficulty(self, type: SongType, level_index: LevelIndex | int) -> Optional["SongDifficulty"]:
+    def get_difficulty(self, type: SongType, level_index: Union[LevelIndex, int]) -> Optional["SongDifficulty"]:
         """Get the exact difficulty of this song by type and level index.
 
         Args:
@@ -34,9 +46,15 @@ class Song:
             The difficulty object if found, otherwise None.
         """
         if type == SongType.DX:
-            return next((diff for diff in self.difficulties.dx if diff.level_index == level_index), None)
+            return next(
+                (diff for diff in self.difficulties.dx if diff.level_index == level_index),
+                None,
+            )
         if type == SongType.STANDARD:
-            return next((diff for diff in self.difficulties.standard if diff.level_index == level_index), None)
+            return next(
+                (diff for diff in self.difficulties.standard if diff.level_index == level_index),
+                None,
+            )
         if type == SongType.UTAGE:
             iterator = (
                 (d for d in self.difficulties.utage if getattr(d, "diff_id") == level_index)
@@ -62,7 +80,7 @@ class Song:
         if song_type == SongType.UTAGE:
             return self.difficulties.utage
 
-    def get_divingfish_id(self, type: SongType, level_index: LevelIndex | int) -> int:
+    def get_divingfish_id(self, type: SongType, level_index: Union[LevelIndex, int]) -> int:
         """Get the Divingfish ID for a specific difficulty of this song.
 
         Args:
@@ -106,7 +124,15 @@ class SongDifficulties:
 
 @dataclass
 class CurveObject:
-    __slots__ = ("sample_size", "fit_level_value", "avg_achievements", "stdev_achievements", "avg_dx_score", "rate_sample_size", "fc_sample_size")
+    __slots__ = (
+        "sample_size",
+        "fit_level_value",
+        "avg_achievements",
+        "stdev_achievements",
+        "avg_dx_score",
+        "rate_sample_size",
+        "fc_sample_size",
+    )
 
     sample_size: int
     fit_level_value: float
@@ -309,7 +335,17 @@ class DivingFishPlayer(Player):
 
 @dataclass
 class LXNSPlayer(Player):
-    __slots__ = ("friend_code", "course_rank", "class_rank", "star", "frame", "icon", "trophy", "name_plate", "upload_time")
+    __slots__ = (
+        "friend_code",
+        "course_rank",
+        "class_rank",
+        "star",
+        "frame",
+        "icon",
+        "trophy",
+        "name_plate",
+        "upload_time",
+    )
 
     friend_code: int
     course_rank: int
@@ -368,7 +404,15 @@ class AreaSong:
 
 @dataclass
 class Area:
-    __slots__ = ("id", "name", "comment", "description", "video_id", "characters", "songs")
+    __slots__ = (
+        "id",
+        "name",
+        "comment",
+        "description",
+        "video_id",
+        "characters",
+        "songs",
+    )
 
     id: str
     name: str
@@ -381,7 +425,20 @@ class Area:
 
 @dataclass
 class Score:
-    __slots__ = ("id", "level", "level_index", "achievements", "fc", "fs", "dx_score", "dx_rating", "play_count", "play_time", "rate", "type")
+    __slots__ = (
+        "id",
+        "level",
+        "level_index",
+        "achievements",
+        "fc",
+        "fs",
+        "dx_score",
+        "dx_rating",
+        "play_count",
+        "play_time",
+        "rate",
+        "type",
+    )
 
     id: int
     level: str

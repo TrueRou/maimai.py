@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from lxml import etree
 
@@ -10,7 +10,19 @@ link_dx_score = [372, 522, 942, 924, 1425]
 
 @dataclass
 class HTMLScore:
-    __slots__ = ["title", "level", "level_index", "type", "achievements", "dx_score", "play_time", "rate", "fc", "fs", "ds"]
+    __slots__ = [
+        "title",
+        "level",
+        "level_index",
+        "type",
+        "achievements",
+        "dx_score",
+        "play_time",
+        "rate",
+        "fc",
+        "fs",
+        "ds",
+    ]
     title: str
     level: str
     level_index: int
@@ -113,7 +125,9 @@ def get_data_from_div(div) -> Optional[HTMLScore]:
         return None
 
 
-def get_score_from_elems(title_elem, level_elem: Optional[list], score_elem, icon_elems, level_index: int, type_: str) -> HTMLScore:
+def get_score_from_elems(
+    title_elem, level_elem: Optional[list], score_elem, icon_elems, level_index: int, type_: str
+) -> HTMLScore:
     # Use `.xpath("string(.)")` to get innerText (including all children's text), rather than the text in the element itself.
     title = title_elem[0].xpath("string(.)") if title_elem else ""
     if title != "\u3000":  # Corner case for id 1422 (如月车站)
@@ -151,7 +165,9 @@ def wmdx_html2score(html: str) -> list[HTMLScore]:
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
-    divs = root.xpath("//div[contains(@class, 'w_450') and contains(@class, 'm_15') and contains(@class, 'p_r') and contains(@class, 'f_0')]")
+    divs: Any = root.xpath(
+        "//div[contains(@class, 'w_450') and contains(@class, 'm_15') and contains(@class, 'p_r') and contains(@class, 'f_0')]"
+    )
 
     results = []
     for div in divs:
@@ -177,7 +193,9 @@ def get_data_from_record_div(div) -> Optional[HTMLScore]:
     type_ = "SD" if matched and matched.group(1) == "standard" else "DX"
 
     title_elem = main.xpath("./div[contains(@class, 'basic_block') and contains(@class, 'break')]")
-    score_elem = main.xpath(".//div[contains(@class, 'playlog_achievement_txt')]") + main.xpath(".//div[contains(@class, 'playlog_score_block')]")
+    score_elem = main.xpath(".//div[contains(@class, 'playlog_achievement_txt')]") + main.xpath(
+        ".//div[contains(@class, 'playlog_score_block')]"
+    )
     achievement_elem = main.xpath(".//img[contains(@class, 'playlog_scorerank')]")
     icon_elems = main.xpath(".//img[contains(@class, 'h_35 m_5 f_l')]")[::-1] + achievement_elem
 
@@ -190,7 +208,9 @@ def wmdx_html2record(html: str) -> list[HTMLScore]:
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
-    divs = root.xpath("//div[contains(@class, 't_l') and contains(@class, 'v_b') and contains(@class, 'p_10') and contains(@class, 'f_0')]")
+    divs: Any = root.xpath(
+        "//div[contains(@class, 't_l') and contains(@class, 'v_b') and contains(@class, 'p_10') and contains(@class, 'f_0')]"
+    )
 
     results = []
     for div in divs:
@@ -287,13 +307,17 @@ def wmdx_html2player(html: str) -> HTMLPlayer:
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
-    name_elements = root.xpath("//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]")
+    name_elements = root.xpath(
+        "//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]"
+    )
     friend_code_elements = root.xpath(
         "//div[contains(@class, 'see_through_block') and contains(@class, 'm_t_5') and contains(@class, 'm_b_5') and contains(@class, 'p_5') and contains(@class, 't_c') and contains(@class, 'f_15')]"
     )
     rating_elements = root.xpath("//div[contains(@class, 'rating_block')]")
     trophy_elements = root.xpath("//div[contains(@class, 'trophy_inner_block') and contains(@class, 'f_13')]")
-    star_elements = root.xpath("//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]")
+    star_elements = root.xpath(
+        "//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]"
+    )
 
     player = _extract_player_info(name_elements, friend_code_elements, rating_elements, trophy_elements, star_elements)
 
@@ -306,24 +330,28 @@ def wmdx_html2players(html: str) -> tuple[int, list[HTMLPlayer]]:
     root = etree.fromstring(html, parser)
 
     friend_count = 0
-    friend_count_elems = root.xpath("//div[contains(@class, 'basic_block') and contains(text(), '好友数')]")
+    friend_count_elems: Any = root.xpath("//div[contains(@class, 'basic_block') and contains(text(), '好友数')]")
     if friend_count_elems:
         friend_count_text = "".join(friend_count_elems[0].itertext())
         match = re.search(r"好友数\s*\n?\s*(\d+)/\d+", friend_count_text)
         if match:
             friend_count = int(match.group(1))
 
-    friend_divs = root.xpath(
+    friend_divs: Any = root.xpath(
         "//div[contains(@class, 'see_through_block') and contains(@class, 'p_r') and contains(@class, 'm_15') and contains(@class, 'm_t_5') and contains(@class, 'p_10') and contains(@class, 't_l') and contains(@class, 'f_0')]"
     )
 
     players = []
     for div in friend_divs:
-        name_elements = div.xpath(".//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]")
+        name_elements = div.xpath(
+            ".//div[contains(@class, 'name_block') and contains(@class, 'f_l') and contains(@class, 'f_16')]"
+        )
         friend_code_elements = div.xpath(".//input[@name='idx']")
         rating_elements = div.xpath(".//div[contains(@class, 'rating_block')]")
         trophy_elements = div.xpath(".//div[contains(@class, 'trophy_inner_block') and contains(@class, 'f_13')]")
-        star_elements = div.xpath(".//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]")
+        star_elements = div.xpath(
+            ".//div[contains(@class, 'p_l_10') and contains(@class, 'f_l') and contains(@class, 'f_14')]"
+        )
         token_elements = div.xpath(".//input[@name='token']")
 
         player = _extract_player_info(

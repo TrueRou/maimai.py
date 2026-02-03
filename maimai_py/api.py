@@ -11,7 +11,14 @@ from urllib.parse import unquote, urlparse
 from httpx import Cookies
 from pydantic import PydanticUndefinedAnnotation
 
-from maimai_py.maimai import MaimaiClient, MaimaiClientMultithreading, MaimaiPlates, MaimaiScores, MaimaiSongs, _UnsetSentinel
+from maimai_py.maimai import (
+    MaimaiClient,
+    MaimaiClientMultithreading,
+    MaimaiPlates,
+    MaimaiScores,
+    MaimaiSongs,
+    _UnsetSentinel,
+)
 from maimai_py.models import *
 from maimai_py.providers import *
 from maimai_py.providers.hybrid import HybridProvider
@@ -40,7 +47,10 @@ def pagination(page_size, page, data):
 
 def get_filters(functions: dict[Any, Callable[..., bool]]):
     union = [flag for cond, flag in functions.items() if cond is not None]
-    filter = lambda obj: all([flag(obj) for flag in union])
+
+    def filter(obj):
+        return all([flag(obj) for flag in union])
+
     return filter
 
 
@@ -60,7 +70,10 @@ if find_spec("fastapi"):
                     {
                         "source": {"arcade": {"credentials": "userId"}},
                         "target": {
-                            "divingfish": {"username": "username", "credentials": "password"},
+                            "divingfish": {
+                                "username": "username",
+                                "credentials": "password",
+                            },
                             "lxns": {
                                 "friend_code": 114514,
                             },
@@ -83,10 +96,24 @@ if find_spec("fastapi"):
             "json_schema_extra": {
                 "examples": [
                     {
-                        "source": {"arcade": {"errors": None, "scores_num": 34, "scores_rating": 5678}},
+                        "source": {
+                            "arcade": {
+                                "errors": None,
+                                "scores_num": 34,
+                                "scores_rating": 5678,
+                            }
+                        },
                         "target": {
-                            "divingfish": {"errors": None, "scores_num": 34, "scores_rating": 5678},
-                            "lxns": {"errors": None, "scores_num": 34, "scores_rating": 5678},
+                            "divingfish": {
+                                "errors": None,
+                                "scores_num": 34,
+                                "scores_rating": 5678,
+                            },
+                            "lxns": {
+                                "errors": None,
+                                "scores_num": 34,
+                                "scores_rating": 5678,
+                            },
                         },
                     }
                 ]
@@ -118,10 +145,20 @@ if find_spec("fastapi"):
             self._arcade_proxy = arcade_proxy
             self._with_curves = with_curves
 
-        def _dep_lxns_player(self, credentials: Optional[str] = None, friend_code: Optional[int] = None, qq: Optional[int] = None):
+        def _dep_lxns_player(
+            self,
+            credentials: Optional[str] = None,
+            friend_code: Optional[int] = None,
+            qq: Optional[int] = None,
+        ):
             return PlayerIdentifier(credentials=credentials, qq=qq, friend_code=friend_code)
 
-        def _dep_divingfish_player(self, username: Optional[str] = None, credentials: Optional[str] = None, qq: Optional[int] = None):
+        def _dep_divingfish_player(
+            self,
+            username: Optional[str] = None,
+            credentials: Optional[str] = None,
+            qq: Optional[int] = None,
+        ):
             return PlayerIdentifier(qq=qq, credentials=credentials, username=username)
 
         def _dep_arcade_player(self, credentials: str):
@@ -149,7 +186,12 @@ if find_spec("fastapi"):
         def _dep_hybrid(self) -> IProvider:
             return HybridProvider()
 
-        def get_router(self, dep_provider: Callable, dep_player: Optional[Callable] = None, skip_base: bool = True) -> APIRouter:
+        def get_router(
+            self,
+            dep_provider: Callable,
+            dep_player: Optional[Callable] = None,
+            skip_base: bool = True,
+        ) -> APIRouter:
             """Get a FastAPI APIRouter with routes for the specified provider and player dependencies.
 
             Args:
@@ -192,14 +234,40 @@ if find_spec("fastapi"):
                 page_size: int = Query(100, ge=1),
                 provider: ISongProvider = Depends(dep_provider),
             ) -> list[Song]:
-                curve_provider = DivingFishProvider(developer_token=self._divingfish_token) if self._with_curves else None
+                curve_provider = (
+                    DivingFishProvider(developer_token=self._divingfish_token) if self._with_curves else None
+                )
                 maimai_songs: MaimaiSongs = await self._client.songs(provider=provider, curve_provider=curve_provider)
-                type_func: Callable[[Song], bool] = lambda song: song.get_difficulties(type) != []  # type: ignore
-                level_func: Callable[[Song], bool] = lambda song: any([diff.level == level for diff in song.get_difficulties()])
-                versions_func: Callable[[Song], bool] = lambda song: versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
-                keywords_func: Callable[[Song], bool] = lambda song: xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
-                songs = await maimai_songs.filter(id=id, title=title, artist=artist, genre=genre, bpm=bpm, map=map, version=version)
-                filters = get_filters({type: type_func, level: level_func, versions: versions_func, keywords: keywords_func})
+
+                def type_func(song: Song) -> bool:
+                    return song.get_difficulties(type) != []  # type: ignore
+
+                def level_func(song: Song) -> bool:
+                    return any([diff.level == level for diff in song.get_difficulties()])
+
+                def versions_func(song: Song) -> bool:
+                    return versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
+
+                def keywords_func(song: Song) -> bool:
+                    return xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
+
+                songs = await maimai_songs.filter(
+                    id=id,
+                    title=title,
+                    artist=artist,
+                    genre=genre,
+                    bpm=bpm,
+                    map=map,
+                    version=version,
+                )
+                filters = get_filters(
+                    {
+                        type: type_func,
+                        level: level_func,
+                        versions: versions_func,
+                        keywords: keywords_func,
+                    }
+                )
                 result = [song for song in songs if filters(song)]
                 return pagination(page_size, page, result)
 
@@ -216,7 +284,10 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerIcon, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+
+                def keyword_func(icon):
+                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
                 return pagination(page_size, page, result)
@@ -234,7 +305,10 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerNamePlate, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+
+                def keyword_func(icon):
+                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
                 return pagination(page_size, page, result)
@@ -252,7 +326,10 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerFrame, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+
+                def keyword_func(icon):
+                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
                 return pagination(page_size, page, result)
@@ -269,7 +346,10 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerTrophy, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func = lambda icon: xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
+
+                def keyword_func(icon):
+                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
+
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, color=color) if filters(x)]
                 return pagination(page_size, page, result)
@@ -285,7 +365,10 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerChara, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func = lambda chara: xstr(keywords) in xstr(chara.name)
+
+                def keyword_func(chara):
+                    return xstr(keywords) in xstr(chara.name)
+
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name) if filters(x)]
                 return pagination(page_size, page, result)
@@ -301,7 +384,10 @@ if find_spec("fastapi"):
                 items = await self._client.items(PlayerPartner, provider=provider)
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
-                keyword_func = lambda partner: xstr(keywords) in xstr(partner.name)
+
+                def keyword_func(partner):
+                    return xstr(keywords) in xstr(partner.name)
+
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name) if filters(x)]
                 return pagination(page_size, page, result)
@@ -320,7 +406,10 @@ if find_spec("fastapi"):
                     return [area] if (area := await areas.by_id(id)) else []
                 if name is not None:
                     return [area] if (area := await areas.by_name(name)) else []
-                keyword_func = lambda area: xstr(keywords) in (xstr(area.name) + xstr(area.comment))
+
+                def keyword_func(area):
+                    return xstr(keywords) in (xstr(area.name) + xstr(area.comment))
+
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await areas.get_all() if filters(x)]
                 return pagination(page_size, page, result)
@@ -375,7 +464,9 @@ if find_spec("fastapi"):
                 provider: IScoreProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
             ) -> Optional[PlayerSong]:
-                song_trait = id if id is not None else title if title is not None else keywords if keywords is not None else None
+                song_trait = (
+                    id if id is not None else title if title is not None else keywords if keywords is not None else None
+                )
                 identifier = None if player._is_empty() else player
                 if song_trait is not None:
                     return await self._client.minfo(song_trait, identifier, provider=provider)
@@ -397,8 +488,26 @@ if find_spec("fastapi"):
                 else:
                     raise MaimaiPyError("Invalid parameters for the selected provider.")
 
-            bases: list[Callable] = [_get_songs, _get_icons, _get_nameplates, _get_frames, _get_trophies, _get_charas, _get_partners, _get_areas]
-            players: list[Callable] = [_get_scores, _get_regions, _get_players, _get_bests, _post_scores, _get_plates, _get_minfo, _get_identifiers]
+            bases: list[Callable] = [
+                _get_songs,
+                _get_icons,
+                _get_nameplates,
+                _get_frames,
+                _get_trophies,
+                _get_charas,
+                _get_partners,
+                _get_areas,
+            ]
+            players: list[Callable] = [
+                _get_scores,
+                _get_regions,
+                _get_players,
+                _get_bests,
+                _post_scores,
+                _get_plates,
+                _get_minfo,
+                _get_identifiers,
+            ]
 
             all_routes = players + (bases if not skip_base else [])
             try:
@@ -432,19 +541,34 @@ if find_spec("fastapi"):
             """
             router = APIRouter()
 
-            available_sources_labels: set[Label] = {label for label, dep_provider in source_deps if isinstance(dep_provider(), IScoreProvider)}
-            available_targets_labels: set[Label] = {label for label, dep_provider in target_deps if isinstance(dep_provider(), IScoreUpdateProvider)}
+            available_sources_labels: set[Label] = {
+                label for label, dep_provider in source_deps if isinstance(dep_provider(), IScoreProvider)
+            }
+            available_targets_labels: set[Label] = {
+                label for label, dep_provider in target_deps if isinstance(dep_provider(), IScoreUpdateProvider)
+            }
 
-            async def _post_updates_chain(body: UpdatesChainRequest) -> UpdatesChainResponse:
+            async def _post_updates_chain(
+                body: UpdatesChainRequest,
+            ) -> UpdatesChainResponse:
                 available_sources: dict[Label, IScoreProvider] = {
-                    label: dep_provider() for label, dep_provider in source_deps if isinstance(dep_provider(), IScoreProvider)
+                    label: dep_provider()
+                    for label, dep_provider in source_deps
+                    if isinstance(dep_provider(), IScoreProvider)
                 }
                 available_targets: dict[Label, IScoreUpdateProvider] = {
-                    label: dep_provider() for label, dep_provider in target_deps if isinstance(dep_provider(), IScoreUpdateProvider)
+                    label: dep_provider()
+                    for label, dep_provider in target_deps
+                    if isinstance(dep_provider(), IScoreUpdateProvider)
                 }
                 source_results, target_results = {}, {}
 
-                def _callback(to: dict, scores: MaimaiScores, err: BaseException | None, kwargs: dict[str, Any]):
+                def _callback(
+                    to: dict,
+                    scores: MaimaiScores,
+                    err: Union[BaseException, None],
+                    kwargs: dict[str, Any],
+                ):
                     to[kwargs.get("label")] = UpdatesChainResponse.ChainResult(
                         errors=repr(err) if err is not None else None,
                         scores_num=len(scores.scores),
@@ -500,7 +624,7 @@ if find_spec("fastapi"):
                 name="get_wechat_oauth",
                 methods=["GET"],
                 response_model=WechatOAuthResponse,
-                description=f"Get wechat offiaccount oauth2 auth url with protocal modified redirect_url (https to http).",
+                description="Get wechat offiaccount oauth2 auth url with protocal modified redirect_url (https to http).",
             )
 
             return router
@@ -521,15 +645,35 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
             await routes._client.songs(provider=HybridProvider(), curve_provider=curve_provider)
         yield
 
-    asgi_app = FastAPI(title="maimai.py API", description="The definitive python wrapper for MaimaiCN related development.", lifespan=lifespan)
+    asgi_app = FastAPI(
+        title="maimai.py API",
+        description="The definitive python wrapper for MaimaiCN related development.",
+        lifespan=lifespan,
+    )
     routes = MaimaiRoutes(MaimaiClientMultithreading())  # type: ignore
 
     # register routes and middlewares
     asgi_app.include_router(routes.get_router(routes._dep_hybrid, skip_base=False), tags=["base"])
-    asgi_app.include_router(routes.get_router(routes._dep_divingfish, routes._dep_divingfish_player), prefix="/divingfish", tags=["divingfish"])
-    asgi_app.include_router(routes.get_router(routes._dep_lxns, routes._dep_lxns_player), prefix="/lxns", tags=["lxns"])
-    asgi_app.include_router(routes.get_router(routes._dep_wechat, routes._dep_wechat_player), prefix="/wechat", tags=["wechat"])
-    asgi_app.include_router(routes.get_router(routes._dep_arcade, routes._dep_arcade_player), prefix="/arcade", tags=["arcade"])
+    asgi_app.include_router(
+        routes.get_router(routes._dep_divingfish, routes._dep_divingfish_player),
+        prefix="/divingfish",
+        tags=["divingfish"],
+    )
+    asgi_app.include_router(
+        routes.get_router(routes._dep_lxns, routes._dep_lxns_player),
+        prefix="/lxns",
+        tags=["lxns"],
+    )
+    asgi_app.include_router(
+        routes.get_router(routes._dep_wechat, routes._dep_wechat_player),
+        prefix="/wechat",
+        tags=["wechat"],
+    )
+    asgi_app.include_router(
+        routes.get_router(routes._dep_arcade, routes._dep_arcade_player),
+        prefix="/arcade",
+        tags=["arcade"],
+    )
 
     # chain updates route
     asgi_app.include_router(
@@ -557,9 +701,15 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     def main(
         host: Annotated[str, typer.Option(help="The host address to bind to.")] = "127.0.0.1",
         port: Annotated[int, typer.Option(help="The port number to bind to.")] = 8000,
-        redis: Annotated[Optional[str], typer.Option(help="Redis server address, for example: redis://localhost:6379/0.")] = None,
+        redis: Annotated[
+            Optional[str],
+            typer.Option(help="Redis server address, for example: redis://localhost:6379/0."),
+        ] = None,
         lxns_token: Annotated[Optional[str], typer.Option(help="LXNS developer token for LXNS API.")] = None,
-        divingfish_token: Annotated[Optional[str], typer.Option(help="DivingFish developer token for DivingFish API.")] = None,
+        divingfish_token: Annotated[
+            Optional[str],
+            typer.Option(help="DivingFish developer token for DivingFish API."),
+        ] = None,
         arcade_proxy: Annotated[Optional[str], typer.Option(help="HTTP proxy for Arcade API.")] = None,
         with_curves: Annotated[bool, typer.Option(help="Whether to fetch curves from Divingfish.")] = False,
     ):
@@ -589,14 +739,20 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         async def exception_handler_mpy(request: Request, exc: MaimaiPyError):
             return JSONResponse(
                 status_code=400,
-                content={"message": f"Oops! There goes a maimai.py error: {exc}.", "details": repr(exc)},
+                content={
+                    "message": f"Oops! There goes a maimai.py error: {exc}.",
+                    "details": repr(exc),
+                },
             )
 
         @asgi_app.exception_handler(ArcadeError)
         async def exception_handler_mffi(request: Request, exc: MaimaiPyError):
             return JSONResponse(
                 status_code=400,
-                content={"message": f"Oops! There goes a maimai.ffi error: {exc}.", "details": repr(exc)},
+                content={
+                    "message": f"Oops! There goes a maimai.ffi error: {exc}.",
+                    "details": repr(exc),
+                },
             )
 
         @asgi_app.get("/", include_in_schema=False)
@@ -614,7 +770,7 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
             description=asgi_app.description,
             routes=asgi_app.routes,
         )
-        with open(f"openapi.json", "w") as f:
+        with open("openapi.json", "w") as f:
             json.dump(specs, f)
 
     if __name__ == "__main__":
