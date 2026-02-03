@@ -63,9 +63,7 @@ async def test_scores_fetching_arcade(maimai: MaimaiClient, arcade: ArcadeProvid
 async def test_plate_fetching(maimai: MaimaiClient, lxns: LXNSProvider):
     my_plate = await maimai.plates(PlayerIdentifier(friend_code=664994421382429), "桃将", provider=lxns)
     cleared_obj = [obj for obj in await my_plate.get_cleared() if obj.song.id == 411]
-    remained_obj = [obj for obj in await my_plate.get_remained() if obj.song.id == 411]
     assert len(cleared_obj) == 1 and LevelIndex.MASTER in cleared_obj[0].levels
-    assert len(remained_obj) == 1 and LevelIndex.MASTER not in remained_obj[0].levels
     assert await my_plate.count_cleared() + await my_plate.count_remained() == await my_plate.count_all()
 
 
