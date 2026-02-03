@@ -505,8 +505,8 @@ class ScoreExtend(Score):
     title: str
     level_value: float
     level_dx_score: int
-    dx_star: int
-    version: Version
+    dx_star: Optional[int]
+    version: int
 
 
 @dataclass

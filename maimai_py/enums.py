@@ -1,5 +1,6 @@
+import functools
 from enum import Enum, IntEnum
-from typing import Union
+from typing import Optional, Union
 
 from maimai_ffi.model import region_map
 
@@ -27,9 +28,25 @@ class Version(IntEnum):
     MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
 
     @staticmethod
-    def fromVersionNumber(num):
-        for v in reversed(Version.__members__.values()):
-            if num >= v.value: return v
+    @functools.cache
+    def _reversed_values() -> list["Version"]:
+        return list(reversed([v for v in Version.__members__.values()]))
+
+    @staticmethod
+    @functools.cache
+    def from_value(val: int) -> Optional["Version"]:
+        """Get the Version enum member from an integer value.
+
+        The function returns the highest Version whose value is less than or equal to the given integer.
+
+        Args:
+            val (int): The integer value representing the version.
+        Returns:
+            Optional[Version]: The corresponding Version enum member, or None if not found.
+        """
+        for v in Version._reversed_values():
+            if val >= v.value:
+                return v
         return None
 
 

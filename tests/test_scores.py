@@ -1,6 +1,6 @@
 import pytest
 
-from maimai_py.enums import LevelIndex
+from maimai_py.enums import LevelIndex, Version
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import Player, PlayerIdentifier
 from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
@@ -13,6 +13,9 @@ async def test_scores_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lx
     assert my_scores.rating_b35 > 10000
     score = my_scores.by_song(1231, level_index=LevelIndex.MASTER)[0]
     assert score.dx_rating >= 308 if score.dx_rating else True  # 生命不詳 MASTER SSS+
+    assert Version.from_value(score.version) == Version.MAIMAI_DX_UNIVERSE
+    assert score.dx_star >= 1 if score.dx_star else True
+    assert score.version >= 22000
 
     bests = await maimai.bests(PlayerIdentifier(friend_code=664994421382429), provider=lxns)
     assert my_scores.rating == bests.rating
