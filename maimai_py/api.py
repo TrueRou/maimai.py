@@ -240,13 +240,15 @@ if find_spec("fastapi"):
                 maimai_songs: MaimaiSongs = await self._client.songs(provider=provider, curve_provider=curve_provider)
 
                 def type_func(song: Song) -> bool:
-                    return song.get_difficulties(type) != []  # type: ignore
+                    assert type is not None
+                    return song.get_difficulties(type) != []
 
                 def level_func(song: Song) -> bool:
                     return any([diff.level == level for diff in song.get_difficulties()])
 
                 def versions_func(song: Song) -> bool:
-                    return versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
+                    assert versions is not None
+                    return versions.value <= song.version < all_versions[all_versions.index(versions) + 1].value
 
                 def keywords_func(song: Song) -> bool:
                     return xstr(keywords) in xstr(song.title) + xstr(song.artist) + istr(song.aliases)
@@ -285,8 +287,8 @@ if find_spec("fastapi"):
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
 
-                def keyword_func(icon):
-                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+                def keyword_func(val: PlayerIcon):
+                    return xstr(keywords) in (xstr(val.name) + xstr(val.description) + xstr(val.genre))
 
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
@@ -306,8 +308,8 @@ if find_spec("fastapi"):
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
 
-                def keyword_func(icon):
-                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+                def keyword_func(val: PlayerNamePlate):
+                    return xstr(keywords) in (xstr(val.name) + xstr(val.description) + xstr(val.genre))
 
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
@@ -327,8 +329,8 @@ if find_spec("fastapi"):
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
 
-                def keyword_func(icon):
-                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.description) + xstr(icon.genre))
+                def keyword_func(val: PlayerFrame):
+                    return xstr(keywords) in (xstr(val.name) + xstr(val.description) + xstr(val.genre))
 
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, description=description, genre=genre) if filters(x)]
@@ -347,8 +349,8 @@ if find_spec("fastapi"):
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
 
-                def keyword_func(icon):
-                    return xstr(keywords) in (xstr(icon.name) + xstr(icon.color))
+                def keyword_func(val: PlayerTrophy):
+                    return xstr(keywords) in (xstr(val.name) + xstr(val.color))
 
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name, color=color) if filters(x)]
@@ -366,8 +368,8 @@ if find_spec("fastapi"):
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
 
-                def keyword_func(chara):
-                    return xstr(keywords) in xstr(chara.name)
+                def keyword_func(val: PlayerChara):
+                    return xstr(keywords) in xstr(val.name)
 
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name) if filters(x)]
@@ -385,8 +387,8 @@ if find_spec("fastapi"):
                 if id is not None:
                     return [item] if (item := await items.by_id(id)) else []
 
-                def keyword_func(partner):
-                    return xstr(keywords) in xstr(partner.name)
+                def keyword_func(val: PlayerPartner):
+                    return xstr(keywords) in xstr(val.name)
 
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await items.filter(name=name) if filters(x)]
@@ -407,19 +409,48 @@ if find_spec("fastapi"):
                 if name is not None:
                     return [area] if (area := await areas.by_name(name)) else []
 
-                def keyword_func(area):
-                    return xstr(keywords) in (xstr(area.name) + xstr(area.comment))
+                def keyword_func(val: Area):
+                    return xstr(keywords) in (xstr(val.name) + xstr(val.comment))
 
                 filters = get_filters({keywords: keyword_func})
                 result = [x for x in await areas.get_all() if filters(x)]
                 return pagination(page_size, page, result)
 
             async def _get_scores(
+                id: Optional[int] = None,
+                title: Optional[str] = None,
+                version: Optional[int] = None,
+                type: Optional[SongType] = None,
+                level: Optional[str] = None,
+                versions: Optional[Version] = None,
+                keywords: Optional[str] = None,
                 provider: IScoreProvider = Depends(dep_provider),
                 player: PlayerIdentifier = Depends(dep_player),
             ) -> list[ScoreExtend]:
-                scores = await self._client.scores(player, provider=provider)
-                return scores.scores
+                maimai_scores = await self._client.scores(player, provider=provider)
+
+                def versions_func(score: ScoreExtend) -> bool:
+                    return versions.value <= score.version < all_versions[all_versions.index(versions) + 1].value  # type: ignore
+
+                def keywords_func(score: ScoreExtend) -> bool:
+                    return xstr(keywords) in xstr(score.title)
+
+                maimai_scores.filter(
+                    id=id,
+                    title=title,
+                    version=version,
+                    type=type,
+                    level=level,
+                )
+
+                filters = get_filters(
+                    {
+                        versions: versions_func,
+                        keywords: keywords_func,
+                    }
+                )
+                result = [song for song in maimai_scores.scores if filters(song)]
+                return result
 
             async def _get_regions(
                 provider: IRegionProvider = Depends(dep_provider),
