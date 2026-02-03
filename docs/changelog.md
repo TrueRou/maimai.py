@@ -1,5 +1,15 @@
 # 更新日志
 
+## 1.3.9 (2026-02-04)
+
+Features:
+  - RESTful Client 现支持过滤分数 -> [#43](https://github.com/TrueRou/maimai.py/issues/43)
+  - ScoreExtend 现支持 dx_star, version 属性 -> [#46](https://github.com/TrueRou/maimai.py/issues/46) [#50](https://github.com/TrueRou/maimai.py/pull/50)
+  - 水鱼查分器支持通过 Import-Token 查询所有成绩 -> [#47](https://github.com/TrueRou/maimai.py/pull/47)
+
+Known Issues:
+  - ArcadeProvider接口暂时不可用 -> [#49](https://github.com/TrueRou/maimai.py/issues/49)
+
 ## 1.3.8 (2025-11-24)
 
 Bugfixes:

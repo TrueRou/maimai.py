@@ -1,14 +1,14 @@
 name: Run Unit Tests
 
 on:
-  push:
-    branches:
-      - develop
-    paths:
-      - "tests/**"
-      - "maimai_py/**"
-      - "pyproject.toml"
-      - "poetry.lock"
+  # push:
+  #   branches:
+  #     - develop
+  #   paths:
+  #     - "tests/**"
+  #     - "maimai_py/**"
+  #     - "pyproject.toml"
+  #     - "poetry.lock"
   workflow_dispatch:
 
 jobs:
