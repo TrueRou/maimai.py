@@ -120,17 +120,28 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
+        wechat_ua = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)"
+
         if isinstance(code, dict) and all([code.get("r"), code.get("t"), code.get("code"), code.get("state")]):
             headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
                 "Host": "tgk-wcaime.wahlap.com",
+                "Upgrade-Insecure-Requests": "1",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-User": "?1",
+                "Sec-Fetch-Dest": "document",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
             }
             resp = await client._client.get(
-                "https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx", params=code, headers=headers
+                "https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx",
+                headers={"User-Agent": wechat_ua, **headers},
+                params=code,
             )
             if resp.status_code == 302 and resp.next_request:
-                resp_next = await client._client.get(resp.next_request.url, headers=headers)
+                resp_next = await client._client.get(resp.next_request.url, headers={"User-Agent": wechat_ua})
+                print(resp_next)
                 return PlayerIdentifier(credentials=dict(resp_next.cookies))
             else:
                 raise InvalidWechatTokenError("Invalid or expired Wechat token")
