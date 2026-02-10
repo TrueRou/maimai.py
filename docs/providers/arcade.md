@@ -1,5 +1,9 @@
 # ArcadeProvider
 
+::: danger
+1.4.0 版本说明：由于机台登录方式修改，导致 maimai.py 的 **ArcadeProvider** 暂时无法使用。我们正在积极研究新的登录方式，争取尽快恢复机台数据源的功能。
+:::
+
 来自舞萌机台的接口，通过玩家二维码获取玩家加密 userId，进而获取分数等信息
 
 实现：IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerIdentifierProvider

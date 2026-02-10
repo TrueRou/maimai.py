@@ -59,6 +59,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
     async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> ArcadePlayer:
+        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
         maimai_icons = await client.items(PlayerIcon)
         maimai_trophies = await client.items(PlayerTrophy)
         maimai_nameplates = await client.items(PlayerNamePlate)
@@ -76,6 +77,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
+        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
         maimai_songs = await client.songs()
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp_list = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
@@ -85,6 +87,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
     async def get_regions(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[PlayerRegion]:
+        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp_dict = await arcade.get_user_region(identifier.credentials.encode(), http_proxy=self._http_proxy)
             return [
@@ -100,5 +103,6 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type((TimeoutException, NetworkError)), reraise=True)
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
+        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
         resp_bytes: bytes = await arcade.get_uid_encrypted(str(code), http_proxy=self._http_proxy)
         return PlayerIdentifier(credentials=resp_bytes.decode())

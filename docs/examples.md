@@ -1,5 +1,9 @@
 # 例子
 
+::: danger
+1.4.0 版本说明：由于机台登录方式修改，导致 maimai.py 的 **ArcadeProvider** 暂时无法使用。我们正在积极研究新的登录方式，争取尽快恢复机台数据源的功能。
+:::
+
 所有的例子完全摘抄自 [maimai.py 单元测试](https://github.com/TrueRou/maimai.py/tree/main/tests)，仅推荐有经验的开发者阅读。
 
 如果你阅读下面的内容有困难，建议先阅读 [开始 章节](./get-started.md)。
