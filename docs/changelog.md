@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.4.0 (2026-02-10)
+
+Bugfixes:
+  - 修复 WechatProvider 不能正确获取 Cookies 的问题
+  - 正式确认 ArcadeProvider 接口不可用
+
 ## 1.3.9 (2026-02-04)
 
 Features:
