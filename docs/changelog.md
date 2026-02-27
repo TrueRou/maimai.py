@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.4.1 (2026-02-28)
+
+Bugfixes:
+  - 修复 WechatProvider 的 CookieJar 被错误地共享导致的认证问题
+
 ## 1.4.0 (2026-02-10)
 
 Bugfixes:
