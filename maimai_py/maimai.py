@@ -25,6 +25,7 @@ from maimai_py.models import *
 from maimai_py.providers import *
 from maimai_py.providers.base import IRecordProvider
 from maimai_py.utils import UNSET, _UnsetSentinel
+from maimai_py.utils.cookies import NullCookieJar
 
 PlayerItemType = TypeVar("PlayerItemType", bound=PlayerItem)
 
@@ -860,7 +861,7 @@ class MaimaiClient:
             cache_ttl: the TTL of the cache, defaults to 60 * 60 * 24.
             kwargs: other arguments to pass to the `httpx.AsyncClient`.
         """
-        self._client = AsyncClient(timeout=timeout, **kwargs)
+        self._client = AsyncClient(timeout=timeout, cookies=NullCookieJar(), **kwargs)
         self._cache = SimpleMemoryCache() if isinstance(cache, _UnsetSentinel) else cache
         self._cache_ttl = cache_ttl
 
