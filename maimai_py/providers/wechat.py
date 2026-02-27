@@ -137,11 +137,15 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
             resp = await client._client.get(
                 "https://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx",
                 headers={"User-Agent": wechat_ua, **headers},
+                cookies=None,
                 params=code,
             )
             if resp.status_code == 302 and resp.next_request:
-                resp_next = await client._client.get(resp.next_request.url, headers={"User-Agent": wechat_ua})
-                print(resp_next)
+                resp_next = await client._client.get(
+                    resp.next_request.url,
+                    headers={"User-Agent": wechat_ua},
+                    cookies=resp.cookies,
+                )
                 return PlayerIdentifier(credentials=dict(resp_next.cookies))
             else:
                 raise InvalidWechatTokenError("Invalid or expired Wechat token")
