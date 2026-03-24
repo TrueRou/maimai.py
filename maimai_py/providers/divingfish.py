@@ -199,7 +199,14 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        if identifier.credentials is not None and isinstance(identifier.credentials, str):
+        if identifier.username and identifier.credentials:
+            login_json = {"username": identifier.username, "password": identifier.credentials}
+            login_resp = await client._client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
+            self._check_response_player(login_resp)
+            resp = await client._client.get(
+                self.base_url + "player/records", cookies=login_resp.cookies
+            )
+        elif not identifier.username and identifier.credentials and isinstance(identifier.credentials, str):
             resp = await client._client.get(
                 self.base_url + "player/records", headers={"Import-Token": identifier.credentials}
             )
