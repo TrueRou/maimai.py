@@ -1,9 +1,5 @@
 # 例子
 
-::: danger
-1.4.0 版本说明：由于机台登录方式修改，导致 maimai.py 的 **ArcadeProvider** 暂时无法使用。我们正在积极研究新的登录方式，争取尽快恢复机台数据源的功能。
-:::
-
 所有的例子完全摘抄自 [maimai.py 单元测试](https://github.com/TrueRou/maimai.py/tree/main/tests)，仅推荐有经验的开发者阅读。
 
 如果你阅读下面的内容有困难，建议先阅读 [开始 章节](./get-started.md)。
@@ -179,15 +175,6 @@ async def test_players_fetching_divingfish(maimai: MaimaiClient, divingfish: Div
 ## test_items.py
 
 ```python
-@pytest.mark.asyncio(scope="session")
-async def test_regions(maimai: MaimaiClient, arcade: ArcadeProvider, arcade_player: PlayerIdentifier):
-    try:
-        regions = await maimai.regions(arcade_player, provider=arcade)
-        assert any(region.region_id == 2 for region in regions)
-    except Exception:
-        pytest.skip("Connection error, skipping the test.")
-
-
 @pytest.mark.asyncio(scope="session")
 async def test_areas(maimai: MaimaiClient):
     areas = await maimai.areas()

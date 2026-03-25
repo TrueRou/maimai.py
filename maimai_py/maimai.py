@@ -904,9 +904,6 @@ class MaimaiClient:
     async def players(self, identifier: PlayerIdentifier, provider: LXNSProvider) -> LXNSPlayer: ...
 
     @overload
-    async def players(self, identifier: PlayerIdentifier, provider: ArcadeProvider) -> ArcadePlayer: ...
-
-    @overload
     async def players(self, identifier: PlayerIdentifier, provider: WechatProvider) -> WechatPlayer: ...
 
     @overload
@@ -919,7 +916,7 @@ class MaimaiClient:
     ) -> Player:
         """Fetch player data from the provider.
 
-        Available providers: `DivingFishProvider`, `LXNSProvider`, `ArcadeProvider`, `WechatProvider`.
+        Available providers: `DivingFishProvider`, `LXNSProvider`, `WechatProvider`.
 
         Possible returns: `DivingFishPlayer`, `LXNSPlayer`, `ArcadePlayer`, `WechatPlayer`.
 
@@ -933,10 +930,6 @@ class MaimaiClient:
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
             httpx.RequestError: Request failed due to network issues.
-        Raises:
-            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
-            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
-            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         return await provider.get_player(identifier, self)
 
@@ -1066,20 +1059,14 @@ class MaimaiClient:
                 extended_scores = await MaimaiScores._get_extended(scores, maimai_songs)
             return PlayerSong(song, extended_scores)
 
-    async def regions(
-        self, identifier: PlayerIdentifier, provider: IRegionProvider = ArcadeProvider()
-    ) -> list[PlayerRegion]:
+    async def regions(self, identifier: PlayerIdentifier, provider: IRegionProvider) -> list[PlayerRegion]:
         """Get the player's regions that they have played.
 
         Args:
             identifier: the identifier of the player to fetch, e.g. `PlayerIdentifier(credentials="encrypted_user_id")`.
-            provider: the data source to fetch the player from, defaults to `ArcadeProvider`.
+            provider: the data source to fetch the player from.
         Returns:
             The list of regions that the player has played.
-        Raises:
-            TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
-            TitleServerBlockedError: Only for ArcadeProvider, maimai title server blocked the request, possibly due to ip filtered.
-            ArcadeIdentifierError: Only for ArcadeProvider, maimai user id is invalid, or the user is not found.
         """
         return await provider.get_regions(identifier, self)
 
@@ -1203,7 +1190,7 @@ class MaimaiClient:
 
         Args:
             lang: the language of the area to fetch, available languages: `ja`, `zh`.
-            provider: override the default area provider, defaults to `ArcadeProvider`.
+            provider: override the default area provider, defaults to `LocalProvider`.
         Returns:
             A wrapper of the area list, for easier access and filtering.
         Raises:

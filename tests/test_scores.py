@@ -55,9 +55,6 @@ async def test_scores_fetching_arcade(maimai: MaimaiClient, arcade: ArcadeProvid
     try:
         scores = await maimai.scores(arcade_player, provider=arcade)
         assert scores.rating > 2000
-
-        player: Player = await maimai.players(arcade_player, provider=arcade)
-        assert player.rating == scores.rating
     except Exception:
         pytest.skip("Connection error, skipping the test.")
 

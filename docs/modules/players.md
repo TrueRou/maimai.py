@@ -26,15 +26,6 @@ player = await maimai.players(PlayerIdentifier(friend_code=664994421382429), pro
 print(f"玩家用户名: {player.name}, Rating: {player.rating}, 称号: {player.trophy}")
 ```
 
-### 从 机台✨ 获取玩家信息
-
-返回的 Player 对象是 [`ArcadePlayer`](../concepts/models.md#arcadeplayer) 类型。
-
-```python
-player = await maimai.players(PlayerIdentifier(credentials="EncryptedUserId"), provider=ArcadeProvider())
-print(f"玩家用户名: {player.name}, Rating: {player.rating}, 是否已登录: {player.is_login}")
-```
-
 ## 你是否在找 PlayerIdentifier？
 
 本页面所指的 `Player` 是指玩家对象，而不是 `PlayerIdentifier`。如果你需要了解如何创建和使用 `PlayerIdentifier`，请参考 [开始 章节](../get-started.md#玩家标识)。
@@ -43,5 +34,4 @@ print(f"玩家用户名: {player.name}, Rating: {player.rating}, 是否已登录
 
 - [DivingFishProvider](../providers/divingfish.md)
 - [LXNSProvider](../providers/lxns.md)
-- [ArcadeProvider](../providers/arcade.md)
 - [WeChatProvider](../providers/wechat.md)

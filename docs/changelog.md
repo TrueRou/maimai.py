@@ -4,6 +4,8 @@
 
 Bugfixes:
   - 修复 WechatProvider 的 CookieJar 被错误地共享导致的认证问题
+  - 实现 ArcadeProvider 接口的替代方案，可以获取玩家简略成绩
+  - 水鱼查分器支持通过 login cookie 查询所有成绩 -> [#54](https://github.com/TrueRou/maimai.py/pull/54)
 
 ## 1.4.0 (2026-02-10)
 

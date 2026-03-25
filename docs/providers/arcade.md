@@ -1,16 +1,18 @@
 # ArcadeProvider
 
-::: danger
-1.4.0 版本说明：由于机台登录方式修改，导致 maimai.py 的 **ArcadeProvider** 暂时无法使用。我们正在积极研究新的登录方式，争取尽快恢复机台数据源的功能。
-:::
-
 来自舞萌机台的接口，通过玩家二维码获取玩家加密 userId，进而获取分数等信息
 
-实现：IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerIdentifierProvider
+实现：IScoreProvider
 
 源站：AimeServer、MaimaiTitleServer
 
 PyPi: https://pypi.org/project/maimai-ffi
+
+## 1.53+ 更新后说明
+
+由于舞萌机台在 1.53+ 更新后更改了登录方式，导致原有的通过 userId 获取详细分数等信息的方式不再适用，具体细节请参考 Chongxi 的分析文章：[舞萌国服1.53补丁更新内容速览](https://xice.cx/posts/153/)。
+
+目前，ArcadeProvider 仍然可以通过玩家二维码获取加密的 userId，并且可以获取一些基本的分数信息（包含达成率和DX分），但不再支持获取 FC/FS/PC 数 等详细信息。
 
 ## 如何提供 PlayerIdentifier
 

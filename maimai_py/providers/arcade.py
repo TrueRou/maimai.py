@@ -1,5 +1,4 @@
 import hashlib
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from httpcore import NetworkError, TimeoutException
@@ -9,13 +8,13 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt
 from maimai_py.models import *
 from maimai_py.utils import ScoreCoefficient
 
-from .base import IPlayerIdentifierProvider, IPlayerProvider, IRegionProvider, IScoreProvider
+from .base import IPlayerIdentifierProvider, IScoreProvider
 
 if TYPE_CHECKING:
     from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 
-class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerIdentifierProvider):
+class ArcadeProvider(IScoreProvider, IPlayerIdentifierProvider):
     """The provider that fetches data from the wahlap maimai arcade.
 
     This part of the maimai.py is not open-source, we distribute the compiled version of this part of the code as maimai_ffi.
@@ -40,44 +39,23 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
             level_index = LevelIndex(score["level"]) if song_type != SongType.UTAGE else score["musicId"]
             achievement = float(score["achievement"]) / 10000
             if diff := song.get_difficulty(song_type, level_index):
-                fs_type = FSType(score["syncStatus"]) if 0 < score["syncStatus"] < 5 else None
-                fs_type = FSType.SYNC if score["syncStatus"] == 5 else fs_type
                 return Score(
                     id=score["musicId"] if score["musicId"] > 100000 else score["musicId"] % 10000,
                     level=diff.level,
                     level_index=diff.level_index,
                     achievements=achievement,
-                    fc=FCType(4 - score["comboStatus"]) if score["comboStatus"] != 0 else None,
-                    fs=fs_type,
-                    dx_score=score["deluxscoreMax"],
+                    fc=None,
+                    fs=None,
+                    dx_score=score["dx_score"],
                     dx_rating=ScoreCoefficient(achievement).ra(diff.level_value),
-                    play_count=score["playCount"],
+                    play_count=None,
                     play_time=None,
                     rate=RateType._from_achievement(achievement),
                     type=song_type,
                 )
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
-    async def get_player(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> ArcadePlayer:
-        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
-        maimai_icons = await client.items(PlayerIcon)
-        maimai_trophies = await client.items(PlayerTrophy)
-        maimai_nameplates = await client.items(PlayerNamePlate)
-        if identifier.credentials and isinstance(identifier.credentials, str):
-            resp_dict = await arcade.get_user_preview(identifier.credentials.encode(), http_proxy=self._http_proxy)
-            return ArcadePlayer(
-                name=resp_dict["userName"],
-                rating=resp_dict["playerRating"],
-                is_login=resp_dict["isLogin"],
-                name_plate=await maimai_nameplates.by_id(resp_dict["nameplateId"]),
-                icon=await maimai_icons.by_id(resp_dict["iconId"]),
-                trophy=await maimai_trophies.by_id(resp_dict["trophyId"]),
-            )
-        raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-
-    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
         maimai_songs = await client.songs()
         if identifier.credentials and isinstance(identifier.credentials, str):
             resp_list = await arcade.get_user_scores(identifier.credentials.encode(), http_proxy=self._http_proxy)
@@ -85,24 +63,7 @@ class ArcadeProvider(IPlayerProvider, IScoreProvider, IRegionProvider, IPlayerId
             return v
         raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
 
-    @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(TitleServerNetworkError), reraise=True)
-    async def get_regions(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[PlayerRegion]:
-        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
-        if identifier.credentials and isinstance(identifier.credentials, str):
-            resp_dict = await arcade.get_user_region(identifier.credentials.encode(), http_proxy=self._http_proxy)
-            return [
-                PlayerRegion(
-                    region_id=region["regionId"],
-                    region_name=region["regionName"],
-                    play_count=region["playCount"],
-                    created_at=datetime.strptime(region["created"], "%Y-%m-%d %H:%M:%S"),
-                )
-                for region in resp_dict["userRegionList"]
-            ]
-        raise InvalidPlayerIdentifierError("Player identifier credentials should be provided.")
-
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type((TimeoutException, NetworkError)), reraise=True)
     async def get_identifier(self, code: Union[str, dict[str, str]], client: "MaimaiClient") -> PlayerIdentifier:
-        raise NotImplementedError("ArcadeProvider does not support new 1.53+ login method.")
         resp_bytes: bytes = await arcade.get_uid_encrypted(str(code), http_proxy=self._http_proxy)
         return PlayerIdentifier(credentials=resp_bytes.decode())

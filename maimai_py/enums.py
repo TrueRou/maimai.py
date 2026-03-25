@@ -2,8 +2,6 @@ import functools
 from enum import Enum, IntEnum
 from typing import Optional, Union
 
-from maimai_ffi.model import region_map
-
 
 class Version(IntEnum):
     MAIMAI = 10000
@@ -26,6 +24,9 @@ class Version(IntEnum):
     MAIMAI_DX_BUDDIES = 24000  # 舞萌DX 2024
     MAIMAI_DX_PRISM = 25000  # 舞萌DX 2025
     MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
+
+    def __init__(self, value) -> None:
+        self.jp_version = None
 
     @staticmethod
     @functools.cache
@@ -59,8 +60,6 @@ class Genre(Enum):
     オンゲキCHUNITHM = "オンゲキCHUNITHM"
     宴会場 = "宴会場"
 
-
-region_map: tuple[str, ...] = region_map
 
 all_versions = list(Version.__members__.values())
 """@private"""

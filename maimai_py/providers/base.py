@@ -98,7 +98,7 @@ class ICurveProvider(IProvider):
 class IRegionProvider(IProvider):
     """The provider that fetches player regions from a specific source.
 
-    Available providers: `ArcadeProvider`
+    Available providers:
     """
 
     @abstractmethod
