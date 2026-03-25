@@ -17,16 +17,21 @@ class Version(IntEnum):
     MAIMAI_MILK = 19000
     MAIMAI_MILK_PLUS = 19500
     MAIMAI_FINALE = 19900
-    MAIMAI_DX = 20000  # 舞萌DX
-    MAIMAI_DX_SPLASH = 21000  # 舞萌DX 2021
-    MAIMAI_DX_UNIVERSE = 22000  # 舞萌DX 2022
-    MAIMAI_DX_FESTIVAL = 23000  # 舞萌DX 2023
-    MAIMAI_DX_BUDDIES = 24000  # 舞萌DX 2024
-    MAIMAI_DX_PRISM = 25000  # 舞萌DX 2025
-    MAIMAI_DX_FUTURE = 30000  # 舞萌DX 2077
-
-    def __init__(self, value) -> None:
-        self.jp_version = None
+    MAIMAI_DX = 20000
+    MAIMAI_DX_PLUS = 20500
+    MAIMAI_DX_SPLASH = 21000
+    MAIMAI_DX_SPLASH_PLUS = 21500
+    MAIMAI_DX_UNIVERSE = 22000
+    MAIMAI_DX_UNIVERSE_PLUS = 22500
+    MAIMAI_DX_FESTIVAL = 23000
+    MAIMAI_DX_FESTIVAL_PLUS = 23500
+    MAIMAI_DX_BUDDIES = 24000
+    MAIMAI_DX_BUDDIES_PLUS = 24500
+    MAIMAI_DX_PRISM = 25000
+    MAIMAI_DX_PRISM_PLUS = 25500
+    MAIMAI_DX_CIRCLE = 26000
+    MAIMAI_DX_CIRCLE_PLUS = 26500
+    MAIMAI_DX_FUTURE = 30000
 
     @staticmethod
     @functools.cache
@@ -64,7 +69,10 @@ class Genre(Enum):
 all_versions = list(Version.__members__.values())
 """@private"""
 
-current_version = all_versions[-2]
+current_version = Version.MAIMAI_DX_PRISM
+"""@private"""
+
+current_version_jp = Version.MAIMAI_DX_CIRCLE_PLUS
 """@private"""
 
 plate_to_version: dict[str, Version] = {
@@ -92,6 +100,38 @@ plate_to_version: dict[str, Version] = {
     "双": Version.MAIMAI_DX_BUDDIES,
     "宴": Version.MAIMAI_DX_BUDDIES,
     "镜": Version.MAIMAI_DX_PRISM,
+    "彩": Version.MAIMAI_DX_PRISM,
+    "未": Version.MAIMAI_DX_FUTURE,
+}
+"""@private"""
+
+plate_to_version_jp: dict[str, Version] = {
+    "初": Version.MAIMAI,
+    "真": Version.MAIMAI_PLUS,
+    "超": Version.MAIMAI_GREEN,
+    "檄": Version.MAIMAI_GREEN_PLUS,
+    "橙": Version.MAIMAI_ORANGE,
+    "晓": Version.MAIMAI_ORANGE_PLUS,
+    "桃": Version.MAIMAI_PINK,
+    "樱": Version.MAIMAI_PINK_PLUS,
+    "紫": Version.MAIMAI_MURASAKI,
+    "堇": Version.MAIMAI_MURASAKI_PLUS,
+    "白": Version.MAIMAI_MILK,
+    "雪": Version.MAIMAI_MILK_PLUS,
+    "辉": Version.MAIMAI_FINALE,
+    "熊": Version.MAIMAI_DX,
+    "华": Version.MAIMAI_DX_PLUS,
+    "爽": Version.MAIMAI_DX_SPLASH,
+    "煌": Version.MAIMAI_DX_SPLASH_PLUS,
+    "星": Version.MAIMAI_DX_UNIVERSE,
+    "宙": Version.MAIMAI_DX_UNIVERSE_PLUS,
+    "祭": Version.MAIMAI_DX_FESTIVAL,
+    "祝": Version.MAIMAI_DX_FESTIVAL_PLUS,
+    "双": Version.MAIMAI_DX_BUDDIES,
+    "宴": Version.MAIMAI_DX_BUDDIES_PLUS,
+    "镜": Version.MAIMAI_DX_PRISM,
+    "彩": Version.MAIMAI_DX_PRISM_PLUS,
+    "丸": Version.MAIMAI_DX_CIRCLE,
     "未": Version.MAIMAI_DX_FUTURE,
 }
 """@private"""
@@ -112,16 +152,12 @@ divingfish_to_version: dict[str, Version] = {
     "MiLK PLUS": Version.MAIMAI_MILK_PLUS,
     "maimai FiNALE": Version.MAIMAI_FINALE,
     "maimai でらっくす": Version.MAIMAI_DX,
-    "maimai でらっくす PLUS": Version.MAIMAI_DX,
     "maimai でらっくす Splash": Version.MAIMAI_DX_SPLASH,
-    "maimai でらっくす Splash PLUS": Version.MAIMAI_DX_SPLASH,
     "maimai でらっくす UNiVERSE": Version.MAIMAI_DX_UNIVERSE,
-    "maimai でらっくす UNiVERSE PLUS": Version.MAIMAI_DX_UNIVERSE,
     "maimai でらっくす FESTiVAL": Version.MAIMAI_DX_FESTIVAL,
-    "maimai でらっくす FESTiVAL PLUS": Version.MAIMAI_DX_FESTIVAL,
     "maimai でらっくす BUDDiES": Version.MAIMAI_DX_BUDDIES,
-    "maimai でらっくす BUDDiES PLUS": Version.MAIMAI_DX_BUDDIES,
     "maimai でらっくす PRiSM": Version.MAIMAI_DX_PRISM,
+    "maimai でらっくす CiRCLE": Version.MAIMAI_DX_CIRCLE,
 }
 """@private"""
 
@@ -148,7 +184,9 @@ plate_aliases: dict[str, str] = {
     "菫": "堇",
     "輝": "辉",
     "華": "华",
+    "鏡": "镜",
     "極": "极",
+    "將": "将",
 }
 """@private"""
 
