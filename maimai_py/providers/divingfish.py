@@ -98,6 +98,20 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
                 slide_num=first_diff["notes"][2] + (second_diff["notes"][2] if second_diff else 0),
                 touch_num=first_diff["notes"][3] + (second_diff["notes"][3] if second_diff else 0),
                 break_num=first_diff["notes"][4] + (second_diff["notes"][4] if second_diff else 0),
+                buddy_notes=BuddyNotes(
+                    left_tap_num=first_diff["notes"][0],
+                    left_hold_num=first_diff["notes"][1],
+                    left_slide_num=first_diff["notes"][2],
+                    left_touch_num=first_diff["notes"][3],
+                    left_break_num=first_diff["notes"][4],
+                    right_tap_num=second_diff["notes"][0],
+                    right_hold_num=second_diff["notes"][1],
+                    right_slide_num=second_diff["notes"][2],
+                    right_touch_num=second_diff["notes"][3],
+                    right_break_num=second_diff["notes"][4],
+                )
+                if second_diff
+                else None,
                 curve=None,
             )
 
@@ -201,11 +215,11 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         if identifier.username and identifier.credentials:
             login_json = {"username": identifier.username, "password": identifier.credentials}
-            login_resp = await client._client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
-            self._check_response_player(login_resp)
-            resp = await client._client.get(
-                self.base_url + "player/records", cookies=login_resp.cookies
+            login_resp = await client._client.post(
+                "https://www.diving-fish.com/api/maimaidxprober/login", json=login_json
             )
+            self._check_response_player(login_resp)
+            resp = await client._client.get(self.base_url + "player/records", cookies=login_resp.cookies)
         elif not identifier.username and identifier.credentials and isinstance(identifier.credentials, str):
             resp = await client._client.get(
                 self.base_url + "player/records", headers={"Import-Token": identifier.credentials}

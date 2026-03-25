@@ -144,6 +144,33 @@ class CurveObject:
 
 
 @dataclass
+class BuddyNotes:
+    __slots__ = (
+        "left_tap_num",
+        "left_hold_num",
+        "left_slide_num",
+        "left_touch_num",
+        "left_break_num",
+        "right_tap_num",
+        "right_hold_num",
+        "right_slide_num",
+        "right_touch_num",
+        "right_break_num",
+    )
+
+    left_tap_num: int
+    left_hold_num: int
+    left_slide_num: int
+    left_touch_num: int
+    left_break_num: int
+    right_tap_num: int
+    right_hold_num: int
+    right_slide_num: int
+    right_touch_num: int
+    right_break_num: int
+
+
+@dataclass
 class SongDifficulty:
     __slots__ = (
         "id",
@@ -181,12 +208,13 @@ class SongDifficulty:
 
 @dataclass
 class SongDifficultyUtage(SongDifficulty):
-    __slots__ = ("kanji", "description", "diff_id", "is_buddy")
+    __slots__ = ("kanji", "description", "diff_id", "is_buddy", "buddy_notes")
 
     kanji: str
     description: str
     diff_id: int
     is_buddy: bool
+    buddy_notes: Optional[BuddyNotes]
 
 
 @dataclass

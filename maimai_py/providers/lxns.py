@@ -97,6 +97,23 @@ class LXNSProvider(
         return 0
 
     @staticmethod
+    def _deser_buddy_notes(diff: dict) -> Optional[BuddyNotes]:
+        if "notes" in diff and "is_buddy" in diff and diff["is_buddy"]:
+            return BuddyNotes(
+                left_tap_num=diff["notes"]["left"]["tap"],
+                left_hold_num=diff["notes"]["left"]["hold"],
+                left_slide_num=diff["notes"]["left"]["slide"],
+                left_touch_num=diff["notes"]["left"]["touch"],
+                left_break_num=diff["notes"]["left"]["break"],
+                right_tap_num=diff["notes"]["right"]["tap"],
+                right_hold_num=diff["notes"]["right"]["hold"],
+                right_slide_num=diff["notes"]["right"]["slide"],
+                right_touch_num=diff["notes"]["right"]["touch"],
+                right_break_num=diff["notes"]["right"]["break"],
+            )
+        return None
+
+    @staticmethod
     def _deser_item(item: dict, cls: type) -> Any:
         return cls(
             id=item["id"],
@@ -146,6 +163,7 @@ class LXNSProvider(
             kanji=difficulty["kanji"],
             description=difficulty["description"],
             is_buddy=difficulty["is_buddy"],
+            buddy_notes=LXNSProvider._deser_buddy_notes(difficulty),
         )
 
     @staticmethod

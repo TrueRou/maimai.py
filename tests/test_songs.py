@@ -18,6 +18,12 @@ async def test_songs_fetching_divingfish(maimai: MaimaiClient, divingfish: Divin
     assert song2.id == song1.id
     assert any([song.id == 1568 for song in await songs.by_keywords("超天酱")])
 
+    song3 = await songs.by_id(111355)  # [協]ラグトレイン
+    assert song3 is not None
+    assert song3.difficulties.utage[0].is_buddy
+    assert song3.difficulties.utage[0].buddy_notes is not None
+    assert song3.difficulties.utage[0].buddy_notes.left_tap_num == 183
+
 
 @pytest.mark.asyncio(scope="session")
 async def test_songs_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider):
@@ -26,6 +32,12 @@ async def test_songs_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider):
 
     assert song1 is not None
     assert song1.difficulties.dx[0].tap_num != 0
+
+    song2 = await songs.by_id(111355)  # [協]ラグトレイン
+    assert song2 is not None
+    assert song2.difficulties.utage[0].is_buddy
+    assert song2.difficulties.utage[0].buddy_notes is not None
+    assert song2.difficulties.utage[0].buddy_notes.left_tap_num == 183
 
     many_songs = await songs.get_batch([1231, 1232, 1233])
     assert len(many_songs) == 3
