@@ -125,7 +125,7 @@ class LXNSProvider(
     @staticmethod
     def _deser_song(song: dict) -> Song:
         return Song(
-            id=song["id"],
+            id=int(song["id"]) % 10000,
             title=song["title"],
             artist=song["artist"],
             genre=name_to_genre[song["genre"]],

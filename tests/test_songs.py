@@ -18,11 +18,13 @@ async def test_songs_fetching_divingfish(maimai: MaimaiClient, divingfish: Divin
     assert song2.id == song1.id
     assert any([song.id == 1568 for song in await songs.by_keywords("超天酱")])
 
-    song3 = await songs.by_id(111355)  # [協]ラグトレイン
+    song3 = await songs.by_id(1355)  # [協]ラグトレイン
     assert song3 is not None
     assert song3.difficulties.utage[0].is_buddy
     assert song3.difficulties.utage[0].buddy_notes is not None
     assert song3.difficulties.utage[0].buddy_notes.left_tap_num == 183
+
+    assert await songs.by_id(998) is not None  # Oshama Scramble! (Cranky Remix)
 
 
 @pytest.mark.asyncio(scope="session")

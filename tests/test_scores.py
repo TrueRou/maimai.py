@@ -1,6 +1,8 @@
+import httpcore
 import pytest
 
 from maimai_py.enums import LevelIndex, Version
+from maimai_py.exceptions import TitleServerBlockedError, TitleServerNetworkError
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import Player, PlayerIdentifier
 from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
@@ -55,7 +57,13 @@ async def test_scores_fetching_arcade(maimai: MaimaiClient, arcade: ArcadeProvid
     try:
         scores = await maimai.scores(arcade_player, provider=arcade)
         assert scores.rating > 2000
-    except Exception:
+    except (
+        TitleServerBlockedError,
+        TitleServerNetworkError,
+        httpcore.NetworkError,
+        httpcore.TimeoutException,
+        httpcore.ReadError,
+    ):
         pytest.skip("Connection error, skipping the test.")
 
 
