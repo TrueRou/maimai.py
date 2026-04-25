@@ -1,6 +1,6 @@
 # 更新日志
 
-## 1.4.1 (2026-02-28)
+## 1.4.2 (2026-02-28)
 
 Features:
   - Version枚举类考虑增加对日服/国际服版本的支持 -> [#53](https://github.com/TrueRou/maimai.py/issues/53)
