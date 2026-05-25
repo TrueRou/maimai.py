@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.4.3 (2026-05-26)
+
+Bugfixes:
+  - 支持 lxml 6.x (兼容 Python 3.14) -> [#56](https://github.com/TrueRou/maimai.py/pull/56)
+
 ## 1.4.2 (2026-02-28)
 
 Features:
