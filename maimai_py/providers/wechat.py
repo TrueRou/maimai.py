@@ -189,6 +189,9 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
             cookies=self._ensure_cookies(identifier),
             data={"idx": rival.friend_code, "token": rival.token},
         )
+        if resp.status_code == 302 and resp.headers.get("location", "").rstrip("/").endswith("/maimai-mobile/friend"):
+            # 返回302、重定向到friend主页，是成功的情况。此时不应该抛出异常
+            return
         resp.raise_for_status()
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
@@ -198,6 +201,9 @@ class WechatProvider(IScoreProvider, IPlayerProvider, IPlayerIdentifierProvider,
             cookies=self._ensure_cookies(identifier),
             data={"idx": rival.friend_code, "token": rival.token},
         )
+        if resp.status_code == 302 and resp.headers.get("location", "").rstrip("/").endswith("/maimai-mobile/friend"):
+            # 返回302、重定向到friend主页，是成功的情况。此时不应该抛出异常
+            return
         resp.raise_for_status()
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
