@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.4.4 (2026-06-09)
+
+Bugfixes:
+  - 修复“设置对手“时抛出意料之外异常的问题 -> [#57](https://github.com/TrueRou/maimai.py/pull/57)
+
 ## 1.4.3 (2026-05-26)
 
 Bugfixes:
