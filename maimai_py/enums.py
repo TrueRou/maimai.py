@@ -69,7 +69,7 @@ class Genre(Enum):
 all_versions = list(Version.__members__.values())
 """@private"""
 
-current_version = Version.MAIMAI_DX_PRISM
+current_version = Version.MAIMAI_DX_CIRCLE
 """@private"""
 
 current_version_jp = Version.MAIMAI_DX_CIRCLE_PLUS
@@ -101,6 +101,7 @@ plate_to_version: dict[str, Version] = {
     "宴": Version.MAIMAI_DX_BUDDIES,
     "镜": Version.MAIMAI_DX_PRISM,
     "彩": Version.MAIMAI_DX_PRISM,
+    "丸": Version.MAIMAI_DX_CIRCLE,
     "未": Version.MAIMAI_DX_FUTURE,
 }
 """@private"""
