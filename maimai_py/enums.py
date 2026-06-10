@@ -69,7 +69,7 @@ class Genre(Enum):
 all_versions = list(Version.__members__.values())
 """@private"""
 
-current_version = Version.MAIMAI_DX_CIRCLE
+current_version = Version.MAIMAI_DX_PRISM_PLUS
 """@private"""
 
 current_version_jp = Version.MAIMAI_DX_CIRCLE_PLUS
