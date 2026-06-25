@@ -1,9 +1,21 @@
 import pytest
 
+from maimai_py.exceptions import InvalidDeveloperTokenError, InvalidPlayerIdentifierError
 from maimai_py.maimai import MaimaiClient
 from maimai_py.models import PlayerIdentifier
 from maimai_py.providers import DivingFishProvider, LXNSProvider
 from maimai_py.utils.page_parser import wmdx_html2player, wmdx_html2players
+
+
+class FakeResponse:
+    def __init__(self, payload: dict, status_code: int = 401):
+        self._payload = payload
+        self.status_code = status_code
+        self.is_success = 200 <= status_code < 300
+        self.text = str(payload)
+
+    def json(self):
+        return self._payload
 
 
 @pytest.mark.asyncio(scope="session")
@@ -13,6 +25,22 @@ async def test_players_fetching_lxns(maimai: MaimaiClient, lxns: LXNSProvider, l
 
     player_personal = await maimai.players(lxns_player, provider=lxns)
     assert player.rating == player_personal.rating
+
+
+def test_lxns_invalid_user_token_raises_player_identifier_error():
+    provider = LXNSProvider()
+    resp = FakeResponse({"success": False, "code": 401, "message": "unauthorized"})
+
+    with pytest.raises(InvalidPlayerIdentifierError):
+        provider._check_response_player(resp, use_user_api=True)
+
+
+def test_lxns_invalid_developer_token_raises_developer_token_error():
+    provider = LXNSProvider()
+    resp = FakeResponse({"success": False, "code": 401, "message": "unauthorized"})
+
+    with pytest.raises(InvalidDeveloperTokenError):
+        provider._check_response_player(resp, use_user_api=False)
 
 
 @pytest.mark.asyncio(scope="session")

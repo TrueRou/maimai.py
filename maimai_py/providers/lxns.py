@@ -197,7 +197,7 @@ class LXNSProvider(
                 "type": score.type.name.lower(),
             }
 
-    def _check_response_player(self, resp: Response) -> dict:
+    def _check_response_player(self, resp: Response, *, use_user_api: bool = False) -> dict:
         try:
             resp_json = resp.json()
             if not resp_json["success"]:
@@ -206,6 +206,8 @@ class LXNSProvider(
                 elif resp_json["code"] in [403]:
                     raise PrivacyLimitationError(resp_json["message"])
                 elif resp_json["code"] in [401]:
+                    if use_user_api:
+                        raise InvalidPlayerIdentifierError(resp_json["message"])
                     raise InvalidDeveloperTokenError(resp_json["message"])
                 elif resp.status_code in [400, 401]:
                     raise InvalidPlayerIdentifierError(resp_json["message"])
@@ -246,9 +248,9 @@ class LXNSProvider(
         maimai_icons = await client.items(PlayerIcon)
         maimai_trophies = await client.items(PlayerTrophy)
         maimai_nameplates = await client.items(PlayerNamePlate)
-        url, headers, _ = await self._build_player_request("", identifier, client)
+        url, headers, use_user_api = await self._build_player_request("", identifier, client)
         resp = await client._client.get(url, headers=headers)
-        resp_data = self._check_response_player(resp)["data"]
+        resp_data = self._check_response_player(resp, use_user_api=use_user_api)["data"]
         return LXNSPlayer(
             name=resp_data["name"],
             rating=resp_data["rating"],
@@ -269,7 +271,7 @@ class LXNSProvider(
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
         url, headers, use_user_api = await self._build_player_request("scores", identifier, client)
         resp = await client._client.get(url, headers=headers)
-        resp_data = self._check_response_player(resp)["data"]
+        resp_data = self._check_response_player(resp, use_user_api=use_user_api)["data"]
         scores = [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
         if not use_user_api:
             # LXNSProvider's developer-level API scores are incomplete, which doesn't contain dx_rating and achievements, leading to sorting difficulties.
@@ -279,18 +281,18 @@ class LXNSProvider(
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_best(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        url, headers, _ = await self._build_player_request("bests", identifier, client)
+        url, headers, use_user_api = await self._build_player_request("bests", identifier, client)
         resp = await client._client.get(url, headers=headers)
-        resp_data = self._check_response_player(resp)["data"]
+        resp_data = self._check_response_player(resp, use_user_api=use_user_api)["data"]
         return [s for score in resp_data["standard"] + resp_data["dx"] if (s := LXNSProvider._deser_score(score))]
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
         async def get_scores(song_id: int, type: SongType) -> list[Score]:
-            url, headers, _ = await self._build_player_request("bests", identifier, client)
+            url, headers, use_user_api = await self._build_player_request("bests", identifier, client)
             params = {"song_id": song_id, "song_type": type.value}
             resp = await client._client.get(url, params=params, headers=headers)
-            resp_data = self._check_response_player(resp)["data"]
+            resp_data = self._check_response_player(resp, use_user_api=use_user_api)["data"]
             return [s for score in resp_data if (s := LXNSProvider._deser_score(score))]
 
         results, _ = [], await self._ensure_friend_code(client, identifier)
@@ -311,12 +313,12 @@ class LXNSProvider(
     async def update_scores(
         self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient"
     ) -> None:
-        url, headers, _ = await self._build_player_request("scores", identifier, client)
+        url, headers, use_user_api = await self._build_player_request("scores", identifier, client)
         maimai_songs = await client.songs()
         scores_list = [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]
         scores_json = {"scores": scores_list}
         resp = await client._client.post(url, headers=headers, json=scores_json)
-        self._check_response_player(resp)
+        self._check_response_player(resp, use_user_api=use_user_api)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_aliases(self, client: "MaimaiClient") -> dict[int, list[str]]:
