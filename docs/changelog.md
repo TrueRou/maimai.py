@@ -1,5 +1,14 @@
 # 更新日志
 
+## 1.5.2 (2026-06-26)
+
+Bugfixes:
+  - LXNSProvider数据源在上传信息时不支持传入包含删除曲的成绩 -> [#60](https://github.com/TrueRou/maimai.py/pull/60)
+  - LXNSProvider 类的 _check_response_player 方法在某些情况下抛出错误类型的异常 -> [#59](https://github.com/TrueRou/maimai.py/pull/59)
+
+Features:
+  - 支持 机台数据源 1.55 Mai-Encoding
+
 ## 1.5.1 (2026-06-11)
 
 Features:
