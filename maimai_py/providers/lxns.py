@@ -23,7 +23,7 @@ from .base import (
 )
 
 if TYPE_CHECKING:
-    from maimai_py.maimai import MaimaiClient
+    from maimai_py.maimai import MaimaiClient, MaimaiSongs
 
 is_jwt = re.compile(r"^[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+$")
 
@@ -184,17 +184,18 @@ class LXNSProvider(
         )
 
     @staticmethod
-    async def _ser_score(score: Score) -> Optional[dict]:
-        return {
-            "id": score.id,
-            "level_index": score.level_index.value,
-            "achievements": score.achievements,
-            "fc": score.fc.name.lower() if score.fc else None,
-            "fs": score.fs.name.lower() if score.fs else None,
-            "dx_score": score.dx_score,
-            "play_time": score.play_time.strftime("%Y-%m-%dT%H:%M:%SZ") if score.play_time else None,
-            "type": score.type.name.lower(),
-        }
+    async def _ser_score(score: Score, songs: "MaimaiSongs") -> Optional[dict]:
+        if _ := await songs.by_id(score.id % 10000):
+            return {
+                "id": score.id,
+                "level_index": score.level_index.value,
+                "achievements": score.achievements,
+                "fc": score.fc.name.lower() if score.fc else None,
+                "fs": score.fs.name.lower() if score.fs else None,
+                "dx_score": score.dx_score,
+                "play_time": score.play_time.strftime("%Y-%m-%dT%H:%M:%SZ") if score.play_time else None,
+                "type": score.type.name.lower(),
+            }
 
     def _check_response_player(self, resp: Response) -> dict:
         try:
@@ -311,8 +312,10 @@ class LXNSProvider(
         self, identifier: PlayerIdentifier, scores: Iterable[Score], client: "MaimaiClient"
     ) -> None:
         url, headers, _ = await self._build_player_request("scores", identifier, client)
-        scores_dict = {"scores": [json for score in scores if (json := await LXNSProvider._ser_score(score))]}
-        resp = await client._client.post(url, headers=headers, json=scores_dict)
+        maimai_songs = await client.songs()
+        scores_list = [json for score in scores if (json := await LXNSProvider._ser_score(score, maimai_songs))]
+        scores_json = {"scores": scores_list}
+        resp = await client._client.post(url, headers=headers, json=scores_json)
         self._check_response_player(resp)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
