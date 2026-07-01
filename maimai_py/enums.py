@@ -100,7 +100,7 @@ plate_to_version: dict[str, Version] = {
     "双": Version.MAIMAI_DX_BUDDIES,
     "宴": Version.MAIMAI_DX_BUDDIES,
     "镜": Version.MAIMAI_DX_PRISM,
-    "彩": Version.MAIMAI_DX_PRISM,
+    "彩": Version.MAIMAI_DX_PRISM_PLUS,
     "丸": Version.MAIMAI_DX_CIRCLE,
     "未": Version.MAIMAI_DX_FUTURE,
 }
@@ -158,6 +158,7 @@ divingfish_to_version: dict[str, Version] = {
     "maimai でらっくす FESTiVAL": Version.MAIMAI_DX_FESTIVAL,
     "maimai でらっくす BUDDiES": Version.MAIMAI_DX_BUDDIES,
     "maimai でらっくす PRiSM": Version.MAIMAI_DX_PRISM,
+    "maimai でらっくす PRiSM PLUS": Version.MAIMAI_DX_PRISM_PLUS,
     "maimai でらっくす CiRCLE": Version.MAIMAI_DX_CIRCLE,
 }
 """@private"""

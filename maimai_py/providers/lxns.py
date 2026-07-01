@@ -185,7 +185,7 @@ class LXNSProvider(
 
     @staticmethod
     async def _ser_score(score: Score, songs: "MaimaiSongs") -> Optional[dict]:
-        if _ := await songs.by_id(score.id % 10000):
+        if (song := await songs.by_id(score.id % 10000)) and not song.disabled:
             return {
                 "id": score.id,
                 "level_index": score.level_index.value,

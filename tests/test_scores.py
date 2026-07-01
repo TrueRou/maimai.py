@@ -1,10 +1,10 @@
 import httpcore
 import pytest
 
-from maimai_py.enums import LevelIndex, Version
+from maimai_py.enums import FCType, FSType, LevelIndex, RateType, SongType, Version
 from maimai_py.exceptions import TitleServerBlockedError, TitleServerNetworkError
 from maimai_py.maimai import MaimaiClient
-from maimai_py.models import Player, PlayerIdentifier
+from maimai_py.models import Player, PlayerIdentifier, Score
 from maimai_py.providers import ArcadeProvider, DivingFishProvider, LXNSProvider
 from maimai_py.utils.page_parser import wmdx_html2record, wmdx_html2score
 
@@ -77,7 +77,22 @@ async def test_plate_fetching(maimai: MaimaiClient, lxns: LXNSProvider):
 
 @pytest.mark.asyncio(scope="session")
 async def test_scores_updating_lxns(maimai: MaimaiClient, lxns: LXNSProvider, lxns_player: PlayerIdentifier):
-    scores = []
+    scores = [
+        Score(
+            id=1484,
+            level="13+",
+            level_index=LevelIndex.MASTER,
+            achievements=97.5000,
+            fc=FCType.FC,
+            fs=FSType.FS,
+            dx_score=2500,
+            dx_rating=280.0,
+            play_count=1,
+            play_time=None,
+            rate=RateType.S,
+            type=SongType.STANDARD,
+        )
+    ]
     await maimai.updates(PlayerIdentifier(friend_code=664994421382429), scores, provider=lxns)
     await maimai.updates(lxns_player, scores, provider=lxns)
 

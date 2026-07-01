@@ -3,8 +3,10 @@
 ## 1.5.2 (2026-06-26)
 
 Bugfixes:
-  - LXNSProvider数据源在上传信息时不支持传入包含删除曲的成绩 -> [#60](https://github.com/TrueRou/maimai.py/pull/60)
+  - LXNSProvider 数据源在上传信息时不支持传入包含删除曲的成绩 -> [#60](https://github.com/TrueRou/maimai.py/pull/60)
   - LXNSProvider 类的 _check_response_player 方法在某些情况下抛出错误类型的异常 -> [#59](https://github.com/TrueRou/maimai.py/pull/59)
+  - 修复 “彩” 姓名框国服版本归属不正确的问题
+  - 修复 DivingFishProvider 不支持 "maimai でらっくす PRiSM PLUS" 版本号的问题
 
 Features:
   - 支持 机台数据源 1.55 Mai-Encoding
