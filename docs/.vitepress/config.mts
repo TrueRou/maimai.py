@@ -1,9 +1,48 @@
 import { defineConfig } from 'vitepress'
+import { execSync } from 'node:child_process'
+import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "maimai.py",
   description: "用于舞萌DX相关开发的最佳Python工具库, 封装水鱼/落雪查分器常用函数.",
+
+  buildEnd(siteConfig) {
+    const dist = siteConfig.outDir
+
+    // Poetry Install
+    console.log('📦 Installing dependencies...')
+    execSync('poetry install --no-cache --no-interaction --all-groups', {
+      cwd: join(siteConfig.root, '..'),
+      stdio: 'inherit',
+    })
+
+    // Generate Swagger Docs
+    console.log('📖 Generating Swagger Docs...')
+    execSync('poetry run openapi', {
+      cwd: join(siteConfig.root, '..'),
+      stdio: 'inherit',
+    })
+
+    // Generate PDocs
+    console.log('📖 Generating PDocs...')
+    execSync('poetry run python -m pdoc maimai_py --docformat google -o ' + join(dist, 'api'), {
+      cwd: join(siteConfig.root, '..'),
+      stdio: 'inherit',
+    })
+
+    // Generate Swagger Docs
+    console.log('📖 Generating Swagger Docs...')
+    execSync('poetry run openapi', {
+      cwd: join(siteConfig.root, '..'),
+      stdio: 'inherit',
+    })
+    const openapiDir = join(dist, 'openapi')
+    mkdirSync(openapiDir, { recursive: true })
+    copyFileSync(join(siteConfig.root, '..', 'openapi.json'), join(openapiDir, 'openapi.json'))
+    copyFileSync(join(siteConfig.root, 'swagger.html'), join(openapiDir, 'index.html'))
+  },
   themeConfig: {
     nav: [
       { text: '主页', link: '/' },
