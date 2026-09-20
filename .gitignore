@@ -4,6 +4,7 @@
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs/node_modules
+docs/public
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

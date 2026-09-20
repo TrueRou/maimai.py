@@ -94,7 +94,12 @@ jobs:
         run: poetry build && poetry publish
   docs:
     runs-on: ubuntu-latest
-    environment: releases
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Fetch the Repository
         uses: actions/checkout@v4
@@ -112,41 +117,23 @@ jobs:
         run: pip install poetry && poetry install --no-cache --no-interaction --all-groups
 
       - name: 📖 Generate PDocs
-        run: mkdir pdocs && poetry run python -m pdoc maimai_py --docformat google -o ./pdocs
+        run: mkdir -p docs/public/api && poetry run python -m pdoc maimai_py --docformat google -o ./docs/public/api
 
       - name: 📖 Generate Swagger Docs
-        run: mkdir sdocs && poetry run openapi && cp openapi.json sdocs/openapi.json && cp docs/swagger.html sdocs/index.html
+        run: mkdir -p docs/public/openapi && poetry run openapi && cp openapi.json docs/public/openapi/openapi.json && cp docs/swagger.html docs/public/openapi/index.html
 
       - name: 📖 Generate VitePress Docs
         working-directory: ./docs
         run: npm install && npm run docs:build
 
-      - name: 📖 Deploy to Server
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "pdocs/"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}/api.maimai.turou.fun
+      - name: 📖 Setup Pages
+        uses: actions/configure-pages@v5
 
-      - name: 📖 Deploy to Server
-        uses: easingthemes/ssh-deploy@v5.1.0
+      - name: 📖 Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "sdocs/"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}/openapi.maimai.turou.fun
+          path: docs/.vitepress/dist
 
-      - name: 📖 Deploy to Server
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "docs/.vitepress/dist/"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}/maimai.turou.fun
+      - name: 📖 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

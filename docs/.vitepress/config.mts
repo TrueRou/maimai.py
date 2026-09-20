@@ -8,7 +8,8 @@ export default defineConfig({
     nav: [
       { text: '主页', link: '/' },
       { text: '指南', link: '/get-started' },
-      { text: 'API', link: 'https://api.maimai.turou.fun/' },
+      { text: 'API', link: '/api/', target: '_blank' },
+      { text: 'OpenAPI', link: '/openapi/', target: '_blank' },
       {
         text: '关于', items: [
           { text: '更新日志', link: '/changelog' },
