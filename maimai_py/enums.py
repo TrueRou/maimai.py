@@ -31,6 +31,7 @@ class Version(IntEnum):
     MAIMAI_DX_PRISM_PLUS = 25500
     MAIMAI_DX_CIRCLE = 26000
     MAIMAI_DX_CIRCLE_PLUS = 26500
+    MAIMAI_DX_MAGICAL = 27000
     MAIMAI_DX_FUTURE = 30000
 
     @staticmethod
@@ -72,7 +73,7 @@ all_versions = list(Version.__members__.values())
 current_version = Version.MAIMAI_DX_PRISM_PLUS
 """@private"""
 
-current_version_jp = Version.MAIMAI_DX_CIRCLE_PLUS
+current_version_jp = Version.MAIMAI_DX_MAGICAL
 """@private"""
 
 plate_to_version: dict[str, Version] = {
@@ -102,6 +103,7 @@ plate_to_version: dict[str, Version] = {
     "镜": Version.MAIMAI_DX_PRISM,
     "彩": Version.MAIMAI_DX_PRISM_PLUS,
     "丸": Version.MAIMAI_DX_CIRCLE,
+    "回": Version.MAIMAI_DX_CIRCLE_PLUS,
     "未": Version.MAIMAI_DX_FUTURE,
 }
 """@private"""
@@ -133,6 +135,7 @@ plate_to_version_jp: dict[str, Version] = {
     "镜": Version.MAIMAI_DX_PRISM,
     "彩": Version.MAIMAI_DX_PRISM_PLUS,
     "丸": Version.MAIMAI_DX_CIRCLE,
+    "回": Version.MAIMAI_DX_CIRCLE_PLUS,
     "未": Version.MAIMAI_DX_FUTURE,
 }
 """@private"""
@@ -187,6 +190,7 @@ plate_aliases: dict[str, str] = {
     "輝": "辉",
     "華": "华",
     "鏡": "镜",
+    "廻": "回",
     "極": "极",
     "將": "将",
 }
