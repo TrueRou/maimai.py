@@ -1,4 +1,5 @@
 import hashlib
+import time
 import typing
 from json import JSONDecodeError
 from typing import TYPE_CHECKING, Generator, Iterable
@@ -6,6 +7,7 @@ from typing import TYPE_CHECKING, Generator, Iterable
 from httpx import HTTPStatusError, RequestError, Response
 from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
+from maimai_py.exceptions import PlayerNotAuthorizedError, RateLimitError
 from maimai_py.models import *
 from maimai_py.models import PlayerIdentifier, Score, Song
 
@@ -19,12 +21,27 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
     """The provider that fetches data from the Diving Fish.
 
     DivingFish: https://www.diving-fish.com/maimaidx/prober/
+
+    Besides the legacy developer token, this provider supports the Diving Fish account OAuth
+    (https://maimai.diving-fish.com/manual/docs/developer/oauth-migration), which replaces the developer
+    token endpoints sunset on 2026-10-01. Pass the ``client_id``/``client_secret`` of your application
+    registered at https://auth.diving-fish.com/console, and designate the queried player by putting an
+    OAuth subject into ``PlayerIdentifier.credentials`` (``ref:<digest>``, ``sub:<user id>`` or
+    ``username:<name>``). Access tokens are exchanged on the fly and cached until they nearly expire.
     """
 
     developer_token: Optional[str]
-    """The developer token used to access the Diving Fish API."""
+    """The developer token used to access the legacy developer endpoints (sunset on 2026-10-01)."""
+    client_id: Optional[str]
+    """The OAuth client id of the application registered at the Diving Fish authorization server."""
+    client_secret: Optional[str]
+    """The OAuth client secret of the application, must be kept server-side only."""
     base_url = "https://www.diving-fish.com/api/maimaidxprober/"
     """The base URL for the Diving Fish API."""
+    auth_base_url = "https://auth.diving-fish.com/"
+    """The base URL for the Diving Fish authorization server."""
+    oauth_subject_prefixes = ("ref:", "sub:", "username:")
+    """Prefixes that mark ``PlayerIdentifier.credentials`` as an OAuth subject instead of an Import-Token or a password."""
 
     @property
     def headers(self):
@@ -33,13 +50,25 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
             raise InvalidDeveloperTokenError("Developer token is not provided.")
         return {"developer-token": self.developer_token}
 
-    def __init__(self, developer_token: Optional[str] = None):
+    def __init__(
+        self,
+        developer_token: Optional[str] = None,
+        *,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
+    ):
         """Initializes the DivingFishProvider.
 
         Args:
-            developer_token: The developer token used to access the Diving Fish API.
+            developer_token: The developer token used to access the legacy developer endpoints (sunset on 2026-10-01).
+            client_id: The OAuth client id of your registered application.
+            client_secret: The OAuth client secret of your application, keep it server-side only.
         """
         self.developer_token = developer_token
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self._oauth_tokens: dict[str, tuple[str, float]] = {}
+        """Exchanged access tokens as subject -> (token, expires_at), reused until 30 seconds before expiry."""
 
     def _hash(self) -> str:
         return hashlib.md5(b"divingfish").hexdigest()
@@ -161,13 +190,72 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
             fc_sample_size={v: chart["dist"][4 - i] for i, v in enumerate(FCType)},
         )
 
+    @staticmethod
+    def _oauth_subject(identifier: PlayerIdentifier) -> Optional[str]:
+        """Returns the OAuth subject carried in ``credentials``, or None if the credentials are not a subject."""
+        credentials = identifier.credentials
+        if isinstance(credentials, str) and credentials.startswith(DivingFishProvider.oauth_subject_prefixes):
+            return credentials
+        return None
+
+    async def _access_token(self, subject: str, client: "MaimaiClient") -> str:
+        """Fetches a short-lived access token representing the subject, reusing the cached one while valid."""
+        cached = self._oauth_tokens.get(subject)
+        if cached is not None and cached[1] > time.time() + 30:
+            return cached[0]
+        if not (self.client_id and self.client_secret):
+            raise InvalidDeveloperTokenError("OAuth client_id/client_secret is required to exchange a subject for an access token.")
+        resp = await client._client.post(
+            f"{self.auth_base_url}oauth/token",
+            data={
+                "grant_type": "urn:diving-fish:params:oauth:grant-type:on-behalf-of",
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "subject": subject,
+                # No scope requested: the granted scope is the intersection of the player's consent and the approved scopes.
+            },
+        )
+        try:
+            resp_json: dict = resp.json()
+        except JSONDecodeError as exc:
+            raise InvalidJsonError(resp.text) from exc
+        if resp.status_code == 200:
+            token, expires_in = resp_json["access_token"], int(resp_json.get("expires_in", 300))
+            self._oauth_tokens[subject] = (token, time.time() + expires_in)
+            return token
+        error, description = resp_json.get("error"), resp_json.get("error_description", "")
+        if error == "consent_required":
+            raise PlayerNotAuthorizedError(description or "The player has not authorized this application.")
+        if resp.status_code == 401:
+            raise InvalidDeveloperTokenError("OAuth client_id/client_secret is invalid, or the application is disabled.")
+        if resp.status_code == 429:
+            raise RateLimitError(description or "The token exchange is rate limited, cache and reuse your access tokens.")
+        raise MaimaiPyError(f"OAuth token exchange failed ({resp.status_code}): {error or description}")
+
+    async def _bearer_request(self, client: "MaimaiClient", subject: str, method: str, url: str, **kwargs) -> Response:
+        """Performs a Bearer-authenticated request, refreshing the access token once if it expires in flight."""
+        headers = {"Authorization": f"Bearer {await self._access_token(subject, client)}"}
+        resp = await client._client.request(method, url, headers=headers, **kwargs)
+        if resp.status_code == 401:  # the cached token may have just expired or been revoked, refresh once and retry
+            self._oauth_tokens.pop(subject, None)
+            headers = {"Authorization": f"Bearer {await self._access_token(subject, client)}"}
+            resp = await client._client.request(method, url, headers=headers, **kwargs)
+        return resp
+
     def _check_response_player(self, resp: Response) -> dict:
         try:
             resp_json = resp.json()
             if resp.status_code in [400, 401]:
                 raise InvalidPlayerIdentifierError(resp_json["message"])
             elif resp.status_code == 403:
-                raise PrivacyLimitationError(resp_json["message"])
+                message = resp_json.get("message", "")
+                if "缺少权限" in message:  # the access token lacks the scope required by the endpoint
+                    raise PlayerNotAuthorizedError(message)
+                raise PrivacyLimitationError(message)
+            elif resp.status_code == 410:
+                raise InvalidDeveloperTokenError("The developer token endpoints are sunset (410 Gone), migrate to OAuth Bearer.")
+            elif resp.status_code == 429:
+                raise RateLimitError(resp_json.get("message", "The daily request quota is exceeded."))
             elif "msg" in resp_json and resp_json["msg"] in [
                 "请先联系水鱼申请开发者token",
                 "开发者token有误",
@@ -213,7 +301,10 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_all(self, identifier: PlayerIdentifier, client: "MaimaiClient") -> list[Score]:
-        if identifier.username and identifier.credentials:
+        subject = self._oauth_subject(identifier)
+        if subject is not None:  # OAuth Bearer, the replacement of the sunset GET /dev/player/records
+            resp = await self._bearer_request(client, subject, "GET", self.base_url + "player/records")
+        elif identifier.username and identifier.credentials:
             login_json = {"username": identifier.username, "password": identifier.credentials}
             login_resp = await client._client.post(
                 "https://www.diving-fish.com/api/maimaidxprober/login", json=login_json
@@ -243,11 +334,21 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
     async def get_scores_one(self, identifier: PlayerIdentifier, song: Song, client: "MaimaiClient") -> list[Score]:
-        resp = await client._client.post(
-            self.base_url + "dev/player/record",
-            json={"music_id": list(song.get_divingfish_ids()), **identifier._as_diving_fish()},
-            headers=self.headers,
-        )
+        subject = self._oauth_subject(identifier)
+        if subject is not None:  # OAuth Bearer, the replacement of the sunset POST /dev/player/record
+            resp = await self._bearer_request(
+                client,
+                subject,
+                "POST",
+                self.base_url + "player/record",
+                json={"music_id": list(song.get_divingfish_ids())},
+            )
+        else:
+            resp = await client._client.post(
+                self.base_url + "dev/player/record",
+                json={"music_id": list(song.get_divingfish_ids()), **identifier._as_diving_fish()},
+                headers=self.headers,
+            )
         resp_json: dict[str, dict] = self._check_response_player(resp)
         return [s for scores in resp_json.values() for score in scores if (s := DivingFishProvider._deser_score(score))]
 
@@ -257,21 +358,27 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
     ) -> None:
         headers, cookies = None, None
         maimai_songs = await client.songs()
-        if identifier.username and identifier.credentials:
-            login_json = {"username": identifier.username, "password": identifier.credentials}
-            resp1 = await client._client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
-            self._check_response_player(resp1)
-            cookies = resp1.cookies
-        elif not identifier.username and identifier.credentials and isinstance(identifier.credentials, str):
-            headers = {"Import-Token": identifier.credentials}
-        else:
-            raise InvalidPlayerIdentifierError(
-                "Either username and password or import token is required to deliver scores"
-            )
         scores_json = [json for score in scores if (json := await DivingFishProvider._ser_score(score, maimai_songs))]
-        resp2 = await client._client.post(
-            self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json
-        )
+        subject = self._oauth_subject(identifier)
+        if subject is not None:  # OAuth Bearer, requires the prober.records.write scope on the consent
+            resp2 = await self._bearer_request(
+                client, subject, "POST", self.base_url + "player/update_records", json=scores_json
+            )
+        else:
+            if identifier.username and identifier.credentials:
+                login_json = {"username": identifier.username, "password": identifier.credentials}
+                resp1 = await client._client.post("https://www.diving-fish.com/api/maimaidxprober/login", json=login_json)
+                self._check_response_player(resp1)
+                cookies = resp1.cookies
+            elif not identifier.username and identifier.credentials and isinstance(identifier.credentials, str):
+                headers = {"Import-Token": identifier.credentials}
+            else:
+                raise InvalidPlayerIdentifierError(
+                    "Either username and password or import token is required to deliver scores"
+                )
+            resp2 = await client._client.post(
+                self.base_url + "player/update_records", cookies=cookies, headers=headers, json=scores_json
+            )
         self._check_response_player(resp2)
 
     @retry(stop=stop_after_attempt(3), retry=retry_if_exception_type(RequestError), reraise=True)
