@@ -54,6 +54,21 @@ class PrivacyLimitationError(MaimaiPyError):
     """The user has not accepted the privacy policy or exceeded the privacy limit of the provider."""
 
 
+class PlayerNotAuthorizedError(MaimaiPyError):
+    """The user has not authorized the application to access their data, or the token lacks the required scope.
+
+    For the Diving Fish OAuth, this is raised when the token exchange returns ``consent_required``: the user
+    has not consented to your application, or does not exist at all (the server deliberately does not
+    distinguish the two cases). It is also raised when an endpoint rejects the access token because it lacks
+    the scope required by that endpoint. Guide the user through the authorization flow instead of reporting
+    a plain query failure.
+    """
+
+
+class RateLimitError(MaimaiPyError):
+    """The provider's rate limit or daily quota is exceeded."""
+
+
 class InvalidWechatTokenError(MaimaiPyError):
     """Wahlap Wechat OffiAccount token is invalid or expired."""
 
