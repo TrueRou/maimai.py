@@ -16,7 +16,7 @@ async def test_songs_fetching_divingfish(maimai: MaimaiClient, divingfish: Divin
     assert song1.difficulties.dx[3].curve is not None
     assert song1.difficulties.dx[3].curve.sample_size > 10000
     assert song2.id == song1.id
-    assert any([song.id == 1568 for song in await songs.by_keywords("超天酱")])
+    assert any(song.id == 1568 for song in await songs.by_keywords("超天酱"))
 
     song3 = await songs.by_id(1355)  # [協]ラグトレイン
     assert song3 is not None

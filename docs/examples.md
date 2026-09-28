@@ -20,8 +20,9 @@ def lxns():
 
 @pytest.fixture(scope="session")
 def divingfish():
-    token = os.environ.get("DIVINGFISH_DEVELOPER_TOKEN")
-    return DivingFishProvider(developer_token=token)
+    client_id = os.environ.get("DIVINGFISH_CLIENT_ID")
+    client_secret = os.environ.get("DIVINGFISH_CLIENT_SECRET")
+    return DivingFishProvider(client_id=client_id, client_secret=client_secret)
 
 
 @pytest.fixture(scope="session")

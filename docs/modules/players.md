@@ -11,7 +11,7 @@
 返回的 Player 对象是 [`DivingFishPlayer`](../concepts/models.md#divingfishplayer) 类型。
 
 ```python
-divingfish = DivingFishProvider(developer_token="your_developer_token")
+divingfish = DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret")
 player = await maimai.players(PlayerIdentifier(username="turou"), provider=divingfish)
 print(f"玩家用户名: {player.name}, Rating: {player.rating}")
 ```

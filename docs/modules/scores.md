@@ -34,7 +34,7 @@ MaimaiScores 封装了多个方法，你可以通过这些方法获取玩家的 
 ### 获取玩家在水鱼的所有成绩
 
 ```python
-divingfish = DivingFishProvider(developer_token="your_token_here")
+divingfish = DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret")
 my_scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
 score = my_scores.by_song(1231, level_index=LevelIndex.MASTER)[0]
 print("兔肉在 生命不詳(1231) MASTER 的 达成度:", score.achievements)
@@ -51,7 +51,7 @@ print(f"兔肉的 鸟加 / 总鸟 比例: {sssp_count} / {all_count} = {percenta
 时常会遇到需要遍历所有成绩，并且需要携带关联的元数据的情况，maimai.py 提供了 `get_mapping()` 方法来简化这一过程。
 
 ```python
-divingfish = DivingFishProvider(developer_token="your_token_here")
+divingfish = DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret")
 my_scores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
 for song, diff, score in await my_scores.get_mapping():
     print(f"曲目: {song.title}, 难度: {diff.type}, 等级: {score.rate}, 达成度: {score.achievements}")
@@ -237,7 +237,7 @@ await maimai.updates_chain(
         (ArcadeProvider(), PlayerIdentifier(credentials=arcade_credentials), {"name": "机台数据"}),
     ],
     target=[
-        (DivingFishProvider(developer_token="your_token"), PlayerIdentifier(username="your_username"), {"name": "水鱼查分器"}),
+        (DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret"), PlayerIdentifier(username="your_username"), {"name": "水鱼查分器"}),
         (LXNSProvider(developer_token="your_token"), PlayerIdentifier(friend_code=123456789), {"name": "落雪查分器"}),
     ],
     source_callback=lambda scores, err, ctx: print(f"从{ctx['name']}获取成绩: {'成功' if not err else f'失败 {err}'}"),

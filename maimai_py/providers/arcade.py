@@ -1,6 +1,7 @@
 import hashlib
 from typing import TYPE_CHECKING
 
+import pytest
 from httpcore import NetworkError, TimeoutException
 from maimai_ffi import arcade
 from tenacity import retry, retry_if_exception_type, stop_after_attempt

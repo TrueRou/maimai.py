@@ -52,6 +52,7 @@ export default defineConfig({
       {
         text: '关于', items: [
           { text: '更新日志', link: '/changelog' },
+          { text: '迁移指南', link: '/migration' },
           { text: '行为规范', link: 'https://github.com/TrueRou/maimai.py/blob/main/.github/CODE_OF_CONDUCT.md' },
           { text: '贡献指南', link: 'https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md' },
         ]

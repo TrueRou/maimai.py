@@ -223,9 +223,16 @@ class PlayerIdentifier:
     username: Optional[str] = None
     friend_code: Optional[int] = None
     credentials: Union[str, MutableMapping[str, Any], None] = None
+    ref: Optional[str] = None
+    """The DivingFish OAuth external id of the player. The provider exchanges it as ``ref:<sha256(client_id:ref)>``."""
+    sub: Optional[int] = None
+    """The DivingFish OAuth user id of the player, exchanged as ``sub:<id>``."""
+
+    # Note: for DivingFish OAuth, a ready-to-use subject string (``ref:<digest>``/``sub:<id>``/``username:<name>``)
+    # may also be passed directly as ``credentials``; it is used verbatim without hashing.
 
     def _is_empty(self) -> bool:
-        return self.qq is None and self.username is None and self.friend_code is None and self.credentials is None
+        return all(v is None for v in (self.qq, self.username, self.friend_code, self.credentials, self.ref, self.sub))
 
     def _as_diving_fish(self) -> dict[str, Any]:
         if self.qq:

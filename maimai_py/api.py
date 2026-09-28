@@ -78,7 +78,15 @@ if find_spec("fastapi"):
                                 "friend_code": 114514,
                             },
                         },
-                    }
+                    },
+                    {
+                        "source": {"arcade": {"credentials": "userId"}},
+                        "target": {
+                            "divingfish": {
+                                "ref": "your-external-user-id",
+                            },
+                        },
+                    },
                 ]
             }
         }
@@ -128,20 +136,23 @@ if find_spec("fastapi"):
         _with_curves: bool
 
         _lxns_token: Optional[str] = None
-        _divingfish_token: Optional[str] = None
+        _divingfish_client_id: Optional[str] = None
+        _divingfish_client_secret: Optional[str] = None
         _arcade_proxy: Optional[str] = None
 
         def __init__(
             self,
             client: MaimaiClient,
             lxns_token: Optional[str] = None,
-            divingfish_token: Optional[str] = None,
+            divingfish_client_id: Optional[str] = None,
+            divingfish_client_secret: Optional[str] = None,
             arcade_proxy: Optional[str] = None,
             with_curves: bool = False,
         ):
             self._client = client
             self._lxns_token = lxns_token
-            self._divingfish_token = divingfish_token
+            self._divingfish_client_id = divingfish_client_id
+            self._divingfish_client_secret = divingfish_client_secret
             self._arcade_proxy = arcade_proxy
             self._with_curves = with_curves
 
@@ -156,10 +167,14 @@ if find_spec("fastapi"):
         def _dep_divingfish_player(
             self,
             username: Optional[str] = None,
-            credentials: Optional[str] = None,
+            credentials: Optional[str] = Query(
+                None, description="Password, Import-Token, or a ready-to-use OAuth subject (ref:/sub:/username:)"
+            ),
             qq: Optional[int] = None,
+            ref: Optional[str] = Query(None, description="DivingFish OAuth external id, exchanged as ref:<sha256(client_id:ref)>"),
+            sub: Optional[int] = Query(None, description="DivingFish OAuth user id, exchanged as sub:<id>"),
         ):
-            return PlayerIdentifier(qq=qq, credentials=credentials, username=username)
+            return PlayerIdentifier(qq=qq, credentials=credentials, username=username, ref=ref, sub=sub)
 
         def _dep_arcade_player(self, credentials: str):
             return PlayerIdentifier(credentials=credentials)
@@ -172,7 +187,10 @@ if find_spec("fastapi"):
             return PlayerIdentifier(credentials=Cookies({"_t": t, "userId": user_id}))
 
         def _dep_divingfish(self) -> IProvider:
-            return DivingFishProvider(developer_token=self._divingfish_token)
+            return DivingFishProvider(
+                client_id=self._divingfish_client_id,
+                client_secret=self._divingfish_client_secret,
+            )
 
         def _dep_lxns(self) -> IProvider:
             return LXNSProvider(developer_token=self._lxns_token)
@@ -234,9 +252,7 @@ if find_spec("fastapi"):
                 page_size: int = Query(100, ge=1),
                 provider: ISongProvider = Depends(dep_provider),
             ) -> list[Song]:
-                curve_provider = (
-                    DivingFishProvider(developer_token=self._divingfish_token) if self._with_curves else None
-                )
+                curve_provider = DivingFishProvider() if self._with_curves else None
                 maimai_songs: MaimaiSongs = await self._client.songs(provider=provider, curve_provider=curve_provider)
 
                 def type_func(song: Song) -> bool:
@@ -671,7 +687,7 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         if routes._with_curves:
-            curve_provider = DivingFishProvider(developer_token=routes._divingfish_token)
+            curve_provider = DivingFishProvider()
             logging.info("with_curves is enabled, pre-fetching curves from DivingFish.")
             await routes._client.songs(provider=HybridProvider(), curve_provider=curve_provider)
         yield
@@ -737,9 +753,13 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
             typer.Option(help="Redis server address, for example: redis://localhost:6379/0."),
         ] = None,
         lxns_token: Annotated[Optional[str], typer.Option(help="LXNS developer token for LXNS API.")] = None,
-        divingfish_token: Annotated[
+        divingfish_client_id: Annotated[
             Optional[str],
-            typer.Option(help="DivingFish developer token for DivingFish API."),
+            typer.Option(help="DivingFish OAuth client id for the account OAuth."),
+        ] = None,
+        divingfish_client_secret: Annotated[
+            Optional[str],
+            typer.Option(help="DivingFish OAuth client secret for the account OAuth, keep it server-side only."),
         ] = None,
         arcade_proxy: Annotated[Optional[str], typer.Option(help="HTTP proxy for Arcade API.")] = None,
         with_curves: Annotated[bool, typer.Option(help="Whether to fetch curves from Divingfish.")] = False,
@@ -762,7 +782,8 @@ if all([find_spec(p) for p in ["fastapi", "uvicorn", "typer"]]):
         # override the default maimai.py client
         routes._client._cache = routes._client._cache if isinstance(redis_backend, _UnsetSentinel) else redis_backend
         routes._lxns_token = lxns_token or os.environ.get("LXNS_DEVELOPER_TOKEN")
-        routes._divingfish_token = divingfish_token or os.environ.get("DIVINGFISH_DEVELOPER_TOKEN")
+        routes._divingfish_client_id = divingfish_client_id or os.environ.get("DIVINGFISH_CLIENT_ID")
+        routes._divingfish_client_secret = divingfish_client_secret or os.environ.get("DIVINGFISH_CLIENT_SECRET")
         routes._arcade_proxy = arcade_proxy
         routes._with_curves = with_curves
 

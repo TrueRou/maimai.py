@@ -46,12 +46,14 @@ from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, Pla
 
 # 全局创建 MaimaiClient 实例
 maimai = MaimaiClient()
-divingfish = DivingFishProvider(developer_token="your_token_here")
+# 水鱼账号 OAuth：Provider 配置 client_id/client_secret，
+# 以 PlayerIdentifier(ref="你的用户ID") 或 PlayerIdentifier(sub=12345) 指定玩家
+divingfish = DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret")
 
 async def quick_start():
     # 获取所有歌曲及其元数据
     songs: MaimaiSongs = await maimai.songs()
-    # 获取水鱼查分器用户 turou 的分数
+    # 获取水鱼查分器用户 turou 的分数（配置了 OAuth 凭据时，username 会走账号 OAuth）
     scores: MaimaiScores = await maimai.scores(PlayerIdentifier(username="turou"), provider=divingfish)
     # 获取水鱼查分器用户 turou 的舞将牌子信息
     plates: MaimaiPlates = await maimai.plates(PlayerIdentifier(username="turou"), "舞将", provider=divingfish)

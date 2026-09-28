@@ -27,7 +27,9 @@ import asyncio
 from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, PlayerIdentifier, LXNSProvider, DivingFishProvider
 
 maimai = MaimaiClient() # 全局创建 MaimaiClient 实例
-divingfish = DivingFishProvider(developer_token="your_token_here")
+# 水鱼账号 OAuth：Provider 配置 client_id/client_secret，
+# 以 PlayerIdentifier(ref="你的用户ID") 或 PlayerIdentifier(sub=12345) 指定玩家，详见 DivingFishProvider 文档
+divingfish = DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret")
 lxns = LXNSProvider(developer_token="your_token_here")
 
 async def main():
@@ -56,7 +58,7 @@ async def main():
 from maimai_py import MaimaiClient, DivingFishProvider, MaimaiSongs, PlayerIdentifier
 
 client = MaimaiClient()
-divingfish = DivingFishProvider(developer_token="your_token_here")
+divingfish = DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret")
 
 async def main():
     # 从水鱼查分器获取用户 turou 的玩家信息

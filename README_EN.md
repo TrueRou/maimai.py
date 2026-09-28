@@ -46,7 +46,9 @@ from maimai_py import MaimaiClient, MaimaiPlates, MaimaiScores, MaimaiSongs, Pla
 
 # Create a global MaimaiClient instance
 maimai = MaimaiClient()
-divingfish = DivingFishProvider(developer_token="your_token_here")
+# DivingFish account OAuth: configure client_id/client_secret on the provider,
+# and designate the player with PlayerIdentifier(ref="your-user-id") or PlayerIdentifier(sub=12345)
+divingfish = DivingFishProvider(client_id="your_client_id", client_secret="your_client_secret")
 
 async def quick_start():
     # fetch all songs and their metadata

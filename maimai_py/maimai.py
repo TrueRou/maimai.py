@@ -929,6 +929,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            PlayerNotAuthorizedError: Only for DivingFishProvider OAuth, the player has not authorized your application, or the token lacks the required scope.
+            RateLimitError: Only for DivingFishProvider OAuth, the daily quota or the token exchange rate limit is exceeded.
             httpx.RequestError: Request failed due to network issues.
         """
         return await provider.get_player(identifier, self)
@@ -941,6 +943,9 @@ class MaimaiClient:
         """Fetch player's ALL scores from the provider.
 
         All scores of the player will be fetched, if you want to fetch only the best scores (for better performance), use `maimai.bests()` instead.
+
+        For DivingFishProvider, pass ``client_id``/``client_secret`` on the provider and designate the player with
+        ``PlayerIdentifier(ref=...)`` or ``PlayerIdentifier(sub=...)``, see the DivingFishProvider documentation.
 
         For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
@@ -961,6 +966,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            PlayerNotAuthorizedError: Only for DivingFishProvider OAuth, the player has not authorized your application, or the token lacks the required scope.
+            RateLimitError: Only for DivingFishProvider OAuth, the daily quota or the token exchange rate limit is exceeded.
             httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
@@ -981,6 +988,9 @@ class MaimaiClient:
 
         Though MaimaiScores is used, this method will only return the best 50 scores. if you want all scores, please use `maimai.scores()` method instead.
 
+        For DivingFishProvider with an OAuth identity (``ref``/``sub``), the public b50 endpoint does not accept
+        subjects; the full records are fetched through the Bearer endpoint and trimmed to the b50 scores locally instead.
+
         For WechatProvider, PlayerIdentifier must have the `credentials` attribute, we suggest you to use the `maimai.wechat()` method to get the identifier.
         Also, PlayerIdentifier should not be cached or stored in the database, as the cookies may expire at any time.
 
@@ -1000,6 +1010,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            PlayerNotAuthorizedError: Only for DivingFishProvider OAuth, the player has not authorized your application, or the token lacks the required scope.
+            RateLimitError: Only for DivingFishProvider OAuth, the daily quota or the token exchange rate limit is exceeded.
             httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
@@ -1036,6 +1048,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            PlayerNotAuthorizedError: Only for DivingFishProvider OAuth, the player has not authorized your application, or the token lacks the required scope.
+            RateLimitError: Only for DivingFishProvider OAuth, the daily quota or the token exchange rate limit is exceeded.
             httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
@@ -1094,6 +1108,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found, or the import token / password is invalid.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            PlayerNotAuthorizedError: Only for DivingFishProvider OAuth, the player has not authorized your application, or the token lacks the required scope.
+            RateLimitError: Only for DivingFishProvider OAuth, the daily quota or the token exchange rate limit is exceeded.
             httpx.RequestError: Request failed due to network issues.
         """
         await provider.update_scores(identifier, scores, self)
@@ -1119,6 +1135,8 @@ class MaimaiClient:
             InvalidPlateError: Provided version or plate is invalid.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            PlayerNotAuthorizedError: Only for DivingFishProvider OAuth, the player has not authorized your application, or the token lacks the required scope.
+            RateLimitError: Only for DivingFishProvider OAuth, the daily quota or the token exchange rate limit is exceeded.
             httpx.RequestError: Request failed due to network issues.
         Raises:
             TitleServerNetworkError: Only for ArcadeProvider, maimai title server related errors, possibly network problems.
@@ -1217,6 +1235,8 @@ class MaimaiClient:
             InvalidPlayerIdentifierError: Player identifier is invalid for the provider, or player is not found.
             InvalidDeveloperTokenError: Developer token is not provided or token is invalid.
             PrivacyLimitationError: The user has not accepted the 3rd party to access the data.
+            PlayerNotAuthorizedError: Only for DivingFishProvider OAuth, the player has not authorized your application, or the token lacks the required scope.
+            RateLimitError: Only for DivingFishProvider OAuth, the daily quota or the token exchange rate limit is exceeded.
             httpx.RequestError: Request failed due to network issues.
         """
         return await provider.get_records(identifier, self)

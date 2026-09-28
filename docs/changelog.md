@@ -1,5 +1,19 @@
 # 更新日志
 
+## 1.6.0 (2026-09-28)
+
+Features:
+  - DivingFishProvider 全面转向水鱼账号 OAuth：Provider 配置 `client_id`/`client_secret`，通过 `PlayerIdentifier(ref=...)` / `PlayerIdentifier(sub=...)` 或 credentials 中的 subject 字符串指定玩家 -> [#63](https://github.com/TrueRou/maimai.py/pull/63)
+  - OAuth access token 通过 MaimaiClient 全局缓存复用（支持 Redis 后端跨进程共享）
+  - MaimaiRoutes / CLI 支持 `divingfish_client_id` / `divingfish_client_secret` 配置（环境变量 `DIVINGFISH_CLIENT_ID` / `DIVINGFISH_CLIENT_SECRET`）
+  - OAuth 模式下 `maimai.bests()` 自动拉取全量成绩后本地裁剪 B50
+  - 新增异常 `PlayerNotAuthorizedError`（未授权/缺少 scope，消息中包含缺失的 scope）与 `RateLimitError`（每日配额/换票限流）
+
+**Breaking Changes**:
+  - 移除 DivingFishProvider 的 `developer_token` 参数及对应开发者 API 端点支持，迁移指南见 [迁移文档](./migration.md)
+  - `PlayerIdentifier` 新增 `ref`、`sub` 字段，用于 DivingFish OAuth
+  - `MaimaiRoutes` / CLI 移除 `divingfish_token` 参数与 `--divingfish-token` 选项，环境变量 `DIVINGFISH_DEVELOPER_TOKEN` 不再生效
+
 ## 1.5.2 (2026-06-26)
 
 Bugfixes:

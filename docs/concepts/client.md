@@ -28,7 +28,13 @@ from maimai_py import MaimaiRoutes
 
 app = FastAPI()
 maimai_client = MaimaiClient()
-routes = MaimaiRoutes(maimai_client, settings.lxns_developer_token, settings.divingfish_developer_token, settings.arcade_proxy)
+routes = MaimaiRoutes(
+    maimai_client,
+    lxns_token=settings.lxns_developer_token,
+    divingfish_client_id=settings.divingfish_client_id,
+    divingfish_client_secret=settings.divingfish_client_secret,
+    arcade_proxy=settings.arcade_proxy,
+)
 
 app.include_router(routes.get_router(routes._dep_hybrid, skip_base=False), tags=["base"])
 app.include_router(routes.get_router(routes._dep_lxns, routes._dep_lxns_player), prefix="/lxns", tags=["lxns"])
