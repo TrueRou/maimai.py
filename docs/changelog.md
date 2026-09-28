@@ -9,6 +9,10 @@ Features:
   - OAuth 模式下 `maimai.bests()` 自动拉取全量成绩后本地裁剪 B50
   - 新增异常 `PlayerNotAuthorizedError`（未授权/缺少 scope，消息中包含缺失的 scope）与 `RateLimitError`（每日配额/换票限流）
 
+Bugfixes:
+  - 修复 DivingFishProvider 曲线数据（chart_stats）反序列化：全连分布错取自达成率分布 `dist` 的旧槽位，现改用水鱼独立的 `fc_dist` 字段（[非FC, FC, FCP, AP, APP]），并兼容旧版响应格式
+  - `DivingFishProvider.get_curves` 改为调用实例方法 `_deser_curve`，子类覆写曲线反序列化可以生效
+
 **Breaking Changes**:
   - 移除 DivingFishProvider 的 `developer_token` 参数及对应开发者 API 端点支持，迁移指南见 [迁移文档](./migration.md)
   - `PlayerIdentifier` 新增 `ref`、`sub` 字段，用于 DivingFish OAuth

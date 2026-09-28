@@ -168,14 +168,20 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
 
     @staticmethod
     def _deser_curve(chart: dict) -> CurveObject:
+        dist = chart["dist"]
+        fc_dist = chart.get("fc_dist")
+        if fc_dist:  # Current format: the FC distribution is a standalone field ordered [not-FC, FC, FCP, AP, APP].
+            fc = {v: fc_dist[4 - i] for i, v in enumerate(FCType)}
+        else:  # Legacy format: the FC distribution is merged into dist[1..4].
+            fc = {v: dist[4 - i] for i, v in enumerate(FCType)}
         return CurveObject(
             sample_size=int(chart["cnt"]),
             fit_level_value=chart["fit_diff"],
             avg_achievements=chart["avg"],
             stdev_achievements=chart["std_dev"],
             avg_dx_score=chart["avg_dx"],
-            rate_sample_size={v: chart["dist"][13 - i] for i, v in enumerate(RateType)},
-            fc_sample_size={v: chart["dist"][4 - i] for i, v in enumerate(FCType)},
+            rate_sample_size={v: dist[13 - i] for i, v in enumerate(RateType)},
+            fc_sample_size=fc,
         )
 
     def _oauth_subject(self, identifier: PlayerIdentifier) -> Optional[str]:
@@ -428,7 +434,7 @@ class DivingFishProvider(ISongProvider, IPlayerProvider, IScoreProvider, IScoreU
         resp.raise_for_status()
         return {
             (int(idx) % 10000, SongType._from_id(int(idx))): (
-                [DivingFishProvider._deser_curve(chart) for chart in charts if chart != {}]
+                [self._deser_curve(chart) for chart in charts if chart != {}]
             )
             for idx, charts in (resp.json())["charts"].items()
         }
