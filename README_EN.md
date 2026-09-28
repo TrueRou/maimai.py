@@ -88,3 +88,7 @@ For the client API documentation, please see: https://openapi.maimai.turou.fun/.
 ## Contributing
 
 If you want to contribute code, please read [CONTRIBUTING.md](https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md)
+
+Discussion and communication (Tencent QQ groups):
+- UsagiPass 兔兔群: 363346002
+- UsagiLab 内测Only: 515023302

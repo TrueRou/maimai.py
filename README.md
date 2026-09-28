@@ -88,3 +88,7 @@ maimai.py 提供了 RESTful API 客户端, 您可以通过任何语言通过HTTP
 ## 贡献
 
 如果您想要贡献代码, 请阅读 [CONTRIBUTING.md](https://github.com/TrueRou/maimai.py/blob/main/.github/CONTRIBUTING.md)
+
+讨论与交流 (QQ 群): 
+- UsagiPass 兔兔群: 363346002
+- UsagiLab 内测Only: 515023302
