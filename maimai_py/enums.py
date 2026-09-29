@@ -213,6 +213,7 @@ class FCType(Enum):
 
 
 class FSType(Enum):
+    # Ordered from worst to best (higher value = better sync achievement), the opposite of FCType/RateType.
     SYNC = 0
     FS = 1
     FSP = 2

@@ -451,7 +451,7 @@ class MaimaiPlates:
         elif self._kind == "极":
             [extract(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.FC.value]
         elif self._kind == "舞舞":
-            [extract(score) for score in self._matched_scores if score.fs and score.fs.value <= FSType.FSD.value]
+            [extract(score) for score in self._matched_scores if score.fs and score.fs.value >= FSType.FSD.value]
         elif self._kind == "神":
             [extract(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.AP.value]
 
@@ -480,7 +480,7 @@ class MaimaiPlates:
         elif self._kind == "极":
             [insert(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.FC.value]
         elif self._kind == "舞舞":
-            [insert(score) for score in self._matched_scores if score.fs and score.fs.value <= FSType.FSD.value]
+            [insert(score) for score in self._matched_scores if score.fs and score.fs.value >= FSType.FSD.value]
         elif self._kind == "神":
             [insert(score) for score in self._matched_scores if score.fc and score.fc.value <= FCType.AP.value]
 
