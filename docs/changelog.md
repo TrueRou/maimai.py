@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.6.1 (2026-11-01)
+
+Bugfixes:
+  - 修复 ArcadeProvider 请求 Aime 服务器时存在问题 -> [#67](https://github.com/TrueRou/maimai.py/issues/67)
+
 ## 1.6.0 (2026-09-28)
 
 Features:
